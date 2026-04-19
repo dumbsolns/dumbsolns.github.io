@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3201 – Computer Networks Study Material</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #4f9eff;
+    --accent2: #ff6b6b;
+    --accent3: #56d364;
+    --accent4: #f0b429;
+    --text: #e2e6f0;
+    --text-muted: #7a8099;
+    --exam: #ff6b6b22;
+    --exam-border: #ff6b6b;
+    --formula-bg: #1e2233;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0d1520 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center, #4f9eff18 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+  }
+  .tags {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 2rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  nav a:hover { background: var(--border); color: var(--text); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+  }
+
+  /* CHAPTER */
+  .chapter {
+    margin-bottom: 3.5rem;
+    border-left: 3px solid var(--border);
+    padding-left: 1.5rem;
+  }
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .ch-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: #4f9eff15;
+    border: 1px solid #4f9eff33;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .chapter h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* SECTIONS */
+  .section { margin-bottom: 2rem; }
+  .section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section h3::before {
+    content: '▸';
+    font-size: 0.7rem;
+    opacity: 0.6;
+  }
+  .section h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent4);
+    margin: 1rem 0 0.5rem;
+  }
+
+  p { margin-bottom: 0.7rem; color: var(--text); }
+
+  /* EXAM CALLOUT */
+  .exam {
+    background: var(--exam);
+    border: 1px solid var(--exam-border);
+    border-left: 4px solid var(--exam-border);
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+  }
+  .exam::before {
+    content: '★ EXAM FOCUS';
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--exam-border);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .exam ul { margin-left: 1.2rem; }
+  .exam li { margin-bottom: 0.25rem; color: #ffb3b3; }
+
+  /* FORMULA */
+  .formula {
+    background: var(--formula-bg);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    margin: 0.75rem 0;
+    color: #a8c8ff;
+    overflow-x: auto;
+  }
+
+  /* KEY TERMS */
+  .terms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .term {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.87rem;
+  }
+  .term strong {
+    display: block;
+    color: var(--accent3);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    margin-bottom: 0.3rem;
+  }
+  .term span { color: var(--text-muted); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+  }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface); }
+  td:first-child { color: var(--text); }
+
+  /* HIGHLIGHT */
+  .hl { color: var(--accent4); font-weight: 600; }
+  .hl2 { color: var(--accent3); font-weight: 600; }
+  .hl3 { color: var(--accent); font-weight: 600; }
+  .hl4 { color: #c792ea; font-weight: 600; }
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: #2a2d3a;
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #a8c8ff;
+  }
+
+  /* STEP BOX */
+  .steps {
+    counter-reset: step;
+    margin: 1rem 0;
+  }
+  .step {
+    counter-increment: step;
+    display: flex;
+    gap: 0.9rem;
+    margin-bottom: 0.6rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+  }
+  .step::before {
+    content: counter(step);
+    min-width: 24px;
+    height: 24px;
+    background: #4f9eff22;
+    border: 1px solid #4f9eff55;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* COMPARE BOX */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .compare-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .compare-box h5 {
+    font-size: 0.82rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-box ul { margin-left: 1rem; }
+  .compare-box li { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+
+  /* IMPORTANT NOTE */
+  .note {
+    background: #f0b42911;
+    border: 1px solid #f0b42933;
+    border-left: 4px solid var(--accent4);
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 0.75rem 0;
+    font-size: 0.87rem;
+    color: #ffe0a0;
+  }
+  .note::before {
+    content: '💡 NOTE';
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent4);
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+
+  ul, ol { margin-left: 1.3rem; margin-bottom: 0.7rem; }
+  li { margin-bottom: 0.3rem; color: var(--text-muted); font-size: 0.9rem; }
+  li strong { color: var(--text); }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CSE 3201 — <span>Computer Networks</span></h1>
+  <p>Comprehensive Study Material · Based on Kurose & Ross (6th/9th Ed.) · AUST</p>
+  <div class="tags">
+    <span class="tag">Chapter 1: Intro</span>
+    <span class="tag">Chapter 2: App Layer</span>
+    <span class="tag">Chapter 3: Transport</span>
+    <span class="tag">Chapter 4–5: Network</span>
+    <span class="tag">Chapter 6: Link Layer</span>
+    <span class="tag">Chapter 8: Security</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#ch1">Ch 1: Intro</a>
+  <a href="#ch2">Ch 2: App</a>
+  <a href="#ch3">Ch 3: Transport</a>
+  <a href="#ch4">Ch 4–5: Network</a>
+  <a href="#ch6">Ch 6: Link</a>
+  <a href="#ch8">Ch 8: Security</a>
+</nav>
+
+<div class="container">
+
+<!-- ===================== CHAPTER 1 ===================== -->
+<div class="chapter" id="ch1">
+  <div class="chapter-header">
+    <span class="ch-num">CH 01</span>
+    <h2>Introduction to Computer Networks</h2>
+  </div>
+
+  <div class="section">
+    <h3>What is the Internet?</h3>
+    <p>The Internet is a <span class="hl">"network of networks"</span> — billions of connected devices (hosts/end systems) interconnected through packet switches (routers and switches) and communication links. It is governed by protocols defined in <span class="hl2">RFCs (Request for Comments)</span> by the IETF.</p>
+    <div class="terms">
+      <div class="term"><strong>Protocol</strong><span>Defines format, order of messages, and actions taken on message transmission/receipt.</span></div>
+      <div class="term"><strong>Host / End System</strong><span>Devices at the edge (PCs, phones, servers) that run network applications.</span></div>
+      <div class="term"><strong>Packet Switch</strong><span>Router or link-layer switch that forwards packets toward destination.</span></div>
+      <div class="term"><strong>ISP</strong><span>Internet Service Provider. Access ISPs connect to tier-1 ISPs via IXPs and regional ISPs.</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Packet Switching vs. Circuit Switching</h3>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Packet Switching</h5>
+        <ul>
+          <li>Data split into packets; each forwarded independently</li>
+          <li>Resources shared (statistical multiplexing)</li>
+          <li>Can support more users for bursty data</li>
+          <li>Possible congestion, queueing delay, loss</li>
+          <li>Used in the Internet (TCP/IP)</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Circuit Switching</h5>
+        <ul>
+          <li>Dedicated end-to-end path reserved before data transfer</li>
+          <li>Guaranteed bandwidth (circuit-like performance)</li>
+          <li>Resources idle during silence periods</li>
+          <li>FDM or TDM to divide capacity</li>
+          <li>Used in telephone networks (PSTN)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li>Differentiate circuit-switched vs. packet-switched: key differences, pros/cons [Fall 2024 Q1b]</li>
+        <li>Packet switching allows more users: e.g., 1 Mbps link, each user 100 kbps active 10% → 35 users vs 10 in circuit switching</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Four Sources of Packet Delay</h3>
+    <div class="formula">d_nodal = d_proc + d_queue + d_trans + d_prop
+
+d_trans = L/R        (L = packet size in bits, R = link rate in bps)
+d_prop  = d/s        (d = link distance in meters, s ≈ 2×10⁸ m/s)
+d_queue = depends on traffic intensity La/R
+End-to-end delay (n links) = n × (d_trans + d_prop + d_proc + d_queue)</div>
+    <div class="exam">
+      <ul>
+        <li><strong>End-to-end delay calculation [Fall 2024 Q2a]:</strong> Packet=2500 bytes, prop speed=2.5×10⁸ m/s, rate=2 Mbps, processing=5 ms, links=5000+4000+1000 km → calculate total delay</li>
+        <li>Propagation delay ≠ Transmission delay — know the difference!</li>
+        <li>Distance for d_prop = d_trans: s=2.5×10⁸, L=120 bits, R=56 kbps → m = s × L/R</li>
+      </ul>
+    </div>
+    <h4>Step-by-Step: End-to-End Delay (3 links)</h4>
+    <div class="steps">
+      <div class="step">Transmission delay per link: d_trans = L/R = (2500×8 bits) / (2×10⁶) = 0.01 sec = 10 ms</div>
+      <div class="step">Propagation delay for each link: d_prop = distance/speed (e.g., 5000×10³ / 2.5×10⁸ = 20 ms)</div>
+      <div class="step">Total = 3×(d_trans) + sum(d_prop per link) + 2×processing_delay (at intermediate switches)</div>
+      <div class="step">Note: For store-and-forward, each router must receive whole packet before forwarding → adds d_trans per hop</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Protocol Layers (Internet Stack)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Layer</th><th>PDU</th><th>Key Protocols</th><th>Role</th></tr>
+        <tr><td>Application</td><td>Message</td><td>HTTP, SMTP, DNS, FTP</td><td>Supporting network applications</td></tr>
+        <tr><td>Transport</td><td>Segment</td><td>TCP, UDP</td><td>Process-to-process delivery</td></tr>
+        <tr><td>Network</td><td>Datagram</td><td>IP, OSPF, BGP</td><td>Routing from source to destination host</td></tr>
+        <tr><td>Link</td><td>Frame</td><td>Ethernet, 802.11, ARP</td><td>Transfer between adjacent nodes</td></tr>
+        <tr><td>Physical</td><td>Bits</td><td>—</td><td>Bit transmission over physical medium</td></tr>
+      </table>
+    </div>
+    <p>The OSI model has 7 layers (adds <span class="hl">Presentation</span> and <span class="hl">Session</span> between Application and Transport). The Internet stack omits these — functionality provided at application level if needed.</p>
+  </div>
+
+  <div class="section">
+    <h3>Network Security Threats</h3>
+    <ul>
+      <li><strong>Malware:</strong> Virus (executes with user action), Worm (self-propagates), Trojan, Ransomware, Spyware</li>
+      <li><strong>DoS / DDoS:</strong> Overwhelm target with bogus traffic</li>
+      <li><strong>Packet Sniffing:</strong> Promiscuous NIC captures all passing frames</li>
+      <li><strong>IP Spoofing:</strong> Sending packets with false source address</li>
+      <li><strong>Phishing:</strong> Fake emails/sites to steal credentials</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== CHAPTER 2 ===================== -->
+<div class="chapter" id="ch2">
+  <div class="chapter-header">
+    <span class="ch-num">CH 02</span>
+    <h2>Application Layer</h2>
+  </div>
+
+  <div class="section">
+    <h3>HTTP (HyperText Transfer Protocol)</h3>
+    <p>HTTP uses <span class="hl2">TCP port 80</span>. It is <span class="hl">stateless</span> — server maintains no information about past requests. Uses cookies for state.</p>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Non-Persistent HTTP (HTTP/1.0)</h5>
+        <ul>
+          <li>New TCP connection per object</li>
+          <li>Response time = <strong>2RTT + file transmission time</strong> per object</li>
+          <li>OS overhead for each connection</li>
+          <li>10 images → 10 separate TCP connections (22 RTTs total for base + objects)</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Persistent HTTP (HTTP/1.1)</h5>
+        <ul>
+          <li>Single TCP connection for multiple objects</li>
+          <li>Response time ≈ 1 RTT per object after connection setup</li>
+          <li>Much more efficient</li>
+          <li>Can pipeline requests</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>HTTP timing calculation [Fall 2024 Q3b]:</strong> Base HTML + 37 JPEG images on same server. Non-persistent: 2RTT + transmission per object × 38 objects. Persistent: 2RTT (setup) + 38×(1RTT + transmission)</li>
+        <li>Know HTTP methods: GET, POST, HEAD, PUT</li>
+        <li>Know status codes: 200 OK, 301 Moved, 400 Bad Request, 404 Not Found, 505 Version Not Supported</li>
+        <li>HOL (Head-of-Line) blocking: small objects wait behind large object in HTTP/1.1 [Fall 2024 Q1e context]</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Web Caching (Proxy Server)</h3>
+    <p>A web cache satisfies client requests without involving origin server. Acts as both client (to origin) and server (to browser). Reduces response time and access link utilization.</p>
+    <div class="exam">
+      <ul>
+        <li><strong>Cache delay calculation [Fall 2024 Q1c]:</strong> Cache hit rate 0.4 → 40% requests served locally (msecs), 60% from origin. Average delay = 0.6×(2.01s) + 0.4×(~msecs) ≈ 1.2s vs without cache</li>
+        <li>Conditional GET: <code>If-Modified-Since</code> header → server returns 304 Not Modified if unchanged</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>DNS — Domain Name System</h3>
+    <p>Distributed hierarchical database that translates hostnames to IP addresses. Three levels: <span class="hl3">Root → TLD (.com, .edu) → Authoritative DNS servers</span>. Local DNS server caches and forwards.</p>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Iterative Query</h5>
+        <ul>
+          <li>Local DNS does all the work</li>
+          <li>Each server returns "ask this one"</li>
+          <li>Local DNS contacts root → TLD → authoritative</li>
+          <li>Less burden on upper-level servers</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Recursive Query</h5>
+        <ul>
+          <li>Each server contacts the next on behalf of requester</li>
+          <li>Heavy load on upper-level servers</li>
+          <li>Root DNS contacts TLD, TLD contacts authoritative</li>
+          <li>Chain of requests, result passed back</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li>Iterative vs recursive DNS query — draw diagrams [Fall 2024 Q1d, Fall 2022 Q1f]</li>
+        <li>DNS resource record types: A (name→IP), NS (domain→nameserver), CNAME (alias→canonical), MX (mail server)</li>
+        <li>DNS caching: entries have TTL; local DNS server caches to reduce traffic</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>SMTP — Email Protocol</h3>
+    <p>SMTP uses <span class="hl2">TCP port 25</span>. Client push model. Three phases: handshaking, transfer, closure. Commands are ASCII text. Uses CRLF.CRLF to end message body. IMAP is used for mail retrieval (stores on server). POP3 downloads and deletes.</p>
+    <div class="exam">
+      <ul>
+        <li>SMTP working steps + example interaction [Fall 2022 Q1g, Spring 2022 Q1b]</li>
+        <li>Compare SMTP vs HTTP: both ASCII command/response; HTTP is client-pull, SMTP is client-push</li>
+        <li>POP3 vs IMAP: POP3 downloads/deletes (stateless), IMAP keeps on server, supports folders</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CHAPTER 3 ===================== -->
+<div class="chapter" id="ch3">
+  <div class="chapter-header">
+    <span class="ch-num">CH 03</span>
+    <h2>Transport Layer</h2>
+  </div>
+
+  <div class="section">
+    <h3>Multiplexing and Demultiplexing</h3>
+    <p><span class="hl">Multiplexing:</span> gathering data from multiple sockets, adding transport headers. <span class="hl">Demultiplexing:</span> using header fields to deliver segments to correct socket.</p>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Connectionless (UDP) Demux</h5>
+        <ul>
+          <li>Uses <strong>destination port number only</strong></li>
+          <li>Datagrams with same dest port → same socket, regardless of source</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Connection-Oriented (TCP) Demux</h5>
+        <ul>
+          <li>Uses 4-tuple: (src IP, src port, dst IP, dst port)</li>
+          <li>Different source IP/port → different socket</li>
+          <li>Server can support many simultaneous sockets</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li>Connection-oriented vs connectionless demultiplexing with figures [Spring 2022 Q2a]</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>UDP — User Datagram Protocol</h3>
+    <p>Bare-bones, best-effort service. No connection setup, no flow/congestion control. Used for: DNS, streaming, SNMP, HTTP/3. Header: src port, dst port, length, checksum (8 bytes total).</p>
+    <div class="note">Why UDP? No RTT delay for connection setup, small header overhead, no congestion control (can send as fast as desired), works even when network is congested.</div>
+  </div>
+
+  <div class="section">
+    <h3>Reliable Data Transfer (RDT)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Protocol</th><th>Problem Solved</th><th>Mechanism</th><th>Limitation</th></tr>
+        <tr><td>rdt 1.0</td><td>Perfect channel</td><td>Simple send/receive</td><td>No errors possible</td></tr>
+        <tr><td>rdt 2.0</td><td>Bit errors</td><td>Checksum + ACK/NAK</td><td>Corrupted ACK/NAK fatal</td></tr>
+        <tr><td>rdt 2.1</td><td>Corrupted ACK/NAK</td><td>Sequence numbers (0,1)</td><td>Still stop-and-wait</td></tr>
+        <tr><td>rdt 2.2</td><td>NAK-free</td><td>ACK with seq # (duplicate ACK = NAK)</td><td>Still stop-and-wait</td></tr>
+        <tr><td>rdt 3.0</td><td>Packet loss + errors</td><td>Timer + retransmit on timeout</td><td>Very poor utilization</td></tr>
+      </table>
+    </div>
+    <div class="formula">rdt 3.0 Utilization = (L/R) / (RTT + L/R)
+Example: 1 Gbps, 15 ms prop, 8000 bit packet:
+  d_trans = 8000 / 10⁹ = 8 μs
+  U = 0.008ms / (30ms + 0.008ms) ≈ 0.00027   → Very poor!</div>
+    <div class="exam">
+      <ul>
+        <li>RDT2.2 FSM description + limitations [Spring 2022 Q2b]</li>
+        <li>RDT3.0 performance proof — mathematically show it's poor [Spring 2022 Q2c]</li>
+        <li>FSM identification from figure [Fall 2024 Q3g] — the figure shows rdt2.1 (two states: wait for 0, wait for 1; has NAK)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Pipelined Protocols</h3>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Go-Back-N (GBN)</h5>
+        <ul>
+          <li>Window of N unACKed packets</li>
+          <li>Cumulative ACK</li>
+          <li>On timeout(n): retransmit n AND all higher seq # in window</li>
+          <li>Receiver discards out-of-order (only buffers expected)</li>
+          <li>Wastes bandwidth on retransmission of good packets</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Selective Repeat (SR)</h5>
+        <ul>
+          <li>Window of N; receiver buffers out-of-order</li>
+          <li>Individual ACK per packet</li>
+          <li>On timeout(n): retransmit only packet n</li>
+          <li>Better bandwidth efficiency</li>
+          <li>Window size ≤ seq# space / 2 to avoid ambiguity</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>GBN vs SR comparison [Fall 2024 Q3c]:</strong> 3-bit field (seq# space = 0–7, window=7 for GBN, ≤4 for SR). Given frame loss scenarios — count retransmissions for each protocol</li>
+        <li>With 9 packets, window=3, GBN, every 5th lost [Spring 2022 Q3c] — draw timing diagram and count total transmissions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>TCP — Transmission Control Protocol</h3>
+    <h4>TCP Segment Structure</h4>
+    <p>Key fields: Source/Dest port (16 bits each), Sequence number (32 bits), Acknowledgement number (32 bits), Receive window (rwnd), Checksum, Flags (SYN, ACK, FIN, RST, URG, PSH), Options.</p>
+
+    <h4>RTT Estimation & Timeout</h4>
+    <div class="formula">EstimatedRTT = (1 - α) × EstimatedRTT + α × SampleRTT   [α = 0.125]
+DevRTT = (1 - β) × DevRTT + β × |SampleRTT - EstimatedRTT|   [β = 0.25]
+TimeoutInterval = EstimatedRTT + 4 × DevRTT</div>
+    <div class="exam">
+      <ul>
+        <li><strong>RTT calculation [Fall 2024 Q2e]:</strong> SampleRTT = 106, 120, 115 ms; α=0.25, initial EstimatedRTT=100ms; β=0.15, initial DevRTT=10ms. Compute EstimatedRTT, DevRTT, TimeoutInterval after each sample.</li>
+      </ul>
+    </div>
+    <h4>Example (Sample 1: SampleRTT = 106 ms)</h4>
+    <div class="formula">EstimatedRTT = (0.75)(100) + (0.25)(106) = 75 + 26.5 = 101.5 ms
+DevRTT = (0.85)(10) + (0.15)|106 - 100| = 8.5 + 0.9 = 9.4 ms
+TimeoutInterval = 101.5 + 4(9.4) = 139.1 ms</div>
+
+    <h4>TCP Flow Control</h4>
+    <p>Receiver advertises <span class="hl">rwnd</span> (receive window) in header. Sender limits in-flight data: <code>LastByteSent - LastByteACKed ≤ rwnd</code>. Prevents receiver buffer overflow.</p>
+
+    <h4>TCP 3-Way Handshake</h4>
+    <div class="steps">
+      <div class="step">Client → Server: <strong>SYN</strong> (SYNbit=1, Seq=x) — client chooses initial seq #</div>
+      <div class="step">Server → Client: <strong>SYNACK</strong> (SYNbit=1, Seq=y, ACKbit=1, ACKnum=x+1)</div>
+      <div class="step">Client → Server: <strong>ACK</strong> (ACKbit=1, ACKnum=y+1) — may contain data</div>
+    </div>
+
+    <h4>TCP Connection Teardown</h4>
+    <p>Client sends FIN, server responds ACK, then server sends FIN, client responds ACK and waits 2×max segment lifetime (timed wait) before closing.</p>
+  </div>
+
+  <div class="section">
+    <h3>TCP Congestion Control</h3>
+    <div class="note">Congestion control is one of the most frequently examined topics. Master the graph reading!</div>
+
+    <h4>AIMD (Additive Increase, Multiplicative Decrease)</h4>
+    <ul>
+      <li><span class="hl2">Additive Increase:</span> Increase cwnd by 1 MSS per RTT (when no loss)</li>
+      <li><span class="hl2">Multiplicative Decrease:</span> Cut cwnd by half on triple-duplicate ACK (TCP Reno); cut to 1 MSS on timeout (TCP Tahoe)</li>
+    </ul>
+
+    <h4>Three Phases</h4>
+    <div class="terms">
+      <div class="term"><strong>Slow Start</strong><span>cwnd starts at 1 MSS. Doubles every RTT (exponential). Ends when cwnd reaches ssthresh or loss occurs.</span></div>
+      <div class="term"><strong>Congestion Avoidance</strong><span>cwnd increases by 1 MSS per RTT (linear). Starts when cwnd ≥ ssthresh.</span></div>
+      <div class="term"><strong>Fast Retransmit</strong><span>On 3 duplicate ACKs: retransmit lost packet immediately (don't wait for timeout). cwnd = ssthresh = cwnd/2 (Reno).</span></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Feature</th><th>TCP Tahoe</th><th>TCP Reno</th></tr>
+        <tr><td>Triple Dup ACK action</td><td>cwnd = 1 MSS (go to slow start)</td><td>cwnd = ssthresh = cwnd/2 (fast recovery)</td></tr>
+        <tr><td>Timeout action</td><td>cwnd = 1 MSS, ssthresh = cwnd/2</td><td>cwnd = 1 MSS, ssthresh = cwnd/2</td></tr>
+        <tr><td>After loss detection</td><td>Always slow start</td><td>Fast recovery for dup ACKs</td></tr>
+      </table>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>Graph reading [Fall 2024 Q3d]:</strong> Identify slow start intervals, congestion avoidance intervals; after round 16 and 22 — timeout or dup ACK? Initial ssthresh? ssthresh at round 18? When is 36th segment sent?</li>
+        <li><strong>Tips:</strong> Slow start = exponential growth. Congestion avoidance = linear (slope 1). Triple dup ACK → cwnd drops to half (no return to 1). Timeout → cwnd drops to 1.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>2D Parity</h3>
+    <p>Arrange bits in matrix. Compute row parity bits AND column parity bits. Can <span class="hl2">detect AND correct single bit errors</span>. Single-bit error shows up as both a row parity error AND a column parity error — intersection gives the error location.</p>
+    <div class="exam">
+      <ul>
+        <li><strong>[Fall 2024 Q2b]:</strong> Sender sends 00101101, 10101101, 00110110, 11101001. Compute row and column parity. Receiver gets 00101101, 10101111, 00110110, 11101001 — pinpoint the errors.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CHAPTER 4–5 ===================== -->
+<div class="chapter" id="ch4">
+  <div class="chapter-header">
+    <span class="ch-num">CH 04–05</span>
+    <h2>Network Layer (Data Plane + Control Plane)</h2>
+  </div>
+
+  <div class="section">
+    <h3>Router Architecture</h3>
+    <p>A router has: <span class="hl">Input ports</span> (line termination, link layer, lookup/forwarding), <span class="hl">Switching fabric</span> (memory, bus, or crossbar interconnection), <span class="hl">Output ports</span> (queuing, link layer, line termination), and <span class="hl">Routing processor</span> (control plane, runs routing protocols).</p>
+    <div class="exam">
+      <ul>
+        <li>Router architecture description [Spring 2022 Q4a] — identify key responsibility of network layer (routing + forwarding)</li>
+        <li><strong>HOL Blocking [Fall 2024 Q1e]:</strong> Head-of-Line blocking at input port — a queued datagram at front of input queue prevents datagrams behind it from moving to (different) output ports, even if those output ports are free.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>IP Addressing and Subnetting</h3>
+    <h4>CIDR Notation</h4>
+    <p>IP address format: <code>a.b.c.d/x</code> where x = bits in subnet part. Subnet mask identifies network vs host portion.</p>
+    <h4>Subnetting Steps</h4>
+    <div class="steps">
+      <div class="step">Determine how many subnets needed and hosts per subnet</div>
+      <div class="step">Find number of bits needed for subnets: 2^n ≥ number of subnets</div>
+      <div class="step">Find host bits needed: 2^h - 2 ≥ hosts per subnet (subtract 2 for network and broadcast)</div>
+      <div class="step">New prefix = original prefix + subnet bits. Assign address ranges sequentially</div>
+      <div class="step">First address = network address. Last address = broadcast. Usable = first+1 to last-1</div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>Subnetting [Fall 2024 Q2c]:</strong> 192.168.10.0/24 → 14 subnets: 2×64 addresses (/26), 4×16 (/28), 4×8 (/29), 4×4 (/30). Construct table with subnet mask, first/last address.</li>
+        <li><strong>ISP allocation [Spring 2022 Q4c]:</strong> 192.168.0.0/22 → customer 1 needs 256 (→/24), customer 2 needs 128 (→/25), etc.</li>
+        <li>Always list: first address (network), last address (broadcast), subnet mask (/prefix)</li>
+      </ul>
+    </div>
+
+    <h4>VLSM Example (192.168.10.0/24, need 14 subnets)</h4>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Subnet</th><th>Hosts</th><th>Prefix</th><th>First Address</th><th>Last Address</th><th>Mask</th></tr>
+        <tr><td>S1</td><td>64</td><td>/26</td><td>192.168.10.0</td><td>192.168.10.63</td><td>255.255.255.192</td></tr>
+        <tr><td>S2</td><td>64</td><td>/26</td><td>192.168.10.64</td><td>192.168.10.127</td><td>255.255.255.192</td></tr>
+        <tr><td>S3</td><td>16</td><td>/28</td><td>192.168.10.128</td><td>192.168.10.143</td><td>255.255.255.240</td></tr>
+        <tr><td>S4–S6</td><td>16 each</td><td>/28</td><td>…144, …160, …176</td><td>…159, …175, …191</td><td>255.255.255.240</td></tr>
+        <tr><td>S7–S10</td><td>8 each</td><td>/29</td><td>…192, …200, …208, …216</td><td>…199, …207, …215, …223</td><td>255.255.255.248</td></tr>
+        <tr><td>S11–S14</td><td>4 each</td><td>/30</td><td>…224, …228, …232, …236</td><td>…227, …231, …235, …239</td><td>255.255.255.252</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>IP Fragmentation</h3>
+    <p>When datagram exceeds MTU (Max Transfer Unit), it's fragmented. Reassembly happens only at destination.</p>
+    <div class="formula">Fragment size (data) = MTU - 20 bytes (IP header)
+Offset field = byte position of fragment / 8
+More Fragments flag (MF) = 1 for all but last fragment
+Last fragment: MF = 0</div>
+    <div class="exam">
+      <ul>
+        <li><strong>[Fall 2024 Q2f]:</strong> 7800-byte datagram, MTU=2120, ID=137. Determine number of fragments; table: fragment #, datagram length, payload length, ID, fragmentation flag, offset</li>
+        <li><strong>4000-byte datagram, MTU=1500 [Spring 2022 Q4b]:</strong> Fragment 1: length=1500, payload=1480, offset=0, MF=1. Fragment 2: length=1500, payload=1480, offset=185, MF=1. Fragment 3: length=1040, payload=1020, offset=370, MF=0</li>
+      </ul>
+    </div>
+
+    <h4>Step-by-step fragmentation (4000 bytes, MTU=1500):</h4>
+    <div class="steps">
+      <div class="step">Max data per fragment = 1500 - 20 = 1480 bytes</div>
+      <div class="step">Fragment 1: 1480 bytes data, offset=0/8=0, MF=1, total length=1500</div>
+      <div class="step">Fragment 2: 1480 bytes data, offset=1480/8=185, MF=1, total length=1500</div>
+      <div class="step">Fragment 3: 4000-20-1480-1480 = 1020 bytes data, offset=2960/8=370, MF=0, total length=1040</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>NAT — Network Address Translation</h3>
+    <p>All devices in local network (private IPs: 10.x.x.x, 172.16.x.x, 192.168.x.x) share one public IP. NAT router maintains translation table mapping (private IP, port) ↔ (public IP, new port).</p>
+    <div class="exam">
+      <ul>
+        <li><strong>NAT step-by-step [Fall 2024 Q3e]:</strong> Home network 192.168.1.0/24, host 192.168.1.4 requests web page at 173.194.67.102:80 through router with external IP 67.210.97.1. Describe NAT process + translation table for all hosts.</li>
+      </ul>
+    </div>
+    <div class="steps">
+      <div class="step">Host 192.168.1.4 sends packet: src=192.168.1.4:3345, dst=173.194.67.102:80</div>
+      <div class="step">NAT router rewrites: src=67.210.97.1:5001 (new port), dst=173.194.67.102:80. Stores (192.168.1.4:3345) ↔ (67.210.97.1:5001) in NAT table</div>
+      <div class="step">Server responds to 67.210.97.1:5001</div>
+      <div class="step">NAT router looks up table, rewrites dst from 67.210.97.1:5001 → 192.168.1.4:3345, forwards internally</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Routing Algorithms</h3>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>Link State (Dijkstra's Algorithm)</h5>
+        <ul>
+          <li>Global: all routers know full topology</li>
+          <li>Flood link-state info, then compute shortest paths</li>
+          <li>O(n²) time complexity</li>
+          <li>Used in OSPF</li>
+          <li>Fast convergence, but high message overhead</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Distance Vector (Bellman-Ford)</h5>
+        <ul>
+          <li>Decentralized: exchange DVs with neighbors only</li>
+          <li>D_x(y) = min_v { c(x,v) + D_v(y) }</li>
+          <li>Convergence time varies</li>
+          <li>Count-to-infinity problem for bad news</li>
+          <li>Used in RIP</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>Dijkstra's algorithm [Fall 2024 Q3a, Fall 2022 Q1c]:</strong> Show distance table iterations for each node. Track N' (confirmed set), D(v) and p(v) for each node at each step.</li>
+        <li><strong>Distance Vector [Fall 2022 Q1d, Spring 2022 Q6a BGP context]:</strong> Show DV table for each node at t=0 and after iterations until convergence.</li>
+        <li><strong>Count-to-infinity [Fall 2024 Q1f]:</strong> When a link cost increases, "bad news travels slowly" — DV nodes keep incrementing costs in a loop. Solutions: split horizon, poison reverse.</li>
+      </ul>
+    </div>
+    <h4>Dijkstra's Algorithm Procedure:</h4>
+    <div class="steps">
+      <div class="step">Initialize: N'={u}. For all v: D(v) = c(u,v) if directly connected, else ∞</div>
+      <div class="step">Loop: Find w not in N' with minimum D(w). Add w to N'</div>
+      <div class="step">Update: For all v adjacent to w, not in N': D(v) = min(D(v), D(w) + c(w,v))</div>
+      <div class="step">Repeat until all nodes in N'. Build forwarding table from predecessor p(v)</div>
+    </div>
+
+    <h4>Intra- vs Inter-AS Routing</h4>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Protocol</th><th>Type</th><th>Algorithm</th><th>Scope</th></tr>
+        <tr><td>OSPF</td><td>Intra-AS</td><td>Link State (Dijkstra)</td><td>Within one AS</td></tr>
+        <tr><td>RIP</td><td>Intra-AS</td><td>Distance Vector</td><td>Within one AS (30-sec updates)</td></tr>
+        <tr><td>BGP (iBGP)</td><td>Inter-AS</td><td>Path Vector</td><td>Within AS (propagate external routes)</td></tr>
+        <tr><td>BGP (eBGP)</td><td>Inter-AS</td><td>Path Vector</td><td>Between different ASes</td></tr>
+      </table>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>[Spring 2022 Q6c]:</strong> AS3+AS2 run OSPF, AS1+AS4 run RIP, eBGP+iBGP for inter-AS. Router 3c learns about prefix x from: eBGP (from AS4 via eBGP). Router 3a: iBGP (learned from 3c). Router 1c: eBGP (from AS3). Router 1d: iBGP (from 1c).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CHAPTER 6 ===================== -->
+<div class="chapter" id="ch6">
+  <div class="chapter-header">
+    <span class="ch-num">CH 06</span>
+    <h2>Link Layer and LANs</h2>
+  </div>
+
+  <div class="section">
+    <h3>Link Layer Services</h3>
+    <ul>
+      <li><strong>Framing:</strong> Encapsulate datagram into frame, add header/trailer</li>
+      <li><strong>Link access:</strong> MAC protocol controls when to send on shared medium</li>
+      <li><strong>Reliable delivery:</strong> Seldom used on low-error links; used on wireless</li>
+      <li><strong>Error detection and correction</strong></li>
+    </ul>
+    <div class="exam">
+      <ul>
+        <li><strong>Link layer services [Fall 2024 Q1a]:</strong> Explain the services provided by the data link layer — framing, reliable delivery, flow control, error detection, error correction, half/full duplex</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Error Detection: CRC (Cyclic Redundancy Check)</h3>
+    <p>Given data D and generator G (r+1 bits), compute R such that D·2^r XOR R is divisible by G.</p>
+    <div class="formula">R = remainder[ D·2ʳ / G ]  (polynomial division in GF(2), i.e., XOR arithmetic)
+Sender transmits &lt;D, R&gt;
+Receiver divides &lt;D', R'&gt; by G; if remainder ≠ 0 → error detected</div>
+    <div class="exam">
+      <ul>
+        <li><strong>[Fall 2024 Q2d]:</strong> G=10011, D=1010101010. Compute R. Show how receiver checks D=1010101110.</li>
+        <li>CRC detects all burst errors of length &lt; r+1 bits. Widely used in Ethernet, 802.11.</li>
+      </ul>
+    </div>
+    <h4>CRC Step-by-Step (D=1010101010, G=10011, r=4):</h4>
+    <div class="steps">
+      <div class="step">Append r=4 zeros to D: 10101010100000</div>
+      <div class="step">Divide by G=10011 using XOR long division. Perform XOR at each step, bring down next bit.</div>
+      <div class="step">Remainder R is the last r=4 bits. Transmit D followed by R.</div>
+      <div class="step">Receiver divides &lt;D,R&gt; by G. If remainder=0, no error. If ≠0, error detected.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Multiple Access Protocols</h3>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Category</th><th>Protocol</th><th>Key Feature</th><th>Pros/Cons</th></tr>
+        <tr><td rowspan="2">Channel Partitioning</td><td>TDMA</td><td>Fixed time slots per node</td><td>Wasteful when node idle; fair</td></tr>
+        <tr><td>FDMA</td><td>Fixed frequency bands</td><td>Wasteful; no collisions</td></tr>
+        <tr><td rowspan="3">Random Access</td><td>Pure ALOHA</td><td>Transmit any time</td><td>18% efficiency; simple</td></tr>
+        <tr><td>Slotted ALOHA</td><td>Transmit at slot boundaries</td><td>37% efficiency; needs sync</td></tr>
+        <tr><td>CSMA/CD</td><td>Sense before tx; abort on collision</td><td>Used in Ethernet; needs CD</td></tr>
+        <tr><td rowspan="2">Taking Turns</td><td>Polling</td><td>Master polls slaves in turn</td><td>Overhead; single point of failure</td></tr>
+        <tr><td>Token Passing</td><td>Token passed node-to-node</td><td>No collisions; token loss = failure</td></tr>
+      </table>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>Polling and Token Passing [Fall 2024 Q1g]:</strong> Polling — central controller invites nodes; disadvantages: polling overhead, latency, single point of failure (Bluetooth uses this). Token Passing — token circulates; disadvantages: token overhead, single point of failure (token loss), latency.</li>
+        <li>CSMA/CD algorithm: sense → transmit → collision? → jam → binary exponential backoff → retry</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>MAC Addresses and ARP</h3>
+    <p>MAC address: 48-bit flat address, burned into NIC. Written as hex (e.g., <code>1A-2F-BB-76-09-AD</code>). Portability advantage over IP (doesn't depend on subnet). Broadcast: <code>FF-FF-FF-FF-FF-FF</code>.</p>
+    <p><span class="hl">ARP (Address Resolution Protocol)</span>: Resolves IP address → MAC address within same subnet. Host broadcasts ARP query to <code>FF-FF-FF-FF-FF-FF</code>; target replies with its MAC address.</p>
+    <div class="exam">
+      <ul>
+        <li><strong>ARP across different LANs [Fall 2024 Q3f]:</strong> Host A (111.111.111.111) wants to send to Host B (222.222.222.222) through Router R. A cannot directly ARP for B (different subnet) — A sends ARP for R's MAC, then sends frame to R (MAC=R), R receives, re-ARPs for B's MAC, sends frame to B. Construct ARP tables for A, B, R.</li>
+        <li>Key: IP header destination stays B throughout; MAC header destination changes at each hop</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Ethernet and Switches</h3>
+    <p>Ethernet uses unslotted CSMA/CD with binary exponential backoff. <span class="hl">Switches</span> are link-layer devices that store-and-forward frames. They self-learn by recording (MAC address, interface) when frames arrive. Unknown destination → flood all ports except incoming.</p>
+    <div class="note">Switch vs Router: Both store-and-forward. Switches work at Layer 2 (MAC addresses, learn via flooding). Routers work at Layer 3 (IP addresses, compute forwarding tables via routing algorithms).</div>
+  </div>
+</div>
+
+<!-- ===================== CHAPTER 8 ===================== -->
+<div class="chapter" id="ch8">
+  <div class="chapter-header">
+    <span class="ch-num">CH 08</span>
+    <h2>Network Security</h2>
+  </div>
+
+  <div class="section">
+    <h3>Security Goals</h3>
+    <div class="terms">
+      <div class="term"><strong>Confidentiality</strong><span>Only sender and receiver understand message contents. Achieved via encryption.</span></div>
+      <div class="term"><strong>Authentication</strong><span>Confirming the identity of the communicating parties.</span></div>
+      <div class="term"><strong>Message Integrity</strong><span>Ensuring message not altered in transit. Achieved via MACs and digital signatures.</span></div>
+      <div class="term"><strong>Access and Availability</strong><span>Services must be accessible to authorized users.</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Symmetric Key Cryptography</h3>
+    <p>Sender and receiver share same secret key K_S. Examples: Caesar cipher (shift by k), monoalphabetic substitution, polyalphabetic (multiple Caesar ciphers in pattern), DES, AES.</p>
+    <div class="exam">
+      <ul>
+        <li><strong>Transposition cipher [Fall 2022 Q1b]:</strong> Rearrange letters using key (e.g., FANCY). Write plaintext in rows under key columns; read columns in alphabetical order of key letters.</li>
+        <li><strong>Substitution ciphers [Fall 2022 Q2b]:</strong> Monoalphabetic (26! possible keys), polyalphabetic, Vigenère.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>RSA — Public Key Cryptography</h3>
+    <h4>Key Generation Steps</h4>
+    <div class="steps">
+      <div class="step">Choose two large primes <strong>p</strong> and <strong>q</strong></div>
+      <div class="step">Compute <strong>n = p×q</strong>, <strong>z = (p-1)(q-1)</strong></div>
+      <div class="step">Choose <strong>e</strong> (e &lt; n) such that gcd(e, z) = 1 (e and z are coprime)</div>
+      <div class="step">Choose <strong>d</strong> such that <strong>e×d mod z = 1</strong> (i.e., ed - 1 is divisible by z)</div>
+      <div class="step">Public key = <strong>(n, e)</strong>. Private key = <strong>(n, d)</strong></div>
+    </div>
+    <div class="formula">Encryption:  c = mᵉ mod n
+Decryption:  m = cᵈ mod n
+
+Key property:  K⁻_B(K⁺_B(m)) = m  =  K⁺_B(K⁻_B(m))
+               (private then public = public then private)</div>
+    <div class="exam">
+      <ul>
+        <li><strong>[Fall 2024 Q2g]:</strong> p=5, q=11, e=5. Find public and private keys. Encrypt word "aust" (a=1, b=2, …, z=26) letter by letter. Decrypt to recover plaintext.</li>
+        <li><strong>Step:</strong> n=55, z=40. Find d: 5d mod 40=1 → d=9 (since 5×9=45=40+5, 45 mod 40=5 — try d=17: 5×17=85, 85 mod 40=5 — try systematically). Correct: d=9 since 5×9=45, 45 mod 40=5 ≠ 1. Try d=25: 5×25=125, 125 mod 40=5. d=33: 5×33=165, 165 mod 40=5. Actually: ed≡1(mod 40). 5d≡1(mod 40). d=9: 5×9=45≡5. d=17: 85≡5. d=25:125≡5. Note: none works easily with p=5,q=11,e=5 since gcd(5,40)=5≠1. The question uses p=5,q=11,e=5 from [Fall 2022 Q7c] where p=7,q=13.</li>
+        <li><strong>[Fall 2022 Q7c]:</strong> p=7, q=13, e=5. n=91, z=72. d: 5d≡1(mod 72) → d=29 (5×29=145=2×72+1). Encrypt M=11: c=11⁵ mod 91=51. Decrypt: 51²⁹ mod 91=11.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Message Authentication Code (MAC) vs Digital Signature</h3>
+    <div class="compare">
+      <div class="compare-box">
+        <h5>MAC (Message Auth Code)</h5>
+        <ul>
+          <li>Uses shared symmetric key + hash function</li>
+          <li>Provides message integrity and authentication</li>
+          <li>Does NOT provide non-repudiation</li>
+          <li>Both parties share same key → either could have created it</li>
+          <li>Cannot be used in digital signature (no non-repudiation)</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Digital Signature</h5>
+        <ul>
+          <li>Uses asymmetric key pair (private key to sign)</li>
+          <li>Provides integrity, authentication, AND non-repudiation</li>
+          <li>Only private key holder can produce signature</li>
+          <li>Verified by anyone with public key</li>
+          <li>MAC is not used because it lacks non-repudiation</li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam">
+      <ul>
+        <li><strong>[Spring 2022 Q7b]:</strong> "MAC is not used in case of digital signature" — because MAC requires both parties to share a symmetric key; either party could have created the MAC, so you can't prove who sent it. Digital signature uses private key (only sender has it), providing verifiable non-repudiation.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK REFERENCE -->
+<hr class="divider">
+<div class="chapter" id="quickref">
+  <div class="chapter-header">
+    <span class="ch-num">REF</span>
+    <h2>Quick Reference: Most Frequent Exam Topics</h2>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Topic</th><th>Appears in</th><th>What to Know</th></tr>
+      <tr><td>End-to-end delay calculation</td><td>Fall 2024 Q2a, Spring 2022 Q1c</td><td>d_trans=L/R, d_prop=d/s, store-and-forward adds d_trans per router</td></tr>
+      <tr><td>Subnetting / VLSM</td><td>Fall 2024 Q2c, Spring 2022 Q4c, Fall 2022 Q3</td><td>Prefix math, first/last addresses, subnet mask in /notation and dotted decimal</td></tr>
+      <tr><td>TCP congestion control graph</td><td>Fall 2024 Q3d, Spring 2022 Q3d</td><td>Identify slow start vs AIMD; ssthresh; triple dup ACK vs timeout</td></tr>
+      <tr><td>Dijkstra / Distance Vector</td><td>Fall 2024 Q3a, Fall 2022 Q1c,d</td><td>Full table for each iteration; Dijkstra: N', D(v), p(v) per step</td></tr>
+      <tr><td>IP Fragmentation</td><td>Fall 2024 Q2f, Spring 2022 Q4b</td><td>Fragment size=MTU-20; offset=byte_start/8; MF flag</td></tr>
+      <tr><td>RSA encryption</td><td>Fall 2024 Q2g, Fall 2022 Q7c, Spring 2022 Q7c</td><td>Key generation (n,z,e,d); encrypt/decrypt with modular exponentiation</td></tr>
+      <tr><td>CRC calculation</td><td>Fall 2024 Q2d</td><td>XOR polynomial long division; append r zeros; compute remainder R</td></tr>
+      <tr><td>NAT process</td><td>Fall 2024 Q3e</td><td>Translation table, src IP:port replacement, incoming packet rewrite</td></tr>
+      <tr><td>HTTP timing</td><td>Fall 2024 Q3b</td><td>Non-persistent: 2RTT+trans per object; persistent: 1RTT per object after setup</td></tr>
+      <tr><td>GBN vs SR retransmissions</td><td>Fall 2024 Q3c, Spring 2022 Q3c</td><td>GBN retransmits all from lost packet; SR retransmits only lost packet</td></tr>
+      <tr><td>EstimatedRTT/DevRTT</td><td>Fall 2024 Q2e</td><td>EWMA formulas; compute step by step</td></tr>
+      <tr><td>ARP across subnets</td><td>Fall 2024 Q3f</td><td>Can't ARP directly across subnets; use default gateway; IP dst stays same, MAC changes per hop</td></tr>
+      <tr><td>DNS iterative vs recursive</td><td>Fall 2024 Q1d, Fall 2022 Q1f</td><td>Draw figure; iterative=local does all queries; recursive=each server queries next</td></tr>
+      <tr><td>2D Parity</td><td>Fall 2024 Q2b</td><td>Row and column parity; single-bit error correctable (row+col intersection)</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  CSE 3201 — Introduction to Computer Networks · AUST · Based on Kurose &amp; Ross · Study Material
+</footer>
+
+</body>
+</html>
