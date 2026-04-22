@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3213 — Full Operating Systems Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;
+  --purple:#bc8cff;--orange:#e3b341;--text:#e6edf3;--muted:#8b949e;--subtle:#6e7681;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.7}
+
+.header{background:linear-gradient(180deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#58a6ff0f 0%,transparent 70%);pointer-events:none}
+.header h1{font-size:1.9rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.header h1 em{color:var(--accent);font-style:normal}
+.header p{color:var(--muted);font-size:.85rem;margin-top:.4rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1rem}
+.tag{background:var(--surface2);border:1px solid var(--border);padding:.2rem .7rem;border-radius:20px;font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+nav{position:sticky;top:0;z-index:100;background:#161b22ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:.3rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.78rem;padding:.25rem .6rem;border-radius:6px;transition:.15s;font-family:'JetBrains Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+
+.wrap{max-width:1020px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+.ch{margin-bottom:4rem}
+.ch-head{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;margin-bottom:2rem}
+.ch-badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);background:#58a6ff15;border:1px solid #58a6ff30;padding:.2rem .6rem;border-radius:4px;white-space:nowrap}
+.ch-head h2{font-size:1.2rem;font-weight:700;color:#fff}
+
+.sec{margin-bottom:2.5rem}
+.sec>h3{font-size:.95rem;font-weight:600;color:var(--accent);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.sec>h3::before{content:'§';font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--subtle);opacity:.8}
+h4{font-size:.875rem;font-weight:600;color:var(--yellow);margin:1.25rem 0 .6rem}
+p{margin-bottom:.75rem;color:var(--text);font-size:.9rem}
+
+.code{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#79c0ff;margin:.75rem 0;white-space:pre-wrap;overflow-x:auto;line-height:1.6}
+code{font-family:'JetBrains Mono',monospace;background:#30363d;padding:.1em .35em;border-radius:4px;font-size:.82em;color:#79c0ff}
+
+.exam{background:#f8514910;border:1px solid #f8514940;border-left:3px solid var(--red);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin:.75rem 0;font-size:.85rem}
+.exam-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--red);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.exam ul{margin-left:1.1rem}
+.exam li{margin-bottom:.3rem;color:#ffb3b3;font-size:.84rem}
+
+.note{background:#d2992211;border:1px solid #d2992240;border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin:.75rem 0;font-size:.875rem;color:#ffe0a0}
+.note-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--yellow);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+
+.tip{background:#3fb95011;border:1px solid #3fb95040;border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin:.75rem 0;font-size:.875rem;color:#b5e8c0}
+.tip-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin:.75rem 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+.card strong{display:block;font-size:.8rem;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:.35rem}
+.card span{font-size:.84rem;color:var(--muted)}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}
+.cmp-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+.cmp-box h5{font-size:.8rem;font-weight:600;color:var(--accent);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.cmp-box ul{margin-left:1.1rem}
+.cmp-box li{font-size:.84rem;color:var(--muted);margin-bottom:.25rem}
+.cmp-box li strong{color:var(--text)}
+
+.tbl{overflow-x:auto;margin:.75rem 0}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{background:var(--surface2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.55rem .75rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600;letter-spacing:.3px}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+td:first-child{color:var(--text);font-weight:500}
+
+.steps{counter-reset:s;margin:.75rem 0}
+.step{counter-increment:s;display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.step::before{content:counter(s);min-width:22px;height:22px;background:#58a6ff1a;border:1px solid #58a6ff40;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);flex-shrink:0;margin-top:2px;font-weight:600}
+.step p{margin:0;font-size:.875rem}
+
+ul,ol{margin-left:1.25rem;margin-bottom:.75rem}
+li{margin-bottom:.3rem;color:var(--muted);font-size:.88rem}
+li strong{color:var(--text)}
+
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+.hl3{color:var(--accent);font-weight:600}
+.hl4{color:var(--purple);font-weight:600}
+
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+footer{text-align:center;padding:2rem;color:var(--subtle);font-size:.75rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>CSE 3213 — <em>Operating Systems</em></h1>
+  <p>Complete Topic-by-Topic Study Guide · All Chapters · AUST · Silberschatz &amp; Tanenbaum</p>
+  <div class="tags">
+    <span class="tag">Ch 1 · OS Intro</span><span class="tag">CPU Scheduling</span>
+    <span class="tag">Deadlocks</span><span class="tag">Processes &amp; Threads</span>
+    <span class="tag">Memory Management</span><span class="tag">Virtual Memory</span>
+    <span class="tag">Disk Scheduling</span><span class="tag">File Systems</span>
+  </div>
+</div>
+<nav>
+  <a href="#ch1">OS Intro</a>
+  <a href="#sched">CPU Scheduling</a>
+  <a href="#deadlock">Deadlocks</a>
+  <a href="#sync">Synchronization</a>
+  <a href="#threads">Processes &amp; Threads</a>
+  <a href="#memory">Memory</a>
+  <a href="#vmem">Virtual Memory</a>
+  <a href="#disk">Disk</a>
+  <a href="#fs">File Systems</a>
+</nav>
+<div class="wrap">
+
+<!-- ═══════════ CH 1: OS INTRO ═══════════ -->
+<div class="ch" id="ch1">
+<div class="ch-head"><span class="ch-badge">CH 01</span><h2>Introduction to Operating Systems</h2></div>
+
+<div class="sec">
+<h3>What is an Operating System?</h3>
+<p>An OS is a program that acts as an <span class="hl">intermediary between a user and the computer hardware</span>. It has two roles: <span class="hl2">resource allocator</span> (decides who gets CPU, memory, devices and when) and <span class="hl2">control program</span> (manages execution of programs to prevent errors and improper use).</p>
+<p>The <span class="hl">kernel</span> is the part of the OS that loads first and remains in main memory. It is the core that connects hardware to application software, responsible for memory management, process management, and disk management. Everything else is system programs or applications.</p>
+<div class="note"><div class="note-label">📌 Why is the OS called a Kernel?</div>
+The kernel is the "seed" from which the OS grows. It stays in memory at all times, in a protected region so programs can't overwrite it. It provides essential services (scheduling, memory, I/O) and everything else builds on top of it.</div>
+</div>
+
+<div class="sec">
+<h3>OS Architectures</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Monolithic (Classic)</h5><ul>
+    <li>Entire OS in one large kernel running in kernel mode</li>
+    <li>All services: file system, device drivers, network, scheduler</li>
+    <li><strong>Pros:</strong> Fast (no IPC overhead), simple design</li>
+    <li><strong>Cons:</strong> Huge kernel size, poor maintainability, one crash brings down entire OS, recompile whole kernel for any change</li>
+    <li>Example: Early UNIX</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Modular (Modern)</h5><ul>
+    <li>Core kernel always in RAM; other services loaded as modules</li>
+    <li>Modules can be loaded/unloaded dynamically without reboot</li>
+    <li><strong>Pros:</strong> Easy maintenance, small changes don't need full recompile, strip down for embedded systems</li>
+    <li>Used by: Linux, Windows, Android</li>
+  </ul></div>
+</div>
+<div class="cmp">
+  <div class="cmp-box"><h5>Microkernel</h5><ul>
+    <li>Kernel contains only essential services: basic scheduling, IPC, minimal memory management</li>
+    <li>All other services (file system, device drivers, network) run in <strong>user space</strong> as servers</li>
+    <li>Communication via <strong>message passing (IPC)</strong></li>
+    <li><strong>Pros:</strong> More reliable (crash in user-space server doesn't crash kernel), easier to extend, more secure</li>
+    <li><strong>Cons:</strong> Slower (IPC overhead for every service call)</li>
+    <li>Examples: Mach, QNX, L4</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Monolithic Modular (Best of Both)</h5><ul>
+    <li>Combines monolithic performance with modular flexibility</li>
+    <li>Core kernel is monolithic (fast, no IPC)</li>
+    <li>Services added as loadable kernel modules (not user-space)</li>
+    <li>This is what <strong>modern Linux and Windows</strong> actually use</li>
+    <li>Falls between pure monolithic and microkernel in the spectrum</li>
+  </ul></div>
+</div>
+<div class="exam"><div class="exam-label">★ Exam [Fall 2024 Q1a, Fall 2022 Q1a, Spring 2021 Q1c, Spring 2022 Q7c]</div>
+<ul>
+  <li>Differentiate Microkernel vs Monolithic Modular with figures — this appears in EVERY exam</li>
+  <li>Key: Microkernel has user-space servers + IPC; Monolithic Modular has loadable kernel modules, no IPC overhead</li>
+  <li>Why OS is called a kernel: stays in memory, protected, core services, everything else builds on it</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h3>System Calls</h3>
+<p>A <span class="hl">system call</span> is the programmatic interface between user applications and OS services. When an app wants to read a file, create a process, or send data, it makes a system call. The CPU switches from <span class="hl">user mode</span> (limited privileges) to <span class="hl">kernel mode</span> (full hardware access), performs the requested operation, then switches back.</p>
+<div class="steps">
+  <div class="step"><p>Application calls a library function (e.g., <code>read()</code>)</p></div>
+  <div class="step"><p>Library function places system call number in CPU register and executes <code>syscall</code> instruction</p></div>
+  <div class="step"><p>CPU switches to kernel mode, transfers control to OS</p></div>
+  <div class="step"><p>OS looks up system call number in the <strong>dispatch table</strong> (Linux: <code>sys_call_table</code>; Windows: SSDT)</p></div>
+  <div class="step"><p>OS executes the kernel function, returns result</p></div>
+  <div class="step"><p>CPU switches back to user mode, execution resumes</p></div>
+</div>
+<p>The <span class="hl">dispatcher module</span> of the OS handles the context switch and hands CPU control to the selected process. <span class="hl">Dispatch latency</span> = time taken by the dispatcher to stop one process and start another — must be minimized.</p>
+</div>
+
+<div class="sec">
+<h3>Bootstrapping</h3>
+<p><span class="hl">Bootstrapping</span> (booting) is the process of loading the OS when the computer is powered on. The bootstrap program is stored in ROM/firmware. It initializes hardware, loads the OS kernel from disk into memory, and transfers control to it. The term comes from "pulling yourself up by your bootstraps" — the computer has to load a program to load more programs.</p>
+</div>
+
+<div class="sec">
+<h3>Virtualization: Hypervisors and VDI</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Type 1 Hypervisor ("Bare Metal")</h5><ul>
+    <li>Runs <strong>directly on hardware</strong> — no host OS</li>
+    <li>Virtual machines run as guests</li>
+    <li>Higher performance, security, availability</li>
+    <li>Used in data centers</li>
+    <li>Examples: VMware ESXi, Microsoft Hyper-V, KVM</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Type 2 Hypervisor ("Hosted")</h5><ul>
+    <li>Runs <strong>on top of a host OS</strong> (like an application)</li>
+    <li>Easier to install, used by individuals/developers</li>
+    <li>Lower performance (host OS adds overhead)</li>
+    <li>Examples: VMware Workstation, VirtualBox, Parallels</li>
+  </ul></div>
+</div>
+<p><span class="hl">Virtual Desktop Infrastructure (VDI)</span>: Desktop environments hosted on a centralized server, accessed remotely by users. Users get the same experience as a physical desktop. Types: <strong>Persistent VDI</strong> (each user has their own VM that retains data) and <strong>Non-Persistent VDI</strong> (generic desktop that resets on logout — for task-based roles). Examples: Citrix, VMware Horizon.</p>
+<div class="exam"><div class="exam-label">★ Exam [Fall 2024 Q1f, Fall 2022 Q2a, Spring 2022 Q2a, Fall 2018 Q1c]</div>
+<ul>
+  <li>Type 1 vs Type 2 hypervisor with figures and examples — appears in nearly every exam</li>
+  <li>VDI definition: centralized desktop hosting, remote access, persistent vs non-persistent</li>
+  <li>Cloud Computing: delivering computing services (servers, storage, databases) over Internet. AWS, Azure, Google Cloud.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ CPU SCHEDULING ═══════════ -->
+<div class="ch" id="sched">
+<div class="ch-head"><span class="ch-badge">CPU</span><h2>CPU Scheduling</h2></div>
+
+<div class="sec">
+<h3>Scheduling Concepts</h3>
+<p>CPU scheduling determines which process from the <span class="hl">ready queue</span> gets the CPU next. Goals: maximize CPU utilization and throughput; minimize turnaround time, waiting time, response time.</p>
+<div class="cards">
+  <div class="card"><strong>Turnaround Time (TT)</strong><span>Total time from arrival to completion. TT = Finish Time − Arrival Time</span></div>
+  <div class="card"><strong>Waiting Time (WT)</strong><span>Time spent in ready queue. WT = TT − CPU Burst Time</span></div>
+  <div class="card"><strong>Response Time (RT)</strong><span>Time from arrival to FIRST response (first time CPU is given). RT = Start Time − Arrival Time</span></div>
+  <div class="card"><strong>Dispatch Latency</strong><span>Time for dispatcher to stop one process and start another. Context switch overhead. Must be minimized.</span></div>
+</div>
+<div class="cmp">
+  <div class="cmp-box"><h5>Preemptive Scheduling</h5><ul>
+    <li>OS can forcibly take CPU from a running process</li>
+    <li>Better responsiveness for interactive systems</li>
+    <li>Examples: Round Robin, SRTN, Preemptive Priority</li>
+    <li>Needs careful handling of shared data (race conditions)</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Non-Preemptive Scheduling</h5><ul>
+    <li>Process keeps CPU until it voluntarily releases (I/O, completion)</li>
+    <li>Simpler, no race conditions from scheduling</li>
+    <li>Poor responsiveness — long jobs block short ones</li>
+    <li>Examples: FCFS, SJF, Non-Preemptive Priority</li>
+  </ul></div>
+</div>
+
+<h4>CPU Burst Time Estimation (EWMA)</h4>
+<div class="code">τ_{n+1} = α × t_n + (1 - α) × τ_n
+
+Where:  t_n     = actual CPU burst time of n-th burst
+        τ_n     = estimated burst time for n-th burst
+        α       = smoothing factor (typically 0.5)
+        τ_{n+1} = prediction for next burst
+
+With α = 0.5 (equal weight to history and recent):
+  Each past measurement's weight halves with each new sample.
+  This is called Exponential Weighted Moving Average (EWMA).</div>
+</div>
+
+<div class="sec">
+<h3>Scheduling Algorithms</h3>
+<h4>FCFS — First Come First Served</h4>
+<p>Non-preemptive. Processes get CPU in arrival order. Simple but causes the <span class="hl">convoy effect</span> — short I/O-bound processes wait behind long CPU-bound processes. Average waiting time depends heavily on arrival order.</p>
+
+<h4>SJF — Shortest Job First</h4>
+<p>Non-preemptive. Picks the process with the shortest CPU burst. Provably <span class="hl2">optimal for minimizing average waiting time</span> for a given set of processes. Problem: must know burst times in advance (use EWMA estimation). Also causes <span class="hl">starvation</span> — long processes may never execute if short processes keep arriving. Solution: <span class="hl">aging</span> (gradually increase priority of waiting processes).</p>
+
+<h4>SRTN — Shortest Remaining Time Next</h4>
+<p>Preemptive version of SJF. When a new process arrives, if its burst is shorter than the remaining time of the currently running process, preempt. Also optimal (minimizes avg waiting time). Same starvation problem.</p>
+
+<h4>Round Robin (RR)</h4>
+<p>Each process gets a fixed <span class="hl">time quantum q</span>, then is preempted and put back in the queue. Circular order. Good for interactive/timesharing systems. If q → ∞, behaves like FCFS. If q → 0, context switch overhead dominates. Rule of thumb: q should be slightly longer than a typical CPU burst.</p>
+<div class="code">For Round Robin, process is in the ready queue as long as it hasn't finished.
+If arrival time = A, first start time = S:  Response Time = S - A
+Finish Time = when process finally completes (may need multiple time slices)
+Waiting Time = Finish Time - Arrival Time - CPU Burst Time
+</div>
+<div class="exam"><div class="exam-label">★ Exam: Round Robin [Every exam since 2015]</div>
+<ul>
+  <li>Draw complete Gantt chart. At each quantum end, check if any new processes have arrived and put them in queue (typically in arrival order, then alphabetically for ties)</li>
+  <li>Compute: TT = FT - AT; WT = TT - burst; RT = first_start - AT</li>
+  <li>Show intermediate remaining burst times</li>
+</ul>
+</div>
+
+<h4>Priority Scheduling</h4>
+<p>Each process assigned a numeric priority. CPU given to highest priority process. Can be preemptive or non-preemptive. <span class="hl">Problem: Starvation</span> — low priority processes may never execute. <span class="hl">Solution: Aging</span> — increase process priority over time (e.g., +1 priority every 15 min). <span class="hl">Priority Inversion</span>: low-priority process holds a resource needed by high-priority process. Solution: <span class="hl">Priority Inheritance</span> — temporarily raise low-priority process to the priority of the high-priority waiter.</p>
+
+<h4>Multilevel Feedback Queue (MLFQ)</h4>
+<p>Multiple queues with different priorities. Processes start in highest-priority queue (short quantum). If they use full quantum, demoted to lower-priority queue (longer quantum). I/O-bound processes stay in high queues. CPU-bound processes sink to lower queues. Lowest queue typically FCFS.</p>
+<ul>
+  <li>Favors short, interactive processes</li>
+  <li>CPU-intensive processes get lower priority over time</li>
+  <li>Can adjust priority based on behavior (aging to prevent starvation)</li>
+  <li>Most flexible and complex scheduling algorithm</li>
+</ul>
+<div class="exam"><div class="exam-label">★ Exam: MLFQ [Fall 2023 Q2e, Fall 2022 Q2e, Spring 2021 Q2b, Fall 2021 Q2b]</div>
+<ul>
+  <li>Typically given: Queue 1 (q=7), Queue 2 (q=12/15/18), Queue 3 (q=20), Queue 4 = FCFS/SJF</li>
+  <li>Process enters Q1. If it uses full quantum, move to Q2. If uses full Q2 quantum, move to Q3. etc.</li>
+  <li>Process bursts through multiple queues. Track which queue each process is in at each point.</li>
+  <li>Compute WT and RT for each process: note processes can have multiple preemptions.</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h3>Weighted Round Robin</h3>
+<p>Each process has a priority that determines its <span class="hl">weight</span> (virtual time slice). Higher weight = more CPU time per round. Uses <span class="hl">vruntime</span> (virtual runtime) concept from Linux CFS.</p>
+<div class="code">Weight = Priority × Weight_Multiplier
+Total Weight = sum of all weights of ready processes
+
+vruntime_i = floor( (Weight_i / Total_Weight) × Scaling_Value )
+(use floor() — round down, minimum vruntime = 1)
+
+Process runs for its vruntime in each round.
+After all processes in round complete their vruntime, round repeats.</div>
+<div class="exam"><div class="exam-label">★ Exam: Weighted Round Robin [Fall 2024 Q2d, Spring 2024 Q3c]</div>
+<ul>
+  <li>Steps: (1) Calculate weight = priority × multiplier for each process (2) Sum all weights (3) vruntime = floor((weight/total_weight) × scaling_value), min=1 (4) Draw Gantt — in each round, each process runs for its vruntime (5) Compute TT, WT, RT</li>
+  <li>Processes arriving after start join the round at the appropriate point</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h3>Multiprocessor Scheduling</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Asymmetric Multiprocessing (AMP)</h5><ul>
+    <li>One <strong>master processor</strong> runs OS kernel and handles scheduling</li>
+    <li>Other processors run user processes (slaves)</li>
+    <li>Master becomes bottleneck; simpler to implement</li>
+    <li>Master can get overloaded</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Symmetric Multiprocessing (SMP)</h5><ul>
+    <li>Each processor runs its own scheduler</li>
+    <li>All processors are peers — no master</li>
+    <li>Better scalability and reliability</li>
+    <li>Most modern OS (Linux, Windows) use SMP</li>
+    <li>Challenge: keeping all CPUs busy and balanced</li>
+  </ul></div>
+</div>
+<h4>Load Balancing</h4>
+<p>In SMP, keep all CPUs roughly equally loaded. Two approaches:</p>
+<ul>
+  <li><span class="hl">Push migration</span>: A task periodically checks processor loads and <em>pushes</em> processes from overloaded to idle processors</li>
+  <li><span class="hl">Pull migration</span>: An idle processor <em>pulls</em> a process from a busy processor's queue</li>
+  <li>Modern systems use both push and pull</li>
+</ul>
+<p><span class="hl">Processor Affinity</span>: Keep a process on the same CPU it last ran on (its cache is "warm"). <strong>Soft affinity</strong>: OS tries to keep process on same CPU but may migrate. <strong>Hard affinity</strong>: Process cannot be migrated (Linux <code>sched_setaffinity()</code>).</p>
+<div class="exam"><div class="exam-label">★ Exam [Fall 2024 Q1c, Fall 2022 Q2c, Spring 2023 Q1c, Spring 2022 Q6c]</div>
+<ul>
+  <li>SMP vs AMP differences — know both with figures</li>
+  <li>Load balancing: push migration, pull migration, processor affinity</li>
+  <li>Why SMP preferred: no master bottleneck, better fault tolerance, scalable</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ DEADLOCKS ═══════════ -->
+<div class="ch" id="deadlock">
+<div class="ch-head"><span class="ch-badge">DEAD</span><h2>Deadlocks</h2></div>
+
+<div class="sec">
+<h3>What is a Deadlock?</h3>
+<p>A <span class="hl">deadlock</span> is a situation where a set of processes are permanently blocked because each process holds a resource while waiting for a resource held by another process in the set. No process can proceed.</p>
+<p>Four <span class="hl2">necessary conditions</span> (all four must hold simultaneously for deadlock):</p>
+<div class="cards">
+  <div class="card"><strong>1. Mutual Exclusion</strong><span>Only one process can use a resource at a time. Shared read-only resources cannot cause deadlock.</span></div>
+  <div class="card"><strong>2. Hold and Wait</strong><span>A process holds at least one resource while waiting to acquire additional resources held by other processes.</span></div>
+  <div class="card"><strong>3. No Preemption</strong><span>Resources can only be released voluntarily by the process holding them. Cannot forcibly take resources away.</span></div>
+  <div class="card"><strong>4. Circular Wait</strong><span>There exists a circular chain of processes: P1 waits for P2, P2 waits for P3, ..., Pn waits for P1.</span></div>
+</div>
+<div class="note"><div class="note-label">📌 Key Insight</div>
+A cycle in the Resource Allocation Graph (RAG) is NECESSARY for deadlock. If resources have only one instance, a cycle = deadlock. With multiple instances per resource, a cycle only means POSSIBLE deadlock (not guaranteed).
+</div>
+</div>
+
+<div class="sec">
+<h3>Resource Allocation Graph (RAG)</h3>
+<p>Directed graph with two types of nodes: <span class="hl">Process nodes</span> (circles: P1, P2, ...) and <span class="hl">Resource nodes</span> (rectangles with dots for instances: R1, R2, ...).</p>
+<ul>
+  <li><strong>Request edge:</strong> Process → Resource (Pi requests Rj)</li>
+  <li><strong>Assignment edge:</strong> Resource → Process (Rj is held by Pi)</li>
+</ul>
+<p>To detect deadlock using RAG: Apply DFS cycle detection. For each node, traverse outgoing edges, tracking current path. If you revisit a node in the current path → cycle → possible deadlock.</p>
+<div class="exam"><div class="exam-label">★ Exam [Spring 2024 Q2d, Spring 2023 Q2d, Fall 2022 Q2 (RAG implied), Spring 2022 Q1b]</div>
+<ul>
+  <li>Draw RAG with ≥15 nodes and 3 deadlock situations [Spring 2023 Q2d]</li>
+  <li>Apply cycle detection algorithm — show all intermediate steps (list L, marked edges)</li>
+  <li>Wait-for graph: derived from RAG by removing resource nodes — edge Pi→Pj means Pi waits for Pj to release a resource</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h3>Banker's Algorithm (Deadlock Avoidance)</h3>
+<p>The Banker's algorithm keeps the system in a <span class="hl">safe state</span> by pretending to allocate resources before actually doing so, then checking if the resulting state is safe.</p>
+<div class="code">Data structures (n processes, m resource types):
+  Available[m]     — currently available instances of each resource
+  Max[n][m]        — max demand of each process for each resource
+  Allocation[n][m] — currently allocated resources
+  Need[n][m]       — remaining need = Max - Allocation
+
+Safety Algorithm:
+  Work = Available.copy()
+  Finish[i] = false for all i
+  
+  Loop:
+    Find i such that Finish[i]=false AND Need[i] ≤ Work
+    If found: Work = Work + Allocation[i]; Finish[i] = true; goto Loop
+    Else: break
+  
+  If all Finish[i] = true → SAFE STATE
+  Else → UNSAFE STATE
+
+Resource Request Algorithm (Process Pi requests Request[]):
+  1. If Request > Need[i]: ERROR (exceeded max claim)
+  2. If Request > Available: WAIT (resources not available)
+  3. Pretend to allocate:
+       Available -= Request
+       Allocation[i] += Request
+       Need[i] -= Request
+  4. Run Safety Algorithm
+  5. If safe: grant. If unsafe: restore and make Pi wait.</div>
+<div class="exam"><div class="exam-label">★ Exam: Banker's Algorithm [Every exam, almost every paper]</div>
+<ul>
+  <li>Always compute Need matrix first: Need = Max − Allocation</li>
+  <li>Compute Available = Total Resources − sum(Allocation)</li>
+  <li>Find safe sequence: find a process whose Need ≤ Work, add its allocation to Work, mark finished, repeat</li>
+  <li>When checking a resource request: first check Request ≤ Need AND Request ≤ Available, then do hypothetical allocation, then run safety algorithm</li>
+</ul>
+</div>
+<h4>Worked Example Structure</h4>
+<div class="code">Given: Resources = {A:10, B:5, C:7}
+         Allocation    Max        Need         Available
+         A B C        A B C      A B C
+  P0:    0 1 0        7 5 3      7 4 3         3 3 2
+  P1:    2 0 0        3 2 2      1 2 2
+  P2:    3 0 2        9 0 2      6 0 0
+  P3:    2 1 1        2 2 2      0 1 1
+  P4:    0 0 2        4 3 3      4 3 1
+
+Step 1: Check P1: Need(1,2,2) ≤ Work(3,3,2)? YES
+  Work = (3,3,2)+(2,0,0) = (5,3,2), Finish[P1]=true
+Step 2: Check P3: Need(0,1,1) ≤ (5,3,2)? YES
+  Work = (5,3,2)+(2,1,1) = (7,4,3), Finish[P3]=true
+Step 3: P4: Need(4,3,1) ≤ (7,4,3)? YES ... continue
+Safe sequence: &lt;P1, P3, P4, P2, P0&gt;</div>
+</div>
+
+<div class="sec">
+<h3>Deadlock Prevention</h3>
+<p>Negate one of the four necessary conditions:</p>
+<div class="tbl"><table>
+  <tr><th>Condition to Negate</th><th>Method</th><th>Problem</th></tr>
+  <tr><td>Mutual Exclusion</td><td>Make resources sharable (e.g., read-only files)</td><td>Not possible for truly non-sharable resources</td></tr>
+  <tr><td>Hold and Wait</td><td>Request ALL resources before starting, OR release all before requesting new ones</td><td>Low utilization; starvation possible</td></tr>
+  <tr><td>No Preemption</td><td>If process must wait, release all held resources; restart later</td><td>Only works for preemptible resources (CPU, memory), not printers</td></tr>
+  <tr><td>Circular Wait</td><td>Total ordering on resources — processes must request in increasing order</td><td>May not reflect actual need order</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Deadlock Recovery</h3>
+<p>Once a deadlock is detected, the system must break it:</p>
+<ul>
+  <li><span class="hl">Resource Preemption:</span> Take a resource from a process and give it to another. Considerations: which process to preempt (minimize cost), can the process roll back?</li>
+  <li><span class="hl">Process Termination:</span> Either abort ALL deadlocked processes (simple but costly) or abort ONE at a time and recheck (less disruptive). Criteria for choosing victim: priority, how long running, resources held, how close to completion.</li>
+  <li><span class="hl">Process Rollback:</span> Roll back a process to a safe checkpoint taken earlier, restart from there.</li>
+</ul>
+<p>Starvation risk: same process may always be chosen as victim. Solution: include number of rollbacks in cost factor.</p>
+</div>
+</div>
+
+<!-- ═══════════ SYNCHRONIZATION ═══════════ -->
+<div class="ch" id="sync">
+<div class="ch-head"><span class="ch-badge">SYNC</span><h2>Process Synchronization</h2></div>
+
+<div class="sec">
+<h3>Race Conditions and Critical Sections</h3>
+<p>A <span class="hl">race condition</span> occurs when multiple processes access shared data concurrently and the result depends on the order of execution. Classic example: two processes reading and incrementing a counter — both read the same value, both increment, result is off by one.</p>
+<p>A <span class="hl">critical section</span> is the code segment where shared resources are accessed. Only one process should execute its critical section at a time. A valid solution must satisfy:</p>
+<div class="cards">
+  <div class="card"><strong>Mutual Exclusion</strong><span>Only one process in critical section at a time.</span></div>
+  <div class="card"><strong>Progress</strong><span>If no process is in critical section, a process wanting to enter should be able to (no infinite waiting by others).</span></div>
+  <div class="card"><strong>Bounded Waiting</strong><span>There is a limit on how many times others can enter the critical section before a waiting process gets in (no starvation).</span></div>
+</div>
+<h4>Why Busy-Waiting is Bad</h4>
+<p>A lock variable check like <code>while(lock==1);</code> wastes CPU time spinning. Also has a fatal flaw: the check and the set are <strong>not atomic</strong> — two processes can both read <code>lock=0</code> before either writes <code>lock=1</code>, both entering the critical section. This is the <span class="hl">lock variable failure</span>.</p>
+<p><span class="hl">Priority Inversion</span> with busy-waiting: If high-priority H is busy-waiting for low-priority L to release a lock, but H's running prevents L from running → L never releases → H spins forever.</p>
+</div>
+
+<div class="sec">
+<h3>Semaphores</h3>
+<p>Invented by Dijkstra (1965). An integer variable accessed only through two <span class="hl">atomic</span> operations:</p>
+<div class="code">down(S)  [also called wait(), P()]:
+  if S > 0: S = S - 1  // proceed
+  else: BLOCK this process (sleep), put in semaphore wait queue
+
+up(S)    [also called signal(), V()]:
+  S = S + 1
+  if any processes sleeping on this semaphore: wake one up</div>
+<p>Atomicity means the check-and-change cannot be interrupted — implemented by temporarily disabling interrupts.</p>
+<div class="cmp">
+  <div class="cmp-box"><h5>Binary Semaphore (Mutex)</h5><ul>
+    <li>Value can only be 0 or 1</li>
+    <li>Used for <strong>mutual exclusion</strong> — only one process in critical section</li>
+    <li>Initialize to 1 (unlocked)</li>
+    <li>down() before entering CS, up() after</li>
+    <li>If another process tries to down() when value=0, it sleeps</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Counting Semaphore</h5><ul>
+    <li>Value = number of available instances of a resource</li>
+    <li>Used to <strong>control access</strong> to multiple identical resources</li>
+    <li>Initialize to N (number of resources)</li>
+    <li>Examples: limit 5 threads to print queue, control buffer slots</li>
+    <li>down() decrements count; up() increments</li>
+  </ul></div>
+</div>
+<div class="exam"><div class="exam-label">★ Exam: Semaphores [Every exam]</div>
+<ul>
+  <li>Binary semaphore: mutex = 1. Lock before CS: down(mutex). Unlock after: up(mutex).</li>
+  <li>Counting semaphore: semaphore S = N (number of resources). down(S) to use, up(S) to release.</li>
+  <li>Know why semaphores solve the lost wakeup problem (sleep/wakeup fails)</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h3>Classical Synchronization Problems</h3>
+<h4>Producer-Consumer (Bounded Buffer)</h4>
+<div class="code">semaphore mutex = 1;      // mutual exclusion for buffer
+semaphore empty = N;      // count of empty buffer slots (initially N)
+semaphore full = 0;       // count of full buffer slots (initially 0)
+
+Producer:                          Consumer:
+  while(TRUE) {                      while(TRUE) {
+    produce_item();                    down(&full);    // wait for full slot
+    down(&empty); // wait for room     down(&mutex);   // lock buffer
+    down(&mutex); // lock buffer       item = remove_item();
+    add_item();                        up(&mutex);     // unlock
+    up(&mutex);   // unlock            up(&empty);     // signal empty slot
+    up(&full);    // signal full slot  consume_item();
+  }                                  }</div>
+<p>Key: Producer waits if buffer full (empty=0). Consumer waits if buffer empty (full=0). mutex ensures only one modifies buffer at a time. Order of down() calls matters — always down the resource semaphore BEFORE mutex to avoid deadlock.</p>
+<div class="exam"><div class="exam-label">★ Exam: Producer-Consumer [Fall 2024 Q1j, Fall 2021 Q2b, Spring 2021 Q2b, Spring 2018 Q2b]</div>
+<ul>
+  <li>Write full pseudocode with 3 semaphores (mutex, empty, full)</li>
+  <li>Explain scenario: producer faster → buffer fills up → producer sleeps → consumer runs → wakes producer</li>
+  <li>Explain scenario: consumer faster → buffer empties → consumer sleeps → producer runs → wakes consumer</li>
+</ul>
+</div>
+
+<h4>Sleeping Barber Problem</h4>
+<div class="code">semaphore customers = 0;  // sleeping barbers waiting (initially 0)
+semaphore barbers = 0;    // waiting customers (initially 0)  
+semaphore mutex = 1;      // for mutual exclusion
+int waiting = 0;          // count of waiting customers
+
+Barber:                              Customer:
+  while(TRUE) {                        down(&mutex);
+    down(&customers); // sleep if 0    if(waiting < CHAIRS) {
+    down(&mutex);                        waiting++;
+    waiting--;                           up(&customers);  // wake barber
+    up(&barbers);    // ready            up(&mutex);
+    up(&mutex);                          down(&barbers);  // wait for barber
+    cut_hair();                          get_haircut();
+  }                                    } else {
+                                         up(&mutex);  // leave (shop full)
+                                       }</div>
+<div class="exam"><div class="exam-label">★ Exam: Sleeping Barber [Fall 2023 Q2f, Fall 2022 Q2f, Spring 2024 Q2e]</div>
+<ul>
+  <li>Modified versions: 3 barbers, 6 waiting chairs. Same structure but CHAIRS=6, extend barber semaphore to track multiple barbers</li>
+  <li>Justify with scenarios: (i) 1 barber, 3 customers arrive (ii) barber enters with no customers (iii) 3 barbers, 2 customers, no more coming (iv) 2 barbers, 6 customers waiting</li>
+</ul>
+</div>
+
+<h4>Readers-Writers Problem</h4>
+<p>Multiple readers can read simultaneously, but writers need exclusive access. Standard solution favors readers (writers can starve). Fair solution: when a writer is waiting, no new readers allowed in.</p>
+<div class="code">semaphore mutex = 1;   // protects read_count
+semaphore db = 1;      // exclusive access to database
+int read_count = 0;    // how many readers currently reading
+
+Reader():                          Writer():
+  down(mutex);                       down(db);    // get exclusive access
+  read_count++;                      write_data();
+  if(read_count==1) down(db); // first reader locks out writers
+  up(mutex);
+  read_data();
+  down(mutex);
+  read_count--;
+  if(read_count==0) up(db); // last reader unlocks
+  up(mutex);</div>
+
+<h4>Dining Philosophers</h4>
+<p>N philosophers around a table, N forks. Each needs 2 forks to eat. Naive solution (take left, then right) causes deadlock if all take left simultaneously. Solution: use a state array (THINKING, HUNGRY, EATING) with one semaphore per philosopher. Philosopher can only eat if neither neighbor is eating.</p>
+</div>
+</div>
+
+<!-- ═══════════ PROCESSES & THREADS ═══════════ -->
+<div class="ch" id="threads">
+<div class="ch-head"><span class="ch-badge">PROC</span><h2>Processes and Threads</h2></div>
+
+<div class="sec">
+<h3>Processes</h3>
+<p>A <span class="hl">process</span> is a program in execution — an instance of a program with its own memory space, registers, and state. A program is a passive entity (file on disk); a process is active.</p>
+<p>A process contains: program code (text section), program counter, CPU registers, stack (function calls, local vars), data section (global variables), heap (dynamic allocation).</p>
+<h4>Process States</h4>
+<div class="code">New → Ready → Running → Waiting → Ready → ... → Terminated
+
+New:        Process is being created
+Ready:      Waiting to be assigned to a CPU (in ready queue)
+Running:    Instructions are being executed
+Waiting:    Waiting for I/O event to complete
+Terminated: Process has finished execution
+
+Key transitions:
+  Ready → Running:     Scheduler dispatches (picks) the process
+  Running → Waiting:   Process waits for I/O
+  Running → Ready:     Preempted (time quantum expired or higher priority arrives)
+  Waiting → Ready:     I/O event completed</div>
+<h4>Process Control Block (PCB)</h4>
+<p>The OS maintains a <span class="hl">PCB</span> for each process containing: process state, program counter, CPU registers, CPU scheduling info (priority, pointers to queues), memory management info (base/limit registers, page tables), accounting info (CPU time used, time limits), I/O status (open files, allocated devices).</p>
+<h4>CPU Utilization</h4>
+<div class="code">If processes spend fraction p of time waiting for I/O:
+  CPU Utilization = 1 - p^n   (where n = number of processes in memory)
+
+Example: p=0.8 (80% I/O wait):
+  n=1: 1 - 0.8 = 20%
+  n=2: 1 - 0.64 = 36%
+  n=5: 1 - 0.328 = 67.2%
+  n=10: 1 - 0.107 = 89.3%
+  
+Need ~10 processes in memory to keep CPU >90% busy if processes spend 80% time in I/O!</div>
+</div>
+
+<div class="sec">
+<h3>Threads</h3>
+<p>A <span class="hl">thread</span> is the smallest unit of execution within a process. Multiple threads within a process share: code section, data section, heap, open files. Each thread has its own: stack, registers, program counter, thread ID. Threads are called <span class="hl">Lightweight Processes (LWP)</span> because creating a thread is much cheaper than creating a full process.</p>
+<div class="cmp">
+  <div class="cmp-box"><h5>User-Level Threads</h5><ul>
+    <li>Managed entirely by user-space library (no kernel involvement)</li>
+    <li>Kernel sees only one thread per process</li>
+    <li>Fast creation and switching (no kernel trap)</li>
+    <li>One thread blocking blocks ALL threads in process (kernel doesn't know about others)</li>
+    <li>Cannot use multiple CPUs in parallel</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Kernel-Level Threads</h5><ul>
+    <li>Kernel creates and manages threads; each has a kernel TCB</li>
+    <li>If one thread blocks, others in same process can still run</li>
+    <li>Can truly run in parallel on multiple CPUs</li>
+    <li>Slower creation (requires kernel call)</li>
+    <li>Used by all modern OS: Windows, Linux, macOS</li>
+  </ul></div>
+</div>
+<h4>Threading Models</h4>
+<div class="tbl"><table>
+  <tr><th>Model</th><th>Mapping</th><th>Pros</th><th>Cons</th></tr>
+  <tr><td>Many-to-One (M:1)</td><td>Many user threads → 1 kernel thread</td><td>Fast, no kernel overhead</td><td>Block all on I/O; no true parallelism; RARELY used</td></tr>
+  <tr><td>One-to-One (1:1)</td><td>Each user thread = 1 kernel thread</td><td>True parallelism; block one without blocking others</td><td>More overhead; limit on thread count</td></tr>
+  <tr><td>Many-to-Many (M:M)</td><td>Many user → many kernel threads</td><td>Best of both worlds</td><td>Complex to implement; fallen out of favor</td></tr>
+</table></div>
+<p>Modern OS (Linux, Windows) use <span class="hl">One-to-One</span> as it provides true parallelism and blocking isolation.</p>
+<div class="exam"><div class="exam-label">★ Exam: Threads [Every exam]</div>
+<ul>
+  <li>Why thread is called "lightweight process": shares memory/resources with parent process, cheaper to create than full process</li>
+  <li>When to prefer threads over processes: when tasks share data/state (e.g., web server handling multiple requests to same database)</li>
+  <li>Kernel thread model: each thread has a TCB, true parallelism, context switch via kernel, used in Windows/Linux</li>
+  <li>Can a single-threaded app be converted to multi-threaded? Mostly yes, but must handle shared state carefully (race conditions, synchronization)</li>
+</ul>
+</div>
+<h4>Amdahl's Law</h4>
+<div class="code">Speedup ≤ 1 / (S + (1-S)/N)
+
+Where: S = fraction of the program that must be serial (cannot be parallelized)
+       N = number of processor cores
+
+Example: 75% parallel (25% serial), 2 cores:
+  Speedup = 1 / (0.25 + 0.75/2) = 1 / 0.625 = 1.6×
+
+As N → ∞: speedup approaches 1/S
+The serial portion bottlenecks performance regardless of how many cores are added!</div>
+</div>
+</div>
+
+<!-- ═══════════ MEMORY MANAGEMENT ═══════════ -->
+<div class="ch" id="memory">
+<div class="ch-head"><span class="ch-badge">MEM</span><h2>Memory Management</h2></div>
+
+<div class="sec">
+<h3>Address Types</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Logical (Virtual) Address</h5><ul>
+    <li>Generated by the CPU</li>
+    <li>What the program sees</li>
+    <li>Range: 0 to (process size - 1)</li>
+    <li>Translated to physical by MMU</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Physical Address</h5><ul>
+    <li>Actual address in RAM chips</li>
+    <li>What the memory unit sees</li>
+    <li>Programs never see this directly</li>
+    <li>MMU (Memory Management Unit) does the translation</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Contiguous Memory Allocation</h3>
+<p>Each process gets a single contiguous block of memory. The OS uses <span class="hl">base</span> and <span class="hl">limit registers</span> for memory protection. Base = starting physical address of process. Limit = size of logical address space. MMU checks: if logical address ≥ limit → trap to OS (protection fault). Physical address = logical address + base.</p>
+<h4>Fragmentation</h4>
+<div class="cmp">
+  <div class="cmp-box"><h5>Internal Fragmentation</h5><ul>
+    <li>Wasted space <strong>inside</strong> an allocated partition</li>
+    <li>Process gets more memory than it needs</li>
+    <li>Occurs with fixed-size partitions and paging</li>
+    <li>Example: partition is 100KB, process needs 90KB → 10KB wasted inside</li>
+  </ul></div>
+  <div class="cmp-box"><h5>External Fragmentation</h5><ul>
+    <li>Wasted space <strong>between</strong> allocated partitions</li>
+    <li>Total free memory is enough, but not contiguous</li>
+    <li>Occurs with variable-size partitions (contiguous allocation)</li>
+    <li>Solution: <strong>compaction</strong> (defragmentation), or paging/segmentation</li>
+  </ul></div>
+</div>
+<h4>Memory Allocation Algorithms</h4>
+<div class="tbl"><table>
+  <tr><th>Algorithm</th><th>Method</th><th>Pros</th><th>Cons</th></tr>
+  <tr><td>First Fit</td><td>Allocate FIRST hole large enough</td><td>Fast, doesn't need to scan all</td><td>May fragment beginning of memory</td></tr>
+  <tr><td>Best Fit</td><td>Allocate SMALLEST hole large enough</td><td>Minimizes wasted space per allocation</td><td>Creates tiny unusable holes; slow (full scan)</td></tr>
+  <tr><td>Worst Fit</td><td>Allocate LARGEST hole</td><td>Leaves large remaining holes</td><td>Worst performance; doesn't help overall</td></tr>
+</table></div>
+<p>Free memory tracked using: <span class="hl">bitmap</span> (1 bit per allocation unit; 0=free, 1=used) or <span class="hl">linked list</span> (each entry: (type, start, size, next) — type=P(process) or H(hole)).</p>
+</div>
+
+<div class="sec">
+<h3>Paging</h3>
+<p>Paging eliminates external fragmentation by allowing physical memory to be non-contiguous. Divide:</p>
+<ul>
+  <li><span class="hl">Physical memory</span> into fixed-size <strong>frames</strong></li>
+  <li><span class="hl">Logical memory</span> into same-size <strong>pages</strong></li>
+</ul>
+<p>OS maintains a <span class="hl">page table</span> for each process mapping page numbers to frame numbers. No external fragmentation. Small internal fragmentation possible (last page may not be full).</p>
+<div class="code">Address Structure:
+  Logical address = [Page Number (p)] [Page Offset (d)]
+  Physical address = [Frame Number (f)] [Page Offset (d)]
+
+Key formulas:
+  Page size = Frame size = 2^offset_bits bytes
+  
+  Number of pages in process = ceil(Process Size / Page Size)
+  Offset bits = log₂(Page Size)
+  Page bits   = log₂(Number of pages) = log₂(Process Size / Page Size)
+  Frame bits  = log₂(Number of frames) = log₂(RAM Size / Frame Size)
+  
+  Logical address bits  = page bits + offset bits  = log₂(Process Size)
+  Physical address bits = frame bits + offset bits = log₂(RAM Size)
+
+Address Translation:
+  Given logical address LA:
+    page number  p = LA / Page_Size  (or top bits of LA)
+    offset       d = LA mod Page_Size (or bottom bits of LA)
+    Look up p in page table → get frame f
+    Physical address = f × Page_Size + d</div>
+<div class="exam"><div class="exam-label">★ Exam: Paging Address Translation [Every single exam]</div>
+<div class="code">Example: RAM=16GB, Process=512MB, Page Entry=8 bytes, data in 1110th frame
+
+Step 1: Page Size derivation:
+  Avg process size = 512MB. Page table fits in memory → use average address space.
+  Wait — if avg addr space size = S and page table entry = e bytes, optimal page size p:
+  p = sqrt(2 × S × e)  (minimize total overhead of page tables + internal fragmentation)
+  
+  BUT in exam problems, usually: 
+  RAM frames count = RAM / FrameSize. Logical bits = log₂(ProcessSize). Physical bits = log₂(RAM).
+  
+Step 2: Structure of logical address:
+  If Process = 512MB = 2^29 bytes → logical address = 29 bits
+  If Page Size = P → offset = log₂(P) bits → page# = 29 - offset bits
+  
+Step 3: Given page number and offset, find physical address:
+  Physical = (Frame# × Page_Size) + Offset
+
+Typical exam: "Process size 512MB, RAM 8GB, entry 8 bytes, data in 1110th frame, process requests page 10 offset 5125"
+  → Derive page size first: sqrt(2 × 512MB × 8) ≈ find p
+  → OR if page size given directly: use it
+  → Logical addr = 10 × PageSize + 5125 (in bits: compute)
+  → Physical addr = 1110 × PageSize + 5125</div>
+</div>
+
+<h4>Translation Look-Aside Buffer (TLB)</h4>
+<p>Problem: paging requires 2 memory accesses (one for page table, one for data). Solution: <span class="hl">TLB</span> — a small, fast hardware cache of recent page-to-frame translations (associative memory, parallel search). If page number found in TLB (TLB hit) → get frame immediately (1 memory access total). If not found (TLB miss) → access page table in memory, update TLB (2 memory accesses).</p>
+<p>TLB is small because: (1) associative memory is expensive, (2) programs exhibit <span class="hl">locality of reference</span> — they repeatedly access the same pages, so a small TLB gets high hit rates (typically >95%). TLB size typically 64–1024 entries.</p>
+<div class="code">Effective Access Time (EAT):
+  EAT = hit_rate × (TLB_access + memory_access)
+      + (1 - hit_rate) × (TLB_access + 2 × memory_access)
+
+Example: hit rate = 0.80, TLB = 20ns, memory = 100ns:
+  EAT = 0.8 × (20+100) + 0.2 × (20+200) = 96 + 44 = 140ns
+  (vs. 220ns without TLB)</div>
+<div class="exam"><div class="exam-label">★ Exam: TLB [Fall 2023 Q1g, Fall 2022 Q2f, Spring 2023 Q1g, Spring 2022 Q3b]</div>
+<ul>
+  <li>Explain TLB improves memory access time: TLB hit = 1 access instead of 2 (page table + data)</li>
+  <li>Why TLB is small: associative memory is expensive; locality means small table is highly effective</li>
+  <li>Can TLB size be increased? Yes, but diminishing returns after ~95% hit rate; cost increases significantly</li>
+  <li>Draw TLB diagram: CPU → check TLB → (hit) frame → physical address OR (miss) → page table → TLB update → frame → physical address</li>
+</ul>
+</div>
+
+<h4>Two-Level Page Table</h4>
+<p>For large address spaces, a single page table would be huge (and itself would need many frames). Solution: page the page table itself using a two-level hierarchy.</p>
+<div class="code">Given: Process size = 32MB, RAM = 16MB, Page size = 2KB
+
+Step 1: Page size = 2KB = 2^11 bytes → offset = 11 bits
+Step 2: Process has 32MB/2KB = 2^15/2^11 = 16K pages = 2^14 → page bits = 14
+        But wait: 32MB = 2^25 bytes, offset = 11 bits, page# = 25-11 = 14 bits
+Step 3: RAM = 16MB = 2^24 bytes, offset = 11 bits → frame bits = 24-11 = 13 bits
+Step 4: Logical address = 25 bits = [p1 | p2 | d] 
+        Split page# (14 bits) into two parts: p1 and p2
+        Typically split evenly or based on page size: 
+        If page size = 2KB = 512 entries of 4 bytes → p2 = log₂(512) = 9 bits
+        p1 = 14 - 9 = 5 bits ... draw 3-level table structure
+
+Logical address: |p1 (5 bits)| p2 (9 bits)| d (11 bits)|
+                  outer PT      inner PT     offset</div>
+<div class="exam"><div class="exam-label">★ Exam: Two-Level Page Table [Spring 2023 Q2b, Fall 2022 Q2b, Spring 2022 Q7b, Spring 2021 Q3a, Fall 2021 Q5a]</div>
+<ul>
+  <li>STEP 1: Offset bits = log₂(Page Size)</li>
+  <li>STEP 2: Logical page# bits = log₂(Process Size) − offset bits</li>
+  <li>STEP 3: Physical frame# bits = log₂(RAM Size) − offset bits</li>
+  <li>STEP 4: If one page table page holds (Page_Size / entry_size) entries, split accordingly</li>
+  <li>Draw the outer page table, inner page tables, and the 3-part address format</li>
+</ul>
+</div>
+
+<h4>Optimal Page Size Formula (Demand Paging)</h4>
+<div class="code">Optimal page size p minimizes total overhead:
+  Overhead = page_table_size + internal_fragmentation
+           = (S/p) × e + p/2
+
+Where: S = average process size, e = page table entry size, p = page size
+Minimize by taking derivative and setting to 0:
+  p_optimal = sqrt(2 × S × e)
+
+Example: S = 1073741824 bytes (1GB), e = 32 bytes:
+  p = sqrt(2 × 10^9 × 32) ≈ sqrt(6.44 × 10^10) ≈ 253,978 bytes ≈ 248KB</div>
+</div>
+
+<div class="sec">
+<h3>Memory Protection (Contiguous)</h3>
+<p>In contiguous allocation: OS gives process a <span class="hl">base register</span> (start of memory) and <span class="hl">limit register</span> (size). MMU checks every memory access: if logical address ≥ limit → protection violation trap. Physical address = base + logical address. Processes cannot access memory outside their partition.</p>
+<p>In paging: each page table entry has a <span class="hl">valid-invalid bit</span>. Valid = page is in process's logical address space. Invalid = page doesn't belong to process. Accessing an invalid page → trap. Also read/write/execute protection bits per page.</p>
+</div>
+
+<div class="sec">
+<h3>Segmentation</h3>
+<p>Supports user view of memory — a program is a collection of named segments (code, stack, heap, data). Each segment has a base (starting physical address) and limit (length). Logical address = (segment number, offset). If offset ≥ limit → protection fault. Segments can be different sizes → external fragmentation.</p>
+</div>
+</div>
+
+<!-- ═══════════ VIRTUAL MEMORY ═══════════ -->
+<div class="ch" id="vmem">
+<div class="ch-head"><span class="ch-badge">VMEM</span><h2>Virtual Memory and Demand Paging</h2></div>
+
+<div class="sec">
+<h3>Virtual Memory Concept</h3>
+<p>Virtual memory separates logical memory from physical memory, allowing processes to have address spaces larger than physical RAM. Only the <span class="hl">working set</span> (recently used pages) needs to be in RAM. The rest stays on disk (backing store). This allows more processes to run simultaneously.</p>
+<p>The <span class="hl">valid-invalid bit</span> in each page table entry tells the OS whether the page is currently in physical memory (valid=1, page in RAM) or on disk (valid=0, page needs to be loaded).</p>
+</div>
+
+<div class="sec">
+<h3>Demand Paging and Page Faults</h3>
+<p>Bring a page into memory only when it's needed (<span class="hl">lazy loading</span>). When a process accesses a page not in RAM → <span class="hl">page fault</span>:</p>
+<div class="steps">
+  <div class="step"><p>CPU accesses a page. MMU checks page table → valid bit = 0 → page fault trap to OS</p></div>
+  <div class="step"><p>OS checks: Is this a valid page? (In process's address space?) If invalid → abort. If valid but not in memory → proceed.</p></div>
+  <div class="step"><p>Find a free frame in RAM. If none, run page replacement algorithm to select a victim frame.</p></div>
+  <div class="step"><p>If victim frame is dirty (modified), write it to disk (swap it out).</p></div>
+  <div class="step"><p>Load the required page from disk into the free frame. Update page table: frame number + set valid=1.</p></div>
+  <div class="step"><p>Restart the instruction that caused the page fault.</p></div>
+</div>
+<p><span class="hl">Thrashing</span>: OS spends more time swapping pages than executing processes. Occurs when a process has too few frames — faults on nearly every memory access. Indicators: low CPU utilization + high I/O activity. Solution: working set model, give each process enough frames.</p>
+</div>
+
+<div class="sec">
+<h3>Page Replacement Algorithms</h3>
+<div class="tbl"><table>
+  <tr><th>Algorithm</th><th>Rule</th><th>Performance</th><th>Notes</th></tr>
+  <tr><td>FIFO</td><td>Replace the page that has been in memory the longest</td><td>Not great; can have Belady's Anomaly (more frames → more faults)</td><td>Simple to implement</td></tr>
+  <tr><td>Optimal (OPT)</td><td>Replace the page that won't be used for the longest time in future</td><td>Best possible — fewest page faults</td><td>Impossible to implement (needs future knowledge); used as benchmark</td></tr>
+  <tr><td>LRU (Least Recently Used)</td><td>Replace the page that hasn't been used for the longest time in the past</td><td>Close to optimal; no Belady's anomaly</td><td>Expensive to implement exactly; common in practice</td></tr>
+  <tr><td>Clock (Second-Chance)</td><td>FIFO with reference bit. If bit=1, give second chance (reset to 0). If bit=0, replace.</td><td>Good approximation of LRU</td><td>Efficient implementation</td></tr>
+</table></div>
+<div class="exam"><div class="exam-label">★ Exam: Page Replacement [Every exam — biggest calculation question]</div>
+<ul>
+  <li>Draw a table with frames as columns and page requests as rows</li>
+  <li>Mark each row: H (hit — page already in memory) or F (fault — must load page)</li>
+  <li><strong>LRU:</strong> When fault, replace the page that was least recently used (furthest back in history)</li>
+  <li><strong>Optimal:</strong> When fault, replace the page that will be used furthest in the future (look ahead)</li>
+  <li>Count faults, compute fault rate = faults / total requests</li>
+  <li>Compare algorithms: Optimal always has ≤ faults than LRU. LRU generally better than FIFO.</li>
+</ul>
+</div>
+<div class="cmp">
+  <div class="cmp-box"><h5>LRU Example (3 frames, requests: 1,2,3,4,1,2)</h5><ul>
+    <li>1: [1, -, -] FAULT</li>
+    <li>2: [1, 2, -] FAULT</li>
+    <li>3: [1, 2, 3] FAULT</li>
+    <li>4: [4, 2, 3] FAULT — replace 1 (LRU)</li>
+    <li>1: [4, 1, 3] FAULT — replace 2 (LRU)</li>
+    <li>2: [4, 1, 2] FAULT — replace 3 (LRU)</li>
+    <li>6 faults / 6 requests = 100% fault rate</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Optimal Example (3 frames, requests: 1,2,3,4,1,2)</h5><ul>
+    <li>1: [1, -, -] FAULT</li>
+    <li>2: [1, 2, -] FAULT</li>
+    <li>3: [1, 2, 3] FAULT</li>
+    <li>4: [1, 2, 4] FAULT — replace 3 (not needed again)</li>
+    <li>1: [1, 2, 4] HIT</li>
+    <li>2: [1, 2, 4] HIT</li>
+    <li>4 faults / 6 requests = 66.7% fault rate</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ DISK SCHEDULING ═══════════ -->
+<div class="ch" id="disk">
+<div class="ch-head"><span class="ch-badge">DISK</span><h2>Disk Scheduling and Management</h2></div>
+
+<div class="sec">
+<h3>Disk Structure</h3>
+<p>A disk has multiple <span class="hl">platters</span>, each with two surfaces. Surfaces have concentric <span class="hl">tracks</span>. Tracks are divided into <span class="hl">sectors</span>. All tracks at the same radius across all platters form a <span class="hl">cylinder</span>. Access time = seek time + rotational latency + transfer time. We try to minimize <span class="hl">seek time</span> (moving head to correct cylinder) using scheduling.</p>
+<h4>Disk Management Terms</h4>
+<div class="cards">
+  <div class="card"><strong>Zone Bit Recording</strong><span>Outer tracks have more sectors than inner tracks (since they're longer). Allows more data on outer tracks. Complicates fixed sector addresses.</span></div>
+  <div class="card"><strong>Cylinder Skew</strong><span>Adjacent cylinders' sector 0 positions are offset from each other to account for head movement time. Prevents having to wait a full rotation after a track seek.</span></div>
+  <div class="card"><strong>Sector Interleaving</strong><span>Sectors on a track are numbered non-sequentially (e.g., 0,2,4,1,3 for double interleaving) to give the controller time to process data between consecutive sector reads.</span></div>
+  <div class="card"><strong>Bad Sector</strong><span>Sector that can't reliably store data. OS handles via sector sparing (replace with spare) or sector forwarding (shift sectors to skip bad one). Detected during formatting via ECC.</span></div>
+  <div class="card"><strong>MBR (Master Boot Record)</strong><span>Sector 0 of disk. Contains boot code and partition table (starting sector and size of each partition).</span></div>
+  <div class="card"><strong>Dispatch Latency</strong><span>Time for OS dispatcher to stop one process and start another (NOT disk-specific — often asked alongside disk terms).</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Disk Scheduling Algorithms</h3>
+<div class="tbl"><table>
+  <tr><th>Algorithm</th><th>How it Works</th><th>Pros</th><th>Cons</th></tr>
+  <tr><td>FCFS</td><td>Service in arrival order</td><td>Fair; no starvation</td><td>Lots of head movement; not efficient</td></tr>
+  <tr><td>SSTF (Shortest Seek Time First)</td><td>Service nearest cylinder to current head position</td><td>Much less movement than FCFS; efficient</td><td>Starvation of outer cylinders if requests cluster in middle; not strictly optimal</td></tr>
+  <tr><td>SCAN (Elevator)</td><td>Head moves in one direction, services all requests, reverses at end</td><td>No starvation; better than SSTF for heavy loads</td><td>Cylinders at far end wait longer; travels to end even if no requests</td></tr>
+  <tr><td>C-SCAN (Circular SCAN)</td><td>Head moves in one direction only, services requests; at end, jumps back to beginning without servicing</td><td>More uniform wait time than SCAN</td><td>Jumps from end to beginning (counts as movement)</td></tr>
+  <tr><td>C-LOOK (Circular LOOK)</td><td>Like C-SCAN but only goes as far as last request in each direction (doesn't go to disk ends)</td><td>Best practical performance; no unnecessary travel to disk ends</td><td>Slightly complex to implement</td></tr>
+  <tr><td>LOOK</td><td>Like SCAN but reverses at last request, not at disk end</td><td>Less wasted movement than SCAN</td><td>—</td></tr>
+</table></div>
+<div class="exam"><div class="exam-label">★ Exam: Disk Scheduling [Every exam — mandatory calculation question]</div>
+<div class="code">Example: Cylinder requests: 8,15,42,5,60,125,190,160,220,250,275,305,330,370,400
+Head at 145, moving toward higher-numbered cylinders, cylinders 0-600.
+
+SSTF from 145:
+  Nearest to 145: 160 (dist=15) → from 160: 125 (35) → from 125: 190 (65) → ...
+  List in service order, sum all distances.
+  Watch for TIES: problem states "prefer direction of majority of requests"
+
+SCAN from 145 (moving toward higher):
+  Service in order from current position going up: 160, 190, 220, 250, 275, 305, 330, 370, 400
+  Then come back: 125, 60, 42, 15, 8, 5
+  Total = (400-145) + (400-5) = 255 + 395 = 650
+
+C-LOOK from 145 (moving toward higher):
+  Service going up: 160, 190, 220, 250, 275, 305, 330, 370, 400
+  Jump to lowest request: 5
+  Service going up: 5, 8, 15, 42, 60, 125
+  Total = (400-145) + (400-5) + (125-5) = 255 + 395 + 120 = 770
+  Wait — C-LOOK doesn't go to disk END (600). Jump from 400 to lowest request (5):
+  Total = (400-145) + (400-5) + (125-5) → recalculate carefully
+
+KEY: For "servicing only when moving toward lower-numbered cylinders" instruction:
+  SCAN: start high (145), go UP: 160,190,...,600, then reverse going DOWN: service all lower
+  C-LOOK: go UP to highest: 160,...,400, jump to 5, go UP: 5,...,125 (don't go DOWN)</div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════ FILE SYSTEMS ═══════════ -->
+<div class="ch" id="fs">
+<div class="ch-head"><span class="ch-badge">FS</span><h2>File Systems</h2></div>
+
+<div class="sec">
+<h3>File Allocation Methods</h3>
+<h4>File Allocation Table (FAT)</h4>
+<p>FAT is used in Windows/DOS. A <span class="hl">table stored at the start of the disk</span> tracks the chain of disk blocks belonging to each file. Each entry in the FAT corresponds to one disk block. Entry value: 0 = free block; end-of-file marker (0xFFFF or similar) = last block; or the block number of the next block in the file chain.</p>
+<div class="code">FAT Example: File "report.txt" starts at block 7
+FAT table:
+  Block: 0  1  2  3  4  5  6  7  8  9  10  11  12 ...
+  Value: 0  0  0 11  0  0  0  8  0 10  12  EOF  EOF ...
+                        ↑             ↑           ↑
+                     in use         in use      in use
+
+Chain: 7 → 8 → 10 → 12 → EOF
+Reading the file: read block 7, then FAT[7]=8 → read block 8, FAT[8]=10 → block 10, etc.
+Directory entry for report.txt: { filename, starting_block=7, file_size, ... }</div>
+<div class="exam"><div class="exam-label">★ Exam: FAT [Fall 2024 Q1i, Fall 2023 Q2g, Fall 2022 Q2g, Spring 2022 Q3c, Spring 2021 Q5b]</div>
+<ul>
+  <li>Given file size and block size: compute how many blocks needed = ceil(file_size / block_size)</li>
+  <li>Draw FAT table with chain from starting block. Ensure complete file can be reconstructed from figures.</li>
+  <li>Example: 2MB file, 64KB blocks → 2×1024/64 = 32 blocks. Draw FAT with 32-block chain.</li>
+</ul>
+</div>
+
+<h4>Unix inode Structure</h4>
+<p>Each file in a Unix system is represented by an <span class="hl">inode</span> (index node). An inode stores file metadata (permissions, owner, timestamps, file size, block pointers) but NOT the filename. The inode contains pointers to the actual data blocks on disk:</p>
+<ul>
+  <li><span class="hl">12 direct pointers</span>: each points directly to a data block</li>
+  <li><span class="hl">1 single indirect pointer</span>: points to a block of pointers (each pointer → data block)</li>
+  <li><span class="hl">1 double indirect pointer</span>: → block of pointers → each points to block of pointers → data blocks</li>
+  <li><span class="hl">1 triple indirect pointer</span>: 3 levels of indirection</li>
+</ul>
+<div class="code">Maximum File Size Calculation:
+  Given: block_size = B bytes, pointer_size = p bytes
+  
+  Pointers per block = B / p
+  
+  Direct blocks:         12 × B
+  Single indirect:       (B/p) × B
+  Double indirect:       (B/p)^2 × B
+  Triple indirect:       (B/p)^3 × B
+  
+  Total max size = B × [12 + (B/p) + (B/p)^2 + (B/p)^3]
+
+Example: B = 8KB = 8192 bytes, p = 2 bytes:
+  B/p = 4096 pointers per block
+  Direct:          12 × 8KB       = 96 KB
+  Single indirect: 4096 × 8KB    = 32 MB
+  Double indirect: 4096^2 × 8KB  = 128 GB
+  Triple indirect: 4096^3 × 8KB  = 512 TB
+  Total ≈ 512 TB + (approximately)</div>
+<div class="exam"><div class="exam-label">★ Exam: inode Max File Size [Every exam]</div>
+<ul>
+  <li>Most common: 4KB blocks with 4-byte pointers → 1024 ptrs/block; or 8KB blocks with 2-byte pointers → 4096 ptrs/block</li>
+  <li>Also asked: show how to locate a specific file like '/etc/config/host.txt' through directory traversal from root inode</li>
+</ul>
+</div>
+
+<h4>Hard Links vs Soft (Symbolic) Links</h4>
+<div class="cmp">
+  <div class="cmp-box"><h5>Hard Link</h5><ul>
+    <li>Another directory entry pointing to the SAME inode</li>
+    <li>File not deleted until all hard links are removed (inode reference count reaches 0)</li>
+    <li>Cannot cross file system boundaries</li>
+    <li>Cannot link to directories (usually)</li>
+    <li>Created with: <code>ln file1 link1</code></li>
+  </ul></div>
+  <div class="cmp-box"><h5>Soft Link (Symbolic Link)</h5><ul>
+    <li>A special file whose contents are a path to another file</li>
+    <li>Points to the filename, not the inode directly</li>
+    <li>If original file deleted, soft link becomes dangling (broken)</li>
+    <li>Can cross file systems; can link to directories</li>
+    <li>Created with: <code>ln -s file1 link1</code></li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+<footer>CSE 3213 · Operating Systems · Full Topic Guide · AUST · Silberschatz, Galvin &amp; Gagne / Tanenbaum</footer>
+</body>
+</html>
