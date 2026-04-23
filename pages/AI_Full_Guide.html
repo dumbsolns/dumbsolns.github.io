@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3207 — Full AI Study Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;
+  --purple:#bc8cff;--orange:#e3b341;--cyan:#39d353;
+  --text:#e6edf3;--muted:#8b949e;--subtle:#6e7681;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.7}
+
+.header{background:linear-gradient(180deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#58a6ff0f 0%,transparent 70%);pointer-events:none}
+.header h1{font-size:1.9rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.header h1 em{color:var(--accent);font-style:normal}
+.header p{color:var(--muted);font-size:.85rem;margin-top:.4rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1rem}
+.tag{background:var(--surface2);border:1px solid var(--border);padding:.2rem .7rem;border-radius:20px;font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+nav{position:sticky;top:0;z-index:100;background:#161b22ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;flex-wrap:wrap;gap:.3rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.78rem;padding:.25rem .6rem;border-radius:6px;transition:.15s;font-family:'JetBrains Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+
+.wrap{max-width:1020px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+.ch{margin-bottom:4rem}
+.ch-head{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;margin-bottom:2rem}
+.ch-badge{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);background:#58a6ff15;border:1px solid #58a6ff30;padding:.2rem .6rem;border-radius:4px;white-space:nowrap}
+.ch-head h2{font-size:1.2rem;font-weight:700;color:#fff}
+
+.sec{margin-bottom:2.5rem}
+.sec>h3{font-size:.95rem;font-weight:600;color:var(--accent);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem}
+.sec>h3::before{content:'§';font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--subtle);opacity:.8}
+h4{font-size:.875rem;font-weight:600;color:var(--yellow);margin:1.25rem 0 .6rem}
+p{margin-bottom:.75rem;color:var(--text);font-size:.9rem}
+
+.code{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#79c0ff;margin:.75rem 0;white-space:pre-wrap;overflow-x:auto;line-height:1.6}
+code{font-family:'JetBrains Mono',monospace;background:#30363d;padding:.1em .35em;border-radius:4px;font-size:.82em;color:#79c0ff}
+
+.note{background:#d2992211;border:1px solid #d2992240;border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin:.75rem 0;font-size:.875rem;color:#ffe0a0}
+.note-lbl{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--yellow);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+
+.tip{background:#3fb95011;border:1px solid #3fb95040;border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:.75rem 1rem;margin:.75rem 0;font-size:.875rem;color:#b5e8c0}
+.tip-lbl{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.35rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.75rem;margin:.75rem 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+.card strong{display:block;font-size:.8rem;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:.35rem}
+.card span{font-size:.84rem;color:var(--muted)}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.75rem 0}
+.cmp-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+.cmp-box h5{font-size:.8rem;font-weight:600;color:var(--accent);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.cmp-box ul{margin-left:1.1rem}
+.cmp-box li{font-size:.84rem;color:var(--muted);margin-bottom:.25rem}
+.cmp-box li strong{color:var(--text)}
+
+.tbl{overflow-x:auto;margin:.75rem 0}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{background:var(--surface2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.55rem .75rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600;letter-spacing:.3px}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+td:first-child{color:var(--text);font-weight:500}
+
+.steps{counter-reset:s;margin:.75rem 0}
+.step{counter-increment:s;display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.step::before{content:counter(s);min-width:22px;height:22px;background:#58a6ff1a;border:1px solid #58a6ff40;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);flex-shrink:0;margin-top:2px;font-weight:600}
+.step p{margin:0;font-size:.875rem}
+
+ul,ol{margin-left:1.25rem;margin-bottom:.75rem}
+li{margin-bottom:.3rem;color:var(--muted);font-size:.88rem}
+li strong{color:var(--text)}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+.hl3{color:var(--accent);font-weight:600}
+.hl4{color:var(--purple);font-weight:600}
+
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+footer{text-align:center;padding:2rem;color:var(--subtle);font-size:.75rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>CSE 3207 — <em>Introduction to Artificial Intelligence</em></h1>
+  <p>Complete Topic-by-Topic Study Guide · AUST · Russell &amp; Norvig (4th Ed.)</p>
+  <div class="tags">
+    <span class="tag">Ch 1 · Agents</span><span class="tag">Ch 2 · Logic</span>
+    <span class="tag">Ch 3 · Search</span><span class="tag">Ch 4 · Planning</span>
+    <span class="tag">Ch 5 · Games</span><span class="tag">Ch 6 · Uncertainty</span>
+    <span class="tag">Ch 7 · ML</span>
+  </div>
+</div>
+<nav>
+  <a href="#ch1">Agents</a><a href="#ch2">Logic</a>
+  <a href="#ch3">Search</a><a href="#ch4">Planning</a>
+  <a href="#ch5">Games</a><a href="#ch6">Uncertainty</a>
+  <a href="#ch7">ML</a>
+</nav>
+<div class="wrap">
+
+<!-- ═══════════════ CH 1: INTRO & AGENTS ═══════════════ -->
+<div class="ch" id="ch1">
+<div class="ch-head"><span class="ch-badge">CH 01</span><h2>Introduction to AI and Rational Agents</h2></div>
+
+<div class="sec">
+<h3>What is Artificial Intelligence?</h3>
+<p>AI attempts to <span class="hl">understand and build intelligent entities</span>. Four major approaches historically distinguish different schools of thought:</p>
+<div class="tbl"><table>
+  <tr><th>Approach</th><th>Focus</th><th>Measure of Success</th></tr>
+  <tr><td>Act like humans</td><td>Turing Test — can a machine be indistinguishable from a human?</td><td>Fooling human interrogators</td></tr>
+  <tr><td>Think like humans</td><td>Cognitive science — model human thought processes experimentally</td><td>Match human reasoning patterns</td></tr>
+  <tr><td>Think rationally</td><td>Laws of thought — implement logic and correct inference</td><td>Logically valid conclusions</td></tr>
+  <tr><td>Act rationally</td><td>Rational agent — take best possible action given knowledge</td><td>Expected performance maximized</td></tr>
+</table></div>
+<p>The modern approach focuses on <span class="hl2">rational agents</span> — systems that act to achieve the best expected outcome given available information. This is the framework used in this course.</p>
+<p>AI draws from many fields: Philosophy (what is thinking?), Mathematics (logic, probability), Economics (utility, decisions), Neuroscience (biological neurons), Psychology (human behavior), Linguistics (language), Computer Engineering, and Control Theory.</p>
+</div>
+
+<div class="sec">
+<h3>Historical Milestones</h3>
+<ul>
+  <li><strong>1940s–50s:</strong> Simple circuit models of neurons; McCulloch and Pitts</li>
+  <li><strong>1956:</strong> Official birth — Dartmouth Workshop, John McCarthy coins "Artificial Intelligence"</li>
+  <li><strong>1980s:</strong> Knowledge-based expert systems (MYCIN, XCON); then stagnation ("AI winter")</li>
+  <li><strong>1986+:</strong> Neural network renaissance (backpropagation); probabilistic reasoning</li>
+  <li><strong>1995+:</strong> Intelligent agent paradigm; Internet scale AI</li>
+  <li><strong>1997:</strong> IBM Deep Blue defeats Kasparov at chess</li>
+  <li><strong>2001+:</strong> Learning from large datasets; statistical ML mainstream</li>
+  <li><strong>2011+:</strong> Deep learning revolution; ImageNet, GPT, AlphaGo, LLMs</li>
+  <li><strong>2017:</strong> AlphaGo Zero learns Go from scratch, defeats all humans</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Rational Agents</h3>
+<p>An <span class="hl">agent</span> is anything that perceives its environment through <span class="hl2">sensors</span> and acts upon it through <span class="hl2">actuators</span>. Humans use eyes/ears (sensors) and hands/voice (actuators). Software agents use files and network packets.</p>
+<p>A <span class="hl">rational agent</span> chooses actions that <span class="hl">maximize expected performance</span> given its percept sequence and knowledge base. It also learns — improves based on experience — and functions autonomously.</p>
+
+<h4>Four Basic Agent Types</h4>
+<div class="cards">
+  <div class="card"><strong>Simple Reflex Agent</strong><span>Acts only on current percept. Uses condition-action rules (if dirty → suck). No memory. Works only in fully observable environments.</span></div>
+  <div class="card"><strong>Model-Based Reflex Agent</strong><span>Maintains internal state (model of world) to handle partial observability. Updates state based on history of percepts. Still rule-based.</span></div>
+  <div class="card"><strong>Goal-Based Agent</strong><span>Has explicit goal(s). Searches or plans to find action sequences that achieve goals. More flexible — can handle new goals without reprogramming.</span></div>
+  <div class="card"><strong>Utility-Based Agent</strong><span>Maximizes an explicit utility function (measure of how "happy" the agent is). Handles tradeoffs between competing goals. Most powerful and general.</span></div>
+</div>
+
+<h4>PEAS — Task Environment Specification</h4>
+<p>To design a rational agent, specify its <span class="hl">PEAS</span>:</p>
+<div class="cards">
+  <div class="card"><strong>P — Performance Measure</strong><span>How is success measured? E.g., score in game, distance saved, customer satisfaction.</span></div>
+  <div class="card"><strong>E — Environment</strong><span>What is the agent operating in? E.g., road, game board, hospital ward.</span></div>
+  <div class="card"><strong>A — Actuators</strong><span>How does the agent act? E.g., steering wheel, keyboard, voice.</span></div>
+  <div class="card"><strong>S — Sensors</strong><span>How does the agent perceive? E.g., camera, keyboard input, GPS.</span></div>
+</div>
+
+<h4>Environment Properties</h4>
+<div class="tbl"><table>
+  <tr><th>Property</th><th>Options</th><th>Explanation</th></tr>
+  <tr><td>Observability</td><td>Fully / Partially Observable</td><td>Can agent see complete state? Chess = fully; driving = partially (hidden road ahead)</td></tr>
+  <tr><td>Determinism</td><td>Deterministic / Stochastic</td><td>Does action fully determine next state? Deterministic = yes; stochastic = has randomness</td></tr>
+  <tr><td>Episodes</td><td>Episodic / Sequential</td><td>Does current action affect future? Episodic = no (classify each image); sequential = yes (chess)</td></tr>
+  <tr><td>Dynamics</td><td>Static / Dynamic</td><td>Does environment change while agent thinks? Taxi driving = dynamic; crossword = static</td></tr>
+  <tr><td>Discreteness</td><td>Discrete / Continuous</td><td>Finite distinct states/actions (chess) vs. continuous (driving)</td></tr>
+  <tr><td>Agents</td><td>Single / Multi-Agent</td><td>One agent acting alone (puzzle) vs. multiple competing/cooperating agents (chess, markets)</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ═══════════════ CH 2: KNOWLEDGE & REASONING ═══════════════ -->
+<div class="ch" id="ch2">
+<div class="ch-head"><span class="ch-badge">CH 02</span><h2>Knowledge Representation and Reasoning</h2></div>
+
+<div class="sec">
+<h3>Propositional Logic (PL)</h3>
+<p><span class="hl">Propositional Logic</span> is a formal language for representing knowledge (facts and rules) in a Knowledge Base (KB) and deriving new facts by inference. KB contains <span class="hl">definite Horn clauses</span> — clauses with exactly one positive literal. A rule like A∧B→C is represented as a Horn clause.</p>
+<p>Inference means deriving new sentences from existing ones. Two key algorithms are used when the KB contains only Horn clauses:</p>
+
+<h4>Forward Chaining (Data-Driven)</h4>
+<p>Start from known facts, apply rules, derive new facts, repeat until query is found or no new facts can be derived. Called <span class="hl">data-driven</span> because it starts from data and moves toward the goal.</p>
+<div class="code">Process: Known facts → match premises of rules → derive conclusions → add to KB → repeat
+Query: KB ⊨ M?
+
+Example KB:  A, B, C, D, P∧Q, C∧L→P, D∧M→P, B∧L→M, A∧P→L, A∧B→L, A∧D→G, G∧B→C
+
+Step 1: M not in KB
+Step 2: A∧B → L  (A and B both known) → L added
+Step 3: A∧D → G  (A and D known) → G added
+Step 4: B∧L → M  (B and L known) → M added
+Step 5: M found → proved!</div>
+
+<h4>Backward Chaining (Goal-Driven)</h4>
+<p>Start from the goal, work backwards to find facts that support it. Called <span class="hl">goal-driven</span> because it starts from the query and tries to prove it. Better when goal space is smaller than data space. Uses backtracking when a subgoal fails.</p>
+<div class="code">Query: KB ⊨ M?
+1. Goal: M. Find rule with M as conclusion: B∧L→M
+2. Subgoals: B and L
+3. B: found in KB ✓
+4. Goal: L. Find rule: A∧P→L
+5. Subgoals: A and P
+6. A: found ✓; Goal: P. Rule: C∧L→P → subgoals: C and L
+   ... L requires: A∧P→L → subgoal P again (loop!) → backtrack
+   Alternative rule for P: D∧M→P → subgoal M → loops back to original goal!
+   Another rule for L: A∧B→L → subgoals A and B → both found ✓
+7. Now L is proved. So B∧L→M → M is proved ✓</div>
+<div class="note"><div class="note-lbl">📌 FC vs BC Summary</div>
+<strong>Forward Chaining:</strong> All facts → fire rules → derive everything possible → check if query is among derived facts. Best when query is unknown. <strong>Backward Chaining:</strong> Start from query → find supporting rules → prove premises recursively. Best when query is specific. Both are sound and complete for Horn clause KBs.
+</div>
+</div>
+
+<div class="sec">
+<h3>First Order Logic (FOL / FOPL)</h3>
+<p>PL can only express facts about specific individuals. <span class="hl">First Order Logic</span> is more expressive — it can describe properties of objects and relationships between them, and can quantify over all or some objects using universal (∀) and existential (∃) quantifiers.</p>
+
+<h4>FOL Building Blocks</h4>
+<div class="cards">
+  <div class="card"><strong>Constant</strong><span>Refers to a specific object. E.g., <em>Karim</em>, <em>AUST</em>, <em>5</em></span></div>
+  <div class="card"><strong>Variable</strong><span>A placeholder for any object. E.g., <em>x</em>, <em>y</em>, <em>z</em>. Must be bound by a quantifier.</span></div>
+  <div class="card"><strong>Predicate</strong><span>Expresses a property or relation. E.g., Father(x,y), Greater(a,b), Subset(A,B)</span></div>
+  <div class="card"><strong>Function</strong><span>Maps objects to objects. E.g., MotherOf(x), Sum(a,b), GiftFor(x)</span></div>
+  <div class="card"><strong>Quantifiers</strong><span>∀ (for all) and ∃ (there exists). E.g., ∀x Person(x)→Mortal(x)</span></div>
+  <div class="card"><strong>Ground Term</strong><span>A term with no variables (constants and functions of constants only). E.g., MotherOf(Karim)</span></div>
+</div>
+<p>Example FOL sentences:</p>
+<div class="code">MotherOf(Rina) = Bina                               ← Function returning an object
+
+∀x ∀y ∀z (Father(x,y) ∧ Father(y,z)) → Grandfather(x,z)
+                                                     ← Universal rule about all objects
+
+∃x Guest(x) ∧ ∃y Gift(y) ∧ Receives(x, y)          ← There exist a guest and gift
+
+TELL(KB, { Father(Karim, Rahim), Father(Rahim, Selim), ... })
+ASK(KB, ∃x ∃y Grandfather(x, y))
+Returns: {x/Karim, y/Selim}, {x/Karim, y/Halim}     ← substitution list</div>
+</div>
+
+<div class="sec">
+<h3>Unification in FOL</h3>
+<p><span class="hl">Unification</span> is the process of making two FOL sentences identical by finding a <span class="hl">substitution</span> (a list of variable/term bindings). The <span class="hl">Most General Unifier (mgu)</span> is the substitution that makes sentences identical while leaving variables as general as possible (not over-specifying).</p>
+<div class="code">Unification rules:
+  • Different predicates or constants never unify
+  • A variable x can be unified with any term T, provided:
+    - T does not contain x (the occurs check — prevents circular substitutions)
+
+Example: UNIFY(P1("Km", x, y),  P1(z, u, F1(z)))
+
+Step 1: θ = {}
+Step 2: First args: "Km" vs z → θ = {z/"Km"}
+        Apply: P1("Km", x, y) and P1("Km", u, F1("Km"))
+Step 3: Second args: x vs u → θ = {z/"Km", x/u}
+        Apply: P1("Km", u, y) and P1("Km", u, F1("Km"))
+Step 4: Third args: y vs F1("Km") → θ = {z/"Km", x/u, y/F1("Km")}
+        Apply: both become P1("Km", u, F1("Km"))  ← Unified!
+
+mgu θ = {z/"Km", x/u, y/F1("Km")}   (u stays free — most general)</div>
+</div>
+
+<div class="sec">
+<h3>Resolution in FOL</h3>
+<p>The <span class="hl">Resolution rule</span> is a complete inference method for FOL. Given two clauses (disjunctions of literals) that contain complementary literals, we can produce a new clause (resolvent) by applying the unifier that makes the complementary literals identical.</p>
+<div class="code">Resolution Rule:
+  From:  p₁ ∨ p₂ ∨ ... ∨ pᵢ       (clause 1)
+  And:   q₁ ∨ q₂ ∨ ... ∨ qⱼ       (clause 2)
+  Where: pₖ and qₗ unify with mgu θ (one is positive, one is negative literal)
+  
+  Conclude: SUBST(θ, p₁∨...∨pₖ₋₁∨pₖ₊₁∨...∨pᵢ ∨ q₁∨...∨qₗ₋₁∨qₗ₊₁∨...∨qⱼ)
+  (Remove the unified literals, merge the remaining literals, apply substitution)</div>
+<p><span class="hl">Resolution-Refutation</span>: To prove a query Q from KB, add ¬Q (negation of query) to KB in CNF form, then repeatedly apply Resolution. If we derive the empty clause [], a contradiction has been found, proving that Q must be true.</p>
+
+<h4>Converting to CNF (Conjunctive Normal Form)</h4>
+<div class="steps">
+  <div class="step"><p><strong>Standardize variables:</strong> Rename variables in different quantifiers so they're unique</p></div>
+  <div class="step"><p><strong>Eliminate ↔ and →:</strong> A→B becomes ¬A∨B; A↔B becomes (¬A∨B)∧(A∨¬B)</p></div>
+  <div class="step"><p><strong>Move ¬ inward</strong> using DeMorgan's laws: ¬(A∧B) = ¬A∨¬B; ¬∀x = ∃x ¬; ¬∃x = ∀x ¬</p></div>
+  <div class="step"><p><strong>Skolemize:</strong> Replace existential variables with Skolem functions. If ∃y (inside ∀x), replace y with GiftFor(x) — a function of the enclosing universal variables</p></div>
+  <div class="step"><p><strong>Drop ∀ quantifiers</strong> (all remaining variables are implicitly universally quantified)</p></div>
+  <div class="step"><p><strong>Distribute ∨ over ∧</strong> to get a conjunction of clauses (each clause = disjunction of literals)</p></div>
+</div>
+<div class="code">Example: "Every guest receives at least one gift."
+Original FOL:  ∀x (Guest(x) → ∃y (Gift(y) ∧ Receives(x, y)))
+Step 1: standardize — already fine
+Step 2: eliminate →: ∀x (¬Guest(x) ∨ ∃y (Gift(y) ∧ Receives(x, y)))
+Step 3: move ¬ inward — already done
+Step 4: Skolemize ∃y with function GiftFor(x):
+        ∀x (¬Guest(x) ∨ (Gift(GiftFor(x)) ∧ Receives(x, GiftFor(x))))
+Step 5: drop ∀: (¬Guest(x) ∨ Gift(GiftFor(x))) ∧ (¬Guest(x) ∨ Receives(x, GiftFor(x)))
+Step 6: Already in CNF:
+  Clause 1: ¬Guest(x) ∨ Gift(GiftFor(x))
+  Clause 2: ¬Guest(x) ∨ Receives(x, GiftFor(x))
+
+"Karim is a guest": Clause 3: Guest(Karim)
+
+Query: "Does Karim receive a gift?" → ∃x (Gift(x) ∧ Receives(Karim, x))
+Negate query → add: ¬Gift(y) ∨ ¬Receives(Karim, y)   [CNF of negation]
+
+Resolve T1 (negated query) with Clause 1: θ={y/GiftFor(x)} → ¬Guest(x) ∨ ¬Receives(Karim, GiftFor(x))
+Resolve with Clause 2: θ={x/Karim} → ¬Guest(Karim)
+Resolve with Clause 3: θ={} → []   ← Empty clause! Contradiction found.
+∴ Query is PROVED: Karim receives a gift.</div>
+</div>
+</div>
+
+<!-- ═══════════════ CH 3: SEARCH ═══════════════ -->
+<div class="ch" id="ch3">
+<div class="ch-head"><span class="ch-badge">CH 03</span><h2>Problem Solving by Informed Search</h2></div>
+
+<div class="sec">
+<h3>Search Problem Formulation</h3>
+<p>Many AI problems can be formulated as searching a <span class="hl">state space</span> for a path from an initial state to a goal state.</p>
+<div class="cards">
+  <div class="card"><strong>Initial State</strong><span>Starting description of the environment. E.g., current tile arrangement in 8-puzzle.</span></div>
+  <div class="card"><strong>Goal State</strong><span>Desired target configuration. May be a single state or a condition to satisfy.</span></div>
+  <div class="card"><strong>Successor Function</strong><span>Given state S, returns set of (action, next_state) pairs. Defines all legal moves.</span></div>
+  <div class="card"><strong>Path Cost</strong><span>Sum of step costs along a path. Uniform cost = 1 per step; or weighted by distance/time.</span></div>
+  <div class="card"><strong>State Space</strong><span>Set of all states reachable from initial state via the successor function.</span></div>
+  <div class="card"><strong>Solution</strong><span>A path from initial state to a goal state. Optimal solution has minimum path cost.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Heuristic Functions</h3>
+<p>A <span class="hl">heuristic function</span> h(n) estimates the cost of the cheapest path from node n to the goal. Good heuristics guide the search toward the goal efficiently. They are derived from <span class="hl">relaxed problems</span> — simplified versions of the original problem.</p>
+<div class="code">Examples:
+  h₁(n) = number of misplaced tiles in 8-puzzle           (each tile must move ≥ once)
+  h₂(n) = straight-line distance from city n to destination (direct route ≤ any road route)
+
+Admissibility: h(n) ≤ true cost to reach goal from n       (never over-estimates)
+Consistency: h(n) ≤ c(n, a, n') + h(n')  for every successor n' of n   (triangle inequality)
+
+Every consistent heuristic is also admissible.
+A consistent heuristic with A* guarantees optimal solution.</div>
+
+<h4>Checking Admissibility and Consistency</h4>
+<p>For the road map problem with h(n) = straight-line distance to goal g:</p>
+<ul>
+  <li><strong>Admissible:</strong> For every node n, verify h(n) ≤ shortest actual path cost from n to g. Straight-line distance is always ≤ road distance, so h₂ is admissible.</li>
+  <li><strong>Consistent:</strong> For each edge (n → n') with cost c: check h(n) ≤ c(n,n') + h(n'). If h(i)=80, edge i→b costs 45, h(b)=42: 80 ≤ 45+42 = 87 ✓</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Greedy Best-First Search</h3>
+<p>Selects the node that appears closest to the goal according to the heuristic: <span class="hl">f(n) = h(n)</span>. Maintains a <span class="hl">Priority Queue (PQ)</span> sorted by h-values (ascending) and a <span class="hl">Possible Path (PP)</span> showing the current best path.</p>
+<div class="code">Algorithm:
+  PQ ← {initial_node with h-value}; PP ← []
+  
+  While PQ not empty:
+    n ← node with minimum h(n) from PQ   (best "looks promising")
+    If n is goal: return PP (solution found)
+    Mark n as visited; add to PP
+    For each unvisited neighbor n' of n:
+      Add n' to PQ with value h(n')
+    Straighten PP back to root from n
+
+Properties:
+  ✓ Fast and memory-efficient (like greedy, go to best-looking)
+  ✗ NOT complete: can get stuck in loops or very deep paths
+  ✗ NOT optimal: may find a solution faster but not the best one
+  ✗ Greedy: takes locally best, not globally best</div>
+<div class="note"><div class="note-lbl">📌 PQ vs PP</div>
+PQ (Priority Queue) holds nodes to explore next, ordered by h-value. PP (Possible Path) shows which nodes are currently on the path from start to current node. When we expand a node, we <em>straighten</em> PP to trace the path from root to that node. PP is updated by backtracking to find the path through parent pointers in the tree.
+</div>
+</div>
+
+<div class="sec">
+<h3>A* Search</h3>
+<p>A* uses <span class="hl">f(n) = g(n) + h(n)</span> where g(n) is the actual cost from start to n and h(n) is the estimated cost from n to goal. This balances "how far we've come" with "how far we need to go."</p>
+<div class="code">Evaluation function:  f(n) = g(n) + h(n)
+  g(n) = actual accumulated cost from start to n
+  h(n) = heuristic estimated cost from n to goal
+  f(n) = estimated total cost of cheapest solution through n
+
+PQ entries: node(name, g_value, parent_index, f_value)
+
+Example: node(b, 2, 0, 87) means:
+  - Node b
+  - g(b) = 2 (cost to reach b from start)
+  - Parent index 0 (came from node at index 0, which is i)
+  - f(b) = g(b) + h(b) = 2 + 42 + ... Wait: 2 + 85 = 87 here
+
+Key properties of A*:
+  1. A* in TREE SEARCH is optimal if h(n) is ADMISSIBLE
+  2. A* in GRAPH SEARCH is optimal if h(n) is CONSISTENT
+  3. If h is consistent, f(n) is non-decreasing along any path
+  4. A* expands all nodes with f(n) < C* (optimal solution cost)
+  5. A* is COMPLETE (finds solution if one exists, finite nodes ≤ C*)
+  6. A* is OPTIMALLY EFFICIENT — no optimal algorithm expands fewer nodes</div>
+<div class="cmp">
+  <div class="cmp-box"><h5>Greedy Best-First</h5><ul>
+    <li>f(n) = h(n) only</li>
+    <li>Ignores cost to reach n</li>
+    <li>Fast but may miss optimal path</li>
+    <li>Not complete, not optimal</li>
+    <li>Like asking "where does the goal <em>feel</em> closest?"</li>
+  </ul></div>
+  <div class="cmp-box"><h5>A* Search</h5><ul>
+    <li>f(n) = g(n) + h(n)</li>
+    <li>Balances actual cost + estimated remaining</li>
+    <li>Slower but guarantees optimal solution</li>
+    <li>Complete and optimal (with admissible/consistent h)</li>
+    <li>Like asking "what's the cheapest total route through here?"</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Hill-Climbing Local Search</h3>
+<p>Hill-climbing is a <span class="hl">local search</span> strategy — it doesn't track paths, only the current state. It keeps moving to better neighboring states until no improvement is possible. Used when we care about the <span class="hl">goal state itself</span> (not how we got there), such as optimization problems.</p>
+<div class="code">Algorithm:
+  current ← initial_state
+  Loop:
+    neighbor ← best of SUCCESSORS(current)  [highest h/objective value]
+    if h(neighbor) ≤ h(current): return current  [no improvement → stop]
+    current ← neighbor
+
+Example: 8-queens problem
+  State: complete placement of 8 queens (one per column)
+  h: number of attacking pairs (minimize; 0 = solution)
+  F1: non-attacking pairs = 28 - h (maximize; max = 28)
+  Move: shift a queen within its column to reduce h</div>
+<h4>Problems with Hill-Climbing</h4>
+<div class="cards">
+  <div class="card"><strong>Local Maximum</strong><span>All neighbors are worse than current state, but we're not at the global optimum. Algorithm terminates prematurely.</span></div>
+  <div class="card"><strong>Plateau</strong><span>All neighbors have equal value. No improvement visible, algorithm may stop even though solution is reachable.</span></div>
+  <div class="card"><strong>Ridge</strong><span>A sequence of local maxima that's hard to navigate — standard hill-climbing zigzags inefficiently.</span></div>
+  <div class="card"><strong>Shoulder</strong><span>Like a plateau, but slope continues upward at some point. Sideways moves can escape it.</span></div>
+</div>
+<h4>Solutions to Hill-Climbing Problems</h4>
+<ul>
+  <li><strong>Sideways move:</strong> Allow moves to equal-value states to escape plateaus/shoulders (limit count to avoid loops)</li>
+  <li><strong>Random restart:</strong> If stuck, restart from a new random state. Effective when there aren't too many local maxima. Complete with probability 1 as restarts → ∞.</li>
+  <li><strong>Stochastic hill-climbing:</strong> Choose randomly among uphill moves (not always the best). Slower but explores more.</li>
+  <li><strong>First-choice hill-climbing:</strong> Generate random successors one at a time, take the first one that's better. Good when many successors exist.</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Genetic Algorithms</h3>
+<p>Genetic Algorithms (GA) are a <span class="hl">stochastic beam search</span> variant inspired by biological evolution. They maintain a <span class="hl">population</span> of states and evolve it toward better solutions through selection, crossover, and mutation.</p>
+<div class="steps">
+  <div class="step"><p><strong>Initialize Population:</strong> Create N random individuals (states). E.g., for 8-queens: {25348716, 81765432, 42561862, 31456321}</p></div>
+  <div class="step"><p><strong>Evaluate Fitness:</strong> Apply fitness function to each individual. E.g., F = 28 - h (non-attacking pairs). Higher = better. F(a)=23, F(b)=13, F(c)=22, F(d)=17.</p></div>
+  <div class="step"><p><strong>Check Termination:</strong> If any individual is "fit enough" (fitness ≥ threshold, say 25) → return that individual as solution.</p></div>
+  <div class="step"><p><strong>Select Parent Generation:</strong> Keep better-performing individuals above a threshold. E.g., threshold=15, keep {a, c, d}.</p></div>
+  <div class="step"><p><strong>Crossover:</strong> Select pairs of parents randomly. Choose a crossover point. Combine first part of parent 1 with remainder of parent 2 (and vice versa).
+  e.g., a=253|48716 and d=314|56321 → offspring e=25356321, f=31448716</p></div>
+  <div class="step"><p><strong>Mutation:</strong> Each gene in each offspring independently flips with small probability. e.g., 25356321 → 26356321 (digit 3 → 6). Maintains diversity.</p></div>
+  <div class="step"><p><strong>Form New Population:</strong> Parent generation + offspring → new population. Return to step 2.</p></div>
+</div>
+<div class="note"><div class="note-lbl">📌 Why GA Works</div>
+Crossover combines "useful blocks" (schemas) — substrings that tend to appear in high-fitness individuals. This combines the best features of multiple parents. Mutation prevents the population from converging to a local optimum by introducing random variation. Together they balance <strong>exploitation</strong> (use good solutions found) with <strong>exploration</strong> (try new areas of the state space).
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ CH 4: PLANNING ═══════════════ -->
+<div class="ch" id="ch4">
+<div class="ch-head"><span class="ch-badge">CH 04</span><h2>Planning Problems</h2></div>
+
+<div class="sec">
+<h3>Planning Domain Definition Language (PDDL)</h3>
+<p><span class="hl">PDDL</span> is the standard language for specifying AI planning problems. A planning problem consists of: initial state, goal state, and a set of action schemas.</p>
+
+<h4>States in PDDL</h4>
+<ul>
+  <li>States are <span class="hl">conjunctions of ground, positive, function-free FOL literals</span></li>
+  <li><span class="hl">Closed World Assumption</span>: anything not stated in the current state is assumed False</li>
+  <li>Goal states are <span class="hl">partially specified</span> — we only need to satisfy specified conditions, others can be anything</li>
+  <li>If current state contains all goal state literals → goal achieved</li>
+</ul>
+
+<h4>Action Schemas</h4>
+<div class="code">An action schema has:
+  Action: ActionName(param1, param2, ...)
+  Precondition: conjunction of positive literals (conditions that must hold)
+  Effect: conjunction of literals (positive = add, negative = delete)
+
+Example — Air Cargo:
+  Action: Load(c, p, a)
+  Precondition: Cargo(c) ∧ Plane(p) ∧ Airport(a) ∧ At(a,c) ∧ At(a,p)
+  Effect: ¬At(a,c) ∧ In(p,c)        [c is no longer at airport; c is now in plane]
+  
+  Action: Fly(p, from, to)
+  Precondition: Plane(p) ∧ Airport(from) ∧ Airport(to) ∧ At(from,p)
+  Effect: ¬At(from,p) ∧ At(to,p)    [plane leaves 'from', arrives at 'to']
+  
+  Action: Unload(c, p, a)
+  Precondition: Cargo(c) ∧ Plane(p) ∧ Airport(a) ∧ At(a,p) ∧ In(p,c)
+  Effect: At(a,c) ∧ ¬In(p,c)        [c at airport; c not in plane anymore]</div>
+
+<h4>Executing an Action</h4>
+<ul>
+  <li>Action can be executed if its <span class="hl">precondition holds</span> in current state (with appropriate variable substitutions)</li>
+  <li><span class="hl">Add list</span>: positive literals in effect → added to current state</li>
+  <li><span class="hl">Delete list</span>: negative literals in effect → removed from current state</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Planning Strategies</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Forward State Space Search</h5><ul>
+    <li>Start from Initial State, apply actions, reach Goal State</li>
+    <li>IS → action₁ → State₁ → action₂ → ... → GS</li>
+    <li>Challenge: branching factor can be huge (many applicable actions)</li>
+    <li>Uses heuristics to guide search toward goal</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Backward State Space Search</h5><ul>
+    <li>Start from Goal State, work backwards using inverse actions</li>
+    <li>GS ← action_n ← ... ← IS</li>
+    <li>Better when goal is more constrained than initial state</li>
+    <li>Also uses heuristics (estimate distance to IS)</li>
+  </ul></div>
+</div>
+<div class="code">Plan types:
+  Total Order Plan:  actions must execute sequentially, no parallelism
+  Partial Order Plan: some actions can execute in parallel (no ordering constraint between them)
+  
+  A planner decomposes problems into independent subproblems.
+  Principle: Activities should be preconditioned (no action without satisfying prerequisites).</div>
+</div>
+
+<div class="sec">
+<h3>Blocks World Example</h3>
+<div class="code">Initial State: C on D on Table; E on F on Table; A on B on Table  → Clear: A, C, E
+Goal State: C on A on D on Table; F on E on B on Table           → Clear: C, F
+
+Action schemas:
+  Move(b1, x, b2):       [move block b1 from x onto b2]
+    Precondition: Block(b1) ∧ Block(b2) ∧ On(x,b1) ∧ Clear(b1) ∧ Clear(b2)
+    Effect: On(b2,b1) ∧ ¬On(x,b1) ∧ Clear(x) ∧ ¬Clear(b2)
+    
+  MoveToTable(b1, b2):   [move b1 from b2 to table]
+    Precondition: Block(b1) ∧ Block(b2) ∧ On(b2,b1) ∧ Clear(b1)
+    Effect: On(Table,b1) ∧ ¬On(b2,b1) ∧ Clear(b2)
+
+Plan:
+  Action Group 1 (parallel): MoveToTable(A,B), MoveToTable(C,D)
+  Action Group 2 (parallel): Move(A,Table,D), Move(E,F,B)
+  Action Group 3 (parallel): Move(C,Table,A), Move(F,Table,E)</div>
+</div>
+</div>
+
+<!-- ═══════════════ CH 5: GAMES ═══════════════ -->
+<div class="ch" id="ch5">
+<div class="ch-head"><span class="ch-badge">CH 05</span><h2>Game Playing (Adversarial Search)</h2></div>
+
+<div class="sec">
+<h3>Games as Search Problems</h3>
+<p>Games are special search problems with <span class="hl">multiple adversarial agents</span>. In a two-player zero-sum game: what MAX wins, MIN loses (and vice versa). They plan <span class="hl">against each other</span>.</p>
+<div class="cards">
+  <div class="card"><strong>Players</strong><span>MAX (tries to maximize utility) and MIN (tries to minimize). Either can go first.</span></div>
+  <div class="card"><strong>Utility Function</strong><span>Returns numeric value for terminal states. E.g., +1 for MAX win, -1 for loss, 0 for draw. Zero-sum: MAX's gain = MIN's loss.</span></div>
+  <div class="card"><strong>Terminal Test</strong><span>Checks if game is over (win/draw/loss condition met).</span></div>
+  <div class="card"><strong>Successor Function</strong><span>Returns (move, state) pairs. The set of legal moves from any position.</span></div>
+</div>
+<div class="note"><div class="note-lbl">📌 Why Games are Hard</div>
+Real games have enormous state spaces (chess: ~10⁴³ legal positions). Perfect play requires considering the opponent's best response to every move. Time constraints make exhaustive search infeasible — even with modern computers, Go wasn't solved by brute force but by deep learning (AlphaGo).
+</div>
+</div>
+
+<div class="sec">
+<h3>MINIMAX Algorithm</h3>
+<p>MINIMAX computes the <span class="hl">optimal strategy</span> for MAX assuming MIN also plays optimally. It performs a complete depth-first search of the game tree.</p>
+<div class="code">Algorithm:
+  MINIMAX(node, is_max_turn):
+    if node is terminal: return UTILITY(node)
+    if is_max_turn:
+      return max(MINIMAX(child, False) for child in SUCCESSORS(node))
+    else:
+      return min(MINIMAX(child, True) for child in SUCCESSORS(node))
+
+Steps:
+  1. Generate the complete game tree
+  2. Find utility values at terminal nodes (leaves)
+  3. Propagate values upward:
+     - At MAX levels: choose the MAXIMUM value among children
+     - At MIN levels: choose the MINIMUM value among children
+  4. Choose the move at root that leads to the maximum MINIMAX value
+
+Properties:
+  ✓ Returns optimal strategy (opener always wins if equal skill and no mistakes)
+  ✓ Complete (if game tree is finite)
+  ✗ Time: O(b^m) — exponential (b=branching factor, m=depth)
+  ✗ Space: O(b*m) — linear (depth-first)
+  ✗ Too slow for real games like chess (b≈35, m≈100)</div>
+<h4>Multi-Player Games</h4>
+<p>For games with more than 2 players, each node has a <span class="hl">vector of utility values</span> — one per player. Each player maximizes their own component. Alliances and coalitions naturally emerge as players cooperate to maximize their individual payoffs against third players.</p>
+</div>
+
+<div class="sec">
+<h3>Alpha-Beta Pruning</h3>
+<p>Alpha-beta pruning improves MINIMAX by eliminating branches that cannot affect the final decision — <span class="hl">pruning</span> subtrees that would not change the result at the root.</p>
+<div class="code">Alpha (α): Best value MAX can guarantee so far (starts at -∞)
+            MAX will never choose a node with value < α
+Beta (β):  Best value MIN can guarantee so far (starts at +∞)
+            MIN will never choose a node with value > β
+
+Prune when: α ≥ β  (the current branch can't improve either player's outcome)
+
+Algorithm sketch:
+  ALPHABETA(node, α, β, is_max):
+    if terminal: return UTILITY(node)
+    if is_max:
+      v = -∞
+      for child in SUCCESSORS(node):
+        v = max(v, ALPHABETA(child, α, β, False))
+        α = max(α, v)
+        if α ≥ β: break  ← β-cutoff (prune remaining siblings)
+      return v
+    else:
+      v = +∞
+      for child in SUCCESSORS(node):
+        v = min(v, ALPHABETA(child, α, β, True))
+        β = min(β, v)
+        if α ≥ β: break  ← α-cutoff (prune remaining siblings)
+      return v
+
+Improvement: With perfect ordering, reduces to O(b^(m/2)) — doubles solvable depth!
+In practice: good move ordering (transposition tables, killer moves) gives ~b^(3m/4)</div>
+<h4>Additional Improvements to MINIMAX</h4>
+<ul>
+  <li><strong>Cutoff depth:</strong> Instead of searching to terminal, stop at fixed depth. Replace utility with heuristic evaluation function.</li>
+  <li><strong>Quiescence search:</strong> Before cutting off, continue searching past "turbulent" positions (captures, checks) until a "quiet" state is reached. Avoids horizon effect.</li>
+  <li><strong>Heuristic evaluation function:</strong> Estimates utility of non-terminal state. In chess: material value (pawn=1, knight/bishop=3, rook=5, queen=9) + positional factors.</li>
+  <li><strong>Transposition table:</strong> Cache previously computed positions to avoid recomputing (memoization).</li>
+  <li><strong>Forward pruning:</strong> Only consider top-k moves (beam search) — reduces branching factor.</li>
+  <li><strong>Opening book / Endgame database:</strong> Precomputed best moves for known positions.</li>
+</ul>
+</div>
+</div>
+
+<!-- ═══════════════ CH 6: UNCERTAINTY ═══════════════ -->
+<div class="ch" id="ch6">
+<div class="ch-head"><span class="ch-badge">CH 06</span><h2>Uncertainty Management and Decision Making</h2></div>
+
+<div class="sec">
+<h3>Acting Under Uncertainty</h3>
+<p>Agents rarely have complete knowledge of their environment. The main tools for handling uncertainty are:</p>
+<ul>
+  <li><span class="hl">Probability theory</span> — quantifies degree of belief (uncertainty about the world)</li>
+  <li><span class="hl">Utility theory</span> — quantifies preference among outcomes (what the agent wants)</li>
+  <li><span class="hl">Decision theory</span> = Probability + Utility — rational choice under uncertainty</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Full Joint Probability Distribution</h3>
+<p>A <span class="hl">joint probability distribution</span> specifies the probability of every possible combination of variable values. For n binary variables, there are 2ⁿ entries.</p>
+<div class="code">Example: 3 Boolean variables: Toothache (T), Cavity (C), Catch (H)
+  8 atomic events, all probabilities sum to 1:
+
+                    toothache        ¬toothache
+                  catch  ¬catch   catch  ¬catch
+  cavity:         0.108   0.012   0.072   0.008
+  ¬cavity:        0.016   0.064   0.144   0.576
+
+Computing probabilities:
+  P(cavity) = 0.108 + 0.012 + 0.072 + 0.008 = 0.2
+  P(toothache) = 0.108 + 0.012 + 0.016 + 0.064 = 0.2
+  P(cavity ∧ catch) = 0.108 + 0.072 = 0.18   [sum over toothache values]
+  
+  Conditional probability: P(a|b) = P(a ∧ b) / P(b)   [requires P(b) > 0]
+  P(cavity|toothache) = P(cavity ∧ toothache) / P(toothache)
+                      = (0.108 + 0.012) / (0.108 + 0.012 + 0.016 + 0.064)
+                      = 0.12 / 0.2 = 0.6</div>
+</div>
+
+<div class="sec">
+<h3>Bayes' Rule</h3>
+<p>Bayes' rule is derived from two ways of writing the product rule P(a∧b):</p>
+<div class="code">Product rules:     P(a ∧ b) = P(a|b) × P(b)
+                   P(a ∧ b) = P(b|a) × P(a)
+
+Bayes' Rule:   P(b|a) = P(a|b) × P(b) / P(a)
+
+This lets us compute the probability of a CAUSE (b) given an EFFECT (a),
+when we know the probability of the effect given the cause.
+
+Example: 
+  P(toothache | cavity) = 0.6    [toothache given cavity]
+  P(cavity) = 0.1                [prior: 1 in 10 patients has cavity]
+  P(toothache) = 0.25            [prior: 1 in 4 patients has toothache]
+  
+  P(cavity | toothache) = P(toothache|cavity) × P(cavity) / P(toothache)
+                        = 0.6 × 0.1 / 0.25 = 0.06 / 0.25 = 0.24
+
+Example 2:
+  P(Water|Coal) = 0.4, P(Coal) = 0.2, P(Water) = 0.8
+  P(Coal|Water) = P(Water|Coal) × P(Coal) / P(Water) = 0.4×0.2/0.8 = 0.1</div>
+</div>
+
+<div class="sec">
+<h3>Bayesian Networks</h3>
+<p>A <span class="hl">Bayesian Network (BN)</span> is a compact representation of a full joint probability distribution using a <span class="hl">Directed Acyclic Graph (DAG)</span>. It dramatically reduces the number of probabilities that need to be specified.</p>
+<div class="code">Structure:
+  • Nodes: random variables
+  • Directed edges (arcs): represent direct influence / causal relationships
+  • Each node Xᵢ has a Conditional Probability Table (CPT):
+    P(Xᵢ | Parents(Xᵢ))  ← only depends on direct parents, not all ancestors
+
+Joint probability formula:
+  P(x₁, x₂, ..., xₙ) = ∏ᵢ P(xᵢ | parents(Xᵢ))
+
+Example: Cavity → Toothache, Cavity → Catch, Weather → Catch
+  P(toothache ∧ cavity) = P(t|v) × P(v)    [expand by eliminating Catch and Weather]
+  = 0.9 × 0.002 = 0.0018
+
+Burglary-Earthquake-Alarm example:
+  Nodes: Burglary (B), Earthquake (E), Alarm (A), JohnCalls (J), MaryCalls (M)
+  P(B)=0.001, P(E)=0.002; CPTs for A|B,E; J|A; M|A
+  
+  P(a ∧ j ∧ m ∧ ¬b ∧ e) = P(a|¬b,e) × P(j|a) × P(m|a) × P(¬b) × P(e)
+                           = 0.29 × 0.9 × 0.7 × 0.999 × 0.002 = ?</div>
+<div class="cmp">
+  <div class="cmp-box"><h5>Full Joint Distribution</h5><ul>
+    <li>Specifies probability for every combination of variable values</li>
+    <li>For n binary vars: 2ⁿ entries</li>
+    <li>Very large, hard to specify and store</li>
+    <li>For 10 variables: 1024 entries</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Bayesian Network</h5><ul>
+    <li>Only specifies P(Xᵢ | Parents(Xᵢ))</li>
+    <li>Far fewer parameters needed</li>
+    <li>Human-like: captures only direct dependencies</li>
+    <li>For 10 variables with ≤3 parents each: ~30 entries total</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Decision Networks (Influence Diagrams)</h3>
+<p>A <span class="hl">decision network</span> extends a Bayesian Network with decision and utility nodes to support rational decision making.</p>
+<div class="cards">
+  <div class="card"><strong>Chance Nodes (circles)</strong><span>Random variables the agent is uncertain about. Have CPTs like in BN. Represent current and future states.</span></div>
+  <div class="card"><strong>Decision Nodes (rectangles)</strong><span>Points where the agent chooses an action. Agent picks the value. Once chosen, behaves like a chance node.</span></div>
+  <div class="card"><strong>Utility Node (diamond)</strong><span>Represents the agent's utility function. One per network. Takes all relevant variables as input.</span></div>
+</div>
+<div class="code">Decision theory principle: Maximize Expected Utility (MEU)
+
+EU(A|E) = Σᵢ P(Resultᵢ(A) | E, Do(A)) × U(Resultᵢ(A))
+
+Where: A = action being evaluated, E = evidence (current state)
+       Resultᵢ(A) = ith possible outcome, U(S) = utility of state S
+
+Process:
+  1. Set evidence (observe current state variables)
+  2. For each possible action/decision:
+     a. Set decision node to that action
+     b. Compute probabilities of future state nodes using BN inference
+     c. Compute EU = Σ P(outcome) × U(outcome)
+  3. Choose the action with maximum EU</div>
+</div>
+
+<div class="sec">
+<h3>Performance Metrics for Classification</h3>
+<p>The <span class="hl">confusion matrix</span> is the fundamental tool for evaluating classifiers.</p>
+<div class="code">                    Predicted Positive   Predicted Negative
+  Actual Positive:       TP (True Pos)        FN (False Neg)    | P (total actual pos)
+  Actual Negative:       FP (False Pos)        TN (True Neg)    | N (total actual neg)
+
+Accuracy      = (TP + TN) / (P + N)            [overall correctness]
+Error rate    = (FP + FN) / (P + N) = 1 - accuracy
+Sensitivity   = TP / P    [true positive rate, recall]
+Specificity   = TN / N    [true negative rate]
+Precision     = TP / (TP + FP)                 [of predicted positives, how many are right?]
+Recall        = TP / (TP + FN) = TP / P        [of actual positives, how many found?]
+
+F1-score = 2 × (precision × recall) / (precision + recall)    [harmonic mean]
+F-score  = (1+β²) × precision × recall / (β² × precision + recall)
+           [β=1: equal weight; β=2: recall weighted twice]
+
+accuracy = sensitivity × P/(P+N) + specificity × N/(P+N)
+
+Example: TP=6954, FN=46, FP=412, TN=2588; P=7000, N=3000, P+N=10000
+  Accuracy = (6954+2588)/10000 = 0.9542 = 95.42%
+  Sensitivity = 6954/7000 = 99.34%;  Specificity = 2588/3000 = 86.27%</div>
+<div class="note"><div class="note-lbl">📌 When to use which metric</div>
+<strong>Accuracy</strong> works when classes are balanced. When one class is rare (e.g., disease detection), accuracy is misleading — a classifier always predicting "healthy" can have 99% accuracy but 0% sensitivity. Use <strong>F1-score</strong> or sensitivity/specificity for imbalanced datasets.
+</div>
+</div>
+</div>
+
+<!-- ═══════════════ CH 7: MACHINE LEARNING ═══════════════ -->
+<div class="ch" id="ch7">
+<div class="ch-head"><span class="ch-badge">CH 07</span><h2>Machine Learning</h2></div>
+
+<div class="sec">
+<h3>Introduction to Learning</h3>
+<p><span class="hl">Learning</span> means improving performance through experience. Rational agents must learn because designers cannot anticipate all future situations. The <span class="hl">supervised learning</span> task: given N labeled examples (x₁,y₁),...,(xₙ,yₙ), discover a function h (hypothesis) that approximates the true function f(x).</p>
+<div class="tbl"><table>
+  <tr><th>Learning Type</th><th>Feedback</th><th>Examples</th></tr>
+  <tr><td>Supervised</td><td>Labeled training examples (x, y pairs)</td><td>Decision trees, Neural nets, SVM, Naïve Bayes, Regression</td></tr>
+  <tr><td>Unsupervised</td><td>No labels — find structure in data</td><td>k-means clustering, dimensionality reduction</td></tr>
+  <tr><td>Reinforcement</td><td>Rewards and punishments for actions</td><td>Game playing, robot control, recommendation</td></tr>
+  <tr><td>Semi-supervised</td><td>Small labeled set + large unlabeled set</td><td>Used when labeling is expensive</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Decision Tree Induction</h3>
+<p>A <span class="hl">decision tree</span> classifies instances by sorting them through a tree of questions about attribute values. Learned from labeled training data by recursively choosing the attribute that best separates the data by class.</p>
+<div class="code">Three key quantities (for attribute A, m classes):
+
+1. Entropy (Information Content) — measures uncertainty/impurity:
+   I(P(C₁), ..., P(Cₘ)) = -Σᵢ P(Cᵢ) × log₂(P(Cᵢ))
+   
+   For our 14-sample example (9 positive, 5 negative):
+   I(9/14, 5/14) = -(9/14)×log₂(9/14) - (5/14)×log₂(5/14) ≈ 0.940 bits
+   
+   Note: I = 0 (pure node, all same class), I = 1 (maximally uncertain, 50-50)
+
+2. Remainder — expected entropy after splitting on attribute A:
+   Remainder(A) = Σᵢ P(samples with ith value of A) × I(classes in those samples)
+   
+   Remainder(Age) = 5/14 × I(2/5, 3/5) + 4/14 × I(4/4, 0/4) + 5/14 × I(3/5, 2/5)
+                  = 5/14 × 0.971 + 4/14 × 0 + 5/14 × 0.971 ≈ 0.694 bits
+
+3. Information Gain — reduction in entropy from splitting:
+   Gain(A) = I(all samples) - Remainder(A)
+   Gain(Age) = 0.940 - 0.694 = 0.246 bits
+   
+   Gains: Age=0.246, Student=0.151, Credit=0.048, Income=0.029
+   → Choose Age (highest gain) as root!
+
+Recursion: At each node, repeat with remaining samples and attributes.
+Stopping: Stop when all samples have same class (pure node),
+          or no attributes remain, or too few samples.</div>
+<p>The learned tree translates directly to a set of classification rules (one rule per leaf node). Each rule is a conjunction of attribute tests along the path from root to leaf.</p>
+</div>
+
+<div class="sec">
+<h3>Naïve Bayes Classifier</h3>
+<p>Naïve Bayes applies Bayes' rule for classification, with the <span class="hl">"naïve" independence assumption</span>: each attribute is conditionally independent of all others given the class. Despite this oversimplification, it performs surprisingly well.</p>
+<div class="code">Classify unknown sample X = (x₁, x₂, ..., xₙ) into class Cᵢ with highest probability:
+  Predict: argmax P(Cᵢ|X) = argmax P(X|Cᵢ) × P(Cᵢ)  [P(X) same for all classes]
+
+By the independence assumption:
+  P(X|Cᵢ) = P(x₁|Cᵢ) × P(x₂|Cᵢ) × ... × P(xₙ|Cᵢ) = Π_k P(xₖ|Cᵢ)
+
+Estimating probabilities from training data:
+  P(Cᵢ) = (# samples of class Cᵢ) / (total samples)
+  For categorical attribute: P(xₖ|Cᵢ) = (# samples in Cᵢ with value xₖ) / (# samples in Cᵢ)
+  For continuous attribute: assume Gaussian → P(xₖ|Cᵢ) = g(xₖ, μ_Ci, σ_Ci)
+
+Example: Classify X = (age=≤30, income=medium, student=yes, credit=fair)
+  P(C₁) = 9/14 = 0.643;  P(C₂) = 5/14 = 0.357
+  
+  P(age=≤30|C₁) = 2/9 = 0.222;  P(age=≤30|C₂) = 3/5 = 0.600
+  P(student=yes|C₁) = 6/9 = 0.667; P(student=yes|C₂) = 1/5 = 0.200
+  ...
+  
+  P(X|C₁) = 0.222 × 0.444 × 0.667 × 0.667 = 0.044
+  P(X|C₂) = 0.600 × 0.400 × 0.200 × 0.400 = 0.019
+  
+  P(X|C₁)×P(C₁) = 0.044×0.643 = 0.028  ← HIGHER → predict C₁ (buys computer)</div>
+</div>
+
+<div class="sec">
+<h3>Neural Network Learning</h3>
+<p>Neural networks are loosely inspired by biological neurons. A <span class="hl">feedforward neural network</span> has layers of units where each unit computes a weighted sum of its inputs, passes through an activation function, and sends output to the next layer.</p>
+
+<h4>Network Structure</h4>
+<div class="code">Input layer → Hidden layer(s) → Output layer
+
+Each connection has a WEIGHT wᵢⱼ (from unit i to unit j)
+Each unit j has a BIAS θⱼ (threshold to adjust activation)
+
+For hidden/output unit j:
+  Net input:  Iⱼ = Σᵢ Oᵢ × wᵢⱼ + θⱼ    [weighted sum of inputs + bias]
+  Output:     Oⱼ = f(Iⱼ) = 1 / (1 + e^(-Iⱼ))   [sigmoid activation function]
+
+Sigmoid properties:
+  • Maps any input to range (0, 1)
+  • Nonlinear (crucial for learning complex patterns)
+  • Differentiable (needed for backpropagation)
+  • Smooth S-curve</div>
+
+<h4>Backpropagation Algorithm</h4>
+<div class="steps">
+  <div class="step"><p><strong>Forward Pass:</strong> Feed input through network, compute outputs at each layer using Iⱼ = Σ Oᵢwᵢⱼ + θⱼ and Oⱼ = sigmoid(Iⱼ)</p></div>
+  <div class="step"><p><strong>Compute Output Errors:</strong> Errⱼ = Oⱼ(1-Oⱼ)(Tⱼ - Oⱼ) where Tⱼ = target output. Oⱼ(1-Oⱼ) is the gradient of sigmoid.</p></div>
+  <div class="step"><p><strong>Propagate Errors Backward:</strong> For hidden unit j: Errⱼ = Oⱼ(1-Oⱼ) × Σₖ Errₖ × wⱼₖ (weighted sum of errors from next layer k)</p></div>
+  <div class="step"><p><strong>Update Weights:</strong> Δwᵢⱼ = l × Errⱼ × Oᵢ; wᵢⱼ ← wᵢⱼ + Δwᵢⱼ where l = learning rate ∈ (0,1)</p></div>
+  <div class="step"><p><strong>Update Biases:</strong> Δθⱼ = l × Errⱼ; θⱼ ← θⱼ + Δθⱼ</p></div>
+  <div class="step"><p><strong>Repeat</strong> for all training samples (case updating) or accumulate and update after full epoch (epoch updating)</p></div>
+</steps>
+<div class="code">Example computation (with network having 3 inputs, 2 hidden, 2 outputs):
+  Input: x₁=1, x₂=0, x₃=1
+  Weights: w₁₄=0.2, w₁₅=-0.3, w₂₄=0.4, w₂₅=0.1, w₃₄=-0.5, w₃₅=0.2
+           w₄₆=-0.3, w₄₇=0.1, w₅₆=-0.2, w₅₇=0.1
+  Biases:  θ₄=-0.4, θ₅=0.2, θ₆=0.1, θ₇=-0.1
+  Target:  T₆=1, T₇=1
+
+  Unit 4: I₄ = 1×0.2 + 0×0.4 + 1×(-0.5) + (-0.4) = -0.7
+          O₄ = 1/(1+e^0.7) = 0.332
+
+  Unit 6: I₆ = 0.332×(-0.3) + 0.525×(-0.2) + 0.1 = ... ≈ -0.374
+          O₆ = sigmoid(-0.374) ≈ 0.408? (from slides: ~0.474)
+
+  Error at 6: Err₆ = O₆(1-O₆)(T₆-O₆) = 0.474×0.526×0.526 ≈ 0.1311
+  Error at 4: Err₄ = O₄(1-O₄) × [Err₆×w₄₆ + Err₇×w₄₇]
+              = 0.332×0.668 × [0.1311×(-0.3) + 0.126×0.1] ≈ -0.0059
+
+  Update w₄₆: w₄₆ = -0.3 + 0.9 × 0.1311 × 0.332 ≈ -0.261  [l=0.9]</div>
+<h4>Termination Conditions for Backpropagation</h4>
+<ul>
+  <li>Weight change after an epoch is less than a threshold (converged)</li>
+  <li>Fixed number of epochs have been run</li>
+  <li>Misclassification rate on validation set stops improving</li>
+</ul>
+<p><strong>Advantages:</strong> High tolerance to noisy data; learns complex patterns. <strong>Disadvantages:</strong> Long training; topology determined empirically; poor interpretability ("black box").</p>
+</div>
+
+<div class="sec">
+<h3>Regression Analysis</h3>
+<p><span class="hl">Regression</span> estimates relationships between variables — predicts a continuous output value given input features.</p>
+<div class="code">Linear Regression:  Y = αX + β  (fit a straight line to data)
+
+Least-squares solution:
+  α = Σ(xᵢ - x̄)(yᵢ - ȳ) / Σ(xᵢ - x̄)²
+  β = ȳ - αx̄
+  where x̄, ȳ are the means of x and y
+
+Error metrics:
+  MAE (Mean Absolute Error) = (1/n) Σ |yᵢ - ŷᵢ|        [less sensitive to outliers]
+  MSE (Mean Squared Error)  = (1/n) Σ (yᵢ - ŷᵢ)²       [penalizes large errors more]
+
+Multiple regression:  Y = β₁X₁ + β₂X₂ + β
+Nonlinear (polynomial): Y = β₃X³ + β₂X² + β₁X + β  [transform and apply least squares]
+
+Example:  X = years experience, Y = salary
+  Given 10 data points, computed: Y = 3.5X + 23.6
+  Predict salary after 10 years: 3.5×10 + 23.6 = 58.6K Taka
+
+Overfitting: model fits training data too well, poor on new data (too complex)
+Underfitting: model too simple, can't capture underlying pattern</div>
+</div>
+
+<div class="sec">
+<h3>k-Nearest Neighbor (k-NN)</h3>
+<p>k-NN is a <span class="hl">lazy learner</span> — no model is built during training. Classification is done at query time by finding the k most similar training examples.</p>
+<div class="code">Algorithm:
+  Given: training samples, unknown sample X, positive integer k
+  1. Compute distance D(X, Yᵢ) from X to every training sample Yᵢ
+  2. Find the k nearest neighbors (smallest distance)
+  3. For Classification: predict by majority vote among k neighbors
+  4. For Regression: predict as average value of k neighbors
+
+Distance metrics:
+  Euclidean:  D(X,Y) = √(Σᵢ(xᵢ-yᵢ)²)           [most common]
+  Manhattan:  D(X,Y) = Σᵢ|xᵢ-yᵢ|               [sum of absolute differences]
+  Minkowski:  D(X,Y) = (Σᵢ|xᵢ-yᵢ|^p)^(1/p)     [general; p=1→Manhattan, p=2→Euclidean]
+  Hamming distance: for categorical attributes (number of differing positions)
+
+Properties:
+  ✓ Simple, no training phase, handles multiclass naturally
+  ✓ Non-parametric — no assumptions about data distribution
+  ✗ Slow at query time O(n×d) per prediction
+  ✗ Sensitive to irrelevant features and scale of attributes
+  ✗ Majority vote can fail with skewed class distributions
+  
+Key concern: choosing k. Small k = sensitive to noise; large k = smoother but may miss local structure.</div>
+</div>
+
+<div class="sec">
+<h3>k-Means Clustering</h3>
+<p>k-means is an <span class="hl">unsupervised</span> learning algorithm that partitions n objects into k clusters, minimizing within-cluster variance (distance to centroid).</p>
+<div class="steps">
+  <div class="step"><p><strong>Initialize:</strong> Choose k initial centroids randomly from data points (or use k-means++ for better initialization)</p></div>
+  <div class="step"><p><strong>Assignment:</strong> Assign each data point to the nearest centroid (using Euclidean distance)</p></div>
+  <div class="step"><p><strong>Update:</strong> Recompute each centroid as the mean of all points assigned to it</p></div>
+  <div class="step"><p><strong>Repeat</strong> steps 2–3 until: no point changes cluster, OR centroids stabilize, OR maximum iterations reached</p></div>
+</div>
+<div class="code">Objective (minimize):
+  E = Σᵢ₌₁ᵏ Σₚ∈Cᵢ |p - mᵢ|²    [sum of squared distances to cluster centroid]
+
+where mᵢ = mean position (centroid) of cluster Cᵢ
+
+Applications: customer segmentation, image compression, anomaly detection,
+              document clustering, motion analysis
+
+Choosing k: Elbow method (plot E vs k, choose "elbow" point),
+            Silhouette method (measure cohesion vs separation)
+
+Limitation: NP-hard in general; heuristic k-means may find local minimum
+           Results depend on initial centroid choice</div>
+</div>
+
+<div class="sec">
+<h3>Support Vector Machines (SVM)</h3>
+<p>SVMs find the <span class="hl">maximum margin hyperplane</span> — the separating surface that is as far as possible from all training samples. The goal is to find the hyperplane that maximizes the gap between classes.</p>
+<div class="code">Hyperplane:  W·X + b = 0    [W = weight vector, b = bias scalar]
+
+For binary classification (+1 / -1 classes), adjust W and b so that:
+  H1: W·X + b ≥ +1  for class +1 samples
+  H2: W·X + b ≤ -1  for class -1 samples
+
+Margin = 2/||W||   where ||W|| = √(w₁² + w₂² + ... + wₙ²)
+
+Maximize margin → minimize ||W|| → optimization problem (convex quadratic programming)
+
+Support Vectors: training samples that lie ON hyperplanes H1 or H2
+  (the closest points to the separating hyperplane — they "support" it)
+  
+Key intuition: Support vectors are the most important training points.
+The position of the hyperplane only depends on these few samples.
+
+Kernel Trick: For non-linearly separable data, map to higher-dimensional space
+  where data becomes linearly separable. Common kernels:
+  • Linear:      K(X,Y) = X·Y
+  • Polynomial:  K(X,Y) = (X·Y + 1)^d
+  • RBF/Gaussian: K(X,Y) = exp(-||X-Y||²/2σ²)   [most widely used]
+
+Advantages: Resistant to overfitting; works well in high dimensions; powerful with kernels
+Applications: handwriting recognition, face detection, protein classification, text categorization</div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+<footer>CSE 3207 · Introduction to Artificial Intelligence · Full Topic Guide · AUST · Russell &amp; Norvig 4th Ed.</footer>
+</body>
+</html>
