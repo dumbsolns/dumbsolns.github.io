@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3207 — AI Study Material</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--border:#2a2d3a;
+  --accent:#4f9eff;--red:#ff6b6b;--green:#56d364;--yellow:#f0b429;--purple:#c792ea;
+  --text:#e2e6f0;--muted:#7a8099;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+header{background:linear-gradient(135deg,#1a1d27,#0d1520);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse at center,#4f9eff18,transparent 70%);pointer-events:none}
+header h1{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);margin-top:.4rem;font-size:.9rem}
+.tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--surface);border:1px solid var(--border);padding:.25rem .75rem;border-radius:20px;font-size:.78rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.5rem;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+nav a{color:var(--muted);text-decoration:none;font-size:.82rem;padding:.25rem .65rem;border-radius:6px;transition:.15s;font-family:'IBM Plex Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+
+.container{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem}
+.chapter{margin-bottom:3.5rem}
+.chapter-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--accent);background:#4f9eff15;border:1px solid #4f9eff33;padding:.2rem .6rem;border-radius:4px;white-space:nowrap}
+.chapter h2{font-size:1.3rem;font-weight:700;color:#fff}
+.section{margin-bottom:2rem}
+.section h3{font-size:1rem;font-weight:600;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.section h3::before{content:'▸';font-size:.7rem;opacity:.6}
+.section h4{font-size:.9rem;font-weight:600;color:var(--yellow);margin:1rem 0 .5rem}
+p{margin-bottom:.7rem;color:var(--text);font-size:.9rem}
+
+.exam{background:#ff6b6b10;border:1px solid #ff6b6b40;border-left:4px solid var(--red);padding:.9rem 1.1rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.88rem}
+.exam::before{content:'★ EXAM FOCUS';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--red);margin-bottom:.4rem;font-weight:600;letter-spacing:.5px}
+.exam ul{margin-left:1.2rem}
+.exam li{margin-bottom:.3rem;color:#ffb3b3}
+
+.formula{background:#1e2233;border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:.8rem;margin:.75rem 0;color:#a8c8ff;overflow-x:auto;white-space:pre}
+.note{background:#f0b42911;border:1px solid #f0b42933;border-left:4px solid var(--yellow);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin:.75rem 0;font-size:.87rem;color:#ffe0a0}
+.note::before{content:'💡 NOTE';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--yellow);margin-bottom:.3rem;font-weight:600}
+.tip{background:#56d36411;border:1px solid #56d36433;border-left:4px solid var(--green);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin:.75rem 0;font-size:.87rem;color:#b5e8c0}
+.tip::before{content:'✓ TIP';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--green);margin-bottom:.3rem;font-weight:600}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.compare-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.compare-box h5{font-size:.82rem;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.compare-box ul{margin-left:1rem}
+.compare-box li{font-size:.85rem;color:var(--muted);margin-bottom:.25rem}
+
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.75rem;margin:1rem 0}
+.term{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem}
+.term strong{display:block;color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:.82rem;margin-bottom:.3rem}
+.term span{color:var(--muted);font-size:.87rem}
+
+.steps{counter-reset:step;margin:.75rem 0}
+.step{counter-increment:step;display:flex;gap:.9rem;margin-bottom:.6rem;align-items:flex-start;font-size:.88rem}
+.step::before{content:counter(step);min-width:24px;height:24px;background:#4f9eff22;border:1px solid #4f9eff55;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--accent);flex-shrink:0;margin-top:2px}
+
+.tbl-wrap{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{background:var(--surface);color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:.6rem .8rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+td:first-child{color:var(--text)}
+
+ul,ol{margin-left:1.3rem;margin-bottom:.7rem}
+li{margin-bottom:.3rem;color:var(--muted);font-size:.9rem}
+li strong{color:var(--text)}
+code{font-family:'IBM Plex Mono',monospace;background:#2a2d3a;padding:.1em .4em;border-radius:4px;font-size:.85em;color:#a8c8ff}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+.hl3{color:var(--accent);font-weight:600}
+
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace}
+@media(max-width:600px){.compare{grid-template-columns:1fr}.terms{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CSE 3207 — <span>Artificial Intelligence</span></h1>
+  <p>Exam-Focused Study Material · Fall 2021 / Spring 2022 / Fall 2022 / Spring 2023 / Fall 2023</p>
+  <div class="tags">
+    <span class="tag">Agents</span><span class="tag">Logic</span><span class="tag">Search</span>
+    <span class="tag">Planning</span><span class="tag">Games</span><span class="tag">Uncertainty</span><span class="tag">ML</span>
+  </div>
+</header>
+<nav>
+  <a href="#agents">Agents</a><a href="#logic">Logic &amp; FOL</a>
+  <a href="#search">Search</a><a href="#planning">Planning</a>
+  <a href="#games">Games</a><a href="#prob">Probability</a>
+  <a href="#ml">ML</a><a href="#ref">Quick Ref</a>
+</nav>
+<div class="container">
+
+<!-- ══ AGENTS ══ -->
+<div class="chapter" id="agents">
+<div class="chapter-header"><span class="ch-num">AGENTS</span><h2>Rational Agents and Environments</h2></div>
+
+<div class="section">
+<h3>4 Approaches to AI</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Approach</th><th>Basis</th><th>Measure</th></tr>
+  <tr><td>Act like humans</td><td>Turing Test</td><td>Fool human interrogators</td></tr>
+  <tr><td>Think like humans</td><td>Cognitive science</td><td>Match human reasoning</td></tr>
+  <tr><td>Think rationally</td><td>Laws of logic / thought</td><td>Logically valid conclusions</td></tr>
+  <tr><td><strong>Act rationally ← used here</strong></td><td>Rational agent</td><td>Maximize expected performance</td></tr>
+</table></div>
+</div>
+
+<div class="section">
+<h3>4 Agent Types</h3>
+<div class="terms">
+  <div class="term"><strong>Simple Reflex</strong><span>Acts only on current percept. Condition-action rules. Works only in fully observable environments. No memory.</span></div>
+  <div class="term"><strong>Model-Based Reflex</strong><span>Maintains internal state (model of world). Handles partial observability. Updates from history. Still rule-based.</span></div>
+  <div class="term"><strong>Goal-Based</strong><span>Explicit goal(s). Searches/plans to achieve goals. Flexible to new goals without reprogramming.</span></div>
+  <div class="term"><strong>Utility-Based</strong><span>Maximizes explicit utility function. Handles tradeoffs between competing goals. Most powerful and general.</span></div>
+</div>
+</div>
+
+<div class="section">
+<h3>Environment Properties</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Contrast</th><th>Option A</th><th>Option B</th><th>Example</th></tr>
+  <tr><td>Observability</td><td>Fully observable</td><td>Partially observable</td><td>Chess vs driving (hidden road)</td></tr>
+  <tr><td>Determinism</td><td>Deterministic</td><td>Stochastic</td><td>Chess vs Backgammon (dice)</td></tr>
+  <tr><td>Episodes</td><td>Episodic</td><td>Sequential</td><td>Image classification vs chess</td></tr>
+  <tr><td>Dynamics</td><td>Static</td><td>Dynamic</td><td>Crossword vs taxi driving</td></tr>
+  <tr><td>Discreteness</td><td>Discrete</td><td>Continuous</td><td>Chess (finite moves) vs driving</td></tr>
+  <tr><td>Agents</td><td>Single agent</td><td>Multi-agent</td><td>Puzzle vs chess vs markets</td></tr>
+</table></div>
+<div class="exam">
+  <ul>
+    <li>Explain TWO environment contrasts [Spring 2022 Q1a, Fall 2023 Q1c] — always name both sides with examples</li>
+    <li>Static vs Dynamic: chess = static (opponent's thinking doesn't change board state during your turn); taxi = dynamic (cars move while you think)</li>
+    <li>Necessity of studying environment before designing agent: PEAS must be defined first — performance measure, environment type, actuators, sensors all depend on environment properties [Fall 2021 Q6c]</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ LOGIC & FOL ══ -->
+<div class="chapter" id="logic">
+<div class="chapter-header"><span class="ch-num">LOGIC</span><h2>Propositional Logic, FOL, Unification, Resolution</h2></div>
+
+<div class="section">
+<h3>Forward Chaining vs Backward Chaining</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Forward Chaining (Data-Driven)</h5><ul>
+    <li>Start from known FACTS → apply rules → derive new facts → repeat until query found or KB exhausted</li>
+    <li>Called <strong>data-driven</strong>: data → premises → conclusions → new data</li>
+    <li>Works bottom-up: from data to goal</li>
+    <li>Good when you have lots of facts and an unknown goal</li>
+    <li>Requires: KB has only Horn clauses (≤1 positive literal per clause)</li>
+  </ul></div>
+  <div class="compare-box"><h5>Backward Chaining (Goal-Driven)</h5><ul>
+    <li>Start from GOAL → find rules with goal as conclusion → prove premises as subgoals → recurse</li>
+    <li>Called <strong>goal-driven</strong> (or hypothesis-driven): goal → rule → subgoals → backtrack</li>
+    <li>Works top-down: from goal to facts</li>
+    <li>Good when goal is specific and premise space is large</li>
+    <li>Uses backtracking when a proof path fails</li>
+  </ul></div>
+</div>
+<div class="exam">
+  <ul>
+    <li>Prove/disprove a proposition using backward chaining [Fall 2022 Q2a, Spring 2023 Q2b, Fall 2023 Part A Q2 (forward chaining)]</li>
+    <li>Key backward chaining trace: Q? → find rule → subgoals? → each subgoal? → sub-subgoals? → if base fact found = proved; if dead end = backtrack to next alternative rule</li>
+    <li>Reasons forward chaining is data-driven [Spring 2022 Q1c, Fall 2023 Q1a]: starts with all available facts (data), fires rules whose premises are satisfied, adds conclusions back to data, continues until query satisfied — the data drives the process, not the query</li>
+  </ul>
+</div>
+
+<h4>Backward Chaining Example</h4>
+<div class="formula">KB: A, B, C, D, P∧Q→_, C∧L→P, D∧M→P, B∧L→M, A∧P→L, A∧B→L, A∧D→G, G∧B→C
+Query: M?
+
+Trace:
+1. ?M → rule: B∧L→M → need ?B and ?L
+2. ?B → found in KB ✓
+3. ?L → try rule: A∧P→L → need ?A and ?P
+4.  ?A → found ✓; ?P → try rule: C∧L→P → need ?C and ?L
+5.   ?C → found ✓; ?L → need again (loop!) → BACKTRACK
+    Try next rule for P: D∧M→P → need ?D and ?M
+    ?M → loops back to goal → BACKTRACK
+    Next rule for L: A∧B→L → need ?A and ?B
+    ?A found ✓; ?B found ✓ → L PROVED ✓
+Now: B found ✓, L proved ✓ → B∧L→M → M PROVED ✓</div>
+
+<div class="section">
+<h3>FOL Syntax and Unification</h3>
+<div class="exam">
+  <ul>
+    <li>Show FOL sentence is syntactically correct [Spring 2022 Q1b, Fall 2023 Q2a, Spring 2023 Q2a]: parse top-down using grammar: Sentence → AtomicSentence | Quantifier var, Sentence | Sentence Connective Sentence, etc.</li>
+    <li>Unification / MGU [Fall 2021 Q1b, Fall 2023 Q2b, Spring 2023 Q2a]: step-by-step substitution building</li>
+  </ul>
+</div>
+<div class="formula">Unification rules:
+  • Different predicates/constants: FAIL (cannot unify)
+  • Variable x with term T: θ = {x/T} IF x does not appear in T (occurs check)
+  • Same constant with same constant: OK, no substitution needed
+
+Step-by-step: compare arguments left-to-right, build substitution θ, apply after each step
+
+Example: S = {P1(u, F1("C"), "D", y), P1("E", z, x, F2(u))}
+  Step 1: arg1: u vs "E" → θ = {u/"E"}; apply: P1("E", F1("C"), "D", y), P1("E", z, x, F2("E"))
+  Step 2: arg2: F1("C") vs z → θ += {z/F1("C")}; apply: P1("E",F1("C"),"D",y), P1("E",F1("C"),x,F2("E"))
+  Step 3: arg3: "D" vs x → θ += {x/"D"}; apply: ...P1("E",F1("C"),"D",y), P1("E",F1("C"),"D",F2("E"))
+  Step 4: arg4: y vs F2("E") → θ += {y/F2("E")}
+  Both become P1("E", F1("C"), "D", F2("E")) ← UNIFIED
+  mgu θ = {u/"E", z/F1("C"), x/"D", y/F2("E")}</div>
+</div>
+
+<div class="section">
+<h3>CNF Conversion and Resolution</h3>
+<p><strong>Why:</strong> Resolution-Refutation requires KB and negated query in CNF (Conjunctive Normal Form — conjunction of clauses, each clause = disjunction of literals).</p>
+<div class="formula">6-Step CNF Conversion:
+  1. Standardize variables (unique names per quantifier)
+  2. Eliminate ↔ and →:  A→B ≡ ¬A∨B;  A↔B ≡ (¬A∨B)∧(A∨¬B)
+  3. Move ¬ inward (DeMorgan): ¬(A∧B)=¬A∨¬B; ¬∀x=∃x¬; ¬∃x=∀x¬
+  4. Skolemize: replace ∃y (inside ∀x) with Skolem function GiftFor(x)
+  5. Drop ∀ quantifiers (variables are implicitly universal)
+  6. Distribute ∨ over ∧ to get clausal form
+
+Resolution-Refutation:
+  To prove query Q: add ¬Q (in CNF) to KB, apply Resolution repeatedly.
+  If empty clause [] derived → contradiction → Q is TRUE.
+  KB must be in CNF for Resolution to work [Fall 2021 Q1c].</div>
+</div>
+
+<div class="section">
+<h3>Limitations of Propositional Logic [Fall 2022 Q1b]</h3>
+<ul>
+  <li><strong>No quantification:</strong> Cannot say "All guests receive gifts" — must write out every specific instance</li>
+  <li><strong>No objects/relations:</strong> Cannot express relationships between objects (Father(x,y), Greater(a,b))</li>
+  <li><strong>No variables:</strong> Cannot generalize from instances to rules</li>
+  <li><strong>Combinatorial explosion:</strong> Even moderate domains require exponentially many propositions</li>
+</ul>
+<p><strong>Solution — FOL addresses these by:</strong> Adding constants (objects), predicates (relations), functions (maps), variables (placeholders), and quantifiers (∀, ∃) to express general rules over arbitrary objects.</p>
+</div>
+</div>
+
+<!-- ══ SEARCH ══ -->
+<div class="chapter" id="search">
+<div class="chapter-header"><span class="ch-num">SEARCH</span><h2>Informed Search: Greedy, A*, Hill-Climbing, Genetic</h2></div>
+
+<div class="section">
+<h3>Heuristic Functions</h3>
+<div class="formula">h(n) = estimated cost of cheapest path from node n to goal
+
+Admissible: h(n) ≤ actual cost to reach goal from n  (never overestimates)
+  → h₁ = misplaced tiles: each must move ≥ once → h₁ ≤ actual moves
+  → h₂ = straight-line distance: always ≤ road distance
+
+Consistent (Monotone): h(n) ≤ c(n, a, n') + h(n')  for every successor n'
+  (triangle inequality: one side ≤ sum of other two sides)
+  
+Every consistent heuristic IS admissible. Admissible does NOT always imply consistent.
+Consistent heuristic → A* on GRAPH SEARCH is optimal  [Spring 2022 Q2b]
+Admissible heuristic → A* on TREE SEARCH is optimal</div>
+<div class="exam">
+  <ul>
+    <li>Illustrate consistency property [Spring 2023 Q1d, Fall 2023 Q1d]: for each edge n→n' with cost c, verify h(n) ≤ c + h(n'). Draw triangle with h values and edge costs labelled.</li>
+    <li>Why consistent heuristics find optimal solutions [Spring 2022 Q2b]: f(n)=g(n)+h(n) is non-decreasing along any path, so A* expands nodes in order of non-decreasing f-cost. First time goal is expanded = optimal cost.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Greedy Best-First Search</h3>
+<div class="formula">Evaluation function: f(n) = h(n)   [heuristic only, ignores path cost]
+
+Data structures:
+  PQ (Priority Queue): nodes ordered by ascending h-value, offers next node to expand
+  PP (Possible Path): current path from start to most recently expanded node
+
+Algorithm:
+  PQ ← {(start, h(start))}; PP ← []
+  While PQ not empty:
+    n ← pop min-h node from PQ
+    If n = goal: return PP (solution)
+    Mark n visited; add to PP (straighten PP to root from n via parent pointers)
+    For each unvisited neighbor n' of n: add n' to PQ with h(n')</div>
+<div class="compare">
+  <div class="compare-box"><h5>Positive Aspects [Fall 2021 Q2d]</h5><ul>
+    <li>Fast — goes straight toward goal</li>
+    <li>Low memory — only needs PQ</li>
+    <li>Works well when heuristic is very good</li>
+    <li>Can find solutions quickly in large spaces</li>
+  </ul></div>
+  <div class="compare-box"><h5>Negative Aspects [Fall 2021 Q2d]</h5><ul>
+    <li>NOT optimal — may find solution but not cheapest one</li>
+    <li>NOT complete — can loop or go infinitely deep</li>
+    <li>Ignores actual path cost (misses expensive detours)</li>
+    <li>Greedy: locally best ≠ globally best</li>
+  </ul></div>
+</div>
+<div class="exam">
+  <ul>
+    <li>Similarities with Hill-climbing [Spring 2022 Q1d]: both use heuristic to select "best-looking" next state; both greedy; both can fail to find optimal. Differences: Greedy = graph search (tracks visited), Hill-climbing = local search (single current state, no memory, no path).</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>A* Search</h3>
+<div class="formula">Evaluation function: f(n) = g(n) + h(n)
+  g(n) = actual cost from start to n (path cost so far)
+  h(n) = estimated cost from n to goal (heuristic)
+  f(n) = estimated total cost of cheapest solution through n
+
+PQ entry format: node(name, g, parent_index, f)
+  e.g., node(b, 45, 0, 87) = node b, g=45 from start, parent=index 0, f=45+42=87
+
+Algorithm: same as Greedy but sort PQ by f-value (g+h) not just h
+
+On each expansion:
+  - Pop min-f node n from PQ
+  - If n = goal: return path (trace parents)
+  - For each neighbor n' with edge cost c:
+      tentative_g = g(n) + c
+      Compute f(n') = tentative_g + h(n')
+      Add to PQ (allow revisiting with better g!)
+
+Key properties:
+  ✓ Complete (finite nodes with f ≤ C*)
+  ✓ Optimal (consistent h → non-decreasing f → first goal expansion = optimal)
+  ✓ Optimally efficient (no optimal algo expands fewer nodes)
+  ✗ Memory: keeps all generated nodes (exponential in worst case)</div>
+<div class="exam">
+  <ul>
+    <li>A* search on graph [Fall 2022 Q2b, Fall 2021 Q2b, Fall 2023 Part B Q2a, Spring 2023 Part B Q2a] — ALWAYS show PQ state at each step with g and f values</li>
+    <li>A* vs Greedy Best-First [Fall 2022 Q2b, Spring 2023 Q4a]: Greedy uses only h(n) → fast but suboptimal; A* uses g(n)+h(n) → slower but optimal. Greedy may follow a path that looks close to goal but has high actual cost. A* balances both.</li>
+    <li>Advantages of A* over Greedy [Spring 2023 Q4a, Fall 2023 Part B Q2a]: guarantees optimal solution; won't miss cheaper paths that look worse heuristically; expands fewest possible nodes among optimal algorithms</li>
+    <li>Disadvantages of A*: exponential memory; slow for large state spaces → use IDA*, SMA* as memory-bounded variants</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Hill-Climbing Local Search</h3>
+<div class="formula">Focus: find optimal STATE, not optimal PATH (path is irrelevant)
+Objective function / fitness function: measure to maximize (or minimize)
+
+Algorithm:
+  current ← initial_state
+  Loop:
+    best_neighbor ← best of SUCCESSORS(current) by objective function
+    if objective(best_neighbor) ≤ objective(current): return current  ← stuck!
+    current ← best_neighbor
+
+8-queens: h = attacking pairs (minimize); f = 28 - h (maximize; 0 attacks → f=28)</div>
+<div class="terms">
+  <div class="term"><strong>Local Maximum</strong><span>All neighbors worse than current, but not global optimum. Algorithm terminates prematurely here.</span></div>
+  <div class="term"><strong>Plateau</strong><span>All neighbors have equal value. No visible improvement. May be stuck forever.</span></div>
+  <div class="term"><strong>Ridge</strong><span>Sequence of local maxima, hard to navigate. Zigzag movement needed.</span></div>
+  <div class="term"><strong>Shoulder</strong><span>Flat region, but continues upward at some point. Sideways moves help escape.</span></div>
+</div>
+<div class="formula">Solutions:
+  Sideways moves:          Allow moves to equal-value states (limit count to avoid loops)
+  Random restart:          If stuck, restart from random new state. Complete with prob=1.
+  Stochastic HC:           Choose randomly among uphill moves (not always best). More exploration.
+  First-choice HC:         Generate random successors until one is better. Good when many successors.
+
+Local optima concept [Fall 2023 Q1e, Fall 2023 Part B Q1c]:
+  Local optimum: state where all neighbors are worse (stuck point). 
+  Global optimum: the actual best state across the entire state space.</div>
+<div class="exam">
+  <ul>
+    <li>Hill-climbing + random restarts [Fall 2022 Q1e]: Random restart generates a new random initial state and runs hill-climbing again. Effective when local maxima are few. Expected restarts = 1/p (p = probability random start leads to solution). Complete with probability approaching 1.</li>
+    <li>Hill-climbing for large problems [Fall 2023 Part B Q2a, Spring 2023 Q4b]: Unlike systematic search, HC uses O(1) memory (only current state). Good for very large or infinite search spaces where path tracking is infeasible. Trade-off: may miss optimal solution.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Genetic Algorithms</h3>
+<div class="formula">Population → Fitness → Select → Crossover → Mutate → New Population → repeat
+
+Key concepts:
+  Individual:     A candidate solution (e.g., 25348716 for 8-queens)
+  Fitness:        How good the individual is (e.g., F = 28 - h, non-attacking pairs)
+  Selection:      Keep individuals above threshold OR select probabilistically by fitness
+  Crossover:      Split two parents at a crossover point, swap tails
+                  Parent1: 253|48716; Parent2: 314|56321 → Offspring: 25356321, 31448716
+  Mutation:       Randomly flip a gene with small probability → 25356321 → 26356321
+  Schema:         A "useful block" — subpattern that tends to appear in high-fitness individuals</div>
+<div class="exam">
+  <ul>
+    <li>Biological themes in GA [Fall 2021 Q2c, Spring 2022 Q2c, Fall 2022 Q2e, Fall 2023 Part B Q3c]: Population genetics (survival of fittest), sexual reproduction (crossover combines traits of two parents), mutation (introduces new genetic variation). Together simulate evolution.</li>
+    <li>How crossover and mutation maintain diversity [Fall 2022 Q2e]: Crossover combines building blocks (schemas) from high-fitness parents. Mutation prevents premature convergence to local optima by introducing random variation. Together they balance exploitation (use known good solutions) and exploration (try new areas).</li>
+    <li>GA vs Hill-climbing [Spring 2023 Q4c, Fall 2023 Part B Q3c]: GA keeps multiple states (population) → less likely to get stuck; GA uses crossover (information exchange between solutions) → can jump out of local optima; Hill-climbing = single state, no crossover, no population diversity.</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ PLANNING ══ -->
+<div class="chapter" id="planning">
+<div class="chapter-header"><span class="ch-num">PLAN</span><h2>Planning Problems and PDDL</h2></div>
+
+<div class="section">
+<h3>PDDL Representation</h3>
+<div class="formula">State:   conjunction of positive, ground, function-free FOL literals
+         Closed World Assumption: anything not stated = FALSE
+Goal:    partially specified — must satisfy stated predicates, rest can be anything
+
+Action Schema:
+  Action:       ActionName(parameter_list)
+  Precondition: conjunction of positive literals that must hold in current state
+  Effect:       positive literals (ADD list) + negative literals (DELETE list)
+
+Executing an action:
+  Can execute if: precondition holds with appropriate substitution
+  Result: ADD list literals added to state; DELETE list literals removed</div>
+<div class="exam">
+  <ul>
+    <li>Purpose of action schemas [Fall 2021 Q3a, Fall 2023 Q3c]: define reusable, parameterized actions; generate instances by binding parameters to objects; encode preconditions (what must be true) and effects (what changes); enable planners to reason about sequences of actions systematically</li>
+    <li>Planners as Intelligent Agents [Spring 2022 Q3b, Fall 2021 Q3c, Spring 2023 Q3d]: goal-based agent; takes advantage of problem domain structure; decomposes into independent subproblems; follows rule "activities must be preconditioned"; generates plans (action sequences from IS to GS)</li>
+    <li>Reasons for action schemas in PDDL [Fall 2023 Q3c]: handle large/complex domains without explicitly listing all possible actions; parameters allow generalization; preconditions ensure safety; effects track world changes</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Blocks World Planning</h3>
+<div class="formula">Action schemas (omit 'Block' predicate as instructed):
+  Move(b1, x, b2):       move block b1 FROM x ONTO b2
+    Precondition: On(x,b1) ∧ Clear(b1) ∧ Clear(b2)
+    Effect: On(b2,b1) ∧ ¬On(x,b1) ∧ Clear(x) ∧ ¬Clear(b2)
+    [b1 moves off x → x becomes clear; b2 now has b1 on it → b2 not clear]
+    
+  MoveToTable(b1, b2):   move block b1 FROM b2 TO table
+    Precondition: On(b2,b1) ∧ Clear(b1)
+    Effect: On(Table,b1) ∧ ¬On(b2,b1) ∧ Clear(b2)
+
+Forward State Space Search: IS → apply actions → State₁ → ... → GS (goal test = True)
+Key: actions that change independent blocks can be grouped (executed in parallel)
+Optimal: minimum number of action GROUPS (not individual actions)</div>
+<div class="exam">
+  <ul>
+    <li>PDDL planning problems appear in EVERY exam [Fall 2022 Q3a, Spring 2022 Q3a, Fall 2021 Q6b, Fall 2023 Q2c, Spring 2023 Q2c]</li>
+    <li>Template for exam answer: (1) State initial and goal states as PDDL conjunctions (2) List applicable action schemas (3) Show state-by-state transitions with actions applied (4) Mark when goal test = True (5) List the final plan</li>
+    <li>Air Cargo: Load/Unload/Fly actions. Always show: what gets added (positive effect) and what gets removed (negative effect) from state</li>
+    <li>Comparison: Planning vs Game Playing search [Fall 2023 Q4e, Spring 2023]: Planning = single agent, cooperative, deterministic effects, structured PDDL states. Games = adversarial, opponent acts against you, utility-based, less structured state representation.</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ GAMES ══ -->
+<div class="chapter" id="games">
+<div class="chapter-header"><span class="ch-num">GAMES</span><h2>Game Playing: MINIMAX and Alpha-Beta Pruning</h2></div>
+
+<div class="section">
+<h3>MINIMAX Algorithm</h3>
+<div class="formula">Two players: MAX (maximize utility) and MIN (minimize utility)
+Zero-sum: MAX's gain = MIN's loss
+
+Steps:
+  1. Generate complete game tree
+  2. Find utility values at terminal (leaf) nodes: +1 win, -1 loss, 0 draw
+  3. Propagate values UPWARD:
+     MAX levels: take MAXIMUM value of children
+     MIN levels: take MINIMUM value of children
+  4. Choose move at root = child with highest MINIMAX value (for MAX opener)
+
+Properties:
+  ✓ Optimal — opener always wins given equal skill
+  ✓ Complete (finite tree)
+  ✗ Time O(b^m) — exponential (chess: b≈35, m≈100 → infeasible)
+  
+  Multi-player: replace single utility with UTILITY VECTOR (one value per player).
+  Each player maximizes their own component. → alliances form naturally [Fall 2021 Q3d]</div>
+<div class="exam">
+  <ul>
+    <li>Game playing = decision with imperfect info [Fall 2023 Q3a]: opponent's intentions unknown; time pressure; can't search full tree; must use cutoff + heuristic evaluation functions. Unlike planning (single agent, full knowledge), games have adversarial uncertainty.</li>
+    <li>MINIMAX for cooperative games [Spring 2022 Q3c]: in cooperative games, utility is not zero-sum. MAX/MIN labels change — agents cooperate toward shared utility. With utility vectors (multi-player), agents may form coalitions to maximize their component. Not ideal for strictly cooperative settings (better to use joint utility).</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Alpha-Beta Pruning</h3>
+<div class="formula">α (alpha): best value MAX can guarantee on path to root (starts -∞, updates at MAX nodes)
+β (beta):  best value MIN can guarantee on path to root (starts +∞, updates at MIN nodes)
+
+Prune when: α ≥ β
+  At MAX node: if child value ≥ β → prune remaining siblings (MIN won't let this happen)
+  At MIN node: if child value ≤ α → prune remaining siblings (MAX won't choose this path)
+
+Result: same answer as MINIMAX, but explore only O(b^(m/2)) nodes vs O(b^m)
+        (With perfect ordering: doubles the search depth for same computation)
+        
+Marked pruned branches with ✗ or shaded box.</div>
+<div class="exam">
+  <ul>
+    <li><strong>Alpha-Beta pruning game tree appears in EVERY exam [Spring 2022 Q3a, Fall 2021 Q3b, Fall 2022 Q2d, Spring 2023 Q2d, Fall 2021 Q3b]</strong></li>
+    <li>Standard setup: branching factor=2, cutoff depth=4 plies, MAX moves first, left-to-right expansion, sequence of terminal values given</li>
+    <li>Step-by-step: draw tree (4 levels), fill terminal values left-to-right, propagate upward with α/β tracking, mark pruned branches</li>
+    <li>Importance [Fall 2022 Q2d]: reduces exponential complexity; allows searching twice as deep; enables real-time game playing; doesn't change final answer — only eliminates branches that can't affect the decision</li>
+  </ul>
+</div>
+
+<h4>Alpha-Beta Pruning Worked Example (from exams)</h4>
+<div class="formula">Sequence: [3,1,2,5,4,7,6,8,3,7,9,5,3,4] — 14 terminal nodes, b=2, 4 plies, MAX first
+Tree structure (depth 4, branching factor 2):
+
+Level 0 (MAX): root
+Level 1 (MIN): 4 nodes
+Level 2 (MAX): 8 nodes (some pruned)
+Level 3 (MIN): terminal leaves (use given sequence left-to-right)
+
+Trace (left branch first):
+  Node L₁L₁: terminals 3,1 → MIN picks 1; α at parent MAX updates: α=1
+  Node L₁R₁: terminals 2,5 → first is 2; if 2 ≤ α(=1)? No → take 2; take 5 → MIN picks 2; MAX picks max(1,2)=2; root α=2
+  Continue for right subtree...
+  
+Key: whenever you find a value at MIN node ≤ α → prune (α-cutoff)
+     whenever you find a value at MAX node ≥ β → prune (β-cutoff)</div>
+</div>
+</div>
+
+<!-- ══ PROBABILITY ══ -->
+<div class="chapter" id="prob">
+<div class="chapter-header"><span class="ch-num">PROB</span><h2>Probability, Bayesian Networks, Decision Networks</h2></div>
+
+<div class="section">
+<h3>Full Joint Probability Distribution</h3>
+<div class="formula">For n Boolean variables: 2ⁿ atomic events; all probabilities sum to 1
+
+P(a) = sum of probabilities of all atomic events where a holds
+P(a|b) = P(a ∧ b) / P(b)       [conditional probability, requires P(b) > 0]
+P(a ∧ b) = P(a|b) × P(b)       [product rule]
+
+Bayes' Rule: P(b|a) = P(a|b) × P(b) / P(a)</div>
+<div class="exam">
+  <ul>
+    <li>Joint probability calculations [Spring 2022 Q4a, Fall 2021 Q4b, Spring 2023 Q2e(part), Fall 2023 Q4c] — must carefully sum correct cells from the table</li>
+    <li>P(¬a∨b | ¬c): P(¬a∨b) = P(b) + P(¬a) - P(¬a∧b); or sum cells where ¬a OR b is true AND ¬c is true</li>
+    <li>Posterior probability formula: P(X|evidence) = P(X∧evidence) / P(evidence)</li>
+  </ul>
+</div>
+
+<h4>Worked Example (3 Boolean Variables: a, b, c)</h4>
+<div class="formula">Table:               a                    ¬a
+                  c       ¬c         c       ¬c
+  b:            0.104    0.015      0.083    0.012
+  ¬b:           0.016    0.067      0.142    0.561
+  [Probabilities sum to 1: 0.104+0.015+0.083+0.012+0.016+0.067+0.142+0.561 = 1.0]
+
+P(b) = sum all cells where b is true = 0.104+0.015+0.083+0.012 = 0.214
+P(¬c) = all cells where c is false = 0.015+0.067+0.012+0.561 = 0.655
+P(a∧¬c) = cells where a=T AND c=F = 0.015 + 0.067 = 0.082
+P(¬a∨b|¬c) = P((¬a∨b)∧¬c) / P(¬c)
+            = P(cells where (¬a OR b) AND ¬c) / 0.655
+  Cells where ¬a OR b AND ¬c:
+    b∧¬c: (a:0.015, ¬a:0.012); ¬b∧¬a∧¬c: 0.561
+    Sum = 0.015+0.012+0.561 = 0.588
+  P(¬a∨b|¬c) = 0.588/0.655 ≈ 0.898</div>
+</div>
+
+<div class="section">
+<h3>Bayesian Networks</h3>
+<div class="formula">Structure: Directed Acyclic Graph (DAG)
+  • Nodes = random variables
+  • Directed edges = direct influence / causal relationship
+  • Each node Xᵢ has CPT: P(Xᵢ | Parents(Xᵢ))
+
+Joint probability:
+  P(x₁,...,xₙ) = ∏ᵢ P(xᵢ | parents(Xᵢ))
+
+Advantages over full joint distribution [Spring 2022 Q4c, Fall 2021 Q4d, Fall 2023 Part A Q4b]:
+  1. Compact: O(n×2^k) vs O(2^n) where k = max parents per node
+  2. Human-like: captures only direct dependencies, not all-vs-all
+  3. Easy to specify: experts only provide local conditional probabilities
+  4. Supports efficient inference algorithms (variable elimination, etc.)</div>
+<div class="exam">
+  <ul>
+    <li>BN calculation [Fall 2023 Q1c example, Spring 2023 Q4c]: P(a∧j∧m∧¬b∧e) = P(a|¬b,e)×P(j|a)×P(m|a)×P(¬b)×P(e) — multiply factors from CPTs</li>
+    <li>Degree of belief [Fall 2021 Q7a]: probability provides a way of quantifying uncertainty. Unlike logic (true/false), probability allows "I believe X with 70% confidence." This is the degree of belief — rational agents use it to make decisions under uncertainty.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Escape the Monster — Probabilistic Reasoning</h3>
+<div class="formula">Setup: m×m grid; P(monster at unknown cell) = p (independent, e.g., 0.2 or 0.25)
+  Known cells (OK) = no monster; S cells = smell detected
+  
+Fringe cells: cells adjacent to visited area, reachable next
+  
+Consistent model: an assignment of monster/no-monster to each fringe variable
+                  that is consistent with ALL observations (smells and OKs)
+
+P(mᵢ,ⱼ | evidence) = [sum of joint probs of consistent models where mᵢ,ⱼ holds]
+                     / [sum of joint probs of ALL consistent models]
+
+Joint prob of a model = ∏ over all fringe vars v: P(v) × (1-P(v)) as appropriate
+  If model says m₁,₃=monster: multiply by p=0.2
+  If model says m₁,₃=no monster: multiply by (1-p)=0.8</div>
+<div class="exam">
+  <ul>
+    <li>Escape the monster = probabilistic reasoning over consistent models [Fall 2021 Q7b, Fall 2023 Q2d, Spring 2023 Q2e] — appears in EVERY recent exam</li>
+    <li>Steps: (1) Identify fringe variables (unknown cells at frontier) (2) List ALL consistent models (assignments to fringe vars consistent with observations) (3) Compute joint probability of each model (4) Sum for numerator (models where cell has monster) and denominator (all models) (5) Choose safest cell to move to (lowest P(monster))</li>
+    <li>What makes a model "consistent": smell at cell (i,j) means ≥1 neighbor has monster; OK at (i,j) means NO neighbor has monster. Filter models that violate any observation.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Decision Networks</h3>
+<div class="formula">Three node types:
+  Chance nodes (circles):    random variables agent is uncertain about (CPTs)
+  Decision nodes (squares):  agent's choices — alternatives available
+  Utility node (diamond):    agent's utility function (one per network)
+
+MEU (Maximum Expected Utility):
+  EU(A|E) = Σᵢ P(Resultᵢ(A) | E, Do(A)) × U(Resultᵢ(A))
+  Choose action A* = argmax EU(A|E)
+
+Decision theory = Probability theory + Utility theory
+  Probability: quantifies uncertainty (beliefs)
+  Utility: quantifies preference (desires)
+  Together: rational decision making under uncertainty [Fall 2021 Q4c, Spring 2022 Q4b]</div>
+</div>
+</div>
+
+<!-- ══ MACHINE LEARNING ══ -->
+<div class="chapter" id="ml">
+<div class="chapter-header"><span class="ch-num">ML</span><h2>Machine Learning</h2></div>
+
+<div class="section">
+<h3>Confusion Matrix and Performance Metrics</h3>
+<div class="formula">                  Predicted Positive    Predicted Negative
+Actual Positive:     TP (True Pos)         FN (False Neg)      | P
+Actual Negative:     FP (False Pos)         TN (True Neg)      | N
+
+Accuracy   = (TP+TN)/(P+N)
+Error rate = (FP+FN)/(P+N) = 1 - Accuracy
+Sensitivity (Recall, TPR) = TP/P = TP/(TP+FN)   [of all positives, how many caught?]
+Specificity (TNR)          = TN/N = TN/(TN+FP)   [of all negatives, how many correctly rejected?]
+Precision                  = TP/(TP+FP)           [of predicted positives, how many correct?]
+Recall                     = TP/(TP+FN) = TP/P    [same as sensitivity]
+F1-score = 2×precision×recall / (precision+recall)   [harmonic mean; β=1]
+F-score  = (1+β²)×precision×recall / (β²×precision+recall)
+
+accuracy = sensitivity×(P/(P+N)) + specificity×(N/(P+N))</div>
+<div class="exam">
+  <ul>
+    <li>Confusion matrix calculations [Fall 2022 Q2c, Spring 2022 Part B Q1b] — ALWAYS compute all 4: Accuracy, Precision, Recall/Sensitivity, F1</li>
+    <li>Example from Spring 2022: TP=78, FP=14, FN=22, TN=86; P=100, N=100, Total=200<br>
+    Accuracy=(78+86)/200=0.82=82%; Precision=78/(78+14)=78/92≈84.8%; Recall=78/(78+22)=78/100=78%; F1=2×0.848×0.78/(0.848+0.78)=1.323/1.628≈81.3%</li>
+    <li>High precision vs high recall [Spring 2022 Part B Q1c]: when cost of FALSE POSITIVES is high → prefer MODEL-A (high precision, low recall). E.g., spam filter: false positive = marking good email as spam (costly). Cancer screening: false negative is costlier → prefer high recall.</li>
+    <li>Model quality comment [Fall 2022 Q2c — 70 TP, 0 FN, 30 FP, 0 TN]: Accuracy=70% but recall=100%, precision=70%. Model never predicts "No" — always predicts "Yes." Poor at identifying negative class. Suggest: balanced dataset, adjust threshold, use F1 over accuracy.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Decision Tree Induction (ID3)</h3>
+<div class="formula">Three formulas:
+
+1. Entropy (Information Content):
+   I(P(C₁),...,P(Cₘ)) = -Σᵢ P(Cᵢ) × log₂(P(Cᵢ))
+   
+   For binary classification (p positive, n negative out of total s):
+   I(p/s, n/s) = -(p/s)×log₂(p/s) - (n/s)×log₂(n/s)
+   Note: I=0 when all same class; I=1 when 50-50; I is in bits
+
+2. Remainder (expected entropy after split on attribute A):
+   Remainder(A) = Σᵢ (|Sᵢ|/|S|) × I(classes in Sᵢ)
+   where Sᵢ = subset of samples with ith value of A
+
+3. Information Gain:
+   Gain(A) = I(all samples) - Remainder(A)
+   → Choose attribute with MAXIMUM Gain as the splitting node</div>
+<div class="exam">
+  <ul>
+    <li>Information content computation [Fall 2021 Q5a, Fall 2023 Q3d]: I(9/14, 5/14) = -(9/14)log₂(9/14) - (5/14)log₂(5/14) ≈ 0.940 bits</li>
+    <li>ID3 on "weight > 150 lbs" subset [Fall 2022 Q3d]: discretize continuous attributes first (weight: ≤150=low, >150=high). Then compute entropy for each subset partition. Compute gains for Height, Foot Size after filtering to weight>150 rows only.</li>
+    <li>After choosing root attribute, recurse on subsets. Pure leaf (all same class) = stop. Remaining entropy = 0 at pure leaf.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Naïve Bayes Classifier</h3>
+<div class="formula">Predict class Cᵢ with maximum: P(X|Cᵢ) × P(Cᵢ)   [drop P(X) — same for all]
+
+P(Cᵢ) = (# samples of class Cᵢ) / (total samples)
+
+For CATEGORICAL attribute Ak:
+  P(xₖ|Cᵢ) = (# samples in class Cᵢ with value xₖ) / (# samples in Cᵢ)
+
+For CONTINUOUS attribute Ak (Gaussian Naïve Bayes):
+  μᵢ = mean of Ak values in class Cᵢ
+  σᵢ = std dev of Ak values in class Cᵢ
+  P(xₖ|Cᵢ) = (1/√(2πσᵢ)) × exp(-(xₖ-μᵢ)²/(2σᵢ²))
+
+Prediction: argmax P(X|Cᵢ)×P(Cᵢ) = argmax [Π P(xₖ|Cᵢ)] × P(Cᵢ)</div>
+<div class="exam">
+  <ul>
+    <li>Naïve Bayes classification appears in EVERY exam [Fall 2022 Q3c, Fall 2021 Q5b, Fall 2021 Part B Q2c, Fall 2023 Part B Q2c, Spring 2023 Q2f, Spring 2022 Part B Q2b]</li>
+    <li>For continuous attributes: use Gaussian formula. Compute μ and σ for each continuous attribute WITHIN each class separately. Then plug into Gaussian PDF.</li>
+    <li>Standard template: (1) Compute P(Cᵢ) for each class (2) For each attribute in X, compute P(xₖ|Cᵢ) (3) Multiply all factors × P(Cᵢ) (4) Compare products (5) Higher product = predicted class</li>
+    <li>"Naïve" = assumes conditional independence of attributes given class. Simplifies computation. Works surprisingly well despite this assumption.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Neural Network and Backpropagation</h3>
+<div class="formula">For each hidden/output unit j:
+  Net input:  Iⱼ = Σᵢ Oᵢ×wᵢⱼ + θⱼ      [weighted sum + bias]
+  Output:     Oⱼ = sigmoid(Iⱼ) = 1/(1+e^(-Iⱼ))
+
+Backpropagation steps:
+  1. Forward pass: compute Oⱼ for all units
+  2. Output error: Errⱼ = Oⱼ(1-Oⱼ)(Tⱼ - Oⱼ)    [Tⱼ = target output]
+  3. Hidden error: Errⱼ = Oⱼ(1-Oⱼ) × Σₖ Errₖ×wⱼₖ  [k = next layer]
+  4. Update weights: wᵢⱼ ← wᵢⱼ + l×Errⱼ×Oᵢ
+  5. Update biases:  θⱼ ← θⱼ + l×Errⱼ
+  [l = learning rate ∈ (0,1)]</div>
+<div class="exam">
+  <ul>
+    <li>Features of backpropagation [Spring 2022 Part B Q2a]: (1) Iterative processing of training samples (2) Updates weights based on mean squared error propagated backward layer by layer (3) Case updating (after each sample) vs Epoch updating (after full pass) (4) Initial weights random (−0.5 to 0.5) (5) Terminates when: change &lt; threshold, max epochs reached, or misclassification rate stable</li>
+    <li>Why NN for image recognition [Fall 2021 Q7c, Fall 2023 Part B Q2?]: high tolerance to noise; learns complex non-linear patterns; captures spatial features via multiple layers; no manual feature engineering needed</li>
+    <li>Why preprocessing needed [Fall 2021 Q5c]: different attributes have different scales (age 0-100, salary 0-100,000) → one dominates distance/weight calculations → normalize to [0,1] or standardize (z-score)</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Linear Regression</h3>
+<div class="formula">Y = αX + β    (fit a line to minimize squared error)
+
+Least-squares formulas:
+  α = Σ(xᵢ-x̄)(yᵢ-ȳ) / Σ(xᵢ-x̄)²
+  β = ȳ - α×x̄
+  (x̄ = mean of X values, ȳ = mean of Y values)
+
+Error metrics:
+  MAE = (1/n)Σ|yᵢ-ŷᵢ|    [less sensitive to outliers]
+  MSE = (1/n)Σ(yᵢ-ŷᵢ)²   [penalizes large errors more]
+  RMSE = √MSE             [same units as Y]</div>
+<div class="exam">
+  <ul>
+    <li>Calculate linear regression parameters + predict [Fall 2023 Part B Q2b, Fall 2021 Part B Q2b]: (1) Compute x̄ and ȳ (2) Compute Σ(xᵢ-x̄)(yᵢ-ȳ) and Σ(xᵢ-x̄)² (3) α = first/second (4) β = ȳ - α×x̄ (5) Plug in new X to predict Y</li>
+    <li>Regression metrics explained [Spring 2022 Part B Q1a]: MAE (average absolute error, less sensitive to outliers), MSE (average squared error, penalizes large deviations more), RMSE (square root of MSE, same unit as output), R² (proportion of variance explained, 0–1).</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>k-NN and k-Means</h3>
+<div class="formula">k-NN (k-Nearest Neighbor):
+  Lazy learner: no training phase, classify at query time
+  Algorithm: find k closest training samples → majority vote (classification) or average (regression)
+  Distance: Euclidean D(X,Y) = √Σ(xᵢ-yᵢ)²; Manhattan = Σ|xᵢ-yᵢ|
+
+k-Means Clustering (3 iterations shown in exam):
+  Init: choose k centroids (e.g., C₁=(1,1), C₂=(5,7))
+  Iteration 1:
+    Assign each point to nearest centroid (Euclidean distance)
+    Recompute centroids = mean of assigned points
+  Iterations 2, 3: repeat until stable</div>
+<div class="exam">
+  <ul>
+    <li>k-Means 3-iteration calculation [Spring 2022 Part B Q3b]: For each point, compute distance to C₁ and C₂, assign to closer. After assignment, new centroid = (mean_x, mean_y) of all assigned points. Repeat 3 times.</li>
+    <li>KNN = Lazy Algorithm [Fall 2022 Q1f, Fall 2023 Part B Q1b]: No model built during training. Classification deferred until prediction time. All training samples stored and searched at query time. "Lazy" = no eager learning of a model. Trade-off: no training cost but high query cost O(n×d).</li>
+    <li>Initial centroid heuristics for k-means [Spring 2022 Part B Q3a]: random selection, k-means++ (spread out initial centroids), Forgy method, select cluster representatives from domain knowledge. Bad initialization → local optimum → poor clustering.</li>
+    <li>KNN vs SVM with outliers [Spring 2022 Part B Q3c]: KNN is sensitive to outliers (they can become neighbors of new points). SVM is robust — only support vectors define the hyperplane; outliers far from the margin have no effect. Prefer SVM when outliers are present.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>SVM — Support Vector Machines</h3>
+<div class="formula">Find maximum margin hyperplane: W·X + b = 0
+  H1: W·X + b ≥ +1  (class +1 boundary)
+  H2: W·X + b ≤ -1  (class -1 boundary)
+  
+Margin = 2/||W||   where ||W|| = √(Σwᵢ²)
+Maximize margin → minimize ||W|| → convex optimization
+
+Support vectors: training points ON H1 or H2 (closest to separator)
+Kernel trick: map non-linearly separable data to higher dimension
+  RBF: K(X,Y) = exp(-||X-Y||²/2σ²)  [most common]
+
+Comparison with Neural Network [Spring 2023 Q4d]:
+  SVM: max-margin principle; kernel trick; less prone to overfitting; interpretable (support vectors)
+  NN: multi-layer; learns feature hierarchy; black box; better for raw input (images, speech)</div>
+</div>
+</div>
+
+<!-- QUICK REF -->
+<hr>
+<div class="chapter" id="ref">
+<div class="chapter-header"><span class="ch-num">REF</span><h2>Quick Reference — Question Frequency Table</h2></div>
+<div class="tbl-wrap"><table>
+  <tr><th>Topic</th><th>Papers</th><th>What to Master</th></tr>
+  <tr><td>Forward/Backward Chaining proof</td><td>Every exam</td><td>Step-by-step trace; FC=data-driven; BC=goal-driven; backtracking in BC</td></tr>
+  <tr><td>Alpha-Beta Pruning game tree</td><td>Every exam</td><td>Draw tree (b=2, 4 plies), fill terminal values, propagate with α/β tracking, mark pruned branches</td></tr>
+  <tr><td>A* Search on graph</td><td>Every exam</td><td>PQ with f=g+h at each step; show parent tracking; compare to Greedy (Greedy=h only)</td></tr>
+  <tr><td>Naïve Bayes classification</td><td>Every exam</td><td>P(C), P(xₖ|C) for each attribute, multiply, compare products. Gaussian for continuous.</td></tr>
+  <tr><td>PDDL Planning (Blocks/Air Cargo)</td><td>Every exam</td><td>State as PDDL literals, Action schemas (precond+effect), step-by-step state transitions</td></tr>
+  <tr><td>Unification / MGU</td><td>Every exam since Fall 2021</td><td>Left-to-right argument comparison, build θ step by step, apply after each step</td></tr>
+  <tr><td>Confusion Matrix calculations</td><td>Almost every exam</td><td>Accuracy, Precision, Recall, F1 — know all 4 formulas cold</td></tr>
+  <tr><td>Escape the Monster (probabilistic)</td><td>Fall 2021, Fall 2023, Spring 2023</td><td>List consistent models, compute joint probs, ratio for posterior. P=0.2 or 0.25 typically.</td></tr>
+  <tr><td>Joint Probability computations</td><td>Spring 2022, Fall 2021, Spring 2023, Fall 2023</td><td>Sum correct cells; conditional = P(A∧B)/P(B)</td></tr>
+  <tr><td>Genetic Algorithms</td><td>Every exam (explanation/comparison)</td><td>7 steps; biological themes; crossover preserves schemas; mutation adds diversity</td></tr>
+  <tr><td>k-Means 3 iterations</td><td>Spring 2022, Fall 2023</td><td>Assign to nearest centroid, recompute centroids, repeat</td></tr>
+  <tr><td>Linear Regression parameters</td><td>Fall 2021, Fall 2023</td><td>α formula, β formula, then predict</td></tr>
+  <tr><td>Environment contrasts</td><td>Every exam</td><td>Know all 6 contrasts with two-sided names and real-world examples</td></tr>
+  <tr><td>Greedy vs A* comparison</td><td>Every exam</td><td>f=h vs f=g+h; not optimal vs optimal; not complete vs complete</td></tr>
+  <tr><td>Hill-climbing problems/solutions</td><td>Every exam</td><td>4 landscape problems; 4 solutions; local vs global optima</td></tr>
+  <tr><td>FOL syntax demonstration</td><td>Fall 2023, Spring 2023, Fall 2021</td><td>Parse sentence top-down using grammar rules; identify each construct type</td></tr>
+  <tr><td>Planner as Intelligent Agent</td><td>Spring 2022, Fall 2021, Spring 2023</td><td>Goal-based; decomposes subproblems; precondition rule; plans = action sequences</td></tr>
+  <tr><td>KNN = Lazy Algorithm</td><td>Fall 2022, Fall 2023</td><td>No training model; all computation at query time; memory-based; eager vs lazy distinction</td></tr>
+  <tr><td>Backpropagation features</td><td>Spring 2022, Fall 2023</td><td>7 features including termination conditions; case vs epoch updating</td></tr>
+  <tr><td>BN advantages over joint distribution</td><td>Spring 2022, Fall 2021, Spring 2023</td><td>Compact; human-like (direct dependencies only); easier to specify; efficient inference</td></tr>
+  <tr><td>Decision theory principle</td><td>Fall 2021, Spring 2023</td><td>MEU = max expected utility; EU(A|E) = Σ P(outcome)×U(outcome); prob + utility = decision</td></tr>
+  <tr><td>ID3 / Information Gain</td><td>Fall 2022, Fall 2021, Spring 2023</td><td>Entropy formula; Remainder formula; Gain = Entropy − Remainder; choose max Gain attribute</td></tr>
+</table></div>
+</div>
+
+</div>
+<footer>CSE 3207 · Introduction to Artificial Intelligence · Exam Study Material · AUST · Fall 2021–Fall 2023</footer>
+</body>
+</html>
