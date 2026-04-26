@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3223 — Full ISD &amp; SE Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;
+  --purple:#bc8cff;--orange:#e3b341;--cyan:#39d353;
+  --text:#e6edf3;--muted:#8b949e;--subtle:#6e7681;
+  --isd:#3fb950;--se:#58a6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.7}
+
+.header{background:linear-gradient(180deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#58a6ff0f 0%,transparent 70%);pointer-events:none}
+.header h1{font-size:1.9rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.header h1 em{color:var(--accent);font-style:normal}
+.header p{color:var(--muted);font-size:.85rem;margin-top:.4rem}
+.badge-row{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+.badge{padding:.2rem .75rem;border-radius:20px;font-size:.72rem;font-family:'JetBrains Mono',monospace;font-weight:600}
+.badge-isd{background:#3fb95015;border:1px solid #3fb95040;color:var(--green)}
+.badge-se{background:#58a6ff15;border:1px solid #58a6ff40;color:var(--accent)}
+.badge-skip{background:#f8514915;border:1px solid #f8514940;color:var(--red)}
+
+nav{position:sticky;top:0;z-index:100;background:#161b22ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.5rem 1.5rem;display:flex;flex-wrap:wrap;gap:.25rem;align-items:center}
+.nav-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--subtle);padding:.25rem .4rem;text-transform:uppercase;letter-spacing:.5px}
+nav a{color:var(--muted);text-decoration:none;font-size:.75rem;padding:.2rem .55rem;border-radius:6px;transition:.15s;font-family:'JetBrains Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+nav a.isd{border-left:2px solid var(--green)}
+nav a.se{border-left:2px solid var(--accent)}
+
+.wrap{max-width:1020px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+.part-header{text-align:center;padding:1.5rem;margin:3rem 0 2rem;border-radius:8px}
+.part-isd{background:linear-gradient(135deg,#3fb95008,#3fb95018);border:1px solid #3fb95030}
+.part-se{background:linear-gradient(135deg,#58a6ff08,#58a6ff18);border:1px solid #58a6ff30}
+.part-header h2{font-size:1.1rem;font-weight:700;color:#fff}
+.part-header p{font-size:.82rem;color:var(--muted);margin-top:.3rem}
+
+.ch{margin-bottom:3.5rem}
+.ch-head{display:flex;align-items:center;gap:1rem;padding:.9rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:0 8px 8px 0;margin-bottom:1.75rem}
+.ch-head.isd{border-left:4px solid var(--green)}
+.ch-head.se{border-left:4px solid var(--accent)}
+.ch-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:.2rem .55rem;border-radius:4px;white-space:nowrap;font-weight:600}
+.ch-badge.isd{color:var(--green);background:#3fb95015;border:1px solid #3fb95030}
+.ch-badge.se{color:var(--accent);background:#58a6ff15;border:1px solid #58a6ff30}
+.ch-head h3{font-size:1.1rem;font-weight:700;color:#fff}
+.week-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--subtle);background:var(--surface2);border:1px solid var(--border);padding:.15rem .5rem;border-radius:4px;margin-left:auto;white-space:nowrap}
+
+.sec{margin-bottom:2.2rem}
+.sec>h4{font-size:.9rem;font-weight:600;color:var(--accent);margin-bottom:.9rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.4rem}
+.sec>h4::before{content:'§';font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--subtle);opacity:.8}
+h5{font-size:.85rem;font-weight:600;color:var(--yellow);margin:1.1rem 0 .5rem}
+p{margin-bottom:.7rem;color:var(--text);font-size:.89rem}
+
+.code{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.79rem;color:#79c0ff;margin:.7rem 0;white-space:pre-wrap;overflow-x:auto;line-height:1.6}
+code{font-family:'JetBrains Mono',monospace;background:#30363d;padding:.1em .35em;border-radius:4px;font-size:.82em;color:#79c0ff}
+
+.note{background:#d2992211;border:1px solid #d2992240;border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:.7rem 1rem;margin:.7rem 0;font-size:.86rem;color:#ffe0a0}
+.note-lbl{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--yellow);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem}
+.tip{background:#3fb95011;border:1px solid #3fb95040;border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:.7rem 1rem;margin:.7rem 0;font-size:.86rem;color:#b5e8c0}
+.tip-lbl{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.7rem;margin:.7rem 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem .95rem}
+.card strong{display:block;font-size:.78rem;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:.3rem}
+.card span{font-size:.83rem;color:var(--muted)}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.7rem 0}
+.cmp-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem .95rem}
+.cmp-box h6{font-size:.78rem;font-weight:600;color:var(--accent);margin-bottom:.5rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.cmp-box ul{margin-left:1rem}
+.cmp-box li{font-size:.83rem;color:var(--muted);margin-bottom:.2rem}
+.cmp-box li strong{color:var(--text)}
+
+.tbl{overflow-x:auto;margin:.7rem 0}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:var(--surface2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600;letter-spacing:.3px}
+td{padding:.45rem .7rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+td:first-child{color:var(--text);font-weight:500}
+td.center{text-align:center}
+
+.steps{counter-reset:s;margin:.7rem 0}
+.step{counter-increment:s;display:flex;gap:.7rem;margin-bottom:.55rem;align-items:flex-start}
+.step::before{content:counter(s);min-width:21px;height:21px;background:#58a6ff1a;border:1px solid #58a6ff40;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--accent);flex-shrink:0;margin-top:3px;font-weight:600}
+.step p{margin:0;font-size:.87rem}
+
+ul,ol{margin-left:1.2rem;margin-bottom:.7rem}
+li{margin-bottom:.28rem;color:var(--muted);font-size:.87rem}
+li strong{color:var(--text)}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+.hl3{color:var(--accent);font-weight:600}
+.hl4{color:var(--purple);font-weight:600}
+
+.skip-notice{background:#f8514910;border:1px solid #f8514940;border-radius:8px;padding:1rem 1.25rem;margin:2rem 0;font-size:.87rem;color:#ffb3b3}
+.skip-notice strong{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.72rem;display:block;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.4px}
+
+hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+footer{text-align:center;padding:2rem;color:var(--subtle);font-size:.75rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>CSE 3223 — <em>ISD &amp; Software Engineering</em></h1>
+  <p>Complete Topic-by-Topic Study Guide · Weeks 1–11 · AUST · Kendall &amp; Kendall + Pressman</p>
+  <div class="badge-row">
+    <span class="badge badge-isd">ISD — Weeks 1–7</span>
+    <span class="badge badge-se">SE — Weeks 8–11</span>
+    <span class="badge badge-skip">Weeks 12–13 Skipped</span>
+  </div>
+</div>
+<nav>
+  <span class="nav-label">ISD</span>
+  <a href="#info-sys" class="isd">Info Systems</a>
+  <a href="#sdlc" class="isd">SDLC</a>
+  <a href="#feasibility" class="isd">Feasibility</a>
+  <a href="#project" class="isd">Project Mgmt</a>
+  <a href="#gathering-i" class="isd">Info Gathering I</a>
+  <a href="#gathering-u" class="isd">Info Gathering II</a>
+  <a href="#dfd" class="isd">DFDs</a>
+  <a href="#uml" class="isd">UML / OO</a>
+  <a href="#testing-isd" class="isd">Testing</a>
+  <span class="nav-label">SE</span>
+  <a href="#se-intro" class="se">SE Intro</a>
+  <a href="#process" class="se">Process Models</a>
+  <a href="#agile" class="se">Agile / XP</a>
+  <a href="#estimation" class="se">Estimation</a>
+</nav>
+<div class="wrap">
+
+<!-- ══════════ ISD PART ══════════ -->
+<div class="part-header part-isd">
+  <h2>PART A — Information System Design (ISD)</h2>
+  <p>Kendall &amp; Kendall · Weeks 1–7</p>
+</div>
+
+<!-- ─── CH1: Information Systems ─── -->
+<div class="ch" id="info-sys">
+<div class="ch-head isd"><span class="ch-badge isd">ISD CH1</span><h3>Information Systems &amp; the Systems Analyst</h3><span class="week-tag">Week 1</span></div>
+
+<div class="sec">
+<h4>What is Information?</h4>
+<p><span class="hl">Information</span> is an organizational resource that must be managed as carefully as physical resources like equipment or capital. Costs are associated with producing, storing, and retrieving information, so it must be managed efficiently to take full advantage of its potential. Raw <strong>data</strong> becomes <strong>information</strong> when it is processed and given context and meaning.</p>
+</div>
+
+<div class="sec">
+<h4>Eight Categories of Information Systems</h4>
+<div class="cards">
+  <div class="card"><strong>TPS — Transaction Processing</strong><span>Handles daily routine transactions (sales, payroll). High volume. Example: ATM, POS terminals, online orders.</span></div>
+  <div class="card"><strong>OAS — Office Automation</strong><span>Increases productivity of data workers. Word processors, spreadsheets, email, scheduling. Example: MS Office.</span></div>
+  <div class="card"><strong>KWS — Knowledge Work</strong><span>Supports knowledge workers (engineers, scientists). CAD tools, workstations. Creates new information/knowledge.</span></div>
+  <div class="card"><strong>MIS — Management Info</strong><span>Provides weekly/monthly summaries to middle management. Extracts from TPS. Structured decisions. Example: sales trend reports.</span></div>
+  <div class="card"><strong>DSS — Decision Support</strong><span>Helps managers make semi-structured decisions. "What-if" analysis. Interactive. Example: financial modeling tools.</span></div>
+  <div class="card"><strong>ES — Expert Systems</strong><span>Captures expert knowledge as rules. AI-based. Mimics human expertise. Example: MYCIN (medical diagnosis).</span></div>
+  <div class="card"><strong>GDSS — Group Decision Support</strong><span>Facilitates group decision-making. Electronic meetings, voting, brainstorming tools. Reduces groupthink.</span></div>
+  <div class="card"><strong>EES — Executive Support</strong><span>For senior executives. Aggregates internal + external data. Dashboard graphs. Exception reporting.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>The Systems Analyst</h4>
+<p>The systems analyst is the key change agent who bridges users and technology. They act in three roles:</p>
+<ul>
+  <li><strong>Outside consultant:</strong> Brings expertise to solve problems for organizations on contract</li>
+  <li><strong>Supporting expert:</strong> Works within a company providing guidance to specific departments</li>
+  <li><strong>Change agent:</strong> Plans and implements system changes, trains and motivates users</li>
+</ul>
+<p>A good analyst must be: an effective communicator (oral and written), a problem solver, ethical with users and management, familiar with both technology and business processes, and able to manage time and people.</p>
+</div>
+
+<div class="sec">
+<h4>New Technologies Integrated into IS</h4>
+<ul>
+  <li><strong>E-commerce:</strong> Using the Web to perform business activities (buying, selling, customer service)</li>
+  <li><strong>ERP (Enterprise Resource Planning):</strong> Integrates multiple IS across an organization (finance, HR, supply chain) into one system. Examples: SAP, Oracle ERP.</li>
+  <li><strong>M-commerce:</strong> Wireless/handheld devices enabling transactions on the go</li>
+  <li><strong>Open source software:</strong> Source code freely available to modify and distribute</li>
+</ul>
+</div>
+</div>
+
+<!-- ─── SDLC ─── -->
+<div class="ch" id="sdlc">
+<div class="ch-head isd"><span class="ch-badge isd">ISD CH1</span><h3>Systems Development Life Cycle (SDLC)</h3><span class="week-tag">Week 1</span></div>
+
+<div class="sec">
+<h4>Overview</h4>
+<p>The SDLC is a <span class="hl">systematic 7-phase process</span> for solving business problems through information systems. Errors found in later phases cost significantly more to fix than those caught in earlier phases — so thorough early work is critical.</p>
+</div>
+
+<div class="sec">
+<h4>The 7 Phases</h4>
+<div class="tbl"><table>
+  <tr><th>Phase</th><th>Key Activities</th><th>Personnel</th></tr>
+  <tr><td>1. Identify Problems, Opportunities &amp; Objectives</td><td>Interview managers; document problems; observe system; define scope and objectives</td><td>Analyst, User management, Systems management</td></tr>
+  <tr><td>2. Determine Information Requirements</td><td>Interview users; use questionnaires; observe; gather documents. Learn the who/what/where/when/how/why.</td><td>Analyst, User management, User operations workers</td></tr>
+  <tr><td>3. Analyze System Needs</td><td>Create DFDs; complete data dictionary; make decisions; prepare system proposal; recommend solution</td><td>Analyst, User management, Systems management</td></tr>
+  <tr><td>4. Design the Recommended System</td><td>Design UI, output, input, controls; design database; produce program specs; produce decision trees/tables</td><td>Analyst, System designer, User management</td></tr>
+  <tr><td>5. Develop &amp; Document Software</td><td>Design using structure charts, N-S charts, pseudocode; code programs; write documentation; help files</td><td>Analyst, System designer, Programmers</td></tr>
+  <tr><td>6. Test &amp; Maintain System</td><td>Test and debug programs; test system integration; enhance and fix errors</td><td>Analyst, System designer, Programmers</td></tr>
+  <tr><td>7. Implement &amp; Evaluate System</td><td>Plan conversion; train users; purchase/install equipment; convert files; install system; review performance</td><td>Analyst, System designer, Programmers, User management, User operations workers</td></tr>
+</table></div>
+
+<h5>Alternate Methodologies</h5>
+<ul>
+  <li><strong>Prototyping:</strong> Build a scaled-down version quickly to gather feedback before full development</li>
+  <li><strong>RAD (Rapid Application Development):</strong> Object-oriented approach; emphasizes speed; uses CASE tools</li>
+  <li><strong>ETHICS:</strong> Effective Technical and Human Implementation of Computer-based Systems — emphasizes human factors</li>
+  <li><strong>Soft Systems Methodology:</strong> For complex, poorly-defined problems; focuses on different stakeholders' worldviews</li>
+  <li><strong>Multi-view:</strong> Combines technical and social perspectives</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>CASE Tools</h4>
+<p><span class="hl">CASE (Computer-Aided Software Engineering)</span> tools are automated software packages that assist in systems analysis and design. Benefits: increase analyst productivity, facilitate communication, provide continuity across life cycle phases, and assess maintenance impact.</p>
+<div class="cmp">
+  <div class="cmp-box"><h6>Upper CASE (Front-end)</h6><ul>
+    <li>Used in analysis and design phases</li>
+    <li>Creates/modifies system design</li>
+    <li>Stores data in a <strong>project repository</strong> (records, diagrams, screens, reports)</li>
+    <li>Models organizational requirements</li>
+    <li>Defines system boundaries</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Lower CASE (Back-end)</h6><ul>
+    <li>Generates computer source code from CASE design</li>
+    <li>Can generate in multiple languages</li>
+    <li>Reduces coding time and errors</li>
+    <li>Code is free from coding errors</li>
+    <li>Easier maintenance of generated code</li>
+  </ul></div>
+</div>
+<p><span class="hl">Integrated CASE</span> tools perform both upper and lower CASE functions in one package. <span class="hl">Reverse Engineering</span> is the opposite of code generation — it analyzes existing source code and converts it into CASE repository entities (data structures, screen designs, structure charts), producing documentation for poorly-documented legacy systems.</p>
+</div>
+</div>
+
+<!-- ─── FEASIBILITY ─── -->
+<div class="ch" id="feasibility">
+<div class="ch-head isd"><span class="ch-badge isd">ISD CH3</span><h3>Feasibility Study &amp; Project Initiation</h3><span class="week-tag">Week 1–2</span></div>
+
+<div class="sec">
+<h4>Project Initiation</h4>
+<p>Projects are initiated for two broad reasons: <span class="hl">problems</span> that need system solutions, and <span class="hl">opportunities</span> for improvement. Organizational problems are identified by: checking output against performance criteria (errors, slow work), observing employee behavior (absenteeism, dissatisfaction, turnover), and listening to vendor/customer feedback (complaints, lost sales).</p>
+<h5>Five Criteria for Project Selection</h5>
+<ol>
+  <li>Backed by management (without support, projects fail)</li>
+  <li>Timed appropriately for commitment of resources</li>
+  <li>Moves the business toward its goals</li>
+  <li>Practicable (doable within constraints)</li>
+  <li>Important enough to be prioritized over other projects</li>
+</ol>
+</div>
+
+<div class="sec">
+<h4>Three Types of Feasibility</h4>
+<div class="cards">
+  <div class="card"><strong>Technical Feasibility</strong><span>Can the current technical resources support the new system? Can they be upgraded to the required level? Assesses hardware, software, network, and expertise availability.</span></div>
+  <div class="card"><strong>Economic Feasibility</strong><span>Are the time and money available to develop the system? Includes hardware, software, development costs vs. expected benefits. Needs cost-benefit analysis.</span></div>
+  <div class="card"><strong>Operational Feasibility</strong><span>Are human resources available to operate the system once installed? Will users accept it? Users who resist a system may make it operationally infeasible even if technically perfect.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Cost-Benefit Analysis</h4>
+<p>A tool to determine if the benefits of a proposed system outweigh its costs. Costs and benefits are either <span class="hl">tangible</span> (can be quantified in money) or <span class="hl">intangible</span> (real but difficult to quantify).</p>
+<div class="tbl"><table>
+  <tr><th>Type</th><th>Costs Examples</th><th>Benefits Examples</th></tr>
+  <tr><td>Tangible</td><td>Hardware purchase, software licenses, development labor, training costs</td><td>Reduced staff costs, faster processing, fewer errors, increased sales</td></tr>
+  <tr><td>Intangible</td><td>Lower employee morale during transition, organizational disruption</td><td>Better customer service, improved decision making, competitive advantage</td></tr>
+</table></div>
+
+<h5>Cash Flow Analysis &amp; Present Value</h5>
+<p>Because money has time value, costs and benefits occurring in different years must be converted to <span class="hl">present value (PV)</span> for a fair comparison.</p>
+<div class="code">Present Value (PV) = FV / (1 + i)^n
+
+Where:  FV = Future Value (amount in future)
+        i  = interest rate (discount rate) per period
+        n  = number of periods in the future
+
+Example: A $10,000 benefit in 3 years at 10% interest rate:
+  PV = 10,000 / (1.10)³ = 10,000 / 1.331 = $7,513
+
+Net Present Value (NPV) = Sum of all PVs of benefits − Sum of all PVs of costs
+  If NPV > 0: project is economically worthwhile
+  If NPV < 0: costs outweigh benefits → reconsider</div>
+<div class="note"><div class="note-lbl">📌 Break-even Point</div>
+The year in which total accumulated benefits first exceed total accumulated costs. Plot cumulative costs and cumulative benefits on a graph; the crossing point is break-even.</div>
+</div>
+</div>
+
+<!-- ─── PROJECT MANAGEMENT ─── -->
+<div class="ch" id="project">
+<div class="ch-head isd"><span class="ch-badge isd">ISD CH3</span><h3>Project Scheduling &amp; Management</h3><span class="week-tag">Week 2</span></div>
+
+<div class="sec">
+<h4>Activity Planning</h4>
+<p>Activity planning involves: selecting a systems analysis team, estimating time required for each task, and scheduling the project. Time estimates for each task can be made using three estimates:</p>
+<div class="code">Expected Time (ET) = (Optimistic + 4×Most_Likely + Pessimistic) / 6
+(This is the weighted average used in PERT)</div>
+</div>
+
+<div class="sec">
+<h4>Gantt Charts</h4>
+<p>A <span class="hl">Gantt chart</span> is a horizontal bar chart that shows project activities (tasks) against time. Each bar represents one activity; its length shows the planned duration; overlap shows parallel activities. Easy to construct, read, and update.</p>
+<ul>
+  <li>Shows <strong>what</strong> activities are planned and <strong>when</strong></li>
+  <li>Does <strong>NOT</strong> show dependencies between tasks (which tasks must finish before others begin)</li>
+  <li>Useful for: tracking progress, resource allocation, reporting to management</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>PERT Diagrams</h4>
+<p><span class="hl">PERT (Program Evaluation and Review Technique)</span> diagrams show task <strong>precedence relationships</strong> — which activities must be completed before others can begin. Uses network diagram notation (nodes = events/milestones, arrows = activities).</p>
+<ul>
+  <li><span class="hl">Critical Path:</span> The longest path through the network from start to finish. Determines the minimum time to complete the project. Any delay on the critical path delays the whole project.</li>
+  <li><span class="hl">Slack Time (Float):</span> The amount of time a non-critical activity can be delayed without delaying the project. Slack = Late Finish − Early Finish.</li>
+  <li>Critical path activities have <strong>zero slack</strong>.</li>
+</ul>
+<div class="code">Critical Path Method (CPM):
+  Forward pass: compute Early Start (ES) and Early Finish (EF) for each activity
+    EF = ES + Duration
+    ES of activity = max(EF of all predecessors)
+    
+  Backward pass: compute Late Start (LS) and Late Finish (LF)
+    LF of last activity = EF of last activity (project deadline)
+    LS = LF - Duration
+    LF of activity = min(LS of all successors)
+    
+  Slack = LS - ES = LF - EF
+  Critical activities: Slack = 0</div>
+<div class="cmp">
+  <div class="cmp-box"><h6>Gantt Chart</h6><ul>
+    <li>Simple bar chart</li>
+    <li>Shows time and activities</li>
+    <li>Does NOT show dependencies</li>
+    <li>Easy for management to read</li>
+    <li>Good for progress tracking</li>
+  </ul></div>
+  <div class="cmp-box"><h6>PERT Diagram</h6><ul>
+    <li>Network diagram (nodes + arrows)</li>
+    <li>Shows task precedence/dependencies</li>
+    <li>Identifies critical path</li>
+    <li>Shows slack time on non-critical tasks</li>
+    <li>Better for complex projects</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ─── INFO GATHERING: INTERACTIVE ─── -->
+<div class="ch" id="gathering-i">
+<div class="ch-head isd"><span class="ch-badge isd">ISD INFO</span><h3>Information Gathering — Interactive Methods</h3><span class="week-tag">Week 3</span></div>
+
+<div class="sec">
+<h4>Why Gather Information?</h4>
+<p>Phase 2 of the SDLC requires understanding the current system deeply. Information gathering answers: <em>who</em> uses the system, <em>what</em> information they need, <em>where</em> they get it from, <em>when</em> they need it, <em>how</em> it flows, and <em>why</em> things are done the way they are.</p>
+</div>
+
+<div class="sec">
+<h4>Interviews</h4>
+<p>Interviews are the most commonly used information gathering technique. They allow the analyst to probe for detail, observe non-verbal cues, and build rapport with users.</p>
+<h5>Steps in Interview Preparation</h5>
+<div class="steps">
+  <div class="step"><p><strong>Research the interviewee and organization:</strong> Read annual reports, org charts, previous system documentation</p></div>
+  <div class="step"><p><strong>Determine objectives of the interview:</strong> What specific information must you come away with?</p></div>
+  <div class="step"><p><strong>Decide who to interview:</strong> Management for goals, operations staff for details and problems</p></div>
+  <div class="step"><p><strong>Prepare questions:</strong> Mix open-ended and closed questions; sequence logically</p></div>
+  <div class="step"><p><strong>Prepare the interviewee:</strong> Schedule in advance, explain purpose, build trust</p></div>
+  <div class="step"><p><strong>Decide on recording method:</strong> Note-taking, audio recording (with permission), structured forms</p></div>
+  <div class="step"><p><strong>Conduct the interview:</strong> Dress professionally, start with easy questions, listen actively, probe deeper with follow-ups</p></div>
+  <div class="step"><p><strong>Write up results immediately after</strong> while memory is fresh. Send summary to interviewee for verification.</p></div>
+</div>
+
+<h5>Types of Interview Questions</h5>
+<div class="cards">
+  <div class="card"><strong>Open-Ended</strong><span>No specific answer expected. "How do you feel about the current system?" Rich data, reveals attitudes. Time-consuming to analyze. Good for early discovery.</span></div>
+  <div class="card"><strong>Closed / Closed-Ended</strong><span>Limited specific answers. "How many reports do you produce per week?" Quick, easy to analyze, comparable. Less depth. Good for facts and numbers.</span></div>
+  <div class="card"><strong>Bipolar</strong><span>Special case of closed. Yes/No or True/False. "Does the system produce daily reports?" Very restrictive. Use sparingly for confirmation only.</span></div>
+  <div class="card"><strong>Probing / Follow-up</strong><span>"Can you give me an example?" or "Why is that important?" Follows up on an earlier answer to get depth. Essential for uncovering hidden requirements.</span></div>
+</div>
+<div class="note"><div class="note-lbl">📌 Question Funnel</div>
+Best practice: Start an interview with broad open-ended questions (to discover issues you didn't know existed), then funnel down to specific closed questions (to get precise facts and confirm details). This is called the <strong>funnel approach</strong>. The opposite (inverted funnel) starts specific and broadens — useful when interviewee is shy or resistant.</div>
+</div>
+
+<div class="sec">
+<h4>Questionnaires</h4>
+<p>Questionnaires are useful when many people must be surveyed, when respondents are spread across locations, or when anonymity is important. They are cheaper per respondent than interviews but provide less depth.</p>
+<h5>Question Scales</h5>
+<div class="cards">
+  <div class="card"><strong>Likert Scale</strong><span>5 or 7-point agreement scale. "Strongly Agree – Agree – Neutral – Disagree – Strongly Disagree." Measures attitudes and opinions. Easy to analyze statistically.</span></div>
+  <div class="card"><strong>Semantic Differential</strong><span>Bipolar adjective pairs with 7 positions. "Easy _:_:_:_:_:_:_ Difficult." Measures perceptions. Useful for UI evaluation.</span></div>
+  <div class="card"><strong>Ranking Scale</strong><span>Rank items in order of preference (1 = best, etc.). Useful for prioritizing features. Forces comparison between options.</span></div>
+  <div class="card"><strong>Rating Scale</strong><span>Rate each item independently (e.g., 1–10). Unlike ranking, multiple items can get the same score. Flexible and easy to use.</span></div>
+</div>
+<h5>Questionnaire Design Guidelines</h5>
+<ul>
+  <li>Use simple, clear language — avoid jargon</li>
+  <li>One topic per question — avoid double-barreled questions</li>
+  <li>Avoid leading or loaded questions</li>
+  <li>Include a mix of question types for variety</li>
+  <li>Test questionnaire on a small group before full distribution</li>
+  <li>Keep it short — response rate drops with length</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>Joint Application Design (JAD)</h4>
+<p><span class="hl">JAD</span> is a structured group session that brings together users, management, and analysts to define system requirements collaboratively. Developed by IBM. Typically runs for 3–5 days in a workshop setting.</p>
+<div class="cmp">
+  <div class="cmp-box"><h6>Benefits of JAD</h6><ul>
+    <li>All stakeholders in one room → faster decisions</li>
+    <li>Requirements agreed upon jointly → fewer changes later</li>
+    <li>Users feel ownership of the system</li>
+    <li>Reduces analysis and design time by up to 40%</li>
+    <li>Better quality requirements through group synergy</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Drawbacks of JAD</h6><ul>
+    <li>Requires commitment of many busy people for days</li>
+    <li>Expensive (salaries + facilities for all participants)</li>
+    <li>Requires a skilled JAD facilitator to manage group dynamics</li>
+    <li>Dominant personalities can influence the group</li>
+    <li>May not work in highly political organizations</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ─── INFO GATHERING: UNOBTRUSIVE ─── -->
+<div class="ch" id="gathering-u">
+<div class="ch-head isd"><span class="ch-badge isd">ISD INFO</span><h3>Information Gathering — Unobtrusive Methods</h3><span class="week-tag">Week 4</span></div>
+
+<div class="sec">
+<h4>Why Unobtrusive Methods?</h4>
+<p>Unobtrusive (non-interactive) methods gather information without directly interviewing people. Useful when interviews are impractical, when you need objective data (people behave differently when watched), or to corroborate interview findings.</p>
+</div>
+
+<div class="sec">
+<h4>Sampling</h4>
+<p><span class="hl">Sampling</span> is the process of systematically selecting representative elements from a large population for study, when examining every element is impractical or too expensive.</p>
+<h5>Why Sample?</h5>
+<ul>
+  <li>The population is too large to study completely</li>
+  <li>Saves time and cost</li>
+  <li>A well-chosen sample gives accurate population estimates</li>
+  <li>Reduces analyst workload without sacrificing accuracy</li>
+</ul>
+<h5>Types of Sampling</h5>
+<div class="cards">
+  <div class="card"><strong>Simple Random Sampling</strong><span>Every element has equal probability of selection. Use random number tables. No bias. Best for homogeneous populations.</span></div>
+  <div class="card"><strong>Systematic Sampling</strong><span>Select every kth element (e.g., every 10th transaction). k = Population / Sample_size. Simple to implement. Can have periodic bias.</span></div>
+  <div class="card"><strong>Stratified Sampling</strong><span>Divide population into subgroups (strata) by characteristic (e.g., department), then randomly sample from each. Ensures all groups are represented.</span></div>
+  <div class="card"><strong>Convenience Sampling</strong><span>Select whoever is available. Cheap and fast. Not representative — introduces bias. Use only for initial exploration.</span></div>
+</div>
+<h5>Sample Size Considerations</h5>
+<p>Sample size depends on: population size, required confidence level (typically 95%), acceptable margin of error, and variability in the population. Larger, more variable populations require larger samples.</p>
+</div>
+
+<div class="sec">
+<h4>Observation</h4>
+<p>Directly watching how users interact with the current system. Provides insight into actual behavior (vs. what people say they do). Analysts observe workflows, bottlenecks, workarounds, and unofficial procedures.</p>
+<ul>
+  <li><strong>Advantages:</strong> Reveals actual behavior, not reported behavior; finds undocumented procedures; builds understanding of work environment</li>
+  <li><strong>Disadvantages:</strong> People behave differently when watched (<span class="hl">Hawthorne Effect</span>); time-consuming; may miss rare events; observer may misinterpret what they see</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>Analyzing Quantitative Documents</h4>
+<p>Existing documents reveal how the current system actually works and what data it processes. Types include: reports, forms, manuals, organizational charts, procedural documents, existing computer output.</p>
+<p>Key questions when analyzing documents: What data is collected? How is it used? How often? Who produces it? Who uses it? What decisions depend on it? Are there gaps or redundancies?</p>
+</div>
+</div>
+
+<!-- ─── DFDs ─── -->
+<div class="ch" id="dfd">
+<div class="ch-head isd"><span class="ch-badge isd">ISD DFD</span><h3>Data Flow Diagrams (DFDs)</h3><span class="week-tag">Week 5</span></div>
+
+<div class="sec">
+<h4>What are DFDs?</h4>
+<p>A <span class="hl">Data Flow Diagram (DFD)</span> graphically represents how data moves through an information system — showing processes, data stores, external entities, and the flows of data between them. DFDs model the <em>logical</em> system (what it does) not the <em>physical</em> system (how it does it).</p>
+</div>
+
+<div class="sec">
+<h4>Four DFD Components</h4>
+<div class="tbl"><table>
+  <tr><th>Symbol</th><th>Name</th><th>Description</th><th>Yourdon Notation</th><th>Gane &amp; Sarson</th></tr>
+  <tr><td>External Entity</td><td>Sources &amp; Sinks</td><td>A person, organization, or system outside the system boundary that sends or receives data</td><td>Rectangle / Square</td><td>Rectangle</td></tr>
+  <tr><td>Process</td><td>Transformation</td><td>Transforms input data into output data. Must have at least one input and one output flow</td><td>Circle (bubble)</td><td>Rounded rectangle</td></tr>
+  <tr><td>Data Store</td><td>Storage</td><td>Repository of data at rest — files, databases, folders. Data is referenced or updated by processes</td><td>Two parallel lines (open rectangle)</td><td>Rounded rectangle (closed)</td></tr>
+  <tr><td>Data Flow</td><td>Movement</td><td>Movement of data between any two DFD elements. Labeled with the data name. Shown as directed arrow.</td><td>Labeled arrow</td><td>Labeled arrow</td></tr>
+</table></div>
+<div class="note"><div class="note-lbl">📌 DFD Rules</div>
+<ul style="margin:.3rem 0 0 1rem">
+  <li>Processes must have at least one input AND one output flow</li>
+  <li>Data cannot flow directly between two external entities</li>
+  <li>Data cannot flow directly between two data stores</li>
+  <li>External entities cannot connect to data stores directly (must go through a process)</li>
+  <li>All data flows must be named (except flows to/from data stores that are obvious)</li>
+</ul>
+</div>
+</div>
+
+<div class="sec">
+<h4>DFD Levels</h4>
+<div class="cards">
+  <div class="card"><strong>Context Diagram (Level 0)</strong><span>The highest-level view. Shows the ENTIRE system as a SINGLE process bubble. Shows all external entities and the data flows in/out of the system boundary. No data stores. Purpose: define scope.</span></div>
+  <div class="card"><strong>Level 1 (System Diagram)</strong><span>Explodes the single context bubble into the major subsystems (3–7 processes). Shows primary data flows and data stores between these major processes. First level of detail.</span></div>
+  <div class="card"><strong>Level 2</strong><span>Further explodes each Level 1 process into sub-processes. More detail. Continue until each process is simple enough to describe in 1 paragraph (primitive DFD).</span></div>
+</div>
+<div class="tip"><div class="tip-lbl">✓ How to Draw a DFD from Requirements</div>
+<ol style="margin:.3rem 0 0 1rem">
+  <li>Identify all external entities (who interacts with the system from outside)</li>
+  <li>Identify all data flows going in/out of the system boundary</li>
+  <li>Draw the context diagram with one process bubble</li>
+  <li>Break down the single process into major subsystem processes (Level 1)</li>
+  <li>Add data stores between processes where data is saved</li>
+  <li>Draw data flows between processes and stores, labeling each</li>
+  <li>Check DFD rules — balance and consistency between levels</li>
+</ol>
+</div>
+</div>
+
+<div class="sec">
+<h4>Data Dictionary</h4>
+<p>The <span class="hl">data dictionary</span> is a structured repository that defines all data elements referenced in DFDs — every flow, store, process, and external entity is formally defined. It ensures consistency across the system design.</p>
+<div class="code">Data dictionary notation:
+  =   is composed of (definition)
+  +   and (concatenation)
+  {}  iteration (one or more occurrences)
+  ()  optional element
+  []  selection (one of the listed options)
+  *   comment
+
+Example:
+  Customer_Order = Customer_ID + Customer_Name + {Order_Line} + Order_Date
+  Order_Line = Product_Code + Quantity + Unit_Price</div>
+</div>
+</div>
+
+<!-- ─── UML / OO ─── -->
+<div class="ch" id="uml">
+<div class="ch-head isd"><span class="ch-badge isd">ISD UML</span><h3>Object-Oriented Analysis &amp; UML</h3><span class="week-tag">Week 6</span></div>
+
+<div class="sec">
+<h4>Object-Oriented Concepts</h4>
+<div class="cards">
+  <div class="card"><strong>Object</strong><span>An instance of a class — a real-world thing with attributes (data) and methods (behaviors). Example: Customer object with name, address attributes and placeOrder() method.</span></div>
+  <div class="card"><strong>Class</strong><span>A template/blueprint for creating objects. Defines attributes and methods shared by all instances. Written as: ClassName / attributes / methods (3-part box).</span></div>
+  <div class="card"><strong>Inheritance</strong><span>A subclass inherits all attributes and methods of its superclass (parent). Allows reuse. Example: Car inherits from Vehicle (has wheels, engine) and adds specific attributes.</span></div>
+  <div class="card"><strong>Encapsulation</strong><span>Bundling data (attributes) and methods within a class and hiding internal details from outside. Only the interface (public methods) is exposed.</span></div>
+  <div class="card"><strong>Polymorphism</strong><span>Same method name behaves differently in different classes. Example: draw() method on Circle draws a circle; on Rectangle draws a rectangle.</span></div>
+  <div class="card"><strong>Association</strong><span>A relationship between classes. Types: Association (uses), Aggregation (has-a, weak), Composition (contains, strong), Dependency (depends on).</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>CRC Cards (Class-Responsibility-Collaborator)</h4>
+<p>CRC cards are index cards used to model classes during early OO analysis. Each card represents one class and has three sections: the <strong>Class name</strong> at the top, <strong>Responsibilities</strong> (what it knows/does) on the left, and <strong>Collaborators</strong> (which other classes it needs help from) on the right.</p>
+<p>They are used in brainstorming sessions — physical cards can be moved around the table, enabling teams to visualize object interactions without committing to a formal diagram. XP (Extreme Programming) actively promotes their use.</p>
+</div>
+
+<div class="sec">
+<h4>UML Diagrams</h4>
+<h5>Use Case Diagram</h5>
+<p>Shows the functional requirements of a system from the user's perspective. Components:</p>
+<ul>
+  <li><strong>Actor:</strong> Stick figure — represents a user or external system that interacts with the system</li>
+  <li><strong>Use Case:</strong> Oval — represents a specific function or goal the system provides to actors</li>
+  <li><strong>System Boundary:</strong> Rectangle — defines what is inside vs outside the system</li>
+  <li><strong>Association:</strong> Line between actor and use case — shows participation</li>
+  <li><strong>&lt;&lt;include&gt;&gt;:</strong> One use case always includes behavior of another (mandatory reuse)</li>
+  <li><strong>&lt;&lt;extend&gt;&gt;:</strong> One use case optionally extends another (conditional behavior)</li>
+  <li><strong>Generalization:</strong> Inheritance between actors or use cases</li>
+</ul>
+
+<h5>Class Diagram</h5>
+<p>The most important UML diagram — shows the static structure of the system. Each class is a 3-compartment box: class name / attributes (with types) / methods (with signatures). Shows relationships between classes with labeled, directed arrows and multiplicity (1..*, 0..1, etc.).</p>
+<div class="code">Relationship types in class diagrams:
+  Association:   ─────    "A uses B"     (general)
+  Aggregation:   ────◇    "A has B"      (weak has-a; B can exist without A)
+  Composition:   ────◆    "A contains B" (strong has-a; B cannot exist without A)
+  Inheritance:   ────▷    "A is a B"     (generalization; open triangle arrowhead)
+  Dependency:    - - →    "A depends on B" (dashed arrow)
+
+Multiplicity examples:
+  1     exactly one
+  0..*  zero or more
+  1..*  one or more
+  0..1  zero or one</div>
+
+<h5>Sequence Diagram</h5>
+<p>Shows the <strong>time-ordered interactions</strong> between objects for a specific scenario/use case. Components:</p>
+<ul>
+  <li><strong>Objects:</strong> Boxes at the top with dashed vertical <strong>lifelines</strong> below them</li>
+  <li><strong>Activation bar:</strong> Thin rectangle on lifeline — when object is active/executing</li>
+  <li><strong>Messages:</strong> Horizontal arrows between lifelines — show method calls (solid arrow) and returns (dashed arrow)</li>
+  <li>Time flows <strong>downward</strong></li>
+</ul>
+
+<h5>Activity Diagram</h5>
+<p>Shows the <strong>workflow / business process flow</strong> — similar to a flowchart but for OO systems. Shows the sequence of activities, decision points (diamonds), parallel actions (fork/join bars), and start/end states (filled circles). Good for modeling business processes and use case flow of events.</p>
+<div class="cmp">
+  <div class="cmp-box"><h6>Use Case Diagram</h6><ul>
+    <li>Shows WHAT the system does</li>
+    <li>Functional requirements</li>
+    <li>User perspective</li>
+    <li>No internal implementation shown</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Sequence Diagram</h6><ul>
+    <li>Shows HOW objects interact</li>
+    <li>Temporal order of messages</li>
+    <li>One scenario at a time</li>
+    <li>Shows internal collaboration</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ─── TESTING (ISD) ─── -->
+<div class="ch" id="testing-isd">
+<div class="ch-head isd"><span class="ch-badge isd">ISD TEST</span><h3>Testing Conventional Applications</h3><span class="week-tag">Week 7</span></div>
+
+<div class="sec">
+<h4>Testing Levels</h4>
+<div class="cards">
+  <div class="card"><strong>Unit Testing</strong><span>Tests individual program modules/functions in isolation. Finds coding errors. Performed by developers during development (Phase 5).</span></div>
+  <div class="card"><strong>System Testing</strong><span>Tests the fully integrated system as a whole against the original system requirements. Does the whole thing work?</span></div>
+  <div class="card"><strong>Alpha Testing</strong><span>Performed by internal users (inside the developing organization) in a controlled environment. Simulated or actual operational environment.</span></div>
+  <div class="card"><strong>Beta Testing</strong><span>Performed by external users (real customers) in their own environment with real data. Final validation before release.</span></div>
+  <div class="card"><strong>Acceptance Testing</strong><span>Formal testing conducted by the client/end user to determine if the system meets their requirements before accepting delivery.</span></div>
+  <div class="card"><strong>Debugging</strong><span>The process of finding and fixing errors after a test has revealed them. Testing reveals THAT there is an error; debugging finds WHERE it is and fixes it.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>White Box Testing (Structural Testing)</h4>
+<p><span class="hl">White box (glass box)</span> testing examines the internal <strong>logic and structure</strong> of the program. The tester has full knowledge of the source code. Tests are designed to ensure every line of code, every branch, and every path is executed at least once.</p>
+<h5>Basis Path Testing &amp; Cyclomatic Complexity</h5>
+<p>Cyclomatic complexity (V(G)) measures the structural complexity of a program and gives the number of linearly independent paths — the minimum number of test cases needed for complete path coverage.</p>
+<div class="code">Three equivalent formulas for Cyclomatic Complexity V(G):
+
+  Method 1 (Edges & Nodes):   V(G) = E − N + 2P
+    where: E = number of edges (arrows) in the control flow graph
+           N = number of nodes (boxes) in the control flow graph
+           P = number of connected components (usually P=1 for one program)
+
+  Method 2 (Regions):         V(G) = number of enclosed regions + 1 (the outer region)
+    (Count the areas enclosed by the graph, add 1 for the unbounded outer area)
+
+  Method 3 (Predicates):      V(G) = number of predicate (decision) nodes + 1
+    (Count every IF, WHILE, FOR, CASE, AND, OR — each is a predicate node)
+
+Example: A program with IF (2 branches) and a WHILE loop
+  Predicate nodes = 2 (the IF + the WHILE) → V(G) = 2 + 1 = 3
+  Must write at least 3 test cases to cover all independent paths</div>
+<div class="steps">
+  <div class="step"><p>Draw the <strong>control flow graph</strong> from the code (each statement = node, decision = branch)</p></div>
+  <div class="step"><p>Calculate V(G) using any of the three methods above</p></div>
+  <div class="step"><p>The result = number of independent paths = minimum number of test cases</p></div>
+  <div class="step"><p>Identify each independent basis path through the graph</p></div>
+  <div class="step"><p>Design test cases that force execution of each path</p></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Black Box Testing (Functional Testing)</h4>
+<p><span class="hl">Black box</span> testing treats the program as a black box — the tester has <strong>no knowledge of the internal code</strong>. Tests are based purely on the specification: given this input, is the output correct? Focuses on functionality, not structure.</p>
+<h5>Equivalence Partitioning</h5>
+<p>Divide the input domain into classes of equivalent inputs — any value from one class should behave the same as any other value in that class. Choose one representative value from each partition as a test case, reducing the total number of needed tests.</p>
+<div class="code">Example: A field accepts integers 1–100
+  Valid partitions:    {1 to 100}          → test with e.g. 50
+  Invalid partitions:  {less than 1}       → test with e.g. -5 or 0
+                       {greater than 100}  → test with e.g. 150
+                       {non-integers}      → test with e.g. "abc"</div>
+
+<h5>Boundary Value Analysis (BVA)</h5>
+<p>Errors tend to cluster at the edges of input domains. Test at the exact boundary AND just inside/outside it.</p>
+<div class="code">Example: Valid input range is 1 to 100
+  Test cases: 0 (just below), 1 (lower boundary), 2 (just above lower),
+              50 (typical middle), 99 (just below upper), 100 (upper boundary), 101 (just above)
+  (7 boundary test cases for one range)</div>
+</div>
+
+<div class="sec">
+<h4>Gray Box Testing</h4>
+<p><span class="hl">Gray box</span> testing combines elements of both white and black box testing. The tester has <strong>partial knowledge</strong> of the internal workings (e.g., database schema, architecture, algorithms) but tests the system externally like a black box. Useful for integration testing between modules developed by different teams.</p>
+<div class="tbl"><table>
+  <tr><th>Feature</th><th>White Box</th><th>Gray Box</th><th>Black Box</th></tr>
+  <tr><td>Knowledge of code</td><td>Full</td><td>Partial</td><td>None</td></tr>
+  <tr><td>Focus</td><td>Internal logic, paths</td><td>Data flows, architecture</td><td>Functionality, specs</td></tr>
+  <tr><td>Who performs</td><td>Developer</td><td>Often tester + developer</td><td>Tester / End user</td></tr>
+  <tr><td>Test basis</td><td>Source code</td><td>Design docs + limited code</td><td>Requirements spec</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ══════════ SE PART ══════════ -->
+<hr>
+<div class="part-header part-se">
+  <h2>PART B — Software Engineering (SE)</h2>
+  <p>Pressman (Practitioner's Approach) · Weeks 8–11</p>
+</div>
+
+<!-- ─── SE INTRO ─── -->
+<div class="ch" id="se-intro">
+<div class="ch-head se"><span class="ch-badge se">SE CH1</span><h3>Software &amp; Software Engineering Introduction</h3><span class="week-tag">Week 8</span></div>
+
+<div class="sec">
+<h4>What is Software?</h4>
+<p>Software is: <span class="hl">(1) instructions</span> (programs) that when executed produce desired features, function, and performance; <span class="hl">(2) data structures</span> that enable programs to manipulate information; <span class="hl">(3) documentation</span> that describes operation and use of the programs.</p>
+<div class="cmp">
+  <div class="cmp-box"><h6>Software Characteristics</h6><ul>
+    <li><strong>Engineered, not manufactured:</strong> Software is designed and built by human logic — not produced on an assembly line</li>
+    <li><strong>Doesn't wear out:</strong> Software has no physical degradation. But it <em>deteriorates</em> due to change — each fix may introduce new bugs, increasing failure rate over time</li>
+    <li><strong>Component-based construction:</strong> Industry is moving this way, but most software is still custom-built</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Wear vs Deterioration</h6><ul>
+    <li>Hardware: failure rate is high at start (defects), drops to steady low (normal operation), then rises again as physical components wear out (bathtub curve)</li>
+    <li>Software: failure rate is high initially (defects), drops after fixing, but each change can introduce new failures → deterioration over time, not wear</li>
+    <li>This is why software maintenance is so costly (48–60% of total time)</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Software Application Categories</h4>
+<div class="cards">
+  <div class="card"><strong>System Software</strong><span>Serves other programs. OS, compilers, device drivers, network software. Extensive data structures, complex algorithms. Must be efficient.</span></div>
+  <div class="card"><strong>Application Software</strong><span>Solves specific business needs. Payroll, ERP, CRM. Processes business or technical data. Largest category.</span></div>
+  <div class="card"><strong>Engineering/Scientific</strong><span>Number crunching algorithms. Astronomy, engineering, molecular biology simulations. CAD/CAM, weather modeling.</span></div>
+  <div class="card"><strong>Embedded Software</strong><span>Lives in ROM inside hardware. Fuel injection control, elevator systems, keypad on microwave. Very constrained environment.</span></div>
+  <div class="card"><strong>Product-Line Software</strong><span>Delivers specific functionality to many customers. Word processors, spreadsheets. Addresses marketplace of general users.</span></div>
+  <div class="card"><strong>WebApps</strong><span>Network-intensive, concurrent, evolving continuously. Presents text, graphics, audio/video. Must be available 24/7/365.</span></div>
+  <div class="card"><strong>AI Software</strong><span>Uses non-numerical algorithms. Expert systems, pattern recognition, neural networks, natural language processing.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Legacy Software</h4>
+<p>Legacy software = old systems that are difficult to modify but still critical to business operations. It must be changed because: it must adapt to new computing environments; business requirements change; it must interoperate with modern systems; it must be re-architected for network environments. Simply replacing legacy systems is often too risky and expensive.</p>
+</div>
+
+<div class="sec">
+<h4>Software Engineering — Definition &amp; Layered Technology</h4>
+<p>IEEE definition: <em>"The application of a systematic, disciplined, quantifiable approach to the development, operation, and maintenance of software."</em></p>
+<p>Software engineering is organized as a <span class="hl">layered technology</span>:</p>
+<div class="code">Tools        ← automate methods (CASE tools, IDEs, debuggers)
+Methods      ← technical how-to's (analysis, design, coding, testing)
+Process Model ← framework gluing methods together (Waterfall, Agile, etc.)
+Quality Focus ← foundation — commitment to quality underlies everything</div>
+</div>
+
+<div class="sec">
+<h4>Process Framework</h4>
+<p>Every software process model includes a set of <span class="hl">framework activities</span> that apply regardless of which model is used:</p>
+<div class="cards">
+  <div class="card"><strong>Communication</strong><span>Understand stakeholder objectives and requirements before work begins</span></div>
+  <div class="card"><strong>Planning</strong><span>Estimate effort, schedule, risk; define tasks and deliverables</span></div>
+  <div class="card"><strong>Modeling</strong><span>Analysis of requirements; design of architecture, components, interfaces</span></div>
+  <div class="card"><strong>Construction</strong><span>Code generation + testing at unit and integration levels</span></div>
+  <div class="card"><strong>Deployment</strong><span>Deliver to customer; evaluate; receive feedback for next increment</span></div>
+</div>
+<p><span class="hl">Umbrella Activities</span> run across all framework activities: project management, formal technical reviews, SQA (Software Quality Assurance), configuration management, work product preparation, reusability management, measurement, risk management.</p>
+</div>
+</div>
+
+<!-- ─── PROCESS MODELS ─── -->
+<div class="ch" id="process">
+<div class="ch-head se"><span class="ch-badge se">SE CH4</span><h3>Software Process Models</h3><span class="week-tag">Week 8–9</span></div>
+
+<div class="sec">
+<h4>1. Waterfall Model</h4>
+<p>The classic sequential process. Each phase must complete fully before the next begins. No going back.</p>
+<div class="code">Requirements → System Design → Implementation (coding) → Testing → Deployment → Maintenance</div>
+<div class="cmp">
+  <div class="cmp-box"><h6>When to Use</h6><ul>
+    <li>Requirements are very well documented, clear, and fixed</li>
+    <li>Technology is well understood and stable</li>
+    <li>No ambiguous requirements</li>
+    <li>Short project with stable team</li>
+    <li>Similar projects done before</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Disadvantages</h6><ul>
+    <li>Doesn't allow for reflection or revision mid-project</li>
+    <li>Real projects rarely have fully stable requirements</li>
+    <li>Customer only sees the system at end (too late for changes)</li>
+    <li>Working software not produced until late in lifecycle</li>
+    <li>High risk for complex, novel systems</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>2. V-Model</h4>
+<p>An extension of Waterfall that explicitly shows the relationship between each development stage and its corresponding <strong>test phase</strong>. The left side descends through development; the right side ascends through testing. Each development phase has a corresponding validation/verification test phase.</p>
+<div class="code">Requirements Analysis   ←——→  Acceptance Testing
+  System Design          ←——→  System Testing
+    Architecture Design  ←——→  Integration Testing
+      Module Design      ←——→  Unit Testing
+            Implementation (Coding) at the bottom</div>
+<p>Advantage over Waterfall: testing is planned early (not afterthought). Verification at each level prevents defects from propagating down.</p>
+</div>
+
+<div class="sec">
+<h4>3. Incremental Model</h4>
+<p>Delivers the system in a series of increments. Each increment adds more functionality. The first increment is often the core product. Users can use partial functionality early and provide feedback for subsequent increments.</p>
+<ul>
+  <li>Each increment is a mini-waterfall (requirements → design → code → test)</li>
+  <li>Earlier increments serve as prototypes for refining later ones</li>
+  <li>Easier to manage risk — if budget runs out, you still have a working (partial) system</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>4. RAD (Rapid Application Development) Model</h4>
+<p>High-speed adaptation of Waterfall using component-based construction. Very short development cycle (60–90 days). Works only when requirements are well understood and scope is constrained. Multiple teams work in parallel on different components.</p>
+<div class="code">RAD Phases:
+  Business Modeling → Data Modeling → Process Modeling →
+  Application Generation (reuse components) → Testing and Turnover</div>
+<p><strong>Limitation:</strong> Requires many developers for parallel work; needs modular architecture; doesn't work well when technical risks are high or system can't be modularized.</p>
+</div>
+
+<div class="sec">
+<h4>5. Evolutionary Models</h4>
+<h5>a. Prototyping Model</h5>
+<p>Build a quick, scaled-down version of the system to help users and developers understand requirements. The prototype is iteratively refined based on feedback. Eventually the prototype becomes (or is discarded and replaced by) the real system.</p>
+<div class="code">Quick Plan → Quick Design → Build Prototype → Customer Evaluation → Refine Prototype → repeat</div>
+<p><strong>Problem:</strong> Customers may think the prototype IS the final system. Developers may make permanent bad technical choices just to get the prototype working quickly.</p>
+
+<h5>b. Spiral Model</h5>
+<p>Combines the iterative nature of prototyping with the systematic aspects of waterfall. Each cycle through the spiral represents a phase of the project. Most importantly — it explicitly includes <span class="hl">risk analysis</span> in every cycle.</p>
+<div class="code">Each spiral cycle has 4 quadrants:
+  1. Determine objectives, alternatives, and constraints
+  2. Evaluate alternatives, identify and resolve RISKS (risk analysis)
+  3. Develop and verify next-level product
+  4. Plan the next phase (review and commit)</div>
+<p>The radius of the spiral represents the cumulative cost; each pass adds cost and completes more of the product. Best for large, high-risk projects where risk management is critical.</p>
+
+<h5>c. Concurrent Development Model</h5>
+<p>In reality, multiple software engineering activities happen <strong>simultaneously</strong> (concurrently) in different states. A requirements activity may be "awaiting changes" while design is "under development" while coding is "under review." All activities shown with their current states at any time.</p>
+</div>
+
+<div class="sec">
+<h4>6. Unified Process (UP)</h4>
+<p>A <span class="hl">use-case driven, architecture-centric, iterative and incremental</span> process framework based on UML. Organizes work by <strong>phases</strong> (time-based) crossed with <strong>workflows</strong> (activity-based).</p>
+<div class="tbl"><table>
+  <tr><th>Phase</th><th>Purpose</th><th>Key Milestone</th></tr>
+  <tr><td>Inception</td><td>Scope, feasibility, high-level requirements, initial use cases</td><td>Lifecycle Objectives</td></tr>
+  <tr><td>Elaboration</td><td>Detailed requirements, architecture, risk identification and resolution</td><td>Lifecycle Architecture</td></tr>
+  <tr><td>Construction</td><td>Build the system incrementally; all use cases implemented and tested</td><td>Initial Operational Capability</td></tr>
+  <tr><td>Transition</td><td>Deploy to users; beta testing; training; final release</td><td>Product Release</td></tr>
+</table></div>
+<p>Activities like requirements, design, coding, and testing all occur throughout all phases — but their relative intensity changes. Requirements-heavy in Inception; design-heavy in Elaboration; construction-heavy in Construction phase.</p>
+</div>
+</div>
+
+<!-- ─── AGILE ─── -->
+<div class="ch" id="agile">
+<div class="ch-head se"><span class="ch-badge se">SE CH5</span><h3>Agile Development, XP &amp; Scrum</h3><span class="week-tag">Week 9, 12 (partial)</span></div>
+
+<div class="sec">
+<h4>What is Agility?</h4>
+<p>Agility = <span class="hl">effective (rapid and adaptive) response to change</span>. Agile processes recognize that plans are short-lived, that requirements change frequently, and that close customer collaboration is essential. The cost of change is kept relatively flat throughout the project (unlike waterfall where changes become exponentially expensive late in the project).</p>
+<h5>Agile Manifesto — 4 Core Values</h5>
+<div class="cmp">
+  <div class="cmp-box"><h6>Value (left) over (right)</h6><ul>
+    <li><strong>Individuals and interactions</strong> over processes and tools</li>
+    <li><strong>Working software</strong> over comprehensive documentation</li>
+    <li><strong>Customer collaboration</strong> over contract negotiation</li>
+    <li><strong>Responding to change</strong> over following a plan</li>
+  </ul></div>
+  <div class="cmp-box"><h6>Agile Process Characteristics</h6><ul>
+    <li>Driven by customer descriptions (user stories)</li>
+    <li>Recognizes plans are short-lived</li>
+    <li>Iterative development with heavy construction emphasis</li>
+    <li>Delivers multiple software increments</li>
+    <li>Adapts as changes occur</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Extreme Programming (XP)</h4>
+<p>The most widely used agile process, proposed by Kent Beck. XP pushes engineering practices to an extreme.</p>
+<div class="cards">
+  <div class="card"><strong>XP Planning</strong><span>Begins with user stories (index cards describing features). Team assigns cost/effort to each. Stories grouped into deliverable increments. Commitment made on delivery date. Project velocity (from 1st increment) guides future estimates.</span></div>
+  <div class="card"><strong>XP Design</strong><span>KISS principle (Keep It Simple, Stupid). Uses CRC cards. Creates "spike solutions" for hard design problems (quick prototype). Encourages refactoring — iterative improvement of internal design without changing behavior.</span></div>
+  <div class="card"><strong>XP Coding</strong><span>Unit tests written BEFORE code (TDD — Test-Driven Development). Pair programming: two developers share one keyboard — one codes, one reviews in real time. Continuous code integration.</span></div>
+  <div class="card"><strong>XP Testing</strong><span>All unit tests executed daily. Acceptance tests defined by customer to assess customer-visible functionality. Continuous automated testing. If a test fails, it must be fixed immediately.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h4>Scrum</h4>
+<p>A lightweight agile framework focused on managing and controlling iterative development. Organizes work into fixed-length <span class="hl">Sprints</span> (typically 2–4 weeks).</p>
+<div class="cards">
+  <div class="card"><strong>Product Backlog</strong><span>Prioritized list of all features/requirements (user stories) for the entire product. Owned and prioritized by Product Owner. Living document — always changing.</span></div>
+  <div class="card"><strong>Sprint</strong><span>Fixed-length iteration (2–4 weeks). Team selects items from backlog for this sprint → Sprint Backlog. No changes allowed to sprint scope once started.</span></div>
+  <div class="card"><strong>Daily Scrum / Standup</strong><span>15-minute daily meeting. Each member answers: What did I do yesterday? What will I do today? What blocks me?</span></div>
+  <div class="card"><strong>Sprint Review</strong><span>Team demonstrates working software to stakeholders at sprint end. Inspect and adapt.</span></div>
+  <div class="card"><strong>Product Owner</strong><span>Represents customer. Prioritizes Product Backlog. Defines acceptance criteria.</span></div>
+  <div class="card"><strong>Scrum Master</strong><span>Facilitates Scrum process. Removes impediments. Not a manager — a servant-leader.</span></div>
+</div>
+</div>
+</div>
+
+<!-- ─── ESTIMATION ─── -->
+<div class="ch" id="estimation">
+<div class="ch-head se"><span class="ch-badge se">SE CH10</span><h3>Software Project Estimation</h3><span class="week-tag">Week 10–11</span></div>
+
+<div class="sec">
+<h4>Project Planning Overview</h4>
+<p>Software project planning produces a plan that provides a road map for the software team. It begins with <span class="hl">scope definition</span> — understanding what the software is supposed to do and what its bounds are.</p>
+<h5>Resource Categories</h5>
+<ul>
+  <li><strong>Human resources:</strong> People with appropriate skills (number + position + specialty)</li>
+  <li><strong>Software resources:</strong> Reusable components, tools, CASE environment, development software</li>
+  <li><strong>Hardware/Platform resources:</strong> Target hardware, development hardware, network environment</li>
+</ul>
+</div>
+
+<div class="sec">
+<h4>LOC-Based Estimation (Lines of Code)</h4>
+<p>Estimate the size of the software in lines of code (LOC), then use historical productivity data to estimate effort.</p>
+<div class="code">Step 1: Estimate LOC for each system function/component
+  Use 3-point estimate:
+  LOC_expected = (LOC_optimistic + 4×LOC_most_likely + LOC_pessimistic) / 6
+
+Step 2: Compute total estimated LOC = sum of all component LOCs
+
+Step 3: Apply productivity rate from historical data
+  Productivity = LOC / person-month  (from past similar projects)
+  Effort (person-months) = Total_LOC / Productivity
+
+Step 4: Estimate duration
+  Duration = Effort^(1/3) × constant  (Putnam model, approximately)
+  OR  Duration = Effort / Team_size
+
+Step 5: Estimate cost
+  Cost = Effort (person-months) × Labor_rate ($/person-month)
+
+Example: Estimated 12,000 LOC; Productivity = 600 LOC/person-month
+  Effort = 12,000 / 600 = 20 person-months
+  Duration ≈ 20 / 4-person team = 5 months
+  Cost = 20 × $5,000/month = $100,000</div>
+<div class="note"><div class="note-lbl">📌 LOC Limitations</div>
+LOC is language-dependent (1000 lines of assembly ≠ 1000 lines of Python). It counts what was written, not what was accomplished. Hard to estimate accurately before coding. Doesn't account for reuse.</div>
+</div>
+
+<div class="sec">
+<h4>Function Point (FP) Based Estimation</h4>
+<p><span class="hl">Function Points</span> measure software size by the amount of functionality delivered to the user, independent of programming language. Developed by Allan Albrecht at IBM.</p>
+
+<h5>Step 1: Count the 5 Information Domain Values</h5>
+<div class="tbl"><table>
+  <tr><th>Function Type</th><th>Abbr.</th><th>What it is</th><th>Simple</th><th>Average</th><th>Complex</th></tr>
+  <tr><td>External Inputs (EI)</td><td>EI</td><td>Data entering system from outside (forms, screens, files)</td><td class="center">3</td><td class="center">4</td><td class="center">6</td></tr>
+  <tr><td>External Outputs (EO)</td><td>EO</td><td>Data leaving system to outside (reports, screens, messages)</td><td class="center">4</td><td class="center">5</td><td class="center">7</td></tr>
+  <tr><td>External Inquiries (EQ)</td><td>EQ</td><td>Input-output combination requiring retrieval from internal storage</td><td class="center">3</td><td class="center">4</td><td class="center">6</td></tr>
+  <tr><td>Internal Logical Files (ILF)</td><td>ILF</td><td>Logical groups of data maintained within system (internal DB tables)</td><td class="center">7</td><td class="center">10</td><td class="center">15</td></tr>
+  <tr><td>External Interface Files (EIF)</td><td>EIF</td><td>Files shared with/used from another system (external DB)</td><td class="center">5</td><td class="center">7</td><td class="center">10</td></tr>
+</table></div>
+
+<h5>Step 2: Calculate Unadjusted Function Points (UFP)</h5>
+<div class="code">UFP = Σ (Count_i × Weight_i)
+    = (EI×weight) + (EO×weight) + (EQ×weight) + (ILF×weight) + (EIF×weight)</div>
+
+<h5>Step 3: Calculate Value Adjustment Factor (VAF)</h5>
+<div class="code">VAF = 0.65 + 0.01 × Σ(Fi)   where i = 1 to 14
+
+The 14 General System Characteristics (Fi), each rated 0–5:
+  0 = No influence, 1 = Incidental, 2 = Moderate, 3 = Average, 4 = Significant, 5 = Essential
+
+  1.  Data communications
+  2.  Distributed data processing
+  3.  Performance requirements
+  4.  Heavily used configuration
+  5.  Transaction rate
+  6.  Online data entry
+  7.  End-user efficiency
+  8.  Online update
+  9.  Complex processing
+  10. Reusability
+  11. Installation ease
+  12. Operational ease
+  13. Multiple sites
+  14. Facilitate change
+
+Range of VAF:
+  Min: 0.65 + 0.01×0 = 0.65
+  Max: 0.65 + 0.01×70 = 1.35
+  (VAF can adjust UFP by at most ±35%)</div>
+
+<h5>Step 4: Calculate Adjusted Function Points (FP)</h5>
+<div class="code">FP = UFP × VAF
+
+Then use FP for estimation:
+  Effort (person-months) = FP / Productivity_Rate   (FP/person-month from history)
+  Cost = Effort × Labor_Rate
+  LOC_estimate = FP × LOC_per_FP   (language-dependent conversion factor)
+                 (e.g., Java: ~55 LOC/FP; C: ~130 LOC/FP; COBOL: ~106 LOC/FP)</div>
+
+<div class="tip"><div class="tip-lbl">✓ Worked Example</div>
+<div class="code">Given: 
+  EI: 10 simple (×3=30), 5 average (×4=20)
+  EO: 8 average (×5=40), 3 complex (×7=21)
+  EQ: 6 simple (×3=18)
+  ILF: 4 simple (×7=28), 2 average (×10=20)
+  EIF: 2 average (×7=14)
+  
+UFP = 30+20+40+21+18+28+20+14 = 191
+
+Assume all 14 Fi each rated 3 (average influence):
+  Σ(Fi) = 14 × 3 = 42
+  VAF = 0.65 + 0.01×42 = 0.65 + 0.42 = 1.07
+
+FP = 191 × 1.07 = 204.37 ≈ 204 Function Points
+
+If productivity = 8 FP/person-month:
+  Effort = 204/8 = 25.5 person-months ≈ 26 person-months</div>
+</div>
+
+<h5>LOC vs FP Comparison</h5>
+<div class="tbl"><table>
+  <tr><th>Aspect</th><th>LOC</th><th>Function Points</th></tr>
+  <tr><td>Unit</td><td>Lines of source code</td><td>Functional units (inputs, outputs, etc.)</td></tr>
+  <tr><td>Language dependency</td><td>Highly language-dependent</td><td>Language-independent</td></tr>
+  <tr><td>When used</td><td>After coding begins (hard to estimate earlier)</td><td>During requirements/design phase</td></tr>
+  <tr><td>What it measures</td><td>Implementation size</td><td>User-visible functionality</td></tr>
+  <tr><td>Reuse handling</td><td>Poor (counts reused code)</td><td>Better (counts functionality regardless)</td></tr>
+  <tr><td>User comprehension</td><td>Not meaningful to users</td><td>More aligned with user perspective</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- ─── SKIPPED ─── -->
+<div class="skip-notice">
+  <strong>⚠ Weeks 12–13 — Skipped in class (not in exam)</strong>
+  The following topics were listed in the course outline but confirmed skipped: Integration testing strategies (bottom-up, top-down, sandwich/middleware), regression testing, smoke testing, OO testing strategies, validation testing, software design patterns (Factory, Singleton, Observer, etc.), Risk management, Crystal methodology depth.
+</div>
+
+</div><!-- /wrap -->
+<footer>CSE 3223 · Information System Design and Software Engineering · Full Guide · AUST · Kendall &amp; Kendall + Pressman</footer>
+</body>
+</html>
