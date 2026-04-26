@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3223 — ISD &amp; SE Study Material</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--border:#2a2d3a;
+  --accent:#4f9eff;--red:#ff6b6b;--green:#56d364;--yellow:#f0b429;--purple:#c792ea;
+  --isd:#56d364;--se:#4f9eff;
+  --text:#e2e6f0;--muted:#7a8099;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+header{background:linear-gradient(135deg,#1a1d27,#0d1520);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse at center,#4f9eff15,transparent 70%);pointer-events:none}
+header h1{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);margin-top:.4rem;font-size:.9rem}
+.tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--surface);border:1px solid var(--border);padding:.25rem .75rem;border-radius:20px;font-size:.78rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.tag.isd{color:var(--isd);border-color:#56d36440;background:#56d36410}
+.tag.se{color:var(--se);border-color:#4f9eff40;background:#4f9eff10}
+
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:.65rem 2rem;display:flex;gap:.4rem;flex-wrap:wrap;position:sticky;top:0;z-index:100;align-items:center}
+.nav-sep{color:var(--border);font-size:1rem;padding:0 .2rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.8rem;padding:.2rem .6rem;border-radius:6px;transition:.15s;font-family:'IBM Plex Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+
+.container{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem}
+
+/* Question block — THE core unit */
+.qblock{margin-bottom:3.5rem;padding-left:1.25rem;border-left:3px solid var(--border)}
+.qblock.isd{border-left-color:var(--isd)}
+.qblock.se{border-left-color:var(--se)}
+.q-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;padding:.25rem .65rem;border-radius:4px;font-weight:600;white-space:nowrap}
+.q-num.isd{color:var(--isd);background:#56d36415;border:1px solid #56d36430}
+.q-num.se{color:var(--se);background:#4f9eff15;border:1px solid #4f9eff30}
+.q-header h2{font-size:1.2rem;font-weight:700;color:#fff}
+.freq{font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--red);background:#ff6b6b12;border:1px solid #ff6b6b30;padding:.2rem .55rem;border-radius:20px;margin-left:auto}
+
+.section{margin-bottom:1.75rem}
+.section h3{font-size:.95rem;font-weight:600;color:var(--accent);margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.section h3::before{content:'▸';font-size:.7rem;opacity:.6}
+.section h4{font-size:.88rem;font-weight:600;color:var(--yellow);margin:.9rem 0 .45rem}
+p{margin-bottom:.65rem;color:var(--text);font-size:.9rem}
+
+.exam{background:#ff6b6b10;border:1px solid #ff6b6b40;border-left:4px solid var(--red);padding:.85rem 1.1rem;border-radius:0 8px 8px 0;margin:.9rem 0;font-size:.87rem}
+.exam::before{content:'★ EXAM FOCUS';display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--red);margin-bottom:.4rem;font-weight:600;letter-spacing:.5px}
+.exam ul{margin-left:1.2rem}
+.exam li{margin-bottom:.3rem;color:#ffb3b3}
+
+.formula{background:#1e2233;border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:.8rem;margin:.75rem 0;color:#a8c8ff;overflow-x:auto;white-space:pre}
+.note{background:#f0b42911;border:1px solid #f0b42933;border-left:4px solid var(--yellow);padding:.7rem 1rem;border-radius:0 8px 8px 0;margin:.7rem 0;font-size:.87rem;color:#ffe0a0}
+.note::before{content:'💡 NOTE';display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--yellow);margin-bottom:.3rem;font-weight:600}
+.tip{background:#56d36411;border:1px solid #56d36433;border-left:4px solid var(--green);padding:.7rem 1rem;border-radius:0 8px 8px 0;margin:.7rem 0;font-size:.87rem;color:#b5e8c0}
+.tip::before{content:'✓ TEMPLATE';display:block;font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--green);margin-bottom:.3rem;font-weight:600}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.9rem 0}
+.compare-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem}
+.compare-box h5{font-size:.82rem;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.compare-box ul{margin-left:1rem}
+.compare-box li{font-size:.85rem;color:var(--muted);margin-bottom:.22rem}
+.compare-box li strong{color:var(--text)}
+
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.7rem;margin:.75rem 0}
+.term{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.75rem .95rem}
+.term strong{display:block;color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:.8rem;margin-bottom:.28rem}
+.term span{color:var(--muted);font-size:.87rem}
+
+.tbl-wrap{overflow-x:auto;margin:.85rem 0}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--surface);color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.75rem;padding:.55rem .75rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+td:first-child{color:var(--text)}
+td.c{text-align:center}
+
+.steps{counter-reset:step;margin:.75rem 0}
+.step{counter-increment:step;display:flex;gap:.85rem;margin-bottom:.55rem;align-items:flex-start;font-size:.88rem}
+.step::before{content:counter(step);min-width:22px;height:22px;background:#4f9eff20;border:1px solid #4f9eff45;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--accent);flex-shrink:0;margin-top:3px}
+
+ul,ol{margin-left:1.3rem;margin-bottom:.7rem}
+li{margin-bottom:.28rem;color:var(--muted);font-size:.9rem}
+li strong{color:var(--text)}
+code{font-family:'IBM Plex Mono',monospace;background:#2a2d3a;padding:.1em .4em;border-radius:4px;font-size:.85em;color:#a8c8ff}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+
+hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace}
+@media(max-width:600px){.compare{grid-template-columns:1fr}.terms{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CSE 3223 — <span>ISD &amp; Software Engineering</span></h1>
+  <p>Exam-Focused Study Material · Fall 2022 / Spring 2023 / Spring 2024 / Fall 2024</p>
+  <div class="tags">
+    <span class="tag isd">Q1 · Interviews</span>
+    <span class="tag isd">Q2 · CPM / Cost-Benefit</span>
+    <span class="tag isd">Q2 · DFD / Decision Tools</span>
+    <span class="tag se">Q3 · Process Models &amp; SE</span>
+    <span class="tag isd">Q4 · UML Diagrams</span>
+    <span class="tag se">Q5 · Estimation</span>
+  </div>
+</header>
+<nav>
+  <a href="#q1">Q1 Interviews</a><span class="nav-sep">|</span>
+  <a href="#q2a">Q2 CPM/PERT</a>
+  <a href="#q2b">Q2 Cost-Benefit</a>
+  <a href="#q2c">Q2 DFD/Decision</a><span class="nav-sep">|</span>
+  <a href="#q3">Q3 SE Concepts</a><span class="nav-sep">|</span>
+  <a href="#q4">Q4 UML</a><span class="nav-sep">|</span>
+  <a href="#q5">Q5 Estimation</a><span class="nav-sep">|</span>
+  <a href="#ref">Quick Ref</a>
+</nav>
+<div class="container">
+
+<!-- ══════════ Q1: INTERVIEWS ══════════ -->
+<div class="qblock isd" id="q1">
+<div class="q-header">
+  <span class="q-num isd">Q1 · ISD</span>
+  <h2>Information Gathering — Interviews</h2>
+  <span class="freq">Every exam · Same 5 sub-questions</span>
+</div>
+
+<div class="note">The Q1 scenario changes (hospital system, library system, MIS for automotive company) but the five sub-questions are IDENTICAL every time. Learn the template, adapt to the scenario.</div>
+
+<div class="section">
+<h3>Sub-question (a) — Five Interview Goals [5 marks]</h3>
+<p>Write 5 goals that examine different dimensions of the current system and the desired new system. Always cover these 5 angles:</p>
+<div class="terms">
+  <div class="term"><strong>1. Current State</strong><span>Understand how the current system works, its processes, data flows, and who uses it. "Understand the current patient record management workflow."</span></div>
+  <div class="term"><strong>2. Desired Features</strong><span>Identify what new functionality stakeholders want. "Determine desired features such as automated appointment scheduling."</span></div>
+  <div class="term"><strong>3. Challenges / Pain Points</strong><span>Identify problems and frustrations with the current system. "Identify challenges faced by doctors in accessing patient history quickly."</span></div>
+  <div class="term"><strong>4. Benefits / Success Criteria</strong><span>Define what success looks like. "Assess the potential benefits including time savings and error reduction."</span></div>
+  <div class="term"><strong>5. Integration / Constraints</strong><span>Understand technical constraints and integration needs. "Evaluate requirements for integrating with existing medical record systems."</span></div>
+</div>
+<div class="tip">Write goals as complete statements starting with a verb: "Understand...", "Identify...", "Determine...", "Assess...", "Evaluate...". Each goal should be one sentence tied specifically to the scenario given.</div>
+</div>
+
+<div class="section">
+<h3>Sub-question (b) — Stakeholder Interview Strategy [5 marks]</h3>
+<p>Explain WHO you will interview and WHY (justification). Always use a <span class="hl">top-down approach</span> — start with management, then operations, then end users.</p>
+<div class="terms">
+  <div class="term"><strong>Top Management</strong><span>E.g., Chief Medical Officer, Hospital Director. Goal: strategic objectives, budget constraints, high-level requirements, organizational goals.</span></div>
+  <div class="term"><strong>Department Heads</strong><span>E.g., Head of IT, Department Heads. Goal: operational processes, departmental requirements, existing workflows.</span></div>
+  <div class="term"><strong>Direct Users (Operational)</strong><span>E.g., Doctors, Nurses. Goal: daily operational challenges, specific functional needs, usability requirements.</span></div>
+  <div class="term"><strong>End Users / Clients</strong><span>E.g., Patients, Students. Goal: user experience, pain points from the client perspective, desired features.</span></div>
+</div>
+<p><strong>Justify</strong> each choice: "The Chief Medical Officer is interviewed first because they define strategic priorities and constraints that must shape all subsequent decisions."</p>
+</div>
+
+<div class="section">
+<h3>Sub-question (c) — Interview Structure [5 marks]</h3>
+<p>Every exam specifies using a <span class="hl">semi-structured</span> approach. Always answer this way:</p>
+<div class="formula">Chosen structure: SEMI-STRUCTURED interview
+
+Rationale:
+  • Combines prepared questions (structure) with flexibility to probe deeper (unstructured)
+  • Prepared questions ensure all required topics are covered systematically
+  • Open-ended follow-up questions allow exploration of unexpected issues
+  • Maintains focus while adapting to the interviewee's knowledge and experience
+  • Reduces bias: no leading questions, but interviewer can clarify ambiguities
+
+Structure of the interview:
+  1. Opening: introduce purpose, build rapport, explain recording method
+  2. Core prepared questions: cover all 5 interview goals (a mix of open and closed)
+  3. Probing follow-ups: "Can you give me an example?" / "Why is that?"
+  4. Closing: summarize key points, ask for additions, schedule follow-up
+
+Alternative structures (know these for comparison):
+  • Structured: all questions fixed in advance. Good for quantitative data, surveys.
+  • Unstructured: free-flowing conversation. Good for initial exploration only.
+  → Semi-structured is preferred because it balances rigor with flexibility.</div>
+</div>
+
+<div class="section">
+<h3>Sub-question (d) — Five Open-Ended Questions [5 marks]</h3>
+<p>Write 5 questions you would <strong>email before</strong> the interview to let the interviewee prepare. All must be open-ended (no yes/no answers possible). Adapt to scenario:</p>
+<div class="formula">Template questions (adapt nouns to the scenario):
+
+  1. "What are the most significant challenges you currently face in managing
+     [patient records / library resources / information systems]?"
+
+  2. "What features or functionalities would you like to see in the new
+     [hospital management / library / MIS] system?"
+
+  3. "How does the current system impact your ability to make timely and
+     informed decisions?"
+
+  4. "What aspects of the current system work well and should be preserved
+     in the new system?"
+
+  5. "How do you envision the new system improving collaboration and
+     communication among [doctors and nurses / staff and students]?"</div>
+<div class="exam"><ul>
+  <li>All 5 must be open-ended — starting with "What", "How", "Describe", "Explain", "Why"</li>
+  <li>Each question should target a different interview goal from sub-question (a)</li>
+  <li>Questions must be relevant to the specific scenario given in the exam</li>
+</ul></div>
+</div>
+
+<div class="section">
+<h3>Sub-question (e) — Interviewing Subordinates/Colleagues [5 marks]</h3>
+<p>Answer: <strong>Yes</strong>, you would interview subordinates. Then explain how.</p>
+<div class="formula">YES — interviewing subordinates and colleagues is important because:
+  • They are daily users of the system — know operational realities
+  • Management may not be aware of ground-level problems
+  • Broader range of perspectives → more complete requirements
+  • Increases buy-in: users feel heard → better adoption
+
+How to conduct:
+  • Conduct FOCUS GROUPS: gather 5–8 similar users in one session
+    (e.g., all nurses together, all patients together)
+    → Encourages discussion, reveals shared problems
+    → More time-efficient than individual interviews
+    
+  • Alternatively use SURVEYS/QUESTIONNAIRES for large groups
+    → Reach many users efficiently
+    → Good for quantitative data (how often? how many?)
+    
+  • Individual interviews for key users with specialized roles
+  
+  • Ensure anonymity where concerns about management retaliation exist
+  
+  Approach: semi-structured, same interview goals as senior interviews,
+  but focused on day-to-day operational realities rather than strategy</div>
+</div>
+</div>
+
+<!-- ══════════ Q2a: CPM/PERT ══════════ -->
+<div class="qblock isd" id="q2a">
+<div class="q-header">
+  <span class="q-num isd">Q2 · CPM</span>
+  <h2>Critical Path Method (CPM) &amp; PERT vs Gantt</h2>
+  <span class="freq">Fall 2024 Q2</span>
+</div>
+
+<div class="section">
+<h3>CPM — Critical Path Calculation</h3>
+<div class="formula">Given: Task list with effort (person-days) and prerequisites
+
+Step 1: Build precedence network
+  Draw nodes (tasks) and directed arrows (dependencies)
+  Start node and End node connect everything
+
+Step 2: Forward Pass — compute Earliest Start (ES) and Earliest Finish (EF)
+  ES of Task A (no prerequisites) = 0
+  EF = ES + Duration
+  ES of any task = max(EF of ALL predecessors)
+
+Step 3: Backward Pass — compute Latest Finish (LF) and Latest Start (LS)
+  LF of last task = EF of last task (project deadline)
+  LS = LF - Duration
+  LF of any task = min(LS of ALL successors)
+
+Step 4: Compute Slack (Float) for each task
+  Slack = LS - ES  (or equivalently LF - EF)
+
+Step 5: Identify Critical Path
+  Critical tasks: Slack = 0
+  Critical Path = the longest path from Start to End through critical tasks</div>
+
+<h4>Worked Example (Fall 2024 Q2)</h4>
+<div class="formula">Tasks:
+  A: Requirements Analysis    (10 days, no prereqs)
+  B: Database Design          ( 8 days, prereq: A)
+  C: User Interface Design    ( 7 days, prereq: A)
+  D: Backend Development      (15 days, prereq: B)
+  E: Frontend Development     (12 days, prereq: C)
+  F: System Integration       (10 days, prereqs: D, E)
+  G: User Acceptance Testing  ( 5 days, prereq: F)
+  H: Deployment               ( 3 days, prereq: G)
+
+Forward Pass:
+  A: ES=0,  EF=10
+  B: ES=10, EF=18   (after A)
+  C: ES=10, EF=17   (after A)
+  D: ES=18, EF=33   (after B)
+  E: ES=17, EF=29   (after C)
+  F: ES=33, EF=43   (after D AND E; max(33,29)=33)
+  G: ES=43, EF=48
+  H: ES=48, EF=51   ← Project Duration = 51 days
+
+Backward Pass (LF of H = 51):
+  H: LF=51, LS=48
+  G: LF=48, LS=43
+  F: LF=43, LS=33
+  D: LF=33, LS=18   → Slack = 18-18 = 0 ✓ CRITICAL
+  E: LF=33, LS=21   → Slack = 21-17 = 4 (not critical)
+  B: LF=18, LS=10   → Slack = 0 ✓ CRITICAL
+  C: LF=21, LS=14   → Slack = 14-10 = 4 (not critical)
+  A: LF=10, LS=0    → Slack = 0 ✓ CRITICAL
+
+Critical Path: A → B → D → F → G → H  (total = 10+8+15+10+5+3 = 51 days)
+
+Impact of Task E delayed by 4 days:
+  E now finishes at day 29+4=33 (same as D!)
+  F still starts at max(33,33)=33 → NO IMPACT on project completion
+  (E's slack = 4 days; a 4-day delay exactly uses up slack, no extension)
+  If E delayed by 5 days → project extends by 1 day (51→52)</div>
+<div class="exam"><ul>
+  <li>Draw the network diagram — nodes for each task, arrows for dependencies, ES/EF/LS/LF inside each node</li>
+  <li>If a task is delayed by X days: if X ≤ slack → no impact. If X > slack → project extends by (X - slack) days</li>
+  <li>PERT vs Gantt [Fall 2024 Q2c]: PERT better for initial scoping (shows dependencies, critical path); Gantt better for tracking progress (visual, easy to update and read for management)</li>
+</ul></div>
+</div>
+
+<div class="section">
+<h3>PERT vs Gantt Chart Comparison</h3>
+<div class="compare">
+  <div class="compare-box"><h5>PERT Diagram</h5><ul>
+    <li>Network of nodes and arrows</li>
+    <li>Shows task <strong>dependencies and precedence</strong></li>
+    <li>Identifies critical path and slack time</li>
+    <li>Better for complex, interconnected projects</li>
+    <li>Better for <strong>initial project scoping</strong></li>
+    <li>Harder for non-technical stakeholders to read</li>
+  </ul></div>
+  <div class="compare-box"><h5>Gantt Chart</h5><ul>
+    <li>Horizontal bar chart against timeline</li>
+    <li>Shows task <strong>duration and schedule</strong></li>
+    <li>Easy to see current progress vs plan</li>
+    <li>Does NOT show dependencies</li>
+    <li>Better for <strong>tracking progress</strong></li>
+    <li>Easy for all stakeholders to understand</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════ Q2b: COST-BENEFIT ══════════ -->
+<div class="qblock isd" id="q2b">
+<div class="q-header">
+  <span class="q-num isd">Q2 · Finance</span>
+  <h2>Cost-Benefit Analysis — NPV, ROI, Payback, Ranking</h2>
+  <span class="freq">Spring 2023 &amp; Spring 2024 Q2</span>
+</div>
+
+<div class="section">
+<h3>Four Financial Analysis Metrics</h3>
+<div class="formula">For each project, given: Year 0 to Year N cash flows (+income, -expenditure)
+and a discount rate i%
+
+1. NET PROFIT = Total Income - Total Expenditure (sum all years, no discounting)
+
+2. PAYBACK PERIOD = Year when cumulative cash flow first becomes positive
+   (Cumulative = running sum of all cash flows up to that year)
+
+3. ROI (Return on Investment) = Net Profit / Total Investment × 100%
+   Total Investment = sum of all negative cash flows (Year 0 expenditures)
+
+4. NPV (Net Present Value):
+   NPV = Σ [CFₙ / (1 + i)ⁿ]  for n = 0 to N
+   
+   Where: CFₙ = cash flow in year n
+          i   = discount rate (as decimal: 8% = 0.08)
+          n   = year number
+   
+   Year 0 cash flow is NOT discounted (already at present value)
+   CF₁ discounted: CF₁ / (1.08)¹
+   CF₂ discounted: CF₂ / (1.08)²
+   
+   If NPV > 0: project is financially worthwhile (returns more than cost of capital)
+   If NPV < 0: project destroys value (don't proceed)</div>
+
+<h4>Worked Example (Spring 2023 — Project 1: i=8%)</h4>
+<div class="formula">Year 0: -90,000    Year 1: +10,000    Year 2: +10,000
+Year 3: +10,000    Year 4: +20,000    Year 5: +100,000
+
+Net Profit = (10+10+10+20+100) - 90 = 150,000 - 90,000 = $60,000
+
+Cumulative Cash Flow:
+  End of Year 0: -90,000
+  End of Year 1: -90,000 + 10,000 = -80,000
+  End of Year 2: -80,000 + 10,000 = -70,000
+  End of Year 3: -70,000 + 10,000 = -60,000
+  End of Year 4: -60,000 + 20,000 = -40,000
+  End of Year 5: -40,000 + 100,000 = +60,000 ← PAYBACK at Year 5
+  Payback Period = 5 years (or more precisely: 4 + 40,000/100,000 = 4.4 years)
+
+ROI = 60,000 / 90,000 × 100% = 66.7%
+
+NPV at 8%:
+  Year 0: -90,000 / 1.000 = -90,000.00
+  Year 1:  10,000 / 1.080 =   9,259.26
+  Year 2:  10,000 / 1.166 =   8,573.39
+  Year 3:  10,000 / 1.260 =   7,938.32
+  Year 4:  20,000 / 1.360 =  14,701.48
+  Year 5: 100,000 / 1.469 =  68,058.32
+  NPV = -90,000 + 9,259 + 8,573 + 7,938 + 14,701 + 68,058 = $18,530</div>
+
+<div class="section">
+<h3>Ranking Projects &amp; Which Analysis Suits Which Situation</h3>
+<div class="formula">Ranking order (generally):
+  Rank by NPV first (accounts for time value of money — most rigorous)
+  If tied or close: use ROI as tiebreaker
+  
+Which analysis suits which situation:
+  NPV:            Best for comparing projects with different timelines and scales.
+                  Accounts for time value of money. Most theoretically correct.
+                  Use when: long projects, significant capital investment.
+  
+  Payback Period: Best when liquidity is critical (need money back fast).
+                  Simpler, easy to understand. Ignores cash flows after payback.
+                  Use when: company has cash flow constraints, risky environment.
+  
+  ROI:            Best for comparing efficiency of investment across different sizes.
+                  Easy to compare as a percentage. Ignores time value.
+                  Use when: quick comparison of projects of different scales.
+  
+  Net Profit:     Simplest — ignores time value. Good for initial screening only.
+                  Use when: quick first pass to eliminate clearly unprofitable projects.</div>
+<div class="exam"><ul>
+  <li>Always show the full cumulative cash flow table for Payback Period — don't just state the year</li>
+  <li>Show NPV calculation year by year with the discount factor for each year</li>
+  <li>For ranking: state your criteria clearly. Usually: NPV > 0 → viable; highest NPV = best; then ROI to differentiate</li>
+  <li>Spring 2024 Q2b: "Explain which analysis suits which situation" — write 2–3 sentences for each of the 4 metrics</li>
+</ul></div>
+</div>
+</div>
+
+<!-- ══════════ Q2c: DFD & Decision Tools ══════════ -->
+<div class="qblock isd" id="q2c">
+<div class="q-header">
+  <span class="q-num isd">Q2 · DFD</span>
+  <h2>DFDs, Decision Trees &amp; Decision Tables</h2>
+  <span class="freq">Fall 2022 Q2</span>
+</div>
+
+<div class="section">
+<h3>Drawing DFDs from Requirements (Context → Level 2)</h3>
+<div class="formula">DFD Notation:
+  External Entity:  Rectangle (source or sink of data, outside system boundary)
+  Process:          Circle/Bubble (transforms input data into output data)
+  Data Store:       Two parallel horizontal lines (data at rest — files, databases)
+  Data Flow:        Named directed arrow (movement of data between elements)
+
+DFD Rules (must follow):
+  ✗ Data flow CANNOT go directly between two external entities
+  ✗ Data flow CANNOT go directly between two data stores
+  ✗ External entities CANNOT connect directly to data stores
+  ✓ All processes must have at least one input AND one output
+  ✓ All data flows must be named
+
+Level hierarchy:
+  Context (Level 0): entire system = 1 bubble, all external entities, no data stores
+  Level 1:           explode to 3–7 major subsystem processes + data stores
+  Level 2:           explode each Level 1 process into sub-processes</div>
+<div class="tip">For the travel booking exam question: External entities = Traveler, Airlines, Hotels, Payment System. Major processes = Booking Management, Customer Management, Payment Processing, Notification. Data stores = Customer DB, Booking DB, Payment Records.
+Context: Traveler ←→ [Travel Booking System] ←→ Airlines, Hotels, Payment System</div>
+</div>
+
+<div class="section">
+<h3>Decision Trees</h3>
+<p>A decision tree is a graphical representation of decision logic. Start from the root (first decision), branch on each condition, end at leaf nodes (outcomes/actions).</p>
+<div class="formula">Travel Booking discount example:
+  Condition 1: Is customer a Senior Citizen (age ≥ 60)?
+    YES → 15% discount on ALL booking types → END
+    NO  → Condition 2: Is customer a Student (age 18–25)?
+            YES → Condition: Is it a vacation package?
+                    YES → 10% discount
+                    NO  → Condition: Group booking (≥5 people)?
+                            YES → 20% discount
+                            NO  → 5% standard discount
+            NO  → Condition: Group booking (≥5 people)?
+                    YES → 20% discount
+                    NO  → 5% standard discount</div>
+</div>
+
+<div class="section">
+<h3>Decision Tables</h3>
+<p>A decision table lists all combinations of conditions and the corresponding actions. More systematic than a decision tree for many conditions.</p>
+<div class="formula">Structure:
+  ┌─────────────────┬───┬───┬───┬───┬───┬───┬───┬───┐
+  │ Conditions       │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ 8 │
+  ├─────────────────┼───┼───┼───┼───┼───┼───┼───┼───┤
+  │ Senior Citizen  │ Y │ N │ N │ N │ N │ N │ N │ N │
+  │ Student (18-25) │ - │ Y │ Y │ Y │ N │ N │ N │ N │
+  │ Vacation Package│ - │ Y │ N │ N │ - │ - │ - │ - │
+  │ Group (≥5)      │ - │ - │ Y │ N │ Y │ N │ - │ - │
+  ├─────────────────┼───┼───┼───┼───┼───┼───┼───┼───┤
+  │ Actions:        │   │   │   │   │   │   │   │   │
+  │ 15% discount    │ X │   │   │   │   │   │   │   │
+  │ 10% discount    │   │ X │   │   │   │   │   │   │
+  │ 20% discount    │   │   │ X │   │ X │   │   │   │
+  │  5% discount    │   │   │   │ X │   │ X │   │   │
+  └─────────────────┴───┴───┴───┴───┴───┴───┴───┴───┘
+  (Y=Yes, N=No, -=Don't care, X=apply this action)</div>
+</div>
+</div>
+
+<!-- ══════════ Q3: SE CONCEPTS ══════════ -->
+<div class="qblock se" id="q3">
+<div class="q-header">
+  <span class="q-num se">Q3 · SE</span>
+  <h2>Software Engineering Concepts</h2>
+  <span class="freq">Every exam · Answer any 4–5 from ~6 options</span>
+</div>
+
+<div class="section">
+<h3>Refactoring (XP) [Fall 2024, Fall 2022, Spring 2024]</h3>
+<p><span class="hl">Refactoring</span> is the process of restructuring existing code to improve its internal structure (readability, maintainability, reduced complexity) <strong>without changing its external behavior</strong>.</p>
+<div class="formula">Why it is NOT a waste of time:
+  • Prevents code decay: each change makes code cleaner, not messier
+  • Reduces technical debt: small refactors now prevent large rewrites later
+  • Makes adding new features easier and faster
+  • Improves team understanding of the codebase
+  • Removes duplicated code — one change in one place instead of many
+
+Simple code example:
+  BEFORE refactoring (hard to maintain):
+    if (age > 60) { discount = 0.15; }
+    if (age >= 18 && age <= 25) { discount = 0.10; }
+    if (groupSize >= 5) { discount = 0.20; }
+
+  AFTER refactoring (readable, maintainable):
+    function calculateDiscount(customer) {
+      if (customer.isSenior()) return SENIOR_DISCOUNT;
+      if (customer.isStudent()) return STUDENT_DISCOUNT;
+      if (customer.isGroupBooking()) return GROUP_DISCOUNT;
+      return STANDARD_DISCOUNT;
+    }</div>
+</div>
+
+<div class="section">
+<h3>Verification vs Validation [Fall 2024, Spring 2023, Fall 2022]</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Verification — "Are we building the product RIGHT?"</h5><ul>
+    <li>Checks that software conforms to its specification</li>
+    <li>Internal process — developer checks against design documents</li>
+    <li>Activities: code reviews, walkthroughs, inspections, unit testing</li>
+    <li>Asks: does the code do what the design says it should?</li>
+    <li>Can be done without running the program</li>
+  </ul></div>
+  <div class="compare-box"><h5>Validation — "Are we building the RIGHT product?"</h5><ul>
+    <li>Checks that software meets the actual needs of the customer</li>
+    <li>External process — customer/user evaluates the system</li>
+    <li>Activities: acceptance testing, user testing, beta testing</li>
+    <li>Asks: does the system do what the customer actually needs?</li>
+    <li>Requires running the system with real users</li>
+  </ul></div>
+</div>
+<div class="exam"><ul>
+  <li>Who performs validation? [Spring 2023 Q3c] — The SOFTWARE USER (customer/client), not the developer. Developer performs verification. Validation test = acceptance test conducted by or with the user.</li>
+</ul></div>
+</div>
+
+<div class="section">
+<h3>Spiral vs V-Model [Fall 2024 Q3a]</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Spiral Model</h5><ul>
+    <li>Iterative with 4 quadrants per cycle: plan → risk analysis → develop → review</li>
+    <li><strong>Explicit risk analysis</strong> every cycle — defines it</li>
+    <li>Multiple iterations — progressively detailed product</li>
+    <li>Best for: large, complex, high-risk projects</li>
+    <li>Testing is incremental throughout all cycles</li>
+    <li>Changes easily accommodated between spirals</li>
+    <li>Suitable for safety-critical systems (medical software)</li>
+  </ul></div>
+  <div class="compare-box"><h5>V-Model</h5><ul>
+    <li>Extension of Waterfall — sequential phases</li>
+    <li><strong>No explicit risk management</strong></li>
+    <li>Each dev phase paired with a test phase (mirror image)</li>
+    <li>Best for: well-defined, stable requirements</li>
+    <li>Testing planned early but executed late</li>
+    <li>Poor adaptability to requirement changes</li>
+    <li>Suitable for medical device firmware (stable spec + rigorous testing)</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="section">
+<h3>Testing vs Debugging [Fall 2024 Q3f, Fall 2022]</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Testing</h5><ul>
+    <li>Executes the software to FIND errors</li>
+    <li>Performed throughout development</li>
+    <li>Uses test cases (white box / black box)</li>
+    <li>Objective: discover that errors EXIST</li>
+    <li>Can be done by developers or separate testers</li>
+    <li>Planned activity with documented test cases</li>
+  </ul></div>
+  <div class="compare-box"><h5>Debugging</h5><ul>
+    <li>Locates, diagnoses, and FIXES a known error</li>
+    <li>Triggered by a failed test</li>
+    <li>Uses debuggers, logging, code inspection</li>
+    <li>Objective: find WHERE the error is and fix it</li>
+    <li>Usually done by the developer who wrote the code</li>
+    <li>Unplanned — happens in response to test failures</li>
+  </ul></div>
+</div>
+</div>
+
+<div class="section">
+<h3>White Box vs Black Box Testing [Spring 2023 Q3e, Fall 2022]</h3>
+<div class="formula">WHITE BOX (Structural / Glass Box):
+  Knowledge: Full access to source code
+  Tests: Designed to execute every statement, branch, and path
+  Who: Developer
+  Tools: Code coverage analyzers, cyclomatic complexity
+  
+  Cyclomatic Complexity V(G) = E - N + 2P  (edges - nodes + 2)
+                            = number of predicate nodes + 1
+                            = number of enclosed regions + 1
+  → Gives minimum number of test cases for full path coverage
+
+BLACK BOX (Functional / Specification-based):
+  Knowledge: No access to code — only input/output specification
+  Tests: Designed from requirements spec
+  Who: Tester or end user
+  Techniques: Equivalence partitioning, boundary value analysis
+  
+  Equivalence Partitioning:
+    Valid input: 1–100 → test with 50 (representative of valid class)
+    Invalid: <1 → test with 0 or -1; >100 → test with 101
+    
+  Boundary Value Analysis:
+    Test at: 0, 1, 2 (near lower bound) and 99, 100, 101 (near upper bound)</div>
+</div>
+
+<div class="section">
+<h3>XP Pair Programming [Fall 2022 Q3b]</h3>
+<p><span class="hl">Pair programming</span> is an XP practice where two developers share a single workstation. One is the <strong>driver</strong> (types code), the other is the <strong>navigator</strong> (reviews in real time, catches errors, thinks strategically). They switch roles frequently.</p>
+<ul>
+  <li>Code is reviewed continuously — fewer defects reach testing</li>
+  <li>Knowledge sharing — both understand the codebase equally</li>
+  <li>Collective ownership — both own the code written together</li>
+  <li>Counterintuitive: two people at one machine is NOT half as productive — studies show ~15% slower but 15–50% fewer defects, saving more time in testing and maintenance</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Framework Activities + Umbrella Activities [Fall 2022 Q3e, Q3f]</h3>
+<div class="formula">5 Framework Activities (apply to every software process model):
+  1. Communication  — understand stakeholder requirements
+  2. Planning       — estimate, schedule, identify risks
+  3. Modeling       — analysis models + design models
+  4. Construction   — code + unit/integration testing
+  5. Deployment     — deliver, evaluate, feedback
+
+8 Umbrella Activities (run across all framework activities):
+  1. Software project tracking and control
+  2. Risk management
+  3. Software quality assurance (SQA)
+  4. Technical reviews (formal)
+  5. Software configuration management
+  6. Work product preparation and production
+  7. Reusability management
+  8. Measurement (metrics)</div>
+</div>
+
+<div class="section">
+<h3>Sprint Planning Meeting (Scrum) [Fall 2024 Q3e]</h3>
+<div class="formula">Sprint Planning Meeting — what it is:
+  Meeting at the START of each sprint (1–2 day meeting for 2-4 week sprint)
+  Attendees: Product Owner, Scrum Master, Development Team
+
+INPUTS to Sprint Planning:
+  1. Product Backlog (prioritized list of all features/user stories)
+  2. Team Velocity (how many story points team completed in previous sprint)
+  3. Team capacity (who is available, how many days/hours this sprint)
+  4. Definition of Done (agreed criteria for a story to be "complete")
+
+KEY OUTPUTS from Sprint Planning:
+  1. Sprint Goal (a short statement of what the sprint aims to achieve)
+  2. Sprint Backlog (the specific user stories selected for this sprint)
+  3. Task breakdown (user stories broken into individual tasks with estimates)
+  4. Commitment (team commits to delivering the Sprint Backlog)</div>
+</div>
+
+<div class="section">
+<h3>Waterfall Mid-Project Change [Spring 2023 Q3a]</h3>
+<div class="formula">Scenario: Client using Waterfall insists on significant requirement changes midway
+
+Response strategy:
+  1. Assess impact: document what must change in design, code, tests, docs
+  2. Change Control Process: formal change request with cost/time impact analysis
+  3. Negotiate scope: discuss what can be included vs. deferred to Phase 2
+  4. Update project plan: revise schedule, resources, milestones
+  5. Consider switching model: if changes are frequent → suggest Agile (Scrum)
+     which accommodates change by design (sprint-by-sprint priorities)
+  6. Baseline and document: all parties sign off on revised requirements
+
+Why Waterfall struggles with changes:
+  • Later phase changes are exponentially more expensive (defect cost curve)
+  • Previous deliverables may need rework (cascading changes)
+  • Contract and schedule commitments may be violated</div>
+</div>
+
+<div class="section">
+<h3>Three Projects Suitable for Spiral [Spring 2024 Q3d]</h3>
+<ul>
+  <li><strong>Medical Software (e.g., patient management system):</strong> High risk to human safety; requirements evolve as medical protocols change; needs formal risk analysis every iteration</li>
+  <li><strong>Defense/Military Systems:</strong> Extremely high cost of failure; classified requirements may change; risk analysis critical; budget is large</li>
+  <li><strong>Financial Trading Platform:</strong> High business risk; regulatory requirements change; performance requirements uncertain until tested; multiple stakeholders with competing needs</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Continuous Integration (XP) [Spring 2024 Q3c]</h3>
+<p><span class="hl">Continuous Integration (CI)</span> is the XP practice of integrating all developers' code into a shared mainline <strong>multiple times per day</strong>, with an automated build and test suite running after every integration.</p>
+<ul>
+  <li>Problems are found immediately — when code is fresh in developer's mind</li>
+  <li>No "integration hell" at project end</li>
+  <li>Working software is always available</li>
+  <li>Build broken → must be fixed before any new work proceeds</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>Agile (Scrum) vs Waterfall Comparison [Spring 2024 Q3a]</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Agile / Scrum</h5><ul>
+    <li>Iterative sprints (2–4 weeks)</li>
+    <li>Working software every sprint</li>
+    <li>Requirements change welcome</li>
+    <li>Customer continuously involved</li>
+    <li>Self-organizing cross-functional team</li>
+    <li>Best: unclear/changing requirements</li>
+  </ul></div>
+  <div class="compare-box"><h5>Waterfall</h5><ul>
+    <li>Sequential phases, no going back</li>
+    <li>Working software only at end</li>
+    <li>Change = expensive and disruptive</li>
+    <li>Customer only at start and end</li>
+    <li>Specialized roles per phase</li>
+    <li>Best: clear, stable requirements</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════ Q4: UML DIAGRAMS ══════════ -->
+<div class="qblock isd" id="q4">
+<div class="q-header">
+  <span class="q-num isd">Q4 · UML</span>
+  <h2>UML Diagrams — Use Case, Sequence, Class, Activity</h2>
+  <span class="freq">Every exam · Answer any 3 from 4 options</span>
+</div>
+<div class="note">The scenario changes every exam (hospital patient management, student management, car rental, supermarket website, university course registration) but the SAME four diagram types are asked every time. Learn the notation for each diagram type cold, then apply to any scenario.</div>
+
+<div class="section">
+<h3>(a) Use Case Diagram</h3>
+<div class="formula">Components:
+  Actor (stick figure):    A user or external system interacting with the system
+  Use Case (oval):         A specific function the system provides
+  System boundary (rect):  Box enclosing all use cases
+  Association (line):      Actor participates in a use case
+  «include»  (dashed →):  Use case A ALWAYS includes behavior of B (mandatory)
+  «extend»   (dashed →):  Use case A OPTIONALLY extends B (conditional)
+  Generalization (△ line): Actor or use case inherits from another
+
+Hospital Patient Management example:
+  Actors: Patient, Doctor, Nurse, Admin Staff, Medical Records System
+
+  Use Cases:
+    Register Patient, Book Appointment, View Medical History,
+    Prescribe Treatment, Schedule Nursing Care, Generate Bill,
+    Update Medical Records, Send Notifications
+
+  Relationships:
+    Patient ──── Register Patient
+    Patient ──── Book Appointment
+    Doctor ──── View Medical History
+    Doctor ──── Prescribe Treatment
+    Prescribe Treatment «include» Update Medical Records  (always happens)
+    Book Appointment «extend» Send Notification  (happens when booking confirmed)</div>
+</div>
+
+<div class="section">
+<h3>(b) Sequence Diagram</h3>
+<div class="formula">Components:
+  Objects (boxes at top):     Name:Class or just Name
+  Lifeline (dashed line):     Vertical line below each object showing time
+  Activation bar (thin rect): Object is active/executing
+  Message (solid arrow →):    Method call or synchronous message
+  Return (dashed arrow ←):    Return value from a method call
+  Time flows DOWNWARD
+
+Patient booking appointment example:
+  Objects: Patient, System, Doctor, Nurse
+
+  Sequence:
+    Patient    → System:  requestAppointment(patientId, preferredDate)
+    System     → Doctor:  checkAvailability(preferredDate)
+    Doctor    →→ System:  return availableSlots[]
+    System     → Patient: displayAvailableSlots(slots)
+    Patient    → System:  selectSlot(slotId)
+    System     → Doctor:  sendBookingRequest(patientId, slotId)
+    Doctor    →→ System:  confirmBooking()
+    System     → Nurse:   scheduleVisit(patientId, confirmedSlot)
+    Nurse     →→ System:  acknowledgement()
+    System     → Patient: sendConfirmation(bookingDetails)</div>
+</div>
+
+<div class="section">
+<h3>(c) Class Diagram</h3>
+<div class="formula">Each class: 3-compartment box
+  ┌──────────────────┐
+  │    ClassName     │  ← class name (bold, centered)
+  ├──────────────────┤
+  │ -attributeName:Type │  ← attributes (- private, + public, # protected)
+  ├──────────────────┤
+  │ +methodName():Return│  ← methods
+  └──────────────────┘
+
+Relationships:
+  ─────    Association     "A uses B"         (plain line, with label + multiplicity)
+  ────◇    Aggregation     "A has B"          (hollow diamond at A)
+  ────◆    Composition     "A contains B"     (solid diamond at A; B dies with A)
+  ────▷    Generalization  "A is-a B"         (hollow triangle at B, superclass end)
+  - - →    Dependency      "A depends on B"   (dashed arrow)
+
+Hospital example:
+  Patient ────── Appointment (1 patient has 0..* appointments)
+  Appointment ────── Doctor (1 appointment has exactly 1 doctor)
+  Appointment ────── MedicalRecord (1 appointment may generate 1 record)
+  Doctor ──▷ StaffMember (Doctor IS-A StaffMember)
+  Nurse ──▷ StaffMember (Nurse IS-A StaffMember)
+
+Patient class:
+  +patientId: String
+  +name: String
+  -dateOfBirth: Date
+  +bloodGroup: String
+  +getAge(): int
+  +bookAppointment(d: Date): Appointment</div>
+</div>
+
+<div class="section">
+<h3>(d) Activity Diagram</h3>
+<div class="formula">Components:
+  ●           Start node (filled black circle)
+  (activity)  Rounded rectangle — one activity/action
+  ◇           Decision node (diamond) — conditional branch [condition]
+  ═══         Fork bar — splits into PARALLEL branches (synchronization bar)
+  ═══         Join bar — merges parallel branches back
+  ⊙           End node (circle with inner dot)
+
+Patient checking in for treatment example:
+
+  ●  START
+  ↓
+  [Arrive at Hospital]
+  ↓
+  [Register at Reception]
+  ↓
+  ◇ Is patient registered? ──NO──→ [Create New Patient Record] ──┐
+  │YES                                                             ↓
+  └──────────────────────────────────────────────────────[Update Existing Record]
+  ↓
+  [Wait in Waiting Area]
+  ↓
+  ◇ Doctor available? ──NO──→ [Wait] ──→ (loop back)
+  │YES
+  ↓
+  ═══════ FORK ═════════════
+  ↓                          ↓
+  [Doctor Reviews Records]  [Nurse Takes Vitals]
+  ↓                          ↓
+  ════════ JOIN ═════════════
+  ↓
+  [Receive Treatment]
+  ↓
+  [Generate Bill]
+  ↓
+  [Patient Discharged]
+  ↓
+  ⊙  END</div>
+<div class="exam"><ul>
+  <li>Use case diagram is ALWAYS about system SCOPE — what the system does for each actor. Don't put implementation details in use cases.</li>
+  <li>Sequence diagram — always show return messages (dashed arrows back). Time goes DOWN.</li>
+  <li>Class diagram — always include multiplicity (1, 0..*, 1..*) on both ends of associations</li>
+  <li>Activity diagram — use fork/join bars whenever the exam mentions parallel/simultaneous processes</li>
+</ul></div>
+</div>
+</div>
+
+<!-- ══════════ Q5: ESTIMATION ══════════ -->
+<div class="qblock se" id="q5">
+<div class="q-header">
+  <span class="q-num se">Q5 · SE Est.</span>
+  <h2>Software Estimation — Functional Decomposition + LOC</h2>
+  <span class="freq">Every exam · Same 3 sub-questions every time</span>
+</div>
+<div class="note">Q5 asks the SAME three questions every exam with a different system. The scenario changes (DMS, food delivery, ride-sharing, social media platform, mobile app) but the method is identical. Master this template.</div>
+
+<div class="section">
+<h3>Sub-question (a) — Functional Decomposition [5 marks]</h3>
+<p>Decompose the software into its major functions, then break each into sub-functions. This produces the table used in part (b).</p>
+<div class="formula">Template: Cloud Document Management System (DMS) — Fall 2024 Q5
+
+Function                         Sub-functions
+───────────────────────────────────────────────────────
+1. User Authentication            Login, Registration, Password Reset
+2. Document Upload/Storage        Upload, Version Control, Storage Mgmt
+3. Document Retrieval/Search      Search, Filter, Preview
+4. Document Sharing               Share Links, Permission Control, Notifications
+5. Collaboration Tools            Comments, Co-editing, Activity Log
+6. Admin/Management Dashboard     User Management, Usage Analytics, Reports
+
+→ These 6 major functions become the rows in the LOC estimation table (part b)</div>
+</div>
+
+<div class="section">
+<h3>Sub-question (b) — Estimate Function Sizes in LOC [5 marks]</h3>
+<p>For each function identified in (a), use the 3-point estimation formula and provide LOC estimates.</p>
+<div class="formula">3-Point Estimation Formula:
+  Expected LOC = (Optimistic + 4 × Most_Likely + Pessimistic) / 6
+
+Function Estimation Table:
+┌──────────────────────────┬───────┬─────────┬───────────┬──────────┐
+│ Function                 │ Opt.  │ M.Likely│ Pessimist.│ Expected │
+├──────────────────────────┼───────┼─────────┼───────────┼──────────┤
+│ User Authentication      │  500  │    700  │      900  │    700   │
+│ Document Upload/Storage  │  800  │   1200  │     1500  │   1183   │
+│ Document Retrieval       │  600  │    900  │     1200  │    900   │
+│ Document Sharing         │  400  │    600  │      800  │    600   │
+│ Collaboration Tools      │ 1000  │   1500  │     2000  │   1500   │
+│ Admin Dashboard          │  500  │    750  │     1000  │    750   │
+├──────────────────────────┼───────┼─────────┼───────────┼──────────┤
+│ TOTAL                    │       │         │           │   5,633  │
+└──────────────────────────┴───────┴─────────┴───────────┴──────────┘
+
+Expected LOC for Authentication:
+  = (500 + 4×700 + 900) / 6 = (500 + 2800 + 900) / 6 = 4200/6 = 700 ✓</div>
+</div>
+
+<div class="section">
+<h3>Sub-question (c) — Calculate Effort and Cost [5 marks]</h3>
+<div class="formula">Given (from exam): 
+  Productivity = 700 LOC/person-month  (Fall 2024)
+  Labor rate   = $8,000/person-month   (Fall 2024)
+
+Step 1: Effort
+  Effort = Total LOC / Productivity
+         = 5,633 / 700
+         = 8.05 person-months ≈ 8 person-months
+
+Step 2: Cost
+  Cost = Effort × Labor Rate
+       = 8 × $8,000
+       = $64,000
+
+Step 3: Duration (if team size given, e.g., 4 developers)
+  Duration = Effort / Team_Size = 8 / 4 = 2 months
+
+Other exam examples:
+  Spring 2023: 450 LOC/pm, $7,000/pm
+  Spring 2024: 600 LOC/pm, $9,000/pm
+  Fall 2022:   450 LOC/pm, $7,000/pm
+
+Always show all steps: Effort = LOC/Productivity → Cost = Effort × Rate</div>
+<div class="exam"><ul>
+  <li>Always state your assumed total LOC from part (b) before calculating</li>
+  <li>Show the formula, substitution, AND the final answer with units</li>
+  <li>If the exam says "burdened labor rate" — it just means the full loaded cost including benefits, overhead, etc. Use the number exactly as given.</li>
+  <li>Round effort to sensible number of decimal places (1 or 2 d.p.)</li>
+</ul></div>
+</div>
+</div>
+
+<!-- QUICK REF TABLE -->
+<hr>
+<div class="qblock" id="ref" style="border-left-color:var(--purple)">
+<div class="q-header"><span class="q-num" style="color:var(--purple);background:#c792ea15;border:1px solid #c792ea30">QUICK REF</span><h2>Exam Pattern — All Papers Summary</h2></div>
+<div class="tbl-wrap"><table>
+  <tr><th>Question</th><th>Fall 2022</th><th>Spring 2023</th><th>Spring 2024</th><th>Fall 2024</th></tr>
+  <tr><td>Q1 — Information Gathering</td><td>MIS for ABC Corp (digital cameras)</td><td>MIS for LMN Automotive (EVs)</td><td>Library Management System (AUST)</td><td>Hospital Management System (AUMC)</td></tr>
+  <tr><td>Q2 — Project Mgmt / Finance</td><td>DFD (Context→Level 2) + Decision Tree + Decision Table</td><td>NPV, Net Profit, Payback, ROI on 4 projects</td><td>NPV, Net Profit, Payback, ROI on 4 projects</td><td>CPM diagram + critical path + delay impact + PERT vs Gantt</td></tr>
+  <tr><td>Q3 — SE Concepts</td><td>XP refactoring, pair programming, verification vs validation, who performs validation, framework activities, umbrella activities, LOC vs FP</td><td>Waterfall mid-project change, milestones for fitness app, XP continuous integration, 3 spiral projects, framework activities, deployment challenges</td><td>Agile vs Waterfall for banking, milestones for marketplace, XP CI, 3 spiral projects, framework activities for mobile app, deployment challenges</td><td>Spiral vs V-model, XP refactoring, verification vs validation, distributed Agile challenges, sprint planning, testing vs debugging</td></tr>
+  <tr><td>Q4 — UML Diagrams</td><td>Supermarket website (activity, use case, class) + food delivery (LOC)</td><td>Car rental (use case, sequence, class, activity)</td><td>Student management (use case, sequence, class, activity)</td><td>Hospital patient management (use case, sequence, class, activity)</td></tr>
+  <tr><td>Q5 — LOC Estimation</td><td>Food delivery app (decompose, LOC, effort+cost @ 450/pm, $7000)</td><td>Social media platform (decompose, LOC, effort+cost @ 450/pm, $7000)</td><td>Ride-sharing app (decompose, LOC, effort+cost @ 600/pm, $9000)</td><td>Cloud DMS (decompose, LOC, effort+cost @ 700/pm, $8000)</td></tr>
+</table></div>
+
+<div class="section" style="margin-top:1.5rem">
+<h3>Top High-Frequency Topics (appear in 3–4 papers)</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Topic</th><th>Papers</th><th>What to Know</th></tr>
+  <tr><td>Interview preparation (5 goals, strategy, structure, questions, subordinates)</td><td>All 4</td><td>Same 5-part template every time — just swap the system/domain nouns</td></tr>
+  <tr><td>LOC functional decomposition + effort + cost calculation</td><td>All 4</td><td>3-point formula; decompose into 5–7 functions; Effort=LOC/prod; Cost=Effort×rate</td></tr>
+  <tr><td>UML — all 4 diagram types</td><td>All 4</td><td>Use case, Sequence, Class, Activity — know notation cold, apply to scenario</td></tr>
+  <tr><td>Verification vs Validation</td><td>Fall 2024, Spring 2023, Fall 2022</td><td>"Are we building it right?" vs "Are we building the right thing?"; who performs each</td></tr>
+  <tr><td>XP Refactoring</td><td>Fall 2024, Fall 2022, Spring 2024</td><td>Restructure without changing behavior; prevents technical debt; code example required</td></tr>
+  <tr><td>Framework activities (5) + Umbrella activities (8)</td><td>Fall 2022, Spring 2024</td><td>List all 5 framework: Communication, Planning, Modeling, Construction, Deployment. List all 8 umbrella.</td></tr>
+  <tr><td>NPV / Payback / ROI / Net Profit analysis</td><td>Spring 2023, Spring 2024</td><td>Calculate all 4; show cumulative cash flow table; rank and justify</td></tr>
+  <tr><td>CPM / Critical Path</td><td>Fall 2024</td><td>Forward pass (ES/EF), backward pass (LS/LF), slack, identify critical path, delay impact</td></tr>
+  <tr><td>DFD (Context → Level 1 → Level 2)</td><td>Fall 2022</td><td>4 notation components; rules; how to draw from requirements</td></tr>
+  <tr><td>Decision Tree + Decision Table</td><td>Fall 2022</td><td>Draw tree from conditional rules; convert to structured table with Y/N/X entries</td></tr>
+  <tr><td>Spiral vs V-Model comparison</td><td>Fall 2024, Spring 2023</td><td>Risk management; testing approach; suitability for safety-critical systems</td></tr>
+  <tr><td>Agile vs Waterfall</td><td>Spring 2024, Spring 2023</td><td>Pros/cons for specific scenarios; when to use each</td></tr>
+  <tr><td>Testing vs Debugging</td><td>Fall 2024, Fall 2022</td><td>Testing = find errors; Debugging = fix errors; different tools, people, timing</td></tr>
+  <tr><td>White box vs Black box testing</td><td>Spring 2023, Fall 2022</td><td>Code knowledge; cyclomatic complexity; equivalence partitioning; boundary values</td></tr>
+  <tr><td>Sprint Planning (Scrum)</td><td>Fall 2024</td><td>Inputs: backlog, velocity, capacity. Outputs: Sprint Goal, Sprint Backlog, task breakdown</td></tr>
+</table></div>
+</div>
+</div>
+
+</div>
+<footer>CSE 3223 · Information System Design and Software Engineering · Exam Study Material · AUST · Fall 2022–Fall 2024</footer>
+</body>
+</html>
