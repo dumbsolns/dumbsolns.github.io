@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE 3201 — CN Study Material</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--border:#2a2d3a;
+  --accent:#4f9eff;--red:#ff6b6b;--green:#56d364;--yellow:#f0b429;--purple:#c792ea;
+  --text:#e2e6f0;--muted:#7a8099;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+header{background:linear-gradient(135deg,#1a1d27,#0d1520);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse at center,#4f9eff18,transparent 70%);pointer-events:none}
+header h1{font-size:2rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--muted);margin-top:.4rem;font-size:.9rem}
+.tags{margin-top:1rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.tag{background:var(--surface);border:1px solid var(--border);padding:.25rem .75rem;border-radius:20px;font-size:.78rem;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:.4rem;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+nav a{color:var(--muted);text-decoration:none;font-size:.8rem;padding:.25rem .6rem;border-radius:6px;transition:.15s;font-family:'IBM Plex Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+.container{max-width:1000px;margin:0 auto;padding:2rem 2rem 4rem}
+.chapter{margin-bottom:3.5rem;border-left:3px solid var(--border);padding-left:1.5rem}
+.chapter.active{border-left-color:var(--accent)}
+.chapter-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--accent);background:#4f9eff15;border:1px solid #4f9eff33;padding:.2rem .6rem;border-radius:4px;white-space:nowrap}
+.chapter h2{font-size:1.3rem;font-weight:700;color:#fff}
+.section{margin-bottom:2rem}
+.section h3{font-size:1rem;font-weight:600;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.section h3::before{content:'▸';font-size:.7rem;opacity:.6}
+.section h4{font-size:.9rem;font-weight:600;color:var(--yellow);margin:1rem 0 .5rem}
+p{margin-bottom:.7rem;color:var(--text);font-size:.9rem}
+.exam{background:#ff6b6b10;border:1px solid #ff6b6b40;border-left:4px solid var(--red);padding:.9rem 1.1rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.88rem}
+.exam::before{content:'★ EXAM FOCUS';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--red);margin-bottom:.4rem;font-weight:600;letter-spacing:.5px}
+.exam ul{margin-left:1.2rem}
+.exam li{margin-bottom:.3rem;color:#ffb3b3}
+.formula{background:#1e2233;border:1px solid var(--border);padding:.75rem 1rem;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:.8rem;margin:.75rem 0;color:#a8c8ff;overflow-x:auto;white-space:pre}
+.note{background:#f0b42911;border:1px solid #f0b42933;border-left:4px solid var(--yellow);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin:.75rem 0;font-size:.87rem;color:#ffe0a0}
+.note::before{content:'💡 NOTE';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--yellow);margin-bottom:.3rem;font-weight:600}
+.tip{background:#56d36411;border:1px solid #56d36433;border-left:4px solid var(--green);padding:.75rem 1rem;border-radius:0 8px 8px 0;margin:.75rem 0;font-size:.87rem;color:#b5e8c0}
+.tip::before{content:'✓ KEY POINT';display:block;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--green);margin-bottom:.3rem;font-weight:600}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.compare-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.compare-box h5{font-size:.82rem;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.compare-box ul{margin-left:1rem}
+.compare-box li{font-size:.85rem;color:var(--muted);margin-bottom:.22rem}
+.compare-box li strong{color:var(--text)}
+.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin:1rem 0}
+.term{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem}
+.term strong{display:block;color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:.8rem;margin-bottom:.28rem}
+.term span{color:var(--muted);font-size:.87rem}
+.tbl-wrap{overflow-x:auto;margin:.85rem 0}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--surface);color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:.75rem;padding:.55rem .75rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600}
+td{padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--muted)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+td:first-child{color:var(--text)}
+.steps{counter-reset:step;margin:.75rem 0}
+.step{counter-increment:step;display:flex;gap:.85rem;margin-bottom:.55rem;align-items:flex-start;font-size:.88rem}
+.step::before{content:counter(step);min-width:22px;height:22px;background:#4f9eff20;border:1px solid #4f9eff45;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--accent);flex-shrink:0;margin-top:3px}
+ul,ol{margin-left:1.3rem;margin-bottom:.7rem}
+li{margin-bottom:.28rem;color:var(--muted);font-size:.9rem}
+li strong{color:var(--text)}
+code{font-family:'IBM Plex Mono',monospace;background:#2a2d3a;padding:.1em .4em;border-radius:4px;font-size:.85em;color:#a8c8ff}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace}
+@media(max-width:600px){.compare{grid-template-columns:1fr}.terms{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CSE 3201 — <span>Computer Networks</span></h1>
+  <p>Exam-Focused Study Material · Spring 2022 / Fall 2022 / Spring 2023 / Fall 2023 / Spring 2024 / Fall 2024</p>
+  <div class="tags">
+    <span class="tag">Ch 1 · Intro</span><span class="tag">Ch 2 · App Layer</span>
+    <span class="tag">Ch 3 · Transport</span><span class="tag">Ch 4–5 · Network</span>
+    <span class="tag">Ch 6 · Link Layer</span><span class="tag">Ch 8 · Security</span>
+  </div>
+</header>
+<nav>
+  <a href="#ch1">Intro &amp; Delays</a>
+  <a href="#ch2">App Layer</a>
+  <a href="#ch3">Transport</a>
+  <a href="#rdt">RDT / GBN / SR</a>
+  <a href="#tcp">TCP</a>
+  <a href="#ch45">Network Layer</a>
+  <a href="#routing">Routing Algos</a>
+  <a href="#ch6">Link Layer</a>
+  <a href="#ch8">Security</a>
+  <a href="#ref">Quick Ref</a>
+</nav>
+<div class="container">
+
+<!-- ══ CH1: INTRO & DELAYS ══ -->
+<div class="chapter active" id="ch1">
+<div class="chapter-header"><span class="ch-num">CH 01</span><h2>Introduction, Delays &amp; Protocol Layers</h2></div>
+
+<div class="section">
+<h3>Four Types of Packet Delay</h3>
+<div class="formula">d_nodal = d_proc + d_queue + d_trans + d_prop
+
+d_proc  = Processing delay  — check bits, look up output link (~microseconds)
+d_queue = Queueing delay    — wait in output queue (varies with congestion)
+d_trans = Transmission delay = L / R   (L = packet bits, R = link rate bps)
+d_prop  = Propagation delay  = d / s   (d = link length, s ≈ 2×10⁸ m/s)</div>
+<div class="exam">
+  <ul>
+    <li>Explain different types of network delay [Spring 2024 Q1a] — name all 4 with formula and intuition</li>
+    <li>d_trans vs d_prop: transmission = time to PUSH bits onto wire (depends on packet SIZE + link RATE). Propagation = time for signal to TRAVEL (depends on DISTANCE + speed of light). Completely independent.</li>
+    <li>Traffic intensity La/R → 1: queueing delay → ∞. La/R > 1: queue grows without bound.</li>
+  </ul>
+</div>
+
+<h4>End-to-End Delay Calculation</h4>
+<div class="formula">For N links (N-1 routers), store-and-forward:
+  d_total = N × d_trans + Σ d_prop + (N-1) × d_proc
+
+Example [Spring 2024 Q2e / Fall 2024 Q2a]:
+  Packet = 1500 bytes, 3 links at 2 Mbps, d_proc = 3ms per switch
+  Links: 5000 km, 4000 km, 1000 km — prop speed = 2.5×10⁸ m/s
+
+  d_trans = (1500×8) / (2×10⁶) = 0.006s = 6ms  per link → 3×6 = 18ms
+  d_prop  = 5000/250000 + 4000/250000 + 1000/250000 = 20 + 16 + 4 = 40ms
+  d_proc  = 2 × 3ms = 6ms  (2 intermediate routers)
+  Total   = 18 + 40 + 6 = 64ms
+
+Example [Spring 2023 Q2d]:
+  Two hosts 20,000 km apart, R = 2 Mbps, s = 2.5×10⁸ m/s, packet = 1000 bytes
+  d_prop = 20,000,000 / 2.5×10⁸ = 0.08s = 80ms
+  d_trans = (1000×8) / (2×10⁶) = 4ms</div>
+
+<h4>Protocol Layers — Internet Stack vs OSI</h4>
+<div class="tbl-wrap"><table>
+  <tr><th>Layer</th><th>PDU</th><th>Key Protocols</th><th>Responsibility</th></tr>
+  <tr><td>5 · Application</td><td>Message</td><td>HTTP, SMTP, DNS, FTP</td><td>User-facing applications</td></tr>
+  <tr><td>4 · Transport</td><td>Segment</td><td>TCP, UDP</td><td>Process-to-process delivery</td></tr>
+  <tr><td>3 · Network</td><td>Datagram</td><td>IP, OSPF, BGP</td><td>Host-to-host routing</td></tr>
+  <tr><td>2 · Link</td><td>Frame</td><td>Ethernet, 802.11, ARP</td><td>Adjacent node transfer</td></tr>
+  <tr><td>1 · Physical</td><td>Bits</td><td>—</td><td>Bit transmission on medium</td></tr>
+</table></div>
+<div class="exam">
+  <ul>
+    <li>OSI 7-layer model [Fall 2023 Q3f, Spring 2023 Q3f]: OSI adds Presentation (encryption, compression, data format) and Session (dialog control, synchronization) between Application and Transport. Internet stack omits these — they can be handled at application level when needed.</li>
+    <li>Routing vs Forwarding [Fall 2023 Q3a, Spring 2023 Q3a]: <strong>Forwarding</strong> = move packet from input port to output port at a SINGLE router (data plane, hardware, nanoseconds, uses forwarding table). <strong>Routing</strong> = determine path a packet takes across the ENTIRE network from source to destination (control plane, software, milliseconds, uses routing algorithms to compute forwarding tables).</li>
+    <li>Uncontrolled vs Controlled Flooding [Fall 2023 Q3b, Spring 2023 Q3b]: <strong>Uncontrolled flooding</strong> — router sends incoming packet out all other interfaces. Creates infinite loops and broadcast storms. <strong>Controlled flooding</strong> — variants: (1) Sequence-number-based: router records (source, seq#), only floods if not seen before. (2) Reverse Path Forwarding (RPF): router only forwards if packet arrived on the shortest path back to source — this naturally avoids loops.</li>
+    <li>Reverse Path Forwarding [Fall 2023 Q2e, Spring 2023 Q2e]: router accepts and forwards multicast/broadcast packet ONLY IF it arrived on the interface that is on the shortest unicast path back to the source. If packet arrived on that interface → forward out all others. If not → discard. Prevents duplicate packets and loops without needing state for all sources.</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ CH2: APP LAYER ══ -->
+<div class="chapter" id="ch2">
+<div class="chapter-header"><span class="ch-num">CH 02</span><h2>Application Layer — HTTP, DNS, SMTP, FTP</h2></div>
+
+<div class="section">
+<h3>HTTP — Timing Calculations</h3>
+<div class="formula">Non-Persistent HTTP (1 TCP connection per object):
+  Time per object = 2 RTT + d_trans  (1 RTT TCP setup + 1 RTT HTTP req/response)
+  Total for base HTML + 10 images (no parallel):
+    = 11 × (2RTT + d_trans_per_object)
+
+Persistent HTTP with pipelining:
+  = 2RTT + d_trans_base + RTT + d_trans_all_images  (one connection, pipelined)
+
+Example [Fall 2023 Q1d, Spring 2023 Q1d, Spring 2024 Q1c]:
+  base HTML + 10 JPEG images, all on same server, RTT = R, d_trans each = T
+  
+  Non-persistent (no parallel):
+    = 11 × (2R + T)  ← 11 objects × (TCP setup + HTTP round trip + transmission)
+  
+  Persistent pipelined:
+    = 2R (TCP setup) + T (base file) + R (pipeline request) + 10T (images)
+    = 3R + 11T  ← much better!</div>
+<div class="exam">
+  <ul>
+    <li>HTTP timing [Fall 2023 Q1d, Spring 2023 Q1d, Spring 2024 Q1c] — appears in every paper. Show step-by-step diagram: TCP SYN → SYN-ACK → ACK+GET → response. Each arrow = 0.5 RTT.</li>
+    <li>Cache server reducing delay [Spring 2024 Q1c]: cache closer to client → lower RTT; satisfied from cache = 0 access link delay; reduces access link utilization; cache hit rate p means only (1-p) requests reach origin.</li>
+    <li>FTP uses two connections [Fall 2023 Q3g, Spring 2023 Q3g]: (1) <strong>Control connection</strong> (port 21) — persistent, carries commands (USER, PASS, LIST, RETR). (2) <strong>Data connection</strong> (port 20) — created fresh for EACH file transfer, torn down after. FTP is "out-of-band" control — commands and data travel on separate connections. HTTP sends commands and data on the SAME connection ("in-band").</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>DNS — Iterative vs Recursive</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Iterative Query</h5><ul>
+    <li>Local DNS does all the work</li>
+    <li>Root tells local: "ask .com TLD"</li>
+    <li>TLD tells local: "ask amazon.com auth"</li>
+    <li>Less burden on upper-level servers</li>
+    <li>Standard practice on Internet</li>
+  </ul></div>
+  <div class="compare-box"><h5>Recursive Query</h5><ul>
+    <li>Each server contacts the next on behalf of requester</li>
+    <li>Chain: local → root → TLD → authoritative → back</li>
+    <li>Heavy load on root servers</li>
+    <li>Root servers typically refuse recursive queries</li>
+  </ul></div>
+</div>
+<div class="exam">
+  <ul>
+    <li>Differentiate iterative vs recursive [Spring 2024 Q1d] — must draw message flow diagram with arrows for both. In iterative: local DNS draws arrows to each level and back directly. In recursive: arrows chain from local→root→TLD→auth, then results flow back the same chain.</li>
+    <li>DNS uses UDP (port 53) for most queries — fast, low overhead, fits in one packet. Uses TCP only for zone transfers (large data) and when response exceeds 512 bytes [Spring 2023 Q2b].</li>
+    <li>Why not centralized DNS [Spring 2023 Q2b]: single point of failure; too much traffic; distant from many users; maintenance nightmare.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Email — Alice to Bob via POP3 [Fall 2023 Q2a]</h3>
+<div class="formula">Message path from Alice (gmail) to Bob (POP3 mail server):
+
+  Step 1: Alice composes message in user agent
+  Step 2: Alice's UA sends message to Alice's mail server via SMTP (TCP port 25)
+  Step 3: Alice's mail server opens TCP connection to Bob's mail server, sends via SMTP
+  Step 4: Bob's mail server stores message in Bob's mailbox
+  Step 5: Bob's UA retrieves message from Bob's mail server via POP3 (or IMAP)
+
+Application-layer protocols used: SMTP (between servers + UA→server), POP3 (Bob→server)
+
+Security attacks Trudy could make [Fall 2023 Q2a]:
+  • Sniff Alice's or Bob's password (SMTP/POP3 send in cleartext by default)
+  • Impersonate Alice (IP spoofing the mail server)
+  • Intercept and modify the message in transit (man-in-the-middle)
+  • Replay a captured message</div>
+</div>
+</div>
+
+<!-- ══ CH3: TRANSPORT ══ -->
+<div class="chapter" id="ch3">
+<div class="chapter-header"><span class="ch-num">CH 03</span><h2>Transport Layer — UDP, Multiplexing, Checksums</h2></div>
+
+<div class="section">
+<h3>UDP vs TCP</h3>
+<div class="compare">
+  <div class="compare-box"><h5>Why use UDP over TCP [Spring 2024 Q1b]</h5><ul>
+    <li>No connection setup — saves 1 RTT (critical for DNS, short queries)</li>
+    <li>No connection state → server handles more simultaneous clients</li>
+    <li>Smaller header (8 bytes vs TCP 20+) → less overhead</li>
+    <li>No congestion control → can blast data at full rate (streaming, gaming)</li>
+    <li>Application controls timing exactly</li>
+    <li>Loss tolerable: VoIP, video streaming, DNS</li>
+  </ul></div>
+  <div class="compare-box"><h5>TCP vs UDP [Fall 2023 Q3d, Spring 2023 Q3d]</h5><ul>
+    <li>TCP: reliable, in-order, connection-oriented, flow+congestion control</li>
+    <li>UDP: unreliable, unordered, connectionless, no control</li>
+    <li>TCP: used by HTTP, SMTP, FTP (need reliability)</li>
+    <li>UDP: used by DNS, VoIP, DHCP, streaming (need speed)</li>
+    <li>Both: multiplexing/demultiplexing via port numbers</li>
+  </ul></div>
+</div>
+
+<h4>Multiplexing and Demultiplexing [Fall 2023 Q3c, Spring 2023 Q3c]</h4>
+<p><span class="hl">Multiplexing</span> (sender): gather data from multiple sockets → add transport headers → pass to network layer. <span class="hl">Demultiplexing</span> (receiver): use header fields to deliver each segment to the correct socket/process.</p>
+<ul>
+  <li><strong>UDP demux:</strong> uses only dest IP + dest port. Any segment with same dest port → same socket.</li>
+  <li><strong>TCP demux:</strong> uses 4-tuple (src IP, src port, dst IP, dst port). Different sources → different sockets even if same dst port. This is why a web server on port 80 can handle thousands of simultaneous connections.</li>
+</ul>
+</div>
+
+<div class="section">
+<h3>UDP Checksum — 1's Complement</h3>
+<div class="formula">1's Complement Checksum calculation [Spring 2024 Q2a]:
+
+Given three 8-bit bytes: 01100110, 01010101, 00001111
+
+Step 1: Add first two:
+    01100110
+  + 01010101
+  ─────────
+    10111011  (no overflow)
+
+Step 2: Add third byte:
+    10111011
+  + 00001111
+  ─────────
+    11001010  (no overflow)
+
+Step 3: Take 1's complement (flip all bits):
+    11001010 → 00110101  ← this is the CHECKSUM sent
+
+Receiver check: add all three bytes + checksum
+    01100110 + 01010101 + 00001111 + 00110101
+    = 11111111  ← all 1s = NO error detected
+
+Error NOT detected when: two bit errors cancel out (one bit flips in same position
+in two different words, so the sum is unchanged). 1's complement is weak — can miss
+even-number-of-same-column flips.</div>
+<div class="exam">
+  <ul>
+    <li>1's complement checksum [Spring 2024 Q2a] — note: if addition produces a carry (overflow past 8 or 16 bits), wrap around (add carry to least significant bit = "end-around carry")</li>
+    <li>16-bit words for TCP/UDP: treat segment as sequence of 16-bit integers, add with end-around carry, invert result = checksum</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ RDT / GBN / SR ══ -->
+<div class="chapter" id="rdt">
+<div class="chapter-header"><span class="ch-num">CH 03</span><h2>Reliable Data Transfer — RDT, GBN, Selective Repeat</h2></div>
+
+<div class="section">
+<h3>RDT Evolution (rdt 2.0 → rdt 3.0)</h3>
+<div class="formula">rdt 2.0: adds checksum + ACK/NAK. Fatal flaw: ACK/NAK can be corrupted.
+rdt 2.1: adds sequence numbers (0 and 1). Handles corrupted ACK/NAK by retransmitting;
+         receiver uses seq# to detect and discard duplicates.
+rdt 2.2: NAK-free — receiver sends ACK for last correctly received packet with seq#.
+         Duplicate ACK at sender = same effect as NAK.
+rdt 3.0: adds countdown timer for packet loss. Handles both packet loss and ACK loss.
+         Problem: stop-and-wait → terrible utilization.
+         
+  U_sender = (L/R) / (RTT + L/R)
+  Example: L=8000b, R=1Gbps, RTT=30ms → U = 0.008ms/30.008ms = 0.027% !</div>
+<div class="exam">
+  <ul>
+    <li>FSM analysis [Spring 2024 Q3g]: identify which rdt version from the FSM diagram. States: "Wait for call from above" + "Wait for ACK/NAK" = rdt 2.x. Sequence numbers 0/1 in states = rdt 2.1. Timer present = rdt 3.0. Improvements: each version fixes one problem (corruption → loss → utilization).</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Go-Back-N vs Selective Repeat</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Feature</th><th>Go-Back-N (GBN)</th><th>Selective Repeat (SR)</th></tr>
+  <tr><td>Window size</td><td>Up to 2^k − 1</td><td>Up to 2^k / 2</td></tr>
+  <tr><td>ACK type</td><td>Cumulative (ACK n = all up to n received)</td><td>Individual (ACK per packet)</td></tr>
+  <tr><td>On timeout</td><td>Retransmit packet n AND all higher in window</td><td>Retransmit ONLY the timed-out packet</td></tr>
+  <tr><td>Receiver buffer</td><td>None — discards out-of-order packets</td><td>Buffers out-of-order packets</td></tr>
+  <tr><td>Timer</td><td>One timer for oldest unACKed packet</td><td>Separate timer per unACKed packet</td></tr>
+</table></div>
+<div class="exam">
+  <ul>
+    <li>GBN vs SR with 3-bit sequence field [Spring 2024 Q3b]: GBN max window = 2³-1 = 7; SR max window = 2³/2 = 4</li>
+    <li>Specific scenario [Spring 2024 Q3b, Fall 2023 Q1b]: Frames 0,1,2 sent; Frames 1,2 received; Frame 0 timer expires
+      <br/>• GBN: retransmit 0, 1, 2 (all 3 — "go back to 0"). Receiver had already discarded 1 and 2!
+      <br/>• SR: retransmit ONLY 0. Frames 1 and 2 still buffered at receiver. Much more efficient.</li>
+    <li>Five segments scenario [Fall 2023 Q1b — GBN/SR/TCP]: Host A sends 5 segments, 2nd is lost, all others received.
+      <br/>• GBN: A sends 5 total originally, then retransmits segments 2,3,4,5 → 9 total transmissions, 4 ACKs (for seg 1 only, then timeout for rest)
+      <br/>• SR: A sends 5 originally, retransmits ONLY segment 2 → 6 total transmissions
+      <br/>• TCP: fast retransmit after 3 dup ACKs; retransmits only seg 2 → similar to SR but with delayed action</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ TCP ══ -->
+<div class="chapter" id="tcp">
+<div class="chapter-header"><span class="ch-num">CH 03</span><h2>TCP — Sequence Numbers, RTT, Congestion Control</h2></div>
+
+<div class="section">
+<h3>TCP Sequence and ACK Numbers [Spring 2023 Q1a]</h3>
+<div class="formula">Sequence number = byte-stream number of FIRST byte in segment's data
+ACK number      = seq# of NEXT byte expected from the other side
+               = acknowledges ALL bytes UP THROUGH (ACK# - 1)
+
+Example [Spring 2023 Q1a]:
+  Host B has received all bytes up through byte 126.
+  Host A sends Segment 1: seq=127, 80 bytes (contains bytes 127–206)
+               Segment 2: seq=207, 40 bytes (contains bytes 207–246)
+
+  i. Second segment from A to B:
+     Seq = 207, Src port = 302, Dst port = 80
+
+  ii. ACK if Segment 1 arrives BEFORE Segment 2:
+     B receives bytes 127–206 → next expected byte = 207
+     ACK# = 207, Src port = 80, Dst port = 302
+
+  iii. ACK if Segment 2 arrives BEFORE Segment 1:
+     B received up to 126, then gets 207–246 (gap!) → sends duplicate ACK
+     ACK# = 127 (still expecting 127 — seq 207 is out of order, buffered)
+
+  iv. Timing diagram: Segment 1 sent → ACK 1 lost (timeout) → Segment 2 sent
+     → ACK 2 arrives → retransmit Segment 1 → ACK 3 confirms both</div>
+</div>
+
+<div class="section">
+<h3>RTT Estimation and Timeout</h3>
+<div class="formula">EstimatedRTT = (1-α) × EstimatedRTT + α × SampleRTT      [α = 0.125]
+DevRTT      = (1-β) × DevRTT + β × |SampleRTT - EstimatedRTT|  [β = 0.25]
+TimeoutInterval = EstimatedRTT + 4 × DevRTT
+
+Example [Spring 2024 Q2f]: α=0.125, β=0.25, initial EstRTT=100ms, DevRTT=5ms
+Samples: 106ms, 120ms, 115ms
+
+After SampleRTT=106ms:
+  EstRTT = 0.875×100 + 0.125×106 = 87.5 + 13.25 = 100.75ms
+  DevRTT = 0.75×5 + 0.25×|106-100| = 3.75 + 1.5 = 5.25ms
+  Timeout = 100.75 + 4×5.25 = 121.75ms
+
+After SampleRTT=120ms:
+  EstRTT = 0.875×100.75 + 0.125×120 = 88.15 + 15 = 103.16ms
+  DevRTT = 0.75×5.25 + 0.25×|120-100.75| = 3.94 + 4.81 = 8.75ms
+  Timeout = 103.16 + 4×8.75 = 138.16ms
+
+After SampleRTT=115ms:
+  EstRTT = 0.875×103.16 + 0.125×115 = 90.26 + 14.38 = 104.64ms
+  DevRTT = 0.75×8.75 + 0.25×|115-103.16| = 6.56 + 2.96 = 9.52ms
+  Timeout = 104.64 + 4×9.52 = 142.72ms</div>
+</div>
+
+<div class="section">
+<h3>TCP Fast Retransmit [Spring 2024 Q1e, Spring 2023 Q2a]</h3>
+<div class="formula">Normal retransmit: wait for timeout (can be very long — hundreds of ms)
+Fast Retransmit: don't wait for timeout — retransmit immediately after 3 DUPLICATE ACKs
+
+Why 3 dup ACKs = "segment likely lost" (not just reordered):
+  • 1–2 dup ACKs: segment probably just reordered → wait
+  • 3 dup ACKs: very likely lost → retransmit NOW
+  • Network still delivering ACKs → not complete collapse → mild response (Reno: cwnd = cwnd/2)
+
+Example:
+  Sender sends segments 1,2,3,4,5
+  Segment 2 is lost; 3,4,5 arrive → receiver sends ACK1 each time (waiting for 2)
+  Sender sees ACK1, ACK1, ACK1 (3 dup ACKs for segment 1)
+  → Retransmit segment 2 immediately WITHOUT waiting for timer expiry
+
+TCP Reno response to 3 dup ACKs:
+  ssthresh = cwnd / 2
+  cwnd = ssthresh  (NOT back to 1)  ← Fast Recovery — stays in congestion avoidance</div>
+<div class="exam">
+  <ul>
+    <li>TCP Fast Retransmit with figure [Spring 2024 Q1e, Spring 2023 Q2a] — draw: sender sends 1,2,3,4,5 → segment 2 lost → receiver sends duplicate ACK1 three times → sender retransmits segment 2 before timer expires</li>
+    <li>Why we use it: timeout-based retransmit causes huge delay (timeout interval >> RTT in most cases). 3 dup ACKs trigger retransmit in ~1 RTT instead.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>TCP 3-Way Handshake [Fall 2023 Q2g, Spring 2023 Q2g]</h3>
+<div class="formula">Step 1: Client → Server: SYN  (SYNbit=1, Seq=client_isn)
+         Client enters SYN_SENT state
+
+Step 2: Server → Client: SYNACK  (SYNbit=1, Seq=server_isn, ACKbit=1, ACK=client_isn+1)
+         Server allocates buffers, enters SYN_RCVD state
+
+Step 3: Client → Server: ACK  (ACKbit=1, ACK=server_isn+1, may contain data)
+         Both enter ESTABLISHED state
+
+Why 3-way (not 2-way)?
+  2-way can create half-open connections: if a retransmitted SYN from an old
+  connection arrives late, the server would open a connection the client doesn't want.
+  The 3rd message (client's ACK) confirms the client is alive and ready.</div>
+</div>
+
+<div class="section">
+<h3>TCP Congestion Control — Reading the Graph</h3>
+<div class="formula">How to read a cwnd vs transmission round graph:
+
+SLOW START: cwnd doubles each RTT (exponential growth upward)
+CONGESTION AVOIDANCE: cwnd increases by 1 MSS/RTT (linear, gentle slope)
+  Transition: when cwnd = ssthresh → switch from slow start to CA
+
+On LOSS DETECTION:
+  Triple Dup ACK (3 dup ACKs):
+    ssthresh = cwnd/2 ;  cwnd = ssthresh  (TCP Reno: Fast Recovery)
+    → cwnd drops to HALF, NOT to 1 → continues with linear growth
+    
+  Timeout:
+    ssthresh = cwnd/2 ;  cwnd = 1 MSS  (both Tahoe and Reno same here)
+    → cwnd drops to 1 → restarts from slow start
+
+Reading exam graphs:
+  • Exponential jump upward = Slow Start
+  • Gentle linear = Congestion Avoidance
+  • Drop to 1 = Timeout loss
+  • Drop to half (not 1) = Triple Dup ACK loss
+  • ssthresh = value where the curve changes from exponential to linear
+
+Questions asked every exam [all 6 papers]:
+  i.   Identify slow start intervals: rounds where growth is exponential
+  ii.  Identify congestion avoidance intervals: rounds where growth is linear (+1/RTT)
+  iii. Is loss at round X due to triple dup ACK or timeout? → cwnd drops to 1 = timeout; to half = triple dup
+  iv.  Initial ssthresh = value where slow start first ends (first linear slope begins)
+  v.   ssthresh at round Y = half of cwnd at loss event before round Y
+  vi.  Which round is the Nth segment sent? → sum up cwnd values: 1+2+4+8+... until total ≥ N</div>
+</div>
+</div>
+
+<!-- ══ NETWORK LAYER ══ -->
+<div class="chapter" id="ch45">
+<div class="chapter-header"><span class="ch-num">CH 04–05</span><h2>Network Layer — IP, Fragmentation, Subnetting, NAT</h2></div>
+
+<div class="section">
+<h3>IP Fragmentation</h3>
+<div class="formula">Fragment size (data payload) = MTU - 20  (20 bytes = IP header)
+Offset = byte_start_position / 8  (offset counts in units of 8 bytes)
+MF (More Fragments) flag = 1 for all fragments EXCEPT the last one
+All fragments share same Identification number
+
+Example [Spring 2024 Q2b]: 6800 bytes datagram, MTU = 1820 bytes
+  Max payload per fragment = 1820 - 20 = 1800 bytes
+  Number of fragments = ceil(6800 - 20) / 1800 = ceil(6780/1800) = 4
+
+  Fragment 1: payload=1800, length=1820, offset=0,    MF=1, ID=573
+  Fragment 2: payload=1800, length=1820, offset=225,  MF=1, ID=573  [1800/8=225]
+  Fragment 3: payload=1800, length=1820, offset=450,  MF=1, ID=573  [3600/8=450]
+  Fragment 4: payload=1380, length=1400, offset=675,  MF=0, ID=573  [5400/8=675]
+  Check: 1800+1800+1800+1380 = 6780 ✓ (original payload = 6800-20 = 6780)
+
+Example [Fall 2023 Q2b]: 6500 bytes datagram, MTU = 2500 bytes
+  Max payload = 2500 - 20 = 2480 bytes (must be multiple of 8! → 2480 ÷ 8 = 310 ✓)
+  Fragments = ceil(6480/2480) = 3
+
+  Fragment 1: payload=2480, length=2500, offset=0,   MF=1, ID=13
+  Fragment 2: payload=2480, length=2500, offset=310, MF=1, ID=13  [2480/8=310]
+  Fragment 3: payload=1520, length=1540, offset=620, MF=0, ID=13  [4960/8=620]
+
+Example [Spring 2023 Q1b]: 4000 bytes, MTU = 1500 bytes
+  Max payload = 1480 bytes
+  Fragment 1: 1480 bytes, length=1500, offset=0,   MF=1, ID=777
+  Fragment 2: 1480 bytes, length=1500, offset=185, MF=1, ID=777  [1480/8=185]
+  Fragment 3: 1020 bytes, length=1040, offset=370, MF=0, ID=777  [2960/8=370]</div>
+<div class="exam">
+  <ul>
+    <li>IP fragmentation appears in every exam. The table must show: fragment no., datagram length, payload length, ID, fragmentation flag (MF), offset.</li>
+    <li>Key trap: offset is payload_start / 8, not datagram_start / 8. Start byte of fragment n = sum of payloads of all previous fragments.</li>
+    <li>If payload is not divisible by 8: round DOWN to nearest multiple of 8 (last fragment picks up the remainder).</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Subnetting — VLSM</h3>
+<div class="formula">Rules:
+  1. Allocate LARGEST subnet first (avoids alignment gaps)
+  2. Each subnet block must start on a multiple of its block size
+  3. Network address = all host bits = 0
+  4. Broadcast = all host bits = 1
+  5. Usable hosts = 2^(host_bits) - 2
+  6. Subnet mask: /x means first x bits are network
+
+Example [Spring 2024 Q2c]: 192.168.10.0/24, need 14 subnets:
+  2 subnets × 128 addresses (/25): host bits = 7
+  4 subnets × 64 addresses  (/26): host bits = 6
+  8 subnets × 32 addresses  (/27): host bits = 5
+
+  /25 subnets (128 addr each):
+    192.168.10.0/25:   first=.1,   last=.126,  broadcast=.127
+    192.168.10.128/25: first=.129, last=.254,  broadcast=.255
+  
+  /26 subnets (64 addr each), starting after /25 blocks... wait — /25 uses all of .0/24!
+  → Use a fresh /24 block. Allocate /25 first, then divide remaining.
+  OR: interpret as needing subnets from a LARGER pool → examiner usually
+      provides the full address block. Work from given starting address.
+
+Example [Fall 2023 Q1g / Spring 2023 Q1g]: 192.168.100.64/26 → 6 departments
+  /26 = 64 addresses total. Divide equally? No — just give each department a /29
+  /29 = 8 addresses (6 usable). 6 × 8 = 48 < 64 ✓
+  
+  Dept 1: 192.168.100.64/29,  network=.64,  broadcast=.71
+  Dept 2: 192.168.100.72/29,  network=.72,  broadcast=.79
+  Dept 3: 192.168.100.80/29,  network=.80,  broadcast=.87
+  Dept 4: 192.168.100.88/29,  network=.88,  broadcast=.95
+  Dept 5: 192.168.100.96/29,  network=.96,  broadcast=.103
+  Dept 6: 192.168.100.104/29, network=.104, broadcast=.111
+  Remaining: 192.168.100.112 - .127 (unused, 16 addresses)</div>
+</div>
+
+<div class="section">
+<h3>NAT — Step-by-Step Process</h3>
+<div class="formula">Example [Fall 2023 Q1a, Spring 2024 Q3d]: 
+  Home network 192.168.1.0/24, NAT router WAN side = 67.210.97.1
+  Host 192.168.1.2 sends to Facebook server 173.194.67.102:80
+
+NAT Translation Table:
+  Protocol | Inside Local IP:Port  | Inside Global IP:Port
+  ─────────┼───────────────────────┼──────────────────────
+  ICMP     | 192.168.1.2 : 18      | 67.210.97.1 : 18
+  ICMP     | 192.168.1.3 : 19      | 67.210.97.1 : 19
+  ICMP     | 192.168.1.4 : 20      | 67.210.97.1 : 20
+
+Step-by-step NAT process:
+  1. 192.168.1.2 creates packet: src=192.168.1.2:3001, dst=173.194.67.102:80
+  2. Packet reaches NAT router
+  3. NAT replaces src with: src=67.210.97.1:5001 (assigns new WAN port 5001)
+  4. Records: {192.168.1.2:3001 ↔ 67.210.97.1:5001} in translation table
+  5. Sends packet to Facebook server
+  6. Facebook replies to: 67.210.97.1:5001
+  7. NAT looks up 5001 in table → translates dst back to 192.168.1.2:3001
+  8. Delivers to host 192.168.1.2</div>
+</div>
+
+<div class="section">
+<h3>DHCP — Dynamic Host Configuration</h3>
+<div class="exam">
+  <ul>
+    <li>DHCP with figure [Spring 2024 Q1f] — 4-message exchange: Discover → Offer → Request → ACK. All broadcast (0.0.0.0 → 255.255.255.255) because client has no IP yet. Server assigns: IP address, subnet mask, default gateway, DNS server IP, lease duration.</li>
+    <li>Why broadcast? Client has no IP to receive unicast. All devices hear the broadcast; only DHCP server responds.</li>
+  </ul>
+</div>
+</div>
+</div>
+
+<!-- ══ ROUTING ══ -->
+<div class="chapter" id="routing">
+<div class="chapter-header"><span class="ch-num">CH 05</span><h2>Routing Algorithms — Dijkstra, DV, BGP</h2></div>
+
+<div class="section">
+<h3>Dijkstra's Link-State Algorithm</h3>
+<div class="formula">Notation: N'=confirmed set, D(v)=current best cost to v, p(v)=predecessor
+
+Algorithm:
+  Initialize: N'={u}, D(u)=0; for each neighbor v: D(v)=c(u,v), p(v)=u; others D=∞
+  Loop until N'=all nodes:
+    1. Find w ∉ N' with minimum D(w) → add to N'
+    2. For each neighbor v of w, v ∉ N':
+       if D(w)+c(w,v) < D(v): D(v)=D(w)+c(w,v), p(v)=w
+
+Show work as a TABLE — one column per step:
+  Step | N'          | D(A),p | D(B),p | D(C),p | D(D),p | ...
+  ─────┼─────────────┼────────┼────────┼────────┼────────┼────
+  0    | {u}         | ...    | ...    | ...    | ...
+  1    | {u, x}      | ...    | ...
+  ...</div>
+<div class="exam">
+  <ul>
+    <li>Dijkstra appears in every exam [Spring 2024 Q3a, Fall 2023 Q1f, Spring 2023 Q1f, Fall 2024 Q3a, Fall 2022] — always show the full table, then draw the least-cost path tree, then derive the forwarding table at the source node.</li>
+    <li>Forwarding table: destination → output link (the next hop on the least-cost path). Not the entire path — just the first link.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>Distance Vector & Count-to-Infinity</h3>
+<div class="formula">Bellman-Ford: D_x(y) = min_v { c(x,v) + D_v(y) }
+
+Count-to-infinity problem:
+  When link cost INCREASES or fails, bad news travels slowly.
+  Example: y-x cost increases from 4 to 60. z thinks it can reach x via y for cost 5.
+  y computes: min(60, 1+5)=6 via z → updates
+  z computes: min(∞, 1+6)=7 via y → updates
+  ... counts up slowly to actual cost of 60
+
+Solutions:
+  Split horizon: don't advertise route back to node you learned it from
+  Poison reverse: advertise route back with cost = ∞</div>
+</div>
+
+<div class="section">
+<h3>BGP — eBGP vs iBGP</h3>
+<div class="formula">eBGP: between gateway routers of DIFFERENT ASes
+      → learns which prefixes are reachable externally
+      
+iBGP: between routers WITHIN same AS
+      → propagates externally-learned routes to all internal routers
+
+Hot potato routing: router in AS sends traffic to the exit point with LOWEST
+intra-AS cost — "get rid of it quickly" without caring about overall optimal path.</div>
+</div>
+</div>
+
+<!-- ══ LINK LAYER ══ -->
+<div class="chapter" id="ch6">
+<div class="chapter-header"><span class="ch-num">CH 06</span><h2>Link Layer — MAC Protocols, ARP, Ethernet</h2></div>
+
+<div class="section">
+<h3>Link Layer Services [Fall 2023 Q3e, Spring 2023 Q3e]</h3>
+<p>Six services provided by the link layer:</p>
+<div class="terms">
+  <div class="term"><strong>Framing</strong><span>Encapsulate datagram in frame. Add header/trailer. MAC addresses in header.</span></div>
+  <div class="term"><strong>Link Access (MAC)</strong><span>Coordinate which node transmits on shared medium. Prevents/handles collisions.</span></div>
+  <div class="term"><strong>Reliable Delivery</strong><span>Guarantee delivery between adjacent nodes (used on wireless, NOT Ethernet — low error rate on wired).</span></div>
+  <div class="term"><strong>Error Detection</strong><span>Detect bit errors caused by signal attenuation/noise. Drop corrupt frame. More powerful than checksum.</span></div>
+  <div class="term"><strong>Error Correction</strong><span>Identify and correct bit errors without retransmission (some wireless links). Uses FEC codes.</span></div>
+  <div class="term"><strong>Flow Control</strong><span>Pace sender and adjacent receiver to prevent buffer overflow at receiver.</span></div>
+</div>
+</div>
+
+<div class="section">
+<h3>MAC Protocols — ALOHA Comparison</h3>
+<div class="formula">Pure ALOHA:
+  Transmit immediately when frame ready. No synchronization.
+  Collision window = 2 × frame_transmission_time (can collide with frames
+  starting up to 1 frame time before OR after)
+  Maximum efficiency = 1/(2e) ≈ 18%
+
+Slotted ALOHA:
+  Time divided into slots. Only transmit at START of slot.
+  Collision window = 1 × frame_transmission_time (same slot only)
+  Maximum efficiency = 1/e ≈ 37%  (almost 2× better than Pure)
+
+Why Slotted is better [Spring 2024 Q1g]:
+  Synchronization eliminates the "late collision" possibility.
+  A frame can only collide with frames started in the SAME slot,
+  not frames started up to 1 frame time earlier.</div>
+<div class="tbl-wrap"><table>
+  <tr><th>Feature</th><th>Pure ALOHA</th><th>Slotted ALOHA</th><th>CSMA/CD</th><th>TDMA</th></tr>
+  <tr><td>Max efficiency</td><td>18%</td><td>37%</td><td>~100% low load</td><td>100% if all busy</td></tr>
+  <tr><td>Sync needed</td><td>No</td><td>Yes (slot sync)</td><td>No</td><td>Yes</td></tr>
+  <tr><td>Collision handling</td><td>Retransmit after random wait</td><td>Retransmit next slot</td><td>Detect and abort, backoff</td><td>No collisions possible</td></tr>
+  <tr><td>Idle capacity</td><td>Wasted</td><td>Wasted</td><td>Wasted</td><td>Wasted (fixed slots)</td></tr>
+</table></div>
+<div class="exam">
+  <ul>
+    <li>TDMA vs Slotted ALOHA comparison [Fall 2023 Q2f, Spring 2023 Q2f, Fall 2023 Q3 implicit]: TDMA = channel partitioning (each node gets fixed time slot), no collisions but idle slots wasted. Slotted ALOHA = random access, collisions possible but unused capacity can be grabbed by any node → better at low load.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>CRC — Cyclic Redundancy Check</h3>
+<div class="formula">Algorithm: XOR long division
+  1. Append r zeros to data D (r = degree of generator polynomial)
+  2. Divide D·2^r by G using XOR arithmetic
+  3. Remainder R = CRC bits (exactly r bits)
+  4. Transmit ⟨D, R⟩
+
+Receiver: divide ⟨D', R'⟩ by G. If remainder = 0 → no error. If ≠ 0 → error.
+
+Example [Spring 2024 Q2d]: G = 10010 (r=4), D = 1011101010
+  Step 1: D·2^4 = 10111010100000  (append 4 zeros)
+  Step 2: XOR long division by 10010:
+    10111010100000 ÷ 10010
+    10010
+    ─────
+    00101010100000  → next step: 10101 ÷ 10010...
+    (continue XOR long division until remainder has < r=4 bits)
+  Result: R = remainder (4 bits)
+
+Example [Spring 2023 Q1c / Fall 2024 Q2d]: G=1101 (r=3), D=100100
+  Append 3 zeros: 100100000 ÷ 1101
+  Work through XOR division → R (3 bits)
+  
+  Receiver error check: take ⟨D, R⟩ → divide by G → if remainder = 000 → no error
+  If received D-1011101011: divide by G → remainder ≠ 0 → ERROR DETECTED</div>
+<div class="exam">
+  <ul>
+    <li>CRC appears in every exam. Show full XOR long division steps — bring down one bit at a time. When MSB is 1, XOR with G. When MSB is 0, XOR with 0 (bring down next bit).</li>
+    <li>Receiver check: if transmitted ⟨D,R⟩ received correctly → dividing by G gives remainder 0. If bit flipped → remainder ≠ 0.</li>
+  </ul>
+</div>
+</div>
+
+<div class="section">
+<h3>ARP — Across Subnets</h3>
+<div class="formula">Same subnet: A broadcasts ARP query "Who has IP X?" → X replies with its MAC.
+Different subnets [Spring 2024 Q3f, Spring 2023 Q1d, Fall 2024 Q3f]:
+
+Host A (subnet 111.111.111/24) wants to reach Host B (subnet 222.222.222/24):
+
+Step 1: A sees B is in different subnet → look up default gateway R in routing table
+Step 2: A ARPs for R's MAC on A's subnet (broadcasts to FF:FF:FF:FF:FF:FF)
+Step 3: R replies with its MAC (e.g., 1A-23-F9-CD-06-9B on A's side)
+Step 4: A sends frame: 
+        IP src=111.111.111.111, IP dst=222.222.222.222  ← IPs UNCHANGED
+        MAC src=74-29-9C-E8-FF-55,  MAC dst=1A-23-F9-CD-06-9B  ← R's MAC
+Step 5: R receives frame, strips Ethernet, reads IP datagram
+Step 6: R looks up 222.222.222.222 in its forwarding table → use interface on B's subnet
+Step 7: R ARPs for B's MAC on B's subnet
+Step 8: R sends NEW frame:
+        IP src=111.111.111.111, IP dst=222.222.222.222  ← STILL unchanged
+        MAC src=E6-E9-00-17-BB-4B (R's B-side MAC), MAC dst=49-BD-D2-C7-56-2A (B's MAC)
+
+KEY RULE: IP addresses NEVER change end-to-end.
+          MAC addresses change at EVERY hop.</div>
+</div>
+</div>
+
+<!-- ══ SECURITY ══ -->
+<div class="chapter" id="ch8">
+<div class="chapter-header"><span class="ch-num">CH 08</span><h2>Network Security — RSA, Encryption, Attacks</h2></div>
+
+<div class="section">
+<h3>Security Threats [Fall 2023 Q2c]</h3>
+<div class="terms">
+  <div class="term"><strong>Malware</strong><span>Software infecting a host. Virus: needs user action to spread. Worm: self-replicating, no user action. Trojan Horse: disguised as legitimate software but contains malicious payload. Ransomware: encrypts files, demands payment.</span></div>
+  <div class="term"><strong>IP Spoofing</strong><span>Sending packets with a forged source IP address. Can bypass IP-based filters. Used in DoS amplification and impersonation attacks.</span></div>
+  <div class="term"><strong>Phishing Attack</strong><span>Fake email/website mimicking a legitimate entity to steal credentials. Social engineering — targets humans, not systems. E.g., fake bank login page.</span></div>
+  <div class="term"><strong>DoS / DDoS</strong><span>Overwhelm server with bogus traffic. DDoS uses a botnet of compromised hosts. Very hard to defend against at application level.</span></div>
+  <div class="term"><strong>Packet Sniffing</strong><span>On broadcast media (WiFi, shared Ethernet), promiscuous NIC reads ALL frames. Wireshark is a legitimate sniffer tool.</span></div>
+  <div class="term"><strong>Man-in-the-Middle</strong><span>Attacker intercepts and possibly modifies communication between two parties without either knowing.</span></div>
+</div>
+</div>
+
+<div class="section">
+<h3>RSA — Key Generation and Encryption</h3>
+<div class="formula">Key Generation:
+  1. Choose primes p, q
+  2. n = p × q;  z = (p-1)(q-1)
+  3. Choose e: gcd(e, z) = 1
+  4. Find d: e×d mod z = 1
+  5. Public key = (n, e);  Private key = (n, d)
+
+Encryption: c = m^e mod n
+Decryption: m = c^d mod n
+
+Example [Spring 2024 Q2g]: p=3, q=11 → n=33, z=20
+  Choose e=3: gcd(3,20)=1 ✓
+  Find d: 3×d mod 20 = 1 → d=7 (3×7=21=20+1)
+  Public key=(33,3), Private key=(33,7)
+
+  Encrypt "aust" (a=1,u=21,s=19,t=20):
+  a: 1^3 mod 33 = 1
+  u: 21^3 mod 33 = 9261 mod 33 = 9261 - 280×33 = 9261-9240 = 21
+  s: 19^3 mod 33 = 6859 mod 33 = 6859 - 207×33 = 6859-6831 = 28
+  t: 20^3 mod 33 = 8000 mod 33 = 8000 - 242×33 = 8000-7986 = 14
+
+  Decrypt c=14: m = 14^7 mod 33
+  Use repeated squaring: 14^2=196 mod 33=196-5×33=31
+  14^4=31^2=961 mod 33=961-29×33=961-957=4
+  14^7=14^4×14^2×14^1=4×31×14 mod 33=1736 mod 33=1736-52×33=1736-1716=20=t ✓</div>
+
+<h4>Polyalphabetic (Caesar Cipher) Encryption [Spring 2023 Q2c]</h4>
+<div class="formula">Pattern: C₁, C₂, C₃, C₂, C₁ where Cₖ = Caesar cipher shifting each letter by k
+
+Example: encrypt "My password is AUST46" with pattern C₁,C₂,C₃,C₂,C₁ (cycling)
+  C₁ = +1 (each letter/number shifted 1 forward in alphabet)
+  C₂ = +2, C₃ = +3, then repeats: C₂, C₁, C₁, C₂, C₃, ...
+
+Position: 1  2  3  4  5  6  7  8  9 ...
+Cipher:   C₁ C₂ C₃ C₂ C₁ C₁ C₂ C₃ C₂ ...
+Plaintext: M  y     p  a  s  s  w  o ...
+Ciphertext:N  a     r  b  t  u  z  q ... (shift each by cipher value)
+
+Numbers shift cyclically too: a=1,b=2,...z=26, then 0-9 shift by k mod 10</div>
+</div>
+
+<div class="section">
+<h3>MAC vs Digital Signatures</h3>
+<div class="compare">
+  <div class="compare-box"><h5>MAC (Message Authentication Code)</h5><ul>
+    <li>H(K_S || m) where K_S = shared secret</li>
+    <li>Provides: integrity + authentication</li>
+    <li>Does NOT provide: non-repudiation</li>
+    <li>Either party could have created it</li>
+    <li>Fast (symmetric key operation)</li>
+  </ul></div>
+  <div class="compare-box"><h5>Digital Signature</h5><ul>
+    <li>K⁻(H(m)) — private key signs hash of message</li>
+    <li>Provides: integrity + authentication + <strong>non-repudiation</strong></li>
+    <li>Only signer has private key → proof of origin</li>
+    <li>Anyone can verify with public key</li>
+    <li>Slower (asymmetric operation)</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- QUICK REF -->
+<hr>
+<div class="chapter" id="ref">
+<div class="chapter-header"><span class="ch-num">REF</span><h2>Quick Reference — All 6 Papers Summary</h2></div>
+
+<div class="section">
+<h3>Frequency Table — What's in Every Paper</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Topic</th><th>Sp22</th><th>F22</th><th>Sp23</th><th>F23</th><th>Sp24</th><th>F24</th></tr>
+  <tr><td>IP Fragmentation (table)</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>TCP Congestion Control graph</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Dijkstra's algorithm (table)</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Subnetting / VLSM</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>CRC calculation</td><td>✓</td><td>✓</td><td>✓</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>HTTP timing (non-persist vs persist)</td><td>✓</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>ARP across subnets</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>NAT step-by-step + table</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>RTT Estimation (EWMA)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>GBN vs SR comparison</td><td>✓</td><td>✓</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>RSA encryption</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>End-to-end delay calc</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>TCP seq/ACK numbers</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>TCP 3-way handshake</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>Routing vs Forwarding</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>Flooding (controlled/uncontrolled)</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>Reverse Path Forwarding</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>DNS iterative vs recursive</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>TDMA vs Slotted ALOHA</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>Pure vs Slotted ALOHA</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>UDP checksum (1's complement)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>2D Parity / Error detection</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>FTP two connections</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>BGP eBGP/iBGP</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>Security threats (malware etc.)</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>—</td></tr>
+  <tr><td>Fast Retransmit</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>TCP Fast Retransmit with figure</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>—</td></tr>
+  <tr><td>Polyalphabetic encryption</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>OSI 7-layer model</td><td>—</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td></tr>
+</table></div>
+</div>
+
+<div class="section">
+<h3>Guaranteed Exam Topics (in 4+ papers)</h3>
+<div class="tbl-wrap"><table>
+  <tr><th>Topic</th><th>Papers</th><th>What to Know</th></tr>
+  <tr><td>IP Fragmentation</td><td>All 6</td><td>payload = MTU−20; offset = start_byte/8; MF=1 except last; same ID; build full table</td></tr>
+  <tr><td>TCP Congestion Control graph</td><td>All 6</td><td>Slow start (exp) vs CA (linear); timeout→cwnd=1; triple dup→cwnd=half; ssthresh; Nth segment round</td></tr>
+  <tr><td>Dijkstra's algorithm</td><td>All 6</td><td>Full table with N', D(v), p(v) per step; then forwarding table at source</td></tr>
+  <tr><td>Subnetting / VLSM</td><td>All 6</td><td>Allocate large first; block boundary alignment; network/broadcast/mask/first/last address</td></tr>
+  <tr><td>CRC calculation</td><td>5 of 6</td><td>Append r zeros; XOR long division; show every step; receiver check = divide ⟨D,R⟩ by G → 0 if no error</td></tr>
+  <tr><td>HTTP timing</td><td>5 of 6</td><td>Non-persist = 11×(2RTT+T); persist pipelined = 3RTT+11T for 1 base + 10 images</td></tr>
+  <tr><td>GBN vs SR</td><td>5 of 6</td><td>Window sizes (2^k-1 vs 2^k/2); on timeout (all vs one); receiver buffer; specific scenario analysis</td></tr>
+  <tr><td>ARP across subnets</td><td>4 of 6</td><td>IP stays same end-to-end; MAC changes every hop; need gateway MAC first; ARP table for each device</td></tr>
+  <tr><td>NAT step-by-step</td><td>3 of 6 (recent)</td><td>Translation table (local IP:port ↔ global IP:port); 7-step process; why NAT works; controversy</td></tr>
+  <tr><td>RTT estimation</td><td>2 of 6 (recent)</td><td>Three-sample EWMA; α=0.125, β=0.25; show calculation after each sample; Timeout = EstRTT + 4×DevRTT</td></tr>
+</table></div>
+</div>
+</div>
+
+</div>
+<footer>CSE 3201 · Computer Networks · Exam Study Material · AUST · 6 Papers: Spring 2022 – Fall 2024 · Kurose &amp; Ross</footer>
+</body>
+</html>
