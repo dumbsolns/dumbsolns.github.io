@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Industrial Law &amp; Safety Management — Full Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;
+  --contract:#e3b341;--company:#58a6ff;--labor:#3fb950;--safety:#f47067;
+  --text:#e6edf3;--muted:#8b949e;--subtle:#6e7681;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.75}
+.header{background:linear-gradient(180deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);padding:2.5rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,#58a6ff0d,transparent 70%);pointer-events:none}
+.header h1{font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.header h1 em{color:var(--accent);font-style:normal}
+.header p{color:var(--muted);font-size:.85rem;margin-top:.4rem}
+.marks{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.1rem}
+.mark-badge{padding:.25rem .9rem;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:600}
+.m-contract{background:#e3b34115;border:1px solid #e3b34140;color:var(--contract)}
+.m-company{background:#58a6ff15;border:1px solid #58a6ff40;color:var(--company)}
+.m-labor{background:#3fb95015;border:1px solid #3fb95040;color:var(--labor)}
+.m-safety{background:#f4706715;border:1px solid #f4706740;color:var(--safety)}
+
+nav{position:sticky;top:0;z-index:100;background:#161b22ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.55rem 1.5rem;display:flex;flex-wrap:wrap;gap:.3rem;align-items:center}
+.nav-sep{color:var(--border);padding:0 .2rem;font-size:.9rem}
+nav a{color:var(--muted);text-decoration:none;font-size:.77rem;padding:.2rem .55rem;border-radius:6px;transition:.15s;font-family:'JetBrains Mono',monospace}
+nav a:hover{background:var(--border);color:var(--text)}
+
+.wrap{max-width:1020px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.part-divider{text-align:center;margin:3.5rem 0 2rem;position:relative}
+.part-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+.part-label{position:relative;display:inline-block;padding:.4rem 1.25rem;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600}
+.part-label.contract{background:#e3b34120;border:1px solid #e3b34150;color:var(--contract)}
+.part-label.company{background:#58a6ff20;border:1px solid #58a6ff50;color:var(--company)}
+.part-label.labor{background:#3fb95020;border:1px solid #3fb95050;color:var(--labor)}
+.part-label.safety{background:#f4706720;border:1px solid #f4706750;color:var(--safety)}
+
+.ch{margin-bottom:3rem}
+.ch-head{display:flex;align-items:center;gap:.9rem;padding:.85rem 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:0 8px 8px 0;margin-bottom:1.75rem}
+.ch-head.contract{border-left:4px solid var(--contract)}
+.ch-head.company{border-left:4px solid var(--company)}
+.ch-head.labor{border-left:4px solid var(--labor)}
+.ch-head.safety{border-left:4px solid var(--safety)}
+.ch-badge{font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:.2rem .55rem;border-radius:4px;white-space:nowrap;font-weight:600}
+.ch-badge.contract{color:var(--contract);background:#e3b34115;border:1px solid #e3b34130}
+.ch-badge.company{color:var(--company);background:#58a6ff15;border:1px solid #58a6ff30}
+.ch-badge.labor{color:var(--labor);background:#3fb95015;border:1px solid #3fb95030}
+.ch-badge.safety{color:var(--safety);background:#f4706715;border:1px solid #f4706730}
+.ch-head h2{font-size:1.1rem;font-weight:700;color:#fff}
+
+.sec{margin-bottom:2rem}
+.sec>h3{font-size:.92rem;font-weight:600;color:var(--accent);margin-bottom:.85rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.4rem}
+.sec>h3::before{content:'§';font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--subtle)}
+h4{font-size:.875rem;font-weight:600;color:var(--yellow);margin:1.1rem 0 .5rem}
+p{margin-bottom:.7rem;color:var(--text);font-size:.88rem}
+
+.def{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;margin:.65rem 0;font-size:.875rem;font-style:italic;color:#c9d1d9;border-left:3px solid var(--accent)}
+.code{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#79c0ff;margin:.7rem 0;white-space:pre-wrap;line-height:1.65}
+code{font-family:'JetBrains Mono',monospace;background:#30363d;padding:.1em .35em;border-radius:4px;font-size:.82em;color:#79c0ff}
+.note{background:#d2992211;border:1px solid #d2992240;border-left:3px solid var(--yellow);border-radius:0 6px 6px 0;padding:.7rem 1rem;margin:.7rem 0;font-size:.86rem;color:#ffe0a0}
+.note::before{content:'💡 NOTE';display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--yellow);font-weight:600;margin-bottom:.3rem}
+.tip{background:#3fb95011;border:1px solid #3fb95040;border-left:3px solid var(--green);border-radius:0 6px 6px 0;padding:.7rem 1rem;margin:.7rem 0;font-size:.86rem;color:#b5e8c0}
+.tip::before{content:'✓ KEY';display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);font-weight:600;margin-bottom:.3rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:.7rem;margin:.7rem 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem .95rem}
+.card strong{display:block;font-size:.78rem;color:var(--green);font-family:'JetBrains Mono',monospace;margin-bottom:.3rem}
+.card span{font-size:.84rem;color:var(--muted)}
+
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.7rem 0}
+.cmp-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem .95rem}
+.cmp-box h5{font-size:.78rem;font-weight:600;color:var(--accent);margin-bottom:.5rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+.cmp-box ul{margin-left:1rem}
+.cmp-box li{font-size:.84rem;color:var(--muted);margin-bottom:.2rem}
+.cmp-box li strong{color:var(--text)}
+
+.tbl{overflow-x:auto;margin:.7rem 0}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:var(--surface2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;text-align:left;border-bottom:2px solid var(--border);font-weight:600}
+td{padding:.45rem .7rem;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+td:first-child{color:var(--text);font-weight:500}
+
+ul,ol{margin-left:1.2rem;margin-bottom:.7rem}
+li{margin-bottom:.28rem;color:var(--muted);font-size:.88rem}
+li strong{color:var(--text)}
+.hl{color:var(--yellow);font-weight:600}
+.hl2{color:var(--green);font-weight:600}
+.hl3{color:var(--accent);font-weight:600}
+hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+footer{text-align:center;padding:2rem;color:var(--subtle);font-size:.75rem;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+@media(max-width:600px){.cmp{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Industrial Law &amp; <em>Safety Management</em></h1>
+  <p>Complete Full Guide · AUST · Contract Act 1872 · Company Act 1994 · Labour Act 2006 · Safety Management</p>
+  <div class="marks">
+    <span class="mark-badge m-contract">Q1 · Contract Act · 14 marks · No option</span>
+    <span class="mark-badge m-company">Q2 · Company Act · 14 marks · 1 of 2</span>
+    <span class="mark-badge m-labor">Q3 &amp; Q4 · Labour Act · 28 marks · No option</span>
+    <span class="mark-badge m-safety">Q5 · Safety Mgmt · 14 marks · 1 of 2</span>
+  </div>
+</div>
+<nav>
+  <a href="#contract">Contract Act</a><span class="nav-sep">|</span>
+  <a href="#agency">Agency</a>
+  <a href="#indem">Indemnity &amp; Guarantee</a>
+  <a href="#bail">Bailment</a><span class="nav-sep">|</span>
+  <a href="#company">Company Act</a>
+  <a href="#directors">Directors</a>
+  <a href="#winding">Winding Up</a><span class="nav-sep">|</span>
+  <a href="#workers">Workers</a>
+  <a href="#workplace">Workplace</a>
+  <a href="#wages">Wages &amp; Leave</a>
+  <a href="#union">Trade Unions</a><span class="nav-sep">|</span>
+  <a href="#hazard">Hazard</a>
+  <a href="#safety">Safety Mgmt</a>
+  <a href="#ppe">PPE</a>
+  <a href="#occ">Occ. Health</a>
+</nav>
+<div class="wrap">
+
+<!-- ══════════ CONTRACT ACT ══════════ -->
+<div class="part-divider"><span class="part-label contract">CONTRACT ACT, 1872 — Q1 (No Option)</span></div>
+
+<div class="ch" id="contract">
+<div class="ch-head contract"><span class="ch-badge contract">CONTRACT</span><h2>What is a Contract? Essential Elements</h2></div>
+
+<div class="sec">
+<h3>Definition and Formation Stages</h3>
+<div class="def">"All contracts are agreements, but all agreements are not contracts." — An agreement only becomes a contract when it is legally enforceable.</div>
+<p>Formation follows four stages: <span class="hl">Proposal (Offer) → Acceptance (Promise) → Agreement → Contract</span></p>
+
+<h4>8 Essential Elements of a Valid Contract</h4>
+<div class="cards">
+  <div class="card"><strong>1. Offer &amp; Acceptance</strong><span>Clear offer by one party, absolute and unconditional acceptance by the other.</span></div>
+  <div class="card"><strong>2. Intention to Create Legal Relations</strong><span>Parties must intend legal consequences. Social/domestic agreements generally excluded.</span></div>
+  <div class="card"><strong>3. Lawful Consideration</strong><span>Something of value given by each party. "No consideration, no contract." Can be past, present, or future.</span></div>
+  <div class="card"><strong>4. Capacity of Parties</strong><span>Must be adult (≥18), of sound mind, not disqualified by law. Minors cannot contract.</span></div>
+  <div class="card"><strong>5. Free Consent</strong><span>No coercion, undue influence, fraud, misrepresentation, or mistake.</span></div>
+  <div class="card"><strong>6. Legality of Object</strong><span>Purpose must be legal. Contracts for illegal acts are void.</span></div>
+  <div class="card"><strong>7. Certainty &amp; Possibility</strong><span>Terms must be clear and certain. Act must be physically and legally possible.</span></div>
+  <div class="card"><strong>8. Formalities</strong><span>Any required writing, stamp duty, or registration must be completed.</span></div>
+</div>
+<div class="tip">If any ONE of the 8 elements is missing, there is no valid contract.</div>
+</div>
+
+<div class="sec">
+<h3>Proposal (Offer)</h3>
+<ul>
+  <li><strong>Complete when:</strong> Communicated to the person it is made to (e.g., offer letter received)</li>
+  <li><strong>Revocation:</strong> An offer can be revoked any time before acceptance is communicated. Revocation is complete against proposer when sent; against offeree when received.</li>
+  <li><strong>Specific Offer:</strong> Made to a specific person or group</li>
+  <li><strong>General Offer:</strong> Made to the public at large (e.g., reward posters)</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Acceptance</h3>
+<ul>
+  <li><strong>For proposer:</strong> Acceptance is complete the moment it is sent (posted) — cannot be stopped</li>
+  <li><strong>For acceptor:</strong> Complete only when the proposer actually receives the acceptance</li>
+  <li><strong>Revocation by acceptor:</strong> Possible before communication of acceptance is complete against the acceptor (before proposer receives it)</li>
+  <li>Acceptance must be absolute and unqualified. Conditional acceptance = counter-offer.</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Consideration</h3>
+<p>Consideration = the "price of a promise" — an act, abstinence, or promise done at the desire of the promisor.</p>
+<ul>
+  <li>Must move at the desire of the promisor</li>
+  <li>Can be past, present, or future</li>
+  <li>Need not be adequate (fair value), but must be real</li>
+  <li>No consideration = void agreement ("No consideration, no contract")</li>
+</ul>
+<h4>Exceptions — Valid Contracts Without Consideration</h4>
+<ol>
+  <li>Agreements based on <strong>natural love and affection</strong> (written + registered, near relations)</li>
+  <li>Promise to compensate for something <strong>voluntarily done</strong></li>
+  <li>Promise to pay a <strong>debt barred by limitation law</strong></li>
+</ol>
+</div>
+
+<div class="sec">
+<h3>Void, Voidable, Unenforceable &amp; Illegal Agreements</h3>
+<div class="tbl"><table>
+  <tr><th>Type</th><th>Meaning</th><th>Example</th></tr>
+  <tr><td>Void Agreement</td><td>Not enforceable by law from the beginning</td><td>Agreement to do an impossible act</td></tr>
+  <tr><td>Voidable Contract</td><td>Enforceable at option of one party (whose consent was not free)</td><td>Contract made under coercion or fraud</td></tr>
+  <tr><td>Unenforceable Agreement</td><td>Valid but cannot be enforced due to technical defect</td><td>Lack of required registration</td></tr>
+  <tr><td>Illegal Agreement</td><td>Consideration or object is unlawful — also void</td><td>Agreement to commit a crime</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Performance and Termination of Contracts</h3>
+<p>Parties must perform or offer to perform their promises unless excused by law. A contract ends by:</p>
+<ul>
+  <li><strong>By Performance:</strong> Both parties fulfill obligations</li>
+  <li><strong>By Mutual Consent:</strong> Parties agree to cancel or alter</li>
+  <li><strong>By Supervening Impossibility:</strong> Unforeseen event makes performance impossible (destruction of subject matter, change in law)</li>
+  <li><strong>By Lapse of Time:</strong> Not performed within specified/reasonable time</li>
+  <li><strong>By Operation of Law:</strong> Death, insolvency, or merger</li>
+  <li><strong>By Breach of Contract:</strong> One party fails to perform</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Breach of Contract</h3>
+<p>Breach = one party fails to perform, refuses to perform, or performs improperly without lawful excuse.</p>
+<div class="cmp">
+  <div class="cmp-box"><h5>Anticipatory Breach</h5><ul>
+    <li>Party declares <strong>in advance</strong> they will not perform, before the due date</li>
+    <li>Mode 1: Express refusal — "I will not deliver the chairs"</li>
+    <li>Mode 2: Implied repudiation — makes performance impossible by actions (e.g., selling goods promised to buyer to a third party)</li>
+    <li>Innocent party may sue immediately or wait until due date</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Actual Breach</h5><ul>
+    <li>Breach happens <strong>at or during</strong> the time of performance</li>
+    <li>At due date: fails to perform on the agreed date</li>
+    <li>During performance: starts but stops midway or performs improperly</li>
+    <li>Gives rise to remedies immediately</li>
+  </ul></div>
+</div>
+
+<h4>Remedies for Breach of Contract</h4>
+<div class="tbl"><table>
+  <tr><th>Remedy</th><th>What it means</th><th>Example</th></tr>
+  <tr><td>Rescission</td><td>Aggrieved party freed from obligations; contract cancelled</td><td>Buyer cancels order after seller breaches</td></tr>
+  <tr><td>Compensatory / Ordinary Damages</td><td>Compensates for direct and natural loss arising from breach</td><td>A agrees to sell goods for 10,000 Tk; B buys elsewhere for 12,000 → damages = 2,000</td></tr>
+  <tr><td>Special Damages</td><td>For unusual losses known to both parties at time of contract</td><td>Machine sent for repair; repairer knew delay stops production → lost profit = special damages</td></tr>
+  <tr><td>Exemplary / Punitive Damages</td><td>To punish wrongdoer, not compensate (exceptional cases only)</td><td>Landlord illegally cuts utilities to force tenant out</td></tr>
+  <tr><td>Nominal Damages</td><td>Breach proved but no actual financial loss — small symbolic amount</td><td>Goods delivered one day late; no financial loss → Tk 100 nominal</td></tr>
+  <tr><td>Liquidated Damages</td><td>Pre-agreed fixed amount in contract payable on breach</td><td>"5,000 Tk per day of delay" — 3 days late → 15,000 Tk</td></tr>
+  <tr><td>Quantum Meruit</td><td>Payment for work already done before breach</td><td>Builder completes half the house; client breaches → paid for work done</td></tr>
+  <tr><td>Specific Performance</td><td>Court orders breaching party to perform the contract</td><td>Seller ordered to actually transfer unique property</td></tr>
+  <tr><td>Injunction</td><td>Court order restraining a party from doing a particular act</td><td>Singer contracted exclusively ordered not to perform elsewhere</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- AGENCY -->
+<div class="ch" id="agency">
+<div class="ch-head contract"><span class="ch-badge contract">AGENCY</span><h2>The Law of Agency</h2></div>
+
+<div class="sec">
+<h3>Definition and Creation</h3>
+<div class="def">An "agent" is a person employed to do any act for another or to represent another in dealings with third persons. The person for whom the act is done is the "principal."</div>
+<ul>
+  <li>Any adult of sound mind can appoint an agent</li>
+  <li>Any person can be an agent (even minors — but cannot be held liable to principal)</li>
+  <li><span class="hl">No consideration necessary</span> to create agency</li>
+  <li>Authority can be <strong>express</strong> (clearly stated) or <strong>implied</strong> (from conduct/circumstances)</li>
+  <li>Created by: express/implied agreement, ratification, estoppel, or necessity</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Agent's Authority and Duties</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Agent's Duties to Principal</h5><ul>
+    <li>Conduct business per principal's instructions; if none — per custom of trade</li>
+    <li>Act with reasonable skill and diligence</li>
+    <li>Render proper accounts</li>
+    <li>Communicate with the principal</li>
+    <li>Not to delegate (unless authorized — sub-agents)</li>
+    <li>Pay over all money received on principal's behalf</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Principal's Duties to Agent</h5><ul>
+    <li>Indemnify agent for all lawful acts done in good faith</li>
+    <li>Pay agreed remuneration</li>
+    <li>No remuneration if agent guilty of misconduct</li>
+    <li>Compensate agent for injury caused by employer's negligence</li>
+    <li>No protection for agents doing illegal acts (e.g., bribery)</li>
+  </ul></div>
+</div>
+<div class="note">In an emergency, an agent can do anything necessary to protect the principal from loss — like any careful person would do for themselves.</div>
+</div>
+
+<div class="sec">
+<h3>Sub-agents vs Substitutes</h3>
+<ul>
+  <li><strong>Sub-agent:</strong> Agent hires someone under them. Principal is responsible to third parties for sub-agent's acts. Agent is responsible to principal for sub-agent's acts. Sub-agent is NOT directly responsible to principal (unless fraud/intentional wrongdoing).</li>
+  <li><strong>Substitute (co-agent):</strong> When agent has authority to appoint another, that person becomes a direct agent of the principal — NOT a sub-agent.</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Termination of Agency</h3>
+<p>Agency is terminated by:</p>
+<ul>
+  <li>Principal revoking the agent's authority</li>
+  <li>Agent renouncing the business</li>
+  <li>Completion of the business</li>
+  <li>Death or insanity of either party</li>
+  <li>Principal declared bankrupt/insolvent</li>
+</ul>
+<p>When principal dies or becomes insane, agent must take all reasonable steps to protect and preserve the business/property on behalf of legal heirs.</p>
+</div>
+</div>
+
+<!-- INDEMNITY & GUARANTEE -->
+<div class="ch" id="indem">
+<div class="ch-head contract"><span class="ch-badge contract">INDEMNITY &amp; GUARANTEE</span><h2>Indemnity, Guarantee</h2></div>
+
+<div class="sec">
+<h3>Contract of Indemnity</h3>
+<div class="def">A contract where one party (indemnifier) promises to save the other (indemnity-holder) from loss caused by the conduct of the promisor or any other person.</div>
+<ul>
+  <li>Parties: <strong>Indemnifier</strong> (promises to compensate) and <strong>Indemnity-holder</strong> (to be protected)</li>
+  <li>Example: Insurance contracts (except life insurance) are contracts of indemnity</li>
+  <li><strong>Express indemnity:</strong> Explicitly promised in contract</li>
+  <li><strong>Implied indemnity:</strong> Inferred from conduct/circumstances (e.g., employer must indemnify employee who follows employer's instructions and causes accidental harm)</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Contract of Guarantee</h3>
+<div class="def">A contract to perform the promise or discharge the liability of a third person (principal debtor) in case of their default.</div>
+<ul>
+  <li><strong>Parties:</strong> Surety/Guarantor (X), Principal Debtor (Y), Creditor (Z)</li>
+  <li>Surety's liability is <span class="hl">co-extensive</span> with that of the principal debtor</li>
+  <li>A guarantee is a <strong>tripartite agreement</strong> — three contracts in one:
+    <ol>
+      <li>Contract between Creditor and Principal Debtor (main debt)</li>
+      <li>Contract between Creditor and Surety (guarantee promise)</li>
+      <li>Implied contract between Principal Debtor and Surety (debtor will indemnify surety if surety pays)</li>
+    </ol>
+  </li>
+</ul>
+<div class="cmp">
+  <div class="cmp-box"><h5>Specific Guarantee</h5><ul>
+    <li>For a <strong>single specific transaction</strong></li>
+    <li>Ends automatically when that transaction is completed</li>
+    <li>Example: B guarantees A's one-time loan of 100,000 Tk</li>
+    <li>Once loan is repaid, B's liability ends completely</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Continuing Guarantee</h5><ul>
+    <li>Extends to a <strong>series of transactions</strong></li>
+    <li>Remains in force until revoked</li>
+    <li>Example: B guarantees all goods supplied to A on credit up to 500,000 Tk</li>
+    <li>Liability continues until limit reached or guarantee revoked</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- BAILMENT & PLEDGE -->
+<div class="ch" id="bail">
+<div class="ch-head contract"><span class="ch-badge contract">BAILMENT &amp; PLEDGE</span><h2>Bailment and Pledge</h2></div>
+
+<div class="sec">
+<h3>Bailment</h3>
+<div class="def">The temporary transfer of goods from one party (Bailor) to another (Bailee) under a contract, with the condition that goods will be returned or handled as directed once the purpose is fulfilled.</div>
+<ul>
+  <li>Example: Leaving your car at a garage for repair</li>
+  <li>Bailee must take care of the goods as a person of ordinary prudence would</li>
+  <li>Bailee must return goods when purpose is accomplished</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Pledge</h3>
+<div class="def">A special type of bailment where goods are delivered as security for payment of a debt or performance of a promise.</div>
+<ul>
+  <li><strong>Pledgor:</strong> Person who delivers goods (borrower)</li>
+  <li><strong>Pledgee:</strong> Person to whom goods are delivered (lender)</li>
+  <li>Example: Pledging jewelry with a lender to secure a loan</li>
+  <li>Pledgee can sell pledged goods if pledgor defaults — after reasonable notice</li>
+</ul>
+<div class="cmp">
+  <div class="cmp-box"><h5>Bailment vs Pledge</h5><ul>
+    <li>Both involve transfer of goods</li>
+    <li>Bailment: for safekeeping, repair, transport, or use</li>
+    <li>Pledge: specifically as <strong>security</strong> for a debt</li>
+    <li>Pledge: pledgee can sell on default; bailee cannot</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Indemnity vs Guarantee</h5><ul>
+    <li>Indemnity: <strong>2 parties</strong> — indemnifier protects indemnity-holder from loss</li>
+    <li>Guarantee: <strong>3 parties</strong> — surety guarantees debtor's obligation to creditor</li>
+    <li>Indemnity: primary liability of indemnifier</li>
+    <li>Guarantee: surety's liability is secondary (arises only on debtor's default)</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- ══════════ COMPANY ACT ══════════ -->
+<div class="part-divider"><span class="part-label company">COMPANY ACT, 1994 — Q2 (1 of 2)</span></div>
+
+<div class="ch" id="company">
+<div class="ch-head company"><span class="ch-badge company">COMPANY ACT</span><h2>Formation, Incorporation &amp; Documents</h2></div>
+
+<div class="sec">
+<h3>Formation of a Company</h3>
+<div class="tbl"><table>
+  <tr><th>Type</th><th>Minimum People</th><th>Liability</th><th>Use</th></tr>
+  <tr><td>Public Company</td><td>7 or more</td><td>Limited by shares (most common)</td><td>Large businesses, listed on stock exchange</td></tr>
+  <tr><td>Private Company</td><td>2 or more</td><td>Limited by shares or guarantee</td><td>Small businesses, family companies</td></tr>
+  <tr><td>Limited by Shares</td><td>—</td><td>Only unpaid amount on shares</td><td>Startups, commercial companies</td></tr>
+  <tr><td>Limited by Guarantee</td><td>—</td><td>Fixed agreed amount on winding up</td><td>Non-profits, NGOs, clubs</td></tr>
+  <tr><td>Unlimited Company</td><td>—</td><td>No limit — personal assets at risk</td><td>Very rare today</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Memorandum of Association (MoA)</h3>
+<p>The MoA is the constitution of the company — defines its relationship with the outside world. Requirements for company limited by shares:</p>
+<ol>
+  <li>Name of company (must end with <strong>"Limited"</strong>)</li>
+  <li>Registered office address</li>
+  <li>Objectives (purpose of the company)</li>
+  <li>Statement that member liability is limited</li>
+  <li>Amount of share capital and division into shares</li>
+</ol>
+<ul>
+  <li>Must be <strong>printed, divided into numbered paragraphs, signed</strong> by each subscriber in front of two attesting witnesses</li>
+  <li>Alteration of objects clause: requires special resolution + court consent</li>
+  <li>Permitted reasons for alteration: efficiency, new/improved methods, expanding area, fitting new business, restricting objectives, disposing of business, amalgamation</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Articles of Association (AoA)</h3>
+<ul>
+  <li>Internal rulebook — regulates day-to-day management</li>
+  <li>Mandatory for: companies limited by guarantee, unlimited companies</li>
+  <li>Optional for: companies limited by shares</li>
+  <li>Same formalities as MoA: printed, numbered, signed before witnesses</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Company Name Rules</h3>
+<ul>
+  <li>Cannot use same or deceptively similar name as existing company</li>
+  <li>If accidentally registered with conflicting name → Registrar can order change within <strong>120 days</strong></li>
+  <li>Non-compliance fines: Company = Tk 500/day; Officers = Tk 100/day</li>
+  <li>Cannot use names of UN, WHO, or similar international organizations without permission</li>
+  <li>Change of name: requires special resolution + Registrar's written approval; then new certificate issued</li>
+  <li>Name must appear on: office frontage, company seal, all official documents and correspondence</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Shares and Share Capital</h3>
+<div class="cards">
+  <div class="card"><strong>Nature of Shares</strong><span>Shares are movable property. Each share distinguished by a unique number. Easily sold, gifted, or inherited.</span></div>
+  <div class="card"><strong>Alteration of Share Capital</strong><span>Company can: increase, consolidate, convert to stock, subdivide, or cancel unissued shares — by passing a resolution.</span></div>
+  <div class="card"><strong>Share Premium Account</strong><span>If shares issued above face value, the excess is share premium — kept in a special account, treated like paid-up capital. Used for: bonus shares, writing off startup costs, redemption premium.</span></div>
+  <div class="card"><strong>Own Share Restriction</strong><span>Company CANNOT buy its own shares or give loans/guarantees for buying its own shares (except through legal capital reduction process).</span></div>
+  <div class="card"><strong>Reduction of Share Capital</strong><span>Can cancel unpaid liability, write off lost capital, or return excess capital — with court approval + memorandum update.</span></div>
+  <div class="card"><strong>Member Definition</strong><span>Every subscriber of MoA is automatically a member. Others become members when their name enters the register of members.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Meetings</h3>
+<div class="tbl"><table>
+  <tr><th>Meeting Type</th><th>When</th><th>Notice Required</th><th>Key Rules</th></tr>
+  <tr><td>Annual General Meeting (AGM)</td><td>Once a year; not more than 15 months apart</td><td>14 days' written notice</td><td>First AGM within 18 months of incorporation. Penalty for default: Tk 10,000 + Tk 250/day</td></tr>
+  <tr><td>Statutory Meeting</td><td>Once, within 1–6 months of starting business</td><td>21 days (report sent to members)</td><td>Only public companies. Directors prepare Statutory Report; certified by 2 directors + auditors. Not applicable to private companies.</td></tr>
+  <tr><td>Extraordinary General Meeting (EGM)</td><td>When urgent decisions needed outside schedule</td><td>21 days (or shorter with 95% consent)</td><td>Shareholders with ≥1/10 of share capital can demand. If directors don't call within 21 days of demand, shareholders can call it (within 3 months). Costs reimbursed by company.</td></tr>
+</table></div>
+<h4>Resolutions</h4>
+<div class="cmp">
+  <div class="cmp-box"><h5>Ordinary Resolution</h5><ul>
+    <li>Simple majority (more than 50%)</li>
+    <li>Routine business decisions</li>
+    <li>e.g., appointing replacement director after removal</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Extraordinary / Special Resolution</h5><ul>
+    <li>At least <strong>75% majority</strong> (3 out of 4 members)</li>
+    <li>Special resolution: requires 21 days' notice</li>
+    <li>Used for: major changes (altering AoA, winding up, capital reduction)</li>
+  </ul></div>
+</div>
+</div>
+</div>
+
+<!-- DIRECTORS -->
+<div class="ch" id="directors">
+<div class="ch-head company"><span class="ch-badge company">DIRECTORS</span><h2>Directors — Appointment, Qualifications, Removal</h2></div>
+
+<div class="sec">
+<h3>Number of Directors</h3>
+<ul>
+  <li>Public companies (and private subsidiaries of public companies): minimum <strong>3 directors</strong></li>
+  <li>Other private companies: minimum <strong>2 directors</strong></li>
+  <li>Only natural persons (human beings) can be directors</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Appointment, Qualification &amp; Disqualification</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>Appointment</h5><ul>
+    <li>First directors = subscribers of MoA (act until official directors appointed)</li>
+    <li>Elected by members at general meeting from among members</li>
+    <li>In public companies: at least 1/3 of directors must be rotatable (can be retired and re-elected)</li>
+  </ul></div>
+  <div class="cmp-box"><h5>Disqualifications</h5><ul>
+    <li>Declared of unsound mind by court</li>
+    <li>Undischarged insolvent</li>
+    <li>Insolvency petition pending</li>
+    <li>Call on shares unpaid for 6+ months</li>
+    <li>Minor (under 18)</li>
+    <li>Company may add extra disqualifications via articles</li>
+  </ul></div>
+</div>
+<h4>Qualification Shares</h4>
+<p>Every director must hold a specified number of shares (qualification shares) as stated in the articles. If not already held, must be acquired within <strong>60 days</strong> of appointment.</p>
+</div>
+
+<div class="sec">
+<h3>Removal &amp; Managing Director Rules</h3>
+<ul>
+  <li><strong>Removal:</strong> By extraordinary resolution (75% vote) before term expires. Removed director cannot be re-appointed by the Board. Replacement appointed by ordinary resolution.</li>
+  <li><strong>Loans to Directors:</strong> Company cannot give loans/guarantees to its own directors, their firms, or their associated companies. Exception: if board approves, general meeting approves, disclosed in balance sheet. Even then: total loan ≤ 50% of director's own shares.</li>
+  <li><strong>Managing Director restrictions:</strong> Cannot be MD of more than one company (without government approval). Cannot appoint without general meeting approval. Maximum appointment period: <strong>5 years at a time</strong>.</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Prospectus and Auditors</h3>
+<ul>
+  <li><strong>Prospectus:</strong> Formal legal document when offering shares to public. Must include: business activities, securities offered, purpose of funds, management details, risk factors. Penalty for untrue statements: imprisonment up to 2 years, or fine up to Tk 5,000, or both.</li>
+  <li><strong>Auditors:</strong> Appointed at every AGM to serve until next AGM. Company informs auditor within 7 days; auditor tells Registrar within 30 days of acceptance/refusal. Government can also appoint auditors.</li>
+  <li><strong>Registered Office:</strong> Must be established from day of starting business or within 28 days of incorporation. Notify Registrar within 28 days of any address change. Penalty: Tk 200/day.</li>
+</ul>
+</div>
+</div>
+
+<!-- WINDING UP -->
+<div class="ch" id="winding">
+<div class="ch-head company"><span class="ch-badge company">WINDING UP</span><h2>Winding Up of a Company</h2></div>
+
+<div class="sec">
+<h3>Three Modes of Winding Up</h3>
+<div class="cards">
+  <div class="card"><strong>1. By the Court</strong><span>Court orders company to close — for non-payment of debts, statutory failures, inactivity, few members, or if just and equitable.</span></div>
+  <div class="card"><strong>2. Voluntarily</strong><span>Company itself decides to close — by passing a special resolution or extraordinary resolution when debts make continuation impossible.</span></div>
+  <div class="card"><strong>3. Under Court Supervision</strong><span>Company starts voluntary winding up, but court monitors to ensure proper process.</span></div>
+</div>
+
+<h4>Grounds for Winding Up by Court (Section 241)</h4>
+<ol>
+  <li>Company passes special resolution to be wound up by court</li>
+  <li>Failed to file statutory report or hold statutory meeting</li>
+  <li>Doesn't start business within 1 year of formation, or stops business for 1 year</li>
+  <li>Members fall below 2 (private) or 7 (public company)</li>
+  <li>Cannot pay its debts</li>
+  <li>Just and equitable (fraud, mismanagement, deadlock)</li>
+</ol>
+
+<h4>Company Unable to Pay Debts</h4>
+<ul>
+  <li>Creditor owed more than <strong>Tk 500</strong> sends formal written demand to registered office</li>
+  <li>Company fails to pay or arrange payment within <strong>3 weeks</strong> → deemed unable to pay</li>
+  <li>OR: court decree to recover debt fails to produce payment</li>
+</ul>
+
+<h4>Preferential Payments (Order of Priority in Winding Up)</h4>
+<ol>
+  <li>Taxes, rates, fees owed to government/local authorities (last 12 months)</li>
+  <li>Salaries of clerks/staff for last 2 months (max Tk 1,000 each)</li>
+  <li>Wages of laborers/workers for last 2 months (max Tk 500 each)</li>
+  <li>Workmen's compensation for death/disability</li>
+  <li>Investigation expenses related to winding up</li>
+</ol>
+<div class="tip">Preferential debts rank equally among themselves and share proportionally if assets insufficient. They have priority over debenture holders with floating charges.</div>
+</div>
+</div>
+
+<!-- ══════════ LABOUR ACT ══════════ -->
+<div class="part-divider"><span class="part-label labor">LABOUR ACT, 2006 — Q3 &amp; Q4 (No Option, 28 marks total)</span></div>
+
+<div class="ch" id="workers">
+<div class="ch-head labor"><span class="ch-badge labor">LABOUR ACT</span><h2>Workers — Classification, Employment &amp; Termination</h2></div>
+
+<div class="sec">
+<h3>Classification of Workers (7 Types)</h3>
+<div class="cards">
+  <div class="card"><strong>Apprentice</strong><span>Trainees learning the job — paid allowances during training period. Not regular employees.</span></div>
+  <div class="card"><strong>Substitute</strong><span>Temporary fill-ins for absent permanent or probationary workers.</span></div>
+  <div class="card"><strong>Casual</strong><span>Hired on ad-hoc basis for short, casual tasks. No guarantee of continued work.</span></div>
+  <div class="card"><strong>Temporary</strong><span>Hired for limited-duration jobs. Work ends when the temporary project/need ends.</span></div>
+  <div class="card"><strong>Probationer</strong><span>Doing a permanent job but still in trial period. Clerical: 6 months. Others: 3 months (extendable 3 months for skilled workers).</span></div>
+  <div class="card"><strong>Permanent</strong><span>Hired permanently, or those who successfully complete probation. Even without confirmation letter, become permanent after probation ends.</span></div>
+  <div class="card"><strong>Seasonal</strong><span>Hired only during specific work seasons (e.g., harvest time, sugar mill season).</span></div>
+</div>
+<div class="note">Service Book: Every employer must provide one free of cost. Employer keeps it safe. Worker gets it back when leaving. Does NOT apply to apprentices, substitutes, or casual workers.</div>
+</div>
+
+<div class="sec">
+<h3>Termination of Employment</h3>
+<div class="tbl"><table>
+  <tr><th>Situation</th><th>Notice Required</th><th>Compensation</th></tr>
+  <tr><td>Termination by employer (permanent worker, monthly-rated)</td><td>120 days written notice OR pay in lieu</td><td>30 days' wages per year of service, or gratuity, whichever higher</td></tr>
+  <tr><td>Termination by employer (permanent worker, others)</td><td>60 days written notice OR pay in lieu</td><td>30 days' wages per year of service, or gratuity, whichever higher</td></tr>
+  <tr><td>Termination by employer (temporary worker, monthly)</td><td>30 days' notice</td><td>—</td></tr>
+  <tr><td>Termination by employer (temporary, others)</td><td>14 days' notice</td><td>—</td></tr>
+  <tr><td>Resignation by worker (permanent)</td><td>60 days' written notice OR pay in lieu</td><td>14 days/year (5–10 yrs service); 30 days/year (10+ yrs service) or gratuity</td></tr>
+  <tr><td>Retrenchment (redundancy)</td><td>1 month written notice (or pay in lieu); notify Inspector General and union</td><td>30 days' wages per completed year, or gratuity, whichever higher</td></tr>
+  <tr><td>Discharge (ill health/incapacity)</td><td>Medical certificate required</td><td>30 days' wages per year (1+ yr service) or gratuity</td></tr>
+  <tr><td>Dismissal (misconduct/conviction)</td><td>No notice required</td><td>No compensation</td></tr>
+  <tr><td>Lay-off compensation</td><td>Worker laid off for business reasons</td><td>Half of (basic + DA + interim wages) + full housing allowance per lay-off day; max 45 days/year</td></tr>
+  <tr><td>Death during service (2+ yrs)</td><td>—</td><td>45 days' wages/year if death during work; 30 days/year if not during work</td></tr>
+</table></div>
+<div class="note">Retirement: Automatic at age 60. Date of birth in service book is final proof. Can be rehired on contractual basis after retirement.</div>
+</div>
+
+<div class="sec">
+<h3>Misconduct, Discipline &amp; Punishment</h3>
+<p>A worker can be immediately dismissed without notice for: conviction of criminal offence, or serious misconduct.</p>
+<h4>What is Misconduct?</h4>
+<ul>
+  <li>Disobedience of lawful orders</li>
+  <li>Theft, fraud, or dishonesty with employer's property</li>
+  <li>Bribery; long unauthorized absence; habitual late attendance</li>
+  <li>Breaking rules repeatedly; violence, arson, property damage</li>
+  <li>Negligence; falsifying official records</li>
+</ul>
+<h4>Alternative Punishments (lighter than dismissal)</h4>
+<ul>
+  <li>Removal from service; demotion (up to 1 year); stopping promotion (up to 1 year)</li>
+  <li>Withholding salary increment (up to 1 year); fines; suspension without pay (up to 7 days)</li>
+  <li>Censure or warning</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Child and Adolescent Employment</h3>
+<ul>
+  <li><strong>Strict ban:</strong> No child <span class="hl">below 14 years</span> can be employed in any job</li>
+  <li><strong>Adolescents (14–18):</strong> Can work only with fitness certificate from registered doctor</li>
+  <li><strong>Exceptions:</strong> Rules do not apply to apprenticeship or vocational training</li>
+  <li><strong>Parents:</strong> Cannot make agreements to employ their child in any work</li>
+  <li><strong>Working hours for adolescents:</strong> Max 5 hrs/day and 30 hrs/week (factories/mines); 7 hrs/day and 42 hrs/week (other workplaces)</li>
+  <li><strong>No night work:</strong> Cannot work between 7:00 PM and 7:00 AM</li>
+  <li><strong>Max 2 shifts/day;</strong> each shift ≤ 7.5 hours; not allowed to work at more than one place per day</li>
+</ul>
+</div>
+</div>
+
+<!-- WORKPLACE SAFETY -->
+<div class="ch" id="workplace">
+<div class="ch-head labor"><span class="ch-badge labor">WORKPLACE</span><h2>Workplace Safety, Health &amp; Hygiene</h2></div>
+
+<div class="sec">
+<h3>Cleanliness, Ventilation &amp; Environment</h3>
+<div class="tbl"><table>
+  <tr><th>Section</th><th>Requirement</th><th>Key Specifics</th></tr>
+  <tr><td>Cleanliness (S.51)</td><td>Daily sweeping of floors, stairs, hallways</td><td>Weekly washing of workroom floors; walls repainted every 3 years or washed every 14 months; records kept in register</td></tr>
+  <tr><td>Ventilation &amp; Temperature (S.52)</td><td>Fresh air circulation + comfortable temperature</td><td>Walls/roofs designed to keep cool; government can order whitewashing, insulation, etc.</td></tr>
+  <tr><td>Dust &amp; Fumes (S.53)</td><td>Prevent buildup of harmful dust/fumes</td><td>Exhaust systems at production point; no internal combustion engines without vented exhaust; enclose sources</td></tr>
+  <tr><td>Overcrowding (S.56)</td><td>No overcrowding harmful to health</td><td>Minimum 9.5 cubic metres per worker; extra height above 4.25m not counted; Inspector can order capacity signs</td></tr>
+  <tr><td>Lighting (S.57)</td><td>Adequate natural/artificial lighting</td><td>Glass windows kept clean both sides; prevent glare and eye-strain shadows</td></tr>
+  <tr><td>Drinking Water (S.58)</td><td>Clean potable water clearly marked in Bangla</td><td>250+ workers → cooling needed in summer; provide ORS near hot machinery</td></tr>
+  <tr><td>Toilets (S.59)</td><td>Enough toilets in convenient locations</td><td>Separate for male and female; well-lit, ventilated, always clean</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Machinery Safety</h3>
+<div class="cards">
+  <div class="card"><strong>Fencing of Machinery (S.63)</strong><span>ALL moving/dangerous parts must be securely fenced with strong guards. Includes fly wheels, gears, shafts, spindles, belts, and transmission machinery.</span></div>
+  <div class="card"><strong>New Machinery (S.67)</strong><span>Power-driven machines installed after the Act must have safety covers. Set screws, revolving shafts, gears must be sunken, covered, or otherwise protected.</span></div>
+  <div class="card"><strong>Cranes &amp; Lifting Machinery (S.68)</strong><span>Well-built, properly maintained, expert inspection at least once a year (recorded in register). Never exceed marked safe load. Crane must stay ≥6 metres from workers on track.</span></div>
+  <div class="card"><strong>Hoists &amp; Lifts (S.69)</strong><span>Inspected by expert every 6 months. Max load clearly displayed. Automatic safety locks on gates. At least two ropes/chains for passenger lifts (each holding full load).</span></div>
+  <div class="card"><strong>Floors, Stairs &amp; Passages (S.72)</strong><span>Strong, safe, well-maintained. Railings where needed. All paths free of obstacles. Employers can use CCTV for monitoring.</span></div>
+  <div class="card"><strong>Pits &amp; Tanks (S.73)</strong><span>Any pit, sump, or tunnel mouth that is dangerous due to depth or contents must be securely covered or fenced.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Fire Safety, Hazardous Fumes &amp; First Aid</h3>
+<div class="tbl"><table>
+  <tr><th>Section</th><th>Requirement</th><th>Key Details</th></tr>
+  <tr><td>Fire Precautions (S.62)</td><td>Safe exits, alternate staircases, firefighting equipment</td><td>Exit doors open outward, clearly marked in red Bangla. Alarm whistle required. 50+ workers → fire drill every 6 months (records kept)</td></tr>
+  <tr><td>Dangerous Fumes (S.77)</td><td>Confined spaces must be safe before entry</td><td>Safe exit, tested for fumes, proper breathing equipment and ropes; low-voltage lights only; cooling before entry</td></tr>
+  <tr><td>Explosive/Flammable Gas (S.78)</td><td>All possible steps to prevent explosions/fires</td><td>Enclose machinery; remove dust/gas buildup; stop gas flow before opening machinery; no heat welding near explosive materials without clearance</td></tr>
+  <tr><td>First Aid (S.89)</td><td>First-aid boxes with prescribed supplies</td><td>1 box per 150 workers. Trained first-aid person on duty with badge. 300+ workers → sick room with medical staff. 5,000+ workers → permanent medical center. 500+ workers → welfare officer</td></tr>
+  <tr><td>Safety of Building/Machinery (S.61)</td><td>Inspector can order repairs if dangerous</td><td>Immediate stop-use order for serious/immediate danger</td></tr>
+</table></div>
+</div>
+
+<div class="sec">
+<h3>Welfare Facilities</h3>
+<div class="tbl"><table>
+  <tr><th>Facility</th><th>Threshold</th><th>Key Requirements</th></tr>
+  <tr><td>Canteen (S.92)</td><td>100+ workers</td><td>Managing committee with worker representatives. Committee decides food menu and prices.</td></tr>
+  <tr><td>Dining Room (S.93)</td><td>25+ workers</td><td>Well-lit, ventilated, clean. Workers cannot eat in work areas if dining room available.</td></tr>
+  <tr><td>Children's Room (S.94)</td><td>40+ female workers</td><td>For children under 6. Room height ≥360 cm; 600 sq cm per child; cot/cradle for each child; trained female caretaker; fenced outdoor playground.</td></tr>
+  <tr><td>Washing Facilities (S.91)</td><td>All workplaces</td><td>Separate and screened for male and female workers.</td></tr>
+  <tr><td>Group Insurance (S.99)</td><td>100+ permanent workers</td><td>Employer must establish group insurance. Insurance claim settled within 120 days. Death: family receives directly.</td></tr>
+  <tr><td>Employer Compensation (S.150)</td><td>Work-related accidents</td><td>Employer MUST pay compensation for accidents arising out of or during work. NOT liable if injury due to drunkenness, willful disobedience of safety rules, or deliberate removal of safety guards.</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- WAGES & LEAVE -->
+<div class="ch" id="wages">
+<div class="ch-head labor"><span class="ch-badge labor">WAGES &amp; LEAVE</span><h2>Working Hours, Wages, Leave &amp; Deductions</h2></div>
+
+<div class="sec">
+<h3>Working Hours</h3>
+<div class="tbl"><table>
+  <tr><th>Category</th><th>Daily Limit</th><th>Weekly Limit</th><th>Other Rules</th></tr>
+  <tr><td>Adult workers</td><td>8 hrs (up to 10 hrs under certain conditions)</td><td>48 hrs normally; up to 60 hrs with permission (yearly average ≤56 hrs)</td><td>—</td></tr>
+  <tr><td>Adolescents (factories/mines)</td><td>5 hours</td><td>30 hours</td><td>No night work (7 PM–7 AM); max 2 shifts/day; not at 2 workplaces same day</td></tr>
+  <tr><td>Adolescents (other)</td><td>7 hours</td><td>42 hours</td><td>—</td></tr>
+  <tr><td>Weekly holiday</td><td colspan="2">Shops/commercial: 1.5 days. Factories: 1 full day (24 hrs). Road transport: 1 full day</td><td>Wages not deducted for weekly holidays</td></tr>
+</table></div>
+<ul>
+  <li><strong>Rest intervals:</strong> 6+ hrs work → 1 hr break; 5+ hrs → 30-min break; 8+ hrs → 1-hr OR two 30-min breaks</li>
+  <li><strong>Overtime pay:</strong> 2× ordinary basic wage + DA + ad-hoc wages. Employer must keep a register of overtime hours.</li>
+  <li><strong>Women workers:</strong> Cannot be forced to work between <strong>10 PM and 6 AM</strong> without consent</li>
+  <li><strong>Double employment:</strong> Adult workers cannot work at more than one establishment per day without Inspector General's permission</li>
+  <li><strong>Shops must close:</strong> By 8 PM (customers already inside get 30 more minutes). Closed 1.5 days/week.</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Leave Entitlements</h3>
+<div class="tbl"><table>
+  <tr><th>Type of Leave</th><th>Entitlement</th><th>Key Rules</th></tr>
+  <tr><td>Casual Leave (S.115)</td><td>10 days/year with full pay</td><td>For unexpected situations. Cannot be carried forward. Not applicable to tea plantation workers.</td></tr>
+  <tr><td>Sick Leave (S.116)</td><td>14 days/year with full pay (general workers)</td><td>Medical certificate from registered doctor required. Cannot be carried forward.</td></tr>
+  <tr><td>Annual Leave (S.117)</td><td>1 day per 18 days worked (adult, shops/factories); 1 per 22 days (tea); 1 per 11 days (newspaper)</td><td>Must work continuously for 1 year to qualify. Unused leave can be carried forward. Max carryover: 40 days (factories) or 60 days (shops/tea).</td></tr>
+  <tr><td>Unused leave on exit</td><td>Paid in full on separation</td><td>Employer pays for all unused annual leave days at time of departure</td></tr>
+</table></div>
+
+<h4>Leave Application Procedure</h4>
+<ol>
+  <li>Worker applies in writing, stating address during leave</li>
+  <li>Employer replies within <strong>7 days</strong> of receiving application, or at least 2 days before leave starts (whichever is earlier)</li>
+  <li>Emergency (leave starting same day or within 3 days): employer replies same day</li>
+  <li>If approved → leave pass issued. If refused → reason stated before leave date, recorded in register</li>
+  <li>Extension: worker writes by registered post before current leave ends</li>
+</ol>
+</div>
+
+<div class="sec">
+<h3>Wages — Definition, Payment &amp; Deductions</h3>
+<h4>What Counts as Wages</h4>
+<ul>
+  <li>Regular payment from work (basic wages)</li>
+  <li>Bonuses or extra payments promised in contract</li>
+  <li>Payment for leave, holidays, or overtime</li>
+  <li>Payments ordered by court or labour agreements</li>
+  <li>Termination dues (on retirement, resignation, dismissal, etc.)</li>
+  <li>Lay-off or suspension pay</li>
+</ul>
+<h4>Payment Timing</h4>
+<ul>
+  <li>Regular wages: within <strong>7 working days</strong> after the end of each wage period</li>
+  <li>After separation (retirement/retrenchment/dismissal/resignation): within <strong>30 working days</strong></li>
+  <li>Must be paid on a working day</li>
+</ul>
+<h4>Permissible Deductions from Wages</h4>
+<ul>
+  <li>Fines (properly imposed); unauthorized absence; damage/loss due to negligence</li>
+  <li>House rent (company housing); approved facilities/services</li>
+  <li>Advance repayments; income tax; court orders; provident fund contributions</li>
+  <li>Cooperative society / insurance; voluntary welfare contributions (written consent)</li>
+  <li>Union subscriptions via check-off system</li>
+</ul>
+</div>
+</div>
+
+<!-- TRADE UNIONS -->
+<div class="ch" id="union">
+<div class="ch-head labor"><span class="ch-badge labor">TRADE UNIONS</span><h2>Trade Unions and Unfair Labour Practices</h2></div>
+
+<div class="sec">
+<h3>Right to Form Trade Unions</h3>
+<ul>
+  <li>Both <strong>workers and employers</strong> can form trade unions</li>
+  <li>Workers can form unions to: negotiate with employers, resolve disputes, join federations, affiliate with international organizations</li>
+  <li>Unions have freedom to make own constitution, elect own leaders, and organize activities independently</li>
+</ul>
+<h4>Trade Union in Group of Establishments</h4>
+<ul>
+  <li>Factories in same area and same industry must form one joint union (not separate unions)</li>
+  <li>A group must have at least <strong>20 workers total</strong></li>
+  <li>Minimum <strong>30% of all workers</strong> in the group must be members for registration</li>
+  <li>Non-employees can become union officers — but limited to max <strong>1/4 of total officers</strong></li>
+  <li>Industries that can form group unions regardless of size: road transport, garments (≤100 workers), tea industry, tannery, bidi, handloom, printing press, small hotels, cinema, shipbuilding, construction, rice mills</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Unfair Labour Practices</h3>
+<div class="cmp">
+  <div class="cmp-box"><h5>By Employers</h5><ul>
+    <li>Forcing workers not to join unions</li>
+    <li>Discriminating in hiring/firing based on union membership</li>
+    <li>Threatening workers for wanting to form/join unions</li>
+    <li>Bribing workers to leave unions (promotions, gifts)</li>
+    <li>Forcing union leaders to sign agreements under threats</li>
+    <li>Interfering in union elections</li>
+    <li>Hiring during legal strikes (without permission)</li>
+    <li>Ignoring Participation Committee recommendations</li>
+    <li>Not replying to official union communications</li>
+    <li>Unfairly transferring union leaders</li>
+    <li>Illegal lock-outs</li>
+  </ul></div>
+  <div class="cmp-box"><h5>By Workers</h5><ul>
+    <li>Doing union work during working hours without permission</li>
+    <li>Pressuring employers illegally</li>
+    <li>Intimidating workers to join or not join unions</li>
+    <li>Illegal strikes</li>
+    <li>Violence or damage to property during disputes</li>
+    <li>Refusing to comply with settlement agreements</li>
+  </ul></div>
+</div>
+<div class="note">Trade union registration can be cancelled if unfair labour practices prevail.</div>
+</div>
+</div>
+
+<!-- ══════════ SAFETY MANAGEMENT ══════════ -->
+<div class="part-divider"><span class="part-label safety">SAFETY MANAGEMENT — Q5 (1 of 2)</span></div>
+
+<div class="ch" id="hazard">
+<div class="ch-head safety"><span class="ch-badge safety">CH 2</span><h2>Industrial Hazard</h2></div>
+
+<div class="sec">
+<h3>Definition of Hazard</h3>
+<div class="def">Webster's: "A chance of being harmed or injured, or to expose to harm or danger." Comprehensive: "A hazard is any real potential condition or act that could cause damage to property, harm to environment, disrupt a process operation, or commence injury/death/prolong sickness — but has not yet done so."</div>
+<div class="code">Hazard → Accident → Loss of Life and Wealth → Discontinuity/Added Cost → Out of Business</div>
+</div>
+
+<div class="sec">
+<h3>5 Categories of Hazards</h3>
+<div class="cards">
+  <div class="card"><strong>Physical Hazards</strong><span>Equipment, machines, electricity, extreme heat/cold, humidity, noise, vibration, moving objects, radiation. Things physically present at the workplace.</span></div>
+  <div class="card"><strong>Chemical Hazards</strong><span>Raw materials, products, catalyst agents with dangerous properties: explosion, toxicity, corrosion, poisoning, irritation. Examples: acids, dyes, gasoline vapour, H₂S, SO₂, welding fumes.</span></div>
+  <div class="card"><strong>Biological Hazards</strong><span>Micro-organisms and metabolic products. Examples: bacteria, viruses, fungi, parasites from infected animals. Examples: Anthrax, Tuberculosis, HIV, Hepatitis B, Bird Flu.</span></div>
+  <div class="card"><strong>Psychosocial Hazards</strong><span>From working relationships or situational factors causing psychological/mental pressure. Examples: mental stress, monotony of work, fatigue, brain fag, irritation.</span></div>
+  <div class="card"><strong>Human Factors Failure</strong><span>From human faults and lagging. Examples: unsafe work practice, ergonomic errors (forceful movement, improper lifting), poor training, lack of communication, accident proneness.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Hazard Classification by Severity</h3>
+<div class="tbl"><table>
+  <tr><th>Category</th><th>Rating</th><th>Consequences</th></tr>
+  <tr><td>Catastrophic</td><td>20</td><td>Death, widespread severe illness, or loss of entire production operation</td></tr>
+  <tr><td>Critical</td><td>15</td><td>Death possible; serious injury (loss of eye/limb); illness requiring extensive treatment</td></tr>
+  <tr><td>Marginal</td><td>10</td><td>Minor injury (cuts, contusions); mild illness (headache, nausea); slight property damage</td></tr>
+  <tr><td>Negligible</td><td>3</td><td>No serious injury or illness; little/no property damage</td></tr>
+</table></div>
+
+<h4>Probability of Hazard Occurrence</h4>
+<div class="code">Frequent    (10) — likely to occur virtually every time
+Probable     (8) — likely to occur most of the time
+Occasional   (6) — likely to occur sometimes
+Remote       (4) — very unlikely chance of occurring
+Improbable   (2) — no chance of occurrence</div>
+
+<h4>Hazard Assessment Formula</h4>
+<div class="code">Rating Range = Hazard Category Rating × Frequency Rating
+
+Rating 100–200: UNACCEPTABLE — Design change/modification is a must
+Rating  60–90:  UNDESIRABLE — Design modification required
+Rating  20–50:  CONDITIONALLY ACCEPTABLE — May be accepted with some change
+Rating   6–18:  ACCEPTABLE — Accepted without review and change</div>
+</div>
+
+<div class="sec">
+<h3>Key Hazard Definitions</h3>
+<div class="tbl"><table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td>Hazard Rate (H)</td><td>Rate (occasions/year) at which hazards occur (e.g., pressure in vessel exceeds design pressure)</td></tr>
+  <tr><td>Protective System</td><td>Device to prevent hazard occurring (e.g., relief valve, high level trip)</td></tr>
+  <tr><td>Test Interval (T)</td><td>Time between successive tests of a protective system</td></tr>
+  <tr><td>Demand Rate (D)</td><td>Rate (occasions/year) at which a protective system is called on to act</td></tr>
+  <tr><td>Failure Rate (F)</td><td>Rate (occasions/year) at which protective system develops faults</td></tr>
+  <tr><td>Fractional Dead Time (FDT)</td><td>Fraction of time that protective system is inactive (probability it fails when needed)</td></tr>
+</table></div>
+<div class="code">Fractional Dead Time (FDT) = Failure Rate × Test Interval / 2
+Hazard Rate = Demand Rate × Fractional Dead Time
+
+Example 1: F = 0.1/yr, T = 1 yr, D = 10⁴/yr
+  FDT = 0.1 × 1 / 2 = 0.05
+  Hazard Rate = 10⁴ × 0.05 = 500/year
+
+Example 2: F = 0.5/yr, T = 1 week = 3.5/730 days, D = 1/yr
+  FDT = 3.5 / (2 × 365) = 0.005 (approximately)
+  Hazard Rate = 1 × 0.005 = once in 200 years</div>
+
+<h4>Three Types of Adverse Consequences</h4>
+<ul>
+  <li><strong>Human Impact:</strong> Personal injury, death, disablement, psychological effects</li>
+  <li><strong>Economic Impact:</strong> Loss of production, property damage, inventory loss, legal liability, image/goodwill loss</li>
+  <li><strong>Environmental Impact:</strong> Air pollution, water pollution, soil pollution</li>
+</ul>
+
+<h4>Steps for Hazard Control</h4>
+<ol>
+  <li>Hazard identification</li>
+  <li>Hazard inventory</li>
+  <li>Hazard ranking</li>
+  <li>Assessing probability of occurrence</li>
+  <li>Hazard rank assessment</li>
+  <li>Hazard elimination / reduction / control</li>
+</ol>
+</div>
+</div>
+
+<!-- SAFETY MANAGEMENT -->
+<div class="ch" id="safety">
+<div class="ch-head safety"><span class="ch-badge safety">CH 13</span><h2>Safety Management</h2></div>
+
+<div class="sec">
+<h3>Definitions</h3>
+<div class="def">Safety of a person: "The minimization of contact between human and hazard — predominantly concerned with prevention of physical harm (injury or death)."</div>
+<div class="def">Safety Management: "A concern for safe equipment, process and layout design, safe work methods design, recruitment and retaining of competent employees, promotion of safety awareness, education in safety at all levels, and managerial/financial support for moral and ethical responsibility."</div>
+</div>
+
+<div class="sec">
+<h3>Why Safety? — 6 Reasons</h3>
+<div class="cards">
+  <div class="card"><strong>a. Moral/Ethical Obligation</strong><span>Employers feel moral obligation to safeguard employees from hazards. Employees become integral part of organization.</span></div>
+  <div class="card"><strong>b. Legal Obligation</strong><span>Government laws and acts protect workers. Agencies impose rules, monitor activities, and can fine for unsafe practices.</span></div>
+  <div class="card"><strong>c. Financial Obligation</strong><span>Accidents incur medical costs, compensation, lost production, equipment damage. Prevention is cheaper than accidents.</span></div>
+  <div class="card"><strong>d. Corporate Reputation</strong><span>Safe operation ensures stability, peace in organization, and confidence to employees, customers, and stakeholders.</span></div>
+  <div class="card"><strong>e. Buyer's Requirement</strong><span>Some buyers (e.g., Western buyers for RMG) impose safe work conditions as purchasing requirement.</span></div>
+  <div class="card"><strong>f. Safety Promotes Productivity</strong><span>Safety enables: uninterrupted production, high morale, no unplanned shutdowns, better labor-management relations.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>6 Activities of Safety Management</h3>
+<ol>
+  <li><strong>Safe Equipment, Process and Layout Design</strong> — "Prevention is better than cure." During construction, 4 aspects studied by Project Management Team: plant layout, P&amp;I diagram, equipment/material specs, process chemistry, maintenance/fire protection.</li>
+  <li><strong>Safe Work Method Design</strong> — Safe work procedure for every job designed by specialists per standards, codes, vendor instructions. Supervisors ensure proper procedures are followed. "All technologies will be useless if we do not follow the norms."</li>
+  <li><strong>Recruiting and Retaining Competent Employees</strong> — Experienced manpower is the main asset. Productivity, efficiency, and safety depend on people's capacity and capability.</li>
+  <li><strong>Promotion of Safety Awareness</strong> — "People never plan to fail but usually fail to plan." Management must plan for safety at all levels. Safety committee (safety dept + specialist + workers' representative) for formulating regulations, performing audits.</li>
+  <li><strong>Education in Safety at All Levels</strong> — "People will make mistakes as they are not proper to be infallible." Training, proper selection of workers, educating about hazards — all improve safety management. Behaviour modification improves safety awareness.</li>
+  <li><strong>Managerial and Financial Support</strong> — Basic causes of accidents = poor management policies. Adequate budget allocation essential for effective safety program.</li>
+</ol>
+</div>
+
+<div class="sec">
+<h3>Safety Triangle and Safety Organization</h3>
+<div class="code">Frank E. Bird Jr. analysis of 1,753,498 accidents — ratio:
+         1   — Serious or disabling injury
+        10   — Minor injuries
+        30   — Property damage accidents
+       600   — Incidents with no visible injury or damage
+
+Lesson: By preventing minor incidents (600), you reduce chance of major accidents (1)</div>
+<h4>Elements of a Safety Management System (Pyramid)</h4>
+<ul>
+  <li>Leadership (top)</li>
+  <li>Resource Allocation</li>
+  <li>Line Responsibility</li>
+  <li>Training, Awareness &amp; Motivation (×2)</li>
+  <li>Continuous Improvement &amp; Practice (base)</li>
+</ul>
+<h4>Three Essential Elements of Employee Safety System</h4>
+<ul>
+  <li><strong>Physical:</strong> Safety equipment, tools, machines, facilities, personnel, office</li>
+  <li><strong>Managerial:</strong> Safety regulations, training, incentive plan</li>
+  <li><strong>Cultural:</strong> Safety practice at all levels, for all</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Business Profit vs Safety Investment (Four Stages)</h3>
+<div class="tbl"><table>
+  <tr><th>Zone</th><th>Stage</th><th>Meaning</th></tr>
+  <tr><td>A</td><td>Investment in Safety is Good Business</td><td>No safety measures yet. Early investment gives high return — prevents major accidents like plant blowup. Steep improvement in profitability.</td></tr>
+  <tr><td>B</td><td>Investment in Safety is Poor Business</td><td>Some safety in place. Further investment still gives return, but less steep. Some money comes back, not as much as before.</td></tr>
+  <tr><td>C</td><td>Safety is Bad Business But Good Humanity</td><td>So much spent that company doesn't expect material return. Safety becomes more important than profit. Prevention return doesn't cover investment.</td></tr>
+  <tr><td>D</td><td>Investment Results in Out of Business</td><td>So much spent on perfect safety that company has forgotten main goal — profit. Organization goes into closure.</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- PPE -->
+<div class="ch" id="ppe">
+<div class="ch-head safety"><span class="ch-badge safety">CH 20</span><h2>Personal Protective Equipment (PPE)</h2></div>
+
+<div class="sec">
+<h3>Types of PPE by Body Part</h3>
+<div class="tbl"><table>
+  <tr><th>PPE Type</th><th>Types/Examples</th><th>Key Notes</th></tr>
+  <tr><td>Eye Protection</td><td>Cover goggles, corrective lenses, protective spectacles, cup goggles, chemical goggles, dust goggles, miners' goggles, welders' goggles</td><td>Fitted close to eyes; no appreciable distortion; plastic lenses meet optical standards</td></tr>
+  <tr><td>Face Protection</td><td>Plastic face shields, metal screen face shields, babbitting helmets, welding helmets, acid hoods</td><td>Metal screen shields for blast furnace workers</td></tr>
+  <tr><td>Head Protection</td><td>Protective hats (laminated plastic, glass fiber, aluminum alloy)</td><td>Must be impact-resistant, fire-resistant, non-conductive. Laminated plastic: resistant to water and oil, poor electricity conductor. No conductive fittings through shell.</td></tr>
+  <tr><td>Ear Protection</td><td>Ear plugs, ear muffs</td><td>Reduces noise 20–40 dB at eardrum. Well-fitted plugs protect up to 115–120 dB. Selected by company physician.</td></tr>
+  <tr><td>Respiratory</td><td>Mechanical filter respirators, chemical cartridge respirators, gas masks with canisters, airline respirators, self-contained breathing apparatus</td><td>Mechanical filter: NOT for vapors/gases/lack of oxygen. Gas mask canister colors: Black=organic vapors; White=acid gases; Yellow=both; Green=ammonia; Blue=carbon monoxide</td></tr>
+  <tr><td>Hand &amp; Gloves</td><td>Asbestos (heat), metal mesh (cuts), rubber (electricity), rubber/neoprene/vinyl (chemicals), leather (sparks/heat), chrome-tanned cowhide (foundries), cotton/fabric, coated fabric</td><td>Rubber gloves tested regularly for resistance when used near high potentials</td></tr>
+  <tr><td>Foot Protection</td><td>Safety shoes with reinforced toes</td><td>Toe box must support 2500 lbs static load + 50-lb drop impact. Near explosives → conductive shoes. Electrical work → metal-free shoes. Women in industry: sturdy, no open-toe.</td></tr>
+  <tr><td>Leg Protection</td><td>Leggings from ankle to knee</td><td>Molten metals/sparks → asbestos or leather; acids/alkalies/hot water → rubber or plastic.</td></tr>
+  <tr><td>Safety Belts &amp; Harnesses</td><td>Normal use + emergency use</td><td>With lifelines attached. Normal: light stress during regular work. Emergency: stop a falling person (impact loading = many times body weight).</td></tr>
+  <tr><td>Life Lines</td><td>Manila hemp (¾ inch) or nylon (½ inch)</td><td>Nylon: more elastic, tough, high tensile strength. Steel cables: NOT for free falls; prohibited in electrical exposure.</td></tr>
+</table></div>
+</div>
+</div>
+
+<!-- OCCUPATIONAL HEALTH -->
+<div class="ch" id="occ">
+<div class="ch-head safety"><span class="ch-badge safety">CH 23</span><h2>Occupational Health Management</h2></div>
+
+<div class="sec">
+<h3>Definition (ILO/WHO, 1950)</h3>
+<div class="def">"Occupational health should aim at: the promotion and maintenance of the highest degree of physical, mental and social well-being of workers in all occupations; the prevention of departures from health caused by working conditions; the protection of workers from risks adverse to health; the placing and maintenance of the worker in an environment adapted to his physiological and psychological equipment."</div>
+<p>In short: keep work conditions such that workers do not fall to a legally compensable illness or are out of loss time or free from significant discomfort from working.</p>
+</div>
+
+<div class="sec">
+<h3>6 Aims of Occupational Health</h3>
+<div class="cards">
+  <div class="card"><strong>a. Communicable Disease Control</strong><span>TB, typhoid fever, viral hepatitis, amoebiasis, dengue, malaria, venereal diseases. Adequate immunization programs required.</span></div>
+  <div class="card"><strong>b. Environmental Sanitation</strong><span>Safe drinking water, hygienic food, sanitary toilets, plant cleanliness, sufficient space, proper lighting/aeration/humidity/temperature, housing if possible.</span></div>
+  <div class="card"><strong>c. Mental Health</strong><span>Promote happiness, detect emotional stress, provide treatment, rehabilitate those who become ill.</span></div>
+  <div class="card"><strong>d. Measures for Women &amp; Children</strong><span>Avoid tough/tedious work, restricted working hours, maternity leave and benefits.</span></div>
+  <div class="card"><strong>e. Health Education</strong><span>Basic health need. Envisaged at all levels: management, supervisory staff, workers, trade union leaders, community.</span></div>
+  <div class="card"><strong>f. Family Planning</strong><span>Recognized as decisive factor for quality of life. Workers must adopt small family norm.</span></div>
+</div>
+</div>
+
+<div class="sec">
+<h3>Prevention of Occupational Diseases — 3 Approaches</h3>
+<h4>a. Medical Measures</h4>
+<ul>
+  <li><strong>Pre-placement examination:</strong> Foundation of efficient occupational health service. Physical/pathological/radiological/ECG/vision tests. Recorded in personal file. May reject/place based on health condition.</li>
+  <li><strong>Periodic examination:</strong> Early detection of disease. Once a year typically. Frequency depends on type of occupational exposure.</li>
+  <li><strong>Medical &amp; health care:</strong> First aid within factory. Immunization. Company insurance scheme.</li>
+  <li><strong>Notification:</strong> Report health-related conditions to national authorities. Initiate prevention measures.</li>
+  <li><strong>Supervision of working environment:</strong> Periodic inspection — light, noise, temperature, sanitation, fatigue, shift-work.</li>
+  <li><strong>Maintenance of records:</strong> Health records including retired employees (long-term effect hazards).</li>
+  <li><strong>Health education &amp; counseling:</strong> Start before employee begins assignment. Charts, posters, organization magazine.</li>
+</ul>
+
+<h4>b. Engineering Measures</h4>
+<ul>
+  <li>Plant layout &amp; design: proper space, ventilation, lighting, machine guarding</li>
+  <li>Good housekeeping: clean, orderly workspace</li>
+  <li>General ventilation: minimum 5 sq ft opening + 500 cu ft air space per worker</li>
+  <li>Local exhaust ventilation: trap dusts/fumes at source before contaminating workspace</li>
+  <li>Mechanization and substitution: reduce hazard by mechanizing or replacing harmful material with harmless alternative</li>
+  <li>Isolation: separate critical/offensive operations in separate building</li>
+  <li>Protective devices: provide PPE to workers in hazardous environments</li>
+  <li>Statistical monitoring &amp; research: regular review of collected data on health and environmental exposure</li>
+</ul>
+
+<h4>c. Statutory/Legislative Measures</h4>
+<p>Factory laws established in every country to govern industry conditions and safeguard health/welfare. Most important factory laws in Bangladesh compiled as Bangladesh Labour Act 2006, originally from:</p>
+<ul>
+  <li>Factories Act, 1965; Factories Rules, 1979</li>
+  <li>Maternity Benefit Act 1939; Workmen's Compensation Act 1923</li>
+  <li>Children Act, Employment of 1938, Rules 1955</li>
+</ul>
+</div>
+
+<div class="sec">
+<h3>Five Activities of Industrial Medical Services</h3>
+<ol>
+  <li><strong>Health care &amp; emergency medical services:</strong> Treatment of sick/injured; first aid; annual checkup; vaccination</li>
+  <li><strong>Accident prevention:</strong> Pre-employment examination; identify hazards; keep sick persons from duty; fitness certificates</li>
+  <li><strong>Labour welfare:</strong> Health education, sanitation maintenance, canteen/facilities inspection</li>
+  <li><strong>Research &amp; data collection:</strong> Accident/sickness data; loss of earning capacity; disease control</li>
+</ol>
+</div>
+</div>
+
+</div><!-- /wrap -->
+<footer>Industrial Law &amp; Safety Management · Full Guide · AUST · Contract Act 1872 · Company Act 1994 · Labour Act 2006 · Safety Management</footer>
+</body>
+</html>
