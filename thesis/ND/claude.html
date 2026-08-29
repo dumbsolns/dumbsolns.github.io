@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Clinical Chart — Neurodevelopmental Disorders, DSM-5-TR</title>
+<style>
+  :root{
+    --paper:#FAF8F4;
+    --ink:#1B2430;
+    --ink-soft:#4A5568;
+    --teal:#1F7A70;
+    --amber:#B9711F;
+    --coral:#A94A32;
+    --slate:#5B6B7E;
+    --line:#DDD6C8;
+    --card:#FFFFFF;
+    --card-shadow: 0 1px 2px rgba(27,36,48,0.06), 0 4px 16px rgba(27,36,48,0.05);
+    --tab-id:#1F7A70;
+    --tab-comm:#3E4FA8;
+    --tab-asd:#A94A32;
+    --tab-adhd:#B9711F;
+    --tab-sld:#6C4F9E;
+    --tab-motor:#A3406E;
+    --tab-other:#5B6B7E;
+    --radius:14px;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  [data-theme="dark"]{
+    --paper:#12181F;
+    --ink:#EDEEF0;
+    --ink-soft:#B7C0CC;
+    --line:#2A333E;
+    --card:#1A222C;
+    --card-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    --teal:#4FBFB0;
+    --amber:#E3A75B;
+    --coral:#E28166;
+    --slate:#93A2B4;
+    --tab-id:#4FBFB0;
+    --tab-comm:#8B9AF0;
+    --tab-asd:#E28166;
+    --tab-adhd:#E3A75B;
+    --tab-sld:#B79EE0;
+    --tab-motor:#E08FB5;
+    --tab-other:#93A2B4;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    transition:background .25s ease, color .25s ease;
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+  a{color:inherit;}
+  h1,h2,h3,h4{font-family:var(--serif); font-weight:600; letter-spacing:-0.01em; margin:0 0 .5em;}
+  p{margin:0 0 1em;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* ===== Top bar ===== */
+  header.topbar{
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px; max-width:1180px; margin:0 auto;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--serif); font-size:1.05rem; font-weight:700;}
+  .brand .chip{
+    width:28px; height:28px; border-radius:7px;
+    background:linear-gradient(135deg, var(--teal), var(--coral));
+    display:inline-flex; align-items:center; justify-content:center;
+    color:white; font-family:var(--mono); font-size:.7rem; font-weight:700;
+  }
+  #themeToggle{
+    display:flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--line); color:var(--ink);
+    padding:7px 14px; border-radius:999px; cursor:pointer;
+    font-family:var(--sans); font-size:.85rem; font-weight:600;
+    box-shadow:var(--card-shadow);
+  }
+  #themeToggle:focus-visible, a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--teal); outline-offset:2px;
+  }
+
+  /* ===== Hero ===== */
+  .hero{padding:64px 0 40px; border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:var(--mono); text-transform:uppercase; letter-spacing:.14em;
+    font-size:.72rem; color:var(--slate); margin-bottom:14px; display:block;
+  }
+  .hero h1{font-size:clamp(2rem, 4.2vw, 3.1rem); max-width:16ch; margin-bottom:.3em;}
+  .hero .sub{font-size:1.08rem; color:var(--ink-soft); max-width:62ch;}
+  .hero .disclaimer{
+    margin-top:22px; padding:14px 16px; border-left:3px solid var(--amber);
+    background:color-mix(in srgb, var(--amber) 10%, var(--card));
+    border-radius:0 8px 8px 0; font-size:.88rem; color:var(--ink-soft);
+  }
+
+  /* ===== Layout: sidebar + content ===== */
+  .layout{display:grid; grid-template-columns:260px 1fr; gap:40px; padding:48px 0 80px; align-items:start;}
+  @media (max-width:900px){ .layout{grid-template-columns:1fr;} }
+
+  nav.toc{
+    position:sticky; top:78px;
+    border:1px solid var(--line); background:var(--card); border-radius:var(--radius);
+    padding:18px 16px; box-shadow:var(--card-shadow);
+  }
+  @media (max-width:900px){ nav.toc{position:static;} }
+  nav.toc h2{font-size:.72rem; font-family:var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--slate); margin-bottom:12px;}
+  nav.toc ol{list-style:none; margin:0; padding:0; counter-reset:tocnum;}
+  nav.toc li{margin-bottom:2px;}
+  nav.toc a{
+    display:flex; align-items:center; gap:10px;
+    text-decoration:none; font-size:.88rem; padding:7px 8px; border-radius:8px;
+    color:var(--ink-soft); border-left:3px solid transparent;
+  }
+  nav.toc a:hover{background:color-mix(in srgb, var(--ink) 5%, transparent); color:var(--ink);}
+  nav.toc a .dot{width:9px; height:9px; border-radius:50%; flex:none;}
+  nav.toc .toc-divider{height:1px; background:var(--line); margin:12px 0;}
+
+  main{min-width:0;}
+  section.block{margin-bottom:64px; scroll-margin-top:80px;}
+  section.block h2.section-title{font-size:1.5rem; display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .section-lede{color:var(--ink-soft); max-width:70ch; margin-bottom:24px;}
+
+  /* ===== Accordion (chart tabs) ===== */
+  .chart{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--card);
+    box-shadow:var(--card-shadow); overflow:hidden; margin-bottom:18px;
+    border-left:6px solid var(--tab-color, var(--teal));
+  }
+  .chart-head{
+    width:100%; text-align:left; background:transparent; border:none; cursor:pointer;
+    color:var(--ink); padding:20px 22px; display:flex; align-items:center; gap:16px;
+    font-family:var(--sans);
+  }
+  .chart-head .tabnum{
+    font-family:var(--mono); font-size:.75rem; color:var(--tab-color, var(--teal));
+    border:1px solid var(--tab-color, var(--teal)); border-radius:6px; padding:2px 7px; flex:none;
+  }
+  .chart-head .headtext{flex:1;}
+  .chart-head h3{font-size:1.18rem; margin:0 0 3px;}
+  .chart-head .headtext span{font-size:.85rem; color:var(--ink-soft); font-family:var(--sans);}
+  .chart-head .caret{transition:transform .25s ease; color:var(--slate); flex:none;}
+  .chart[data-open="true"] .caret{transform:rotate(180deg);}
+  .chart-body{
+    display:grid; grid-template-rows:0fr; transition:grid-template-rows .32s ease;
+  }
+  .chart[data-open="true"] .chart-body{grid-template-rows:1fr;}
+  .chart-body-inner{overflow:hidden;}
+  .chart-content{padding:0 22px 26px;}
+
+  h4.sub-h{
+    font-family:var(--sans); font-size:.75rem; text-transform:uppercase; letter-spacing:.09em;
+    color:var(--tab-color, var(--teal)); margin:26px 0 10px; display:flex; align-items:center; gap:8px;
+  }
+  h4.sub-h::before{content:""; width:16px; height:2px; background:var(--tab-color, var(--teal)); display:inline-block;}
+  .chart-content > h4.sub-h:first-child{margin-top:6px;}
+
+  /* ===== Stat boxes ===== */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin:10px 0 6px;}
+  .stat-box{
+    border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+    background:color-mix(in srgb, var(--tab-color, var(--teal)) 6%, var(--card));
+  }
+  .stat-box .num{font-family:var(--mono); font-size:1.3rem; font-weight:700; color:var(--tab-color, var(--teal)); display:block;}
+  .stat-box .lbl{font-size:.78rem; color:var(--ink-soft);}
+
+  /* ===== Tags ===== */
+  .tags{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 4px;}
+  .tag{
+    font-size:.78rem; padding:4px 11px; border-radius:999px; font-weight:600;
+    background:color-mix(in srgb, var(--tab-color, var(--teal)) 14%, var(--card));
+    color:var(--tab-color, var(--teal)); border:1px solid color-mix(in srgb, var(--tab-color, var(--teal)) 35%, transparent);
+  }
+  .tag.severity{background:color-mix(in srgb, var(--amber) 16%, var(--card)); color:var(--amber); border-color:color-mix(in srgb, var(--amber) 40%, transparent);}
+
+  /* ===== Tables ===== */
+  table{width:100%; border-collapse:collapse; margin:6px 0 8px; font-size:.92rem;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-family:var(--sans); font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--slate); font-weight:700;}
+  tbody tr:hover{background:color-mix(in srgb, var(--ink) 3%, transparent);}
+  .table-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:10px;}
+  .table-scroll table{margin:0;}
+  .table-scroll th:first-child, .table-scroll td:first-child{position:sticky; left:0; background:var(--card);}
+
+  ul.crit-list{margin:0 0 8px; padding-left:1.2em;}
+  ul.crit-list li{margin-bottom:6px;}
+  .callout{
+    border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:0 10px 10px 0;
+    background:color-mix(in srgb, var(--coral) 7%, var(--card)); padding:12px 16px; margin:10px 0; font-size:.92rem;
+  }
+  .callout b{color:var(--coral);}
+
+  /* ===== Standalone sections (comparison, comorbidity, toolbox) ===== */
+  .compare-wrap{border:1px solid var(--line); border-radius:var(--radius); background:var(--card); box-shadow:var(--card-shadow); padding:24px; margin-bottom:20px;}
+  .toolbox-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:16px; margin-top:18px;}
+  .tool-card{border:1px solid var(--line); border-radius:12px; padding:18px; background:var(--card); box-shadow:var(--card-shadow);}
+  .tool-card .icon{font-size:1.6rem; display:block; margin-bottom:8px;}
+  .tool-card h4{font-family:var(--sans); font-size:.95rem; margin-bottom:6px; color:var(--ink);}
+  .tool-card p{font-size:.87rem; color:var(--ink-soft); margin:0;}
+
+  footer{border-top:1px solid var(--line); padding:36px 0 60px; color:var(--slate); font-size:.85rem;}
+
+  ::selection{background:color-mix(in srgb, var(--teal) 30%, transparent);}
+</style>
+</head>
+<body data-theme="light">
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="chip">Dx</span> The Clinical Chart</div>
+    <button id="themeToggle" aria-label="Toggle dark and light mode">
+      <span id="themeIcon">🌙</span><span id="themeLabel">Dark mode</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">DSM-5-TR · Neurodevelopmental Disorders</span>
+    <h1>Seven branches, one developing brain.</h1>
+    <p class="sub">A comprehensive, compassionate clinical field guide to every category of Neurodevelopmental Disorder in the DSM-5-TR — built for students, educators, and clinicians who need both the diagnostic precision and the human story behind it.</p>
+    <div class="disclaimer"><strong>Educational reference only.</strong> This guide summarizes DSM-5-TR criteria in plain English for learning purposes. It is not a diagnostic instrument and does not replace a full clinical evaluation by a licensed professional.</div>
+  </div>
+</section>
+
+<div class="wrap layout">
+  <nav class="toc" aria-label="Table of contents">
+    <h2>On this chart</h2>
+    <ol>
+      <li><a href="#id"><span class="dot" style="background:var(--tab-id)"></span>1. Intellectual Disability</a></li>
+      <li><a href="#comm"><span class="dot" style="background:var(--tab-comm)"></span>2. Communication Disorders</a></li>
+      <li><a href="#asd"><span class="dot" style="background:var(--tab-asd)"></span>3. Autism Spectrum Disorder</a></li>
+      <li><a href="#adhd"><span class="dot" style="background:var(--tab-adhd)"></span>4. ADHD</a></li>
+      <li><a href="#sld"><span class="dot" style="background:var(--tab-sld)"></span>5. Specific Learning Disorder</a></li>
+      <li><a href="#motor"><span class="dot" style="background:var(--tab-motor)"></span>6. Motor Disorders</a></li>
+      <li><a href="#other"><span class="dot" style="background:var(--tab-other)"></span>7. Other / Unspecified NDD</a></li>
+      <div class="toc-divider"></div>
+      <li><a href="#compare"><span class="dot" style="background:var(--ink-soft)"></span>ASD vs ADHD</a></li>
+      <li><a href="#comorbid"><span class="dot" style="background:var(--ink-soft)"></span>Comorbidity</a></li>
+      <li><a href="#toolbox"><span class="dot" style="background:var(--ink-soft)"></span>The Toolbox</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <!-- ============ INTRO ============ -->
+    <section class="block" id="intro" style="margin-bottom:40px;">
+      <p class="section-lede" style="max-width:76ch;">The DSM-5-TR groups Neurodevelopmental Disorders as conditions with onset in the developmental period, producing deficits that impair personal, social, academic, or occupational function. They typically manifest early, before school entry, and are marked by a developmental deficit — a skill that is missing or delayed relative to what the brain would ordinarily build at that age — rather than a skill that was acquired and then lost. Each branch below is color-coded like a tab in a patient chart; the color follows that condition through its tags, stat boxes, and the comparison sections at the end.</p>
+    </section>
+
+    <!-- ============ 1. INTELLECTUAL DISABILITY ============ -->
+    <section class="block" id="id">
+      <h2 class="section-title" style="color:var(--tab-id)">1 · Intellectual Disability (Intellectual Developmental Disorder)</h2>
+      <p class="section-lede">A disorder of generalized adaptive capacity — not a single missing skill, but a broad ceiling on how independently a person can reason, learn, and function day to day.</p>
+
+      <div class="chart" data-open="true" style="--tab-color:var(--tab-id)">
+        <button class="chart-head" aria-expanded="true">
+          <span class="tabnum">Branch 01</span>
+          <span class="headtext"><h3>Intellectual Disability</h3><span>Core deficit, criteria, severity, etiology, and treatment</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>A global reduction in general mental ability — reasoning, problem-solving, planning, abstract thinking, judgment, and learning from experience — paired with a matching deficit in adaptive functioning (the practical skills of daily independence). Neither piece is diagnostic alone: a low IQ score without functional impairment, or functional struggle without a cognitive deficit, does not meet criteria.</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English</h4>
+          <ul class="crit-list">
+            <li><b>A — Intellectual deficits:</b> Confirmed by both clinical assessment and individualized, standardized IQ testing (generally two or more standard deviations below the population mean, roughly IQ ≤ 70, though the number is a guide, not a hard cutoff).</li>
+            <li><b>B — Adaptive deficits:</b> Failure to meet developmental and sociocultural standards of independence in at least one domain — conceptual (language, reading, money, time, memory), social (empathy, judgment, friendships, social communication), or practical (self-care, job responsibilities, money management, organizing tasks) — such that ongoing support is needed across settings like home, school, work, or community.</li>
+            <li><b>C — Onset during the developmental period:</b> Deficits begin in childhood or adolescence, not acquired later in life through injury or disease.</li>
+          </ul>
+          <div class="callout"><b>Clinical note:</b> DSM-5-TR intentionally de-emphasizes the IQ number and grades severity by adaptive functioning instead — a philosophical shift from prior editions, because two people with an identical IQ score can have very different levels of independence.</div>
+
+          <h4 class="sub-h">Severity levels — graded by adaptive functioning, not IQ</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Level</th><th>Conceptual domain</th><th>Social domain</th><th>Practical domain</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag severity">Mild</span></td><td>Difficulty with abstract thinking, school-age learning delay; can often achieve functional academics by adulthood</td><td>Immature social judgment relative to peers; social interactions can seem intact but are risk-prone</td><td>Can typically live semi-independently with some support (finances, scheduling, healthcare decisions)</td></tr>
+              <tr><td><span class="tag severity">Moderate</span></td><td>Language and pre-academic skills develop slowly; concrete reasoning predominates through adulthood</td><td>Noticeable differences in social/communicative behavior; relationships possible but simpler</td><td>Needs moderate support for self-care, household tasks, and community navigation</td></tr>
+              <tr><td><span class="tag severity">Severe</span></td><td>Limited understanding of written language or number concepts; relies on others for problem-solving</td><td>Spoken language is limited in vocabulary and grammar; communication is often need-based</td><td>Requires support for all daily activities including self-care</td></tr>
+              <tr><td><span class="tag severity">Profound</span></td><td>Conceptual skills mostly involve the physical world rather than symbolic processes</td><td>Very limited understanding of symbolic communication; expresses through nonverbal, non-symbolic means</td><td>Fully dependent on others for all aspects of daily physical care and safety</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4 class="sub-h">Subtypes / specifiers</h4>
+          <div class="tags">
+            <span class="tag">Global Developmental Delay (under age 5, when severity cannot yet be reliably tested)</span>
+            <span class="tag">Unspecified Intellectual Disability (over age 5, when standard assessment is impossible — e.g., sensory/motor impairment, severe behavior)</span>
+          </div>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">~1%</span><span class="lbl">General population prevalence</span></div>
+            <div class="stat-box"><span class="num">85%</span><span class="lbl">Of cases fall in the Mild range</span></div>
+            <div class="stat-box"><span class="num">1.5:1</span><span class="lbl">Male : female ratio</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Chromosomal conditions (Down syndrome, Fragile X), single-gene disorders, and inborn errors of metabolism (e.g., untreated PKU) account for a large share of moderate-to-profound cases.</li>
+            <li><b>Prenatal:</b> Maternal infection (e.g., congenital rubella, CMV), fetal alcohol spectrum exposure, teratogen or toxin exposure, and severe maternal malnutrition.</li>
+            <li><b>Perinatal:</b> Extreme prematurity, birth asphyxia, and neonatal complications such as severe jaundice.</li>
+            <li><b>Postnatal / environmental:</b> Traumatic brain injury, CNS infection (meningitis, encephalitis), lead exposure, and profound early psychosocial deprivation can contribute, especially at milder severities where etiology is often multifactorial or unidentified.</li>
+          </ul>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>Early intervention:</b> Infant/toddler developmental programs are the single strongest lever — earlier engagement predicts better long-term adaptive outcomes.</li>
+            <li><b>Educational:</b> Individualized Education Programs (IEPs), applied behavior analysis for skill-building, and structured, repetition-based instruction.</li>
+            <li><b>Adaptive/vocational:</b> Life-skills training, supported employment programs, and community-living supports scaled to severity.</li>
+            <li><b>Pharmacological:</b> No medication treats intellectual disability itself; medication targets co-occurring conditions (ADHD, anxiety, irritability, self-injurious behavior — e.g., risperidone/aripiprazole for severe irritability, particularly when ID co-occurs with ASD).</li>
+            <li><b>Family-centered care:</b> Caregiver training and respite support materially improve outcomes, since family capacity is itself part of the child's environment.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <p>Distinguished from <b>Specific Learning Disorder</b> by breadth: SLD is a circumscribed deficit in one academic domain against an otherwise average IQ, while Intellectual Disability is global. Distinguished from <b>Global Developmental Delay</b> only by age and testability, not by nature. When ASD and low IQ co-occur, both diagnoses are given, and adaptive/social deficits must exceed what IQ alone would predict to justify the ASD diagnosis.</p>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 2. COMMUNICATION DISORDERS ============ -->
+    <section class="block" id="comm">
+      <h2 class="section-title" style="color:var(--tab-comm)">2 · Communication Disorders</h2>
+      <p class="section-lede">A family of four distinct conditions, all involving disrupted use of language or speech in the absence of a broader intellectual or autism-spectrum explanation.</p>
+
+      <div class="chart" data-open="false" style="--tab-color:var(--tab-comm)">
+        <button class="chart-head" aria-expanded="false">
+          <span class="tabnum">Branch 02</span>
+          <span class="headtext"><h3>Communication Disorders</h3><span>4 subtypes: Language, Speech Sound, Fluency, Social (Pragmatic)</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>A breakdown somewhere along the pipeline of language: forming ideas into words and grammar (language), articulating sounds clearly (speech), producing fluent uninterrupted speech (fluency), or using language appropriately in social context (pragmatics) — while comprehension of the world and nonverbal reasoning remain intact.</p>
+
+          <h4 class="sub-h">The 4 subtypes — DSM-5-TR criteria in plain English</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Subtype</th><th>What it looks like</th><th>Key criterion</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag">Language Disorder</span></td><td>Reduced vocabulary, limited sentence structure, and difficulty stringing sentences into coherent discourse, in both understanding and production</td><td>Abilities are substantially below age expectations, functionally limiting; onset in the early developmental period</td></tr>
+              <tr><td><span class="tag">Speech Sound Disorder</span></td><td>Persistent difficulty with articulation/phonology that makes speech hard to understand</td><td>Interferes with intelligibility or spoken communication; not explained by a physical/neurological condition (e.g., cleft palate, cerebral palsy) alone</td></tr>
+              <tr><td><span class="tag">Childhood-Onset Fluency Disorder (Stuttering)</span></td><td>Sound/syllable repetitions, prolongations, blocks, or word avoidance disrupting the flow of speech</td><td>Disturbance is inappropriate for age, causes anxiety about speaking or limits communication/participation</td></tr>
+              <tr><td><span class="tag">Social (Pragmatic) Communication Disorder</span></td><td>Trouble using language for its social purpose — greeting appropriately, matching communication style to listener/context, following conversational turn-taking, understanding non-literal language (idioms, humor, inference)</td><td>Deficits are limited to social use of communication; <b>restricted/repetitive behaviors are absent</b> — the feature that separates it from ASD</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4 class="sub-h">Severity / specifiers</h4>
+          <p>No formal numeric severity scale applies uniformly across the four subtypes (unlike ID or ASD); severity is instead described descriptively (mild/moderate/severe impact on intelligibility or participation) and documented by standardized language/speech assessment scores.</p>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">7–8%</span><span class="lbl">Language Disorder, school-age</span></div>
+            <div class="stat-box"><span class="num">~1%</span><span class="lbl">Speech Sound Disorder, age 6+</span></div>
+            <div class="stat-box"><span class="num">~1%</span><span class="lbl">Childhood-onset stuttering</span></div>
+            <div class="stat-box"><span class="num">2–4:1</span><span class="lbl">Male : female, most subtypes</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Strong familial clustering in stuttering and language disorder; candidate genes affect speech-motor planning circuits.</li>
+            <li><b>Prenatal/perinatal:</b> Prematurity, low birth weight, and early otitis media (chronic ear infections disrupting auditory input during critical language-learning windows).</li>
+            <li><b>Environmental:</b> Reduced early linguistic input is a risk factor for language delay but rarely a sole cause; bilingual exposure is <i>not</i> a cause of disorder and must be distinguished from typical bilingual development.</li>
+          </ul>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>Speech-language therapy</b> is first-line across all four subtypes — articulation therapy for speech sound disorder, language-stimulation approaches for language disorder, fluency-shaping/stuttering modification for fluency disorder, and social-skills/pragmatic-language groups for social communication disorder.</li>
+            <li><b>Parent-implemented intervention:</b> Coaching caregivers to embed language-rich strategies into daily routines has strong evidence in preschoolers.</li>
+            <li><b>School-based supports:</b> IEP/504 accommodations for classroom participation and reduced speaking-pressure situations.</li>
+            <li><b>Pharmacological:</b> No medications treat communication disorders directly; treatment is entirely therapeutic/behavioral.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <div class="callout"><b>Social Communication Disorder vs. ASD:</b> This is the single most tested distinction in this category. Both show pragmatic/social language deficits. ASD additionally requires <b>restricted, repetitive patterns of behavior, interests, or activities</b> (stereotyped movements, insistence on sameness, fixated interests, or sensory reactivity) — current or by history. If those are absent, and never were present, Social (Pragmatic) Communication Disorder is the correct diagnosis. Because restricted/repetitive behaviors can be subtle or missed in early childhood, this diagnosis should be made cautiously and often only after ASD has been carefully ruled out over time.</div>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 3. ASD — EXPANDED STANDALONE ============ -->
+    <section class="block" id="asd">
+      <h2 class="section-title" style="color:var(--tab-asd)">3 · Autism Spectrum Disorder — Expanded Deep Dive</h2>
+      <p class="section-lede">A lifelong neurodevelopmental profile defined by two core domains, graded across three severity levels, and understood today as a spectrum rather than a single fixed presentation.</p>
+
+      <div class="chart" data-open="true" style="--tab-color:var(--tab-asd)">
+        <button class="chart-head" aria-expanded="true">
+          <span class="tabnum">Branch 03</span>
+          <span class="headtext"><h3>Autism Spectrum Disorder</h3><span>2 domains · 3 severity levels · sensory profile · historical context</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>A difference in how social information and sensory/behavioral information are processed and integrated — atypical social reciprocity and communication, paired with a preference for predictability expressed through repetitive behavior and restricted interests. Underlying this are documented differences in social-cognitive processing (e.g., joint attention, theory of mind), and in neural connectivity patterns affecting how sensory input is filtered and integrated.</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English — the 2 domains</h4>
+          <ul class="crit-list">
+            <li><b>Domain A — Persistent deficits in social communication and social interaction</b> (all three required):
+              <ul class="crit-list">
+                <li>Social-emotional reciprocity: reduced back-and-forth conversation, reduced sharing of interests/emotions, or difficulty initiating/responding to social interaction.</li>
+                <li>Nonverbal communicative behaviors: reduced eye contact, atypical body language, or difficulty understanding/using gestures and facial expression.</li>
+                <li>Developing/maintaining relationships: difficulty adjusting behavior to social context, difficulty with imaginative/shared play, or reduced interest in peers.</li>
+              </ul>
+            </li>
+            <li><b>Domain B — Restricted, repetitive patterns of behavior, interests, or activities</b> (at least two of four):
+              <ul class="crit-list">
+                <li>Stereotyped or repetitive motor movements, use of objects, or speech (e.g., hand-flapping, lining up toys, echolalia).</li>
+                <li>Insistence on sameness, inflexible adherence to routines, or ritualized verbal/nonverbal behavior patterns.</li>
+                <li>Highly restricted, fixated interests that are abnormal in intensity or focus.</li>
+                <li>Hyper- or hypo-reactivity to sensory input, or unusual interest in sensory aspects of the environment.</li>
+              </ul>
+            </li>
+            <li><b>Other requirements:</b> Symptoms present in the early developmental period (though may not fully manifest until social demands exceed capacity); cause clinically significant impairment; and are not better explained by Intellectual Disability or Global Developmental Delay alone.</li>
+          </ul>
+
+          <h4 class="sub-h">Severity levels — 3 levels, rated separately for each domain</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Level</th><th>Social communication</th><th>Restricted/repetitive behaviors</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag severity">Level 1 — Requiring support</span></td><td>Noticeable impairments without support; difficulty initiating interactions, atypical/unsuccessful responses to others</td><td>Inflexibility causes interference in one or more contexts; difficulty switching activities; organization/planning problems hamper independence</td></tr>
+              <tr><td><span class="tag severity">Level 2 — Requiring substantial support</span></td><td>Marked deficits even with supports in place; limited initiation, reduced/abnormal response to social overtures</td><td>Inflexibility, coping difficulty, and repetitive behaviors are obvious to a casual observer and interfere across contexts</td></tr>
+              <tr><td><span class="tag severity">Level 3 — Requiring very substantial support</span></td><td>Severe deficits; very limited initiation, minimal response to social overtures</td><td>Inflexibility, extreme difficulty coping with change, or restricted/repetitive behaviors markedly interfere with functioning in all spheres</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4 class="sub-h">Sensory profile</h4>
+          <p>Sensory reactivity differences are now a formal diagnostic feature (Domain B). Presentations vary widely and can co-occur in the same individual:</p>
+          <div class="tags">
+            <span class="tag">Hyper-reactivity — pain from tags/seams, distress at loud/sudden sound, aversion to certain textures or lighting</span>
+            <span class="tag">Hypo-reactivity — high pain tolerance, under-response to temperature, seeking intense input (spinning, crashing)</span>
+            <span class="tag">Sensory seeking — visual fascination with spinning objects, smelling/touching items, craving deep pressure</span>
+          </div>
+
+          <h4 class="sub-h">Historical context: Asperger's Syndrome and PDD-NOS</h4>
+          <p>Prior to DSM-5 (2013), autism was split into separate diagnoses under "Pervasive Developmental Disorders": Autistic Disorder, Asperger's Syndrome (autistic social/behavioral features without clinically significant language or cognitive delay), Childhood Disintegrative Disorder, and PDD-NOS (a catch-all for sub-threshold presentations). DSM-5 folded all of these into one dimensional diagnosis — Autism Spectrum Disorder — because research showed the boundaries between them were not reliably distinguishable across clinicians or over time, and severity/support-need was a more clinically useful way to describe the same underlying spectrum. Many adults diagnosed before 2013 still identify with the term "Asperger's," and clinicians should recognize it as a meaningful part of a person's history and identity even though it is no longer a standalone DSM category.</p>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">1 in 31</span><span class="lbl">US 8-year-olds (CDC, most recent surveillance)</span></div>
+            <div class="stat-box"><span class="num">~3.8:1</span><span class="lbl">Male : female ratio (likely underestimates female prevalence due to under-recognition)</span></div>
+            <div class="stat-box"><span class="num">~70%</span><span class="lbl">Have at least one co-occurring psychiatric or developmental condition</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Highly heritable (twin studies estimate 60–90%); polygenic, with hundreds of implicated genes plus rare high-impact de novo mutations and copy-number variants; strongly associated with conditions like Fragile X and Tuberous Sclerosis.</li>
+            <li><b>Prenatal:</b> Advanced parental age (especially paternal), certain prenatal medication exposures (e.g., valproate), and maternal immune activation/infection are associated risk factors — correlational, not proven single causes.</li>
+            <li><b>Perinatal:</b> Extreme prematurity and low birth weight modestly raise risk.</li>
+            <li><b>Explicitly not causal:</b> Vaccines. This has been extensively studied and repeatedly disproven; it is included here only because it remains clinically important to address directly and compassionately with families.</li>
+          </ul>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>Early Intensive Behavioral Intervention (EIBI) / Applied Behavior Analysis (ABA):</b> Strongest evidence base, especially when started early; modern ABA emphasizes naturalistic, play-based, and child-led approaches rather than rigid drilling.</li>
+            <li><b>Developmental/naturalistic models:</b> Early Start Denver Model, DIR/Floortime — blend developmental and behavioral principles for younger children.</li>
+            <li><b>Speech-language and occupational therapy:</b> Targets communication and sensory-motor/self-regulation goals.</li>
+            <li><b>Social skills training</b> for older children/adults, often group-based.</li>
+            <li><b>Pharmacological:</b> No medication treats the core social/communication features. Risperidone and aripiprazole are FDA-approved for associated irritability/aggression; stimulants or alpha-agonists may address co-occurring ADHD symptoms; SSRIs are used cautiously for co-occurring anxiety.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <div class="callout"><b>Stereotypic Movement Disorder vs. Tics vs. "Stimming":</b> All three involve repetitive movement, but they differ in purpose and voluntariness. <b>Autistic stimming</b> (rocking, hand-flapping) is typically rhythmic, sustained, and self-regulatory — it helps modulate sensory input or emotion, and is usually not distressing to the person doing it. <b>Stereotypic Movement Disorder</b> is diagnosed separately from ASD only when the repetitive motor behavior itself (not accounted for by the ASD diagnosis) interferes with function or causes self-injury. <b>Tics</b> (see Branch 6) are typically sudden, brief, and described as preceded by an urge, and are far more variable moment to moment than stereotypies. See Branch 6 for the full three-way comparison.</div>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 4. ADHD — EXPANDED STANDALONE ============ -->
+    <section class="block" id="adhd">
+      <h2 class="section-title" style="color:var(--tab-adhd)">4 · Attention-Deficit/Hyperactivity Disorder — Expanded Deep Dive</h2>
+      <p class="section-lede">A disorder of self-regulation and executive control, not merely "not paying attention" — presenting in three distinct patterns across the lifespan.</p>
+
+      <div class="chart" data-open="true" style="--tab-color:var(--tab-adhd)">
+        <button class="chart-head" aria-expanded="true">
+          <span class="tabnum">Branch 04</span>
+          <span class="headtext"><h3>ADHD</h3><span>3 presentations · executive function deficits · medication overview</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>A deficit in executive function — the brain's self-management system. This includes response inhibition, working memory, sustained attention, cognitive flexibility, and emotional self-regulation, linked to differences in prefrontal-striatal circuitry and dopamine/norepinephrine signaling. ADHD is best understood not as an inability to pay attention, but as an inconsistent, effort-dependent regulation of attention and behavior.</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English</h4>
+          <ul class="crit-list">
+            <li>A persistent pattern of inattention and/or hyperactivity-impulsivity that interferes with functioning, with symptoms present before age 12.</li>
+            <li><b>Inattention (6+ symptoms for children, 5+ for age 17 and older):</b> careless mistakes, difficulty sustaining attention, seeming not to listen, failing to finish tasks, difficulty organizing, avoiding sustained mental effort, losing items, easily distracted, forgetful in daily activities.</li>
+            <li><b>Hyperactivity-impulsivity (6+ for children, 5+ for age 17+):</b> fidgeting, leaving seat inappropriately, restlessness, difficulty engaging in activities quietly, "on the go"/"driven by a motor," excessive talking, blurting answers, difficulty waiting turn, interrupting others.</li>
+            <li>Several symptoms present in <b>two or more settings</b> (e.g., home and school/work) — a critical cross-situational requirement.</li>
+            <li>Clear evidence symptoms interfere with, or reduce the quality of, social/academic/occupational functioning, and are not better explained by another mental disorder.</li>
+          </ul>
+
+          <h4 class="sub-h">The 3 presentations</h4>
+          <div class="tags">
+            <span class="tag">Predominantly Inattentive Presentation — inattention criteria met, hyperactive-impulsive criteria not met in past 6 months</span>
+            <span class="tag">Predominantly Hyperactive-Impulsive Presentation — reverse pattern</span>
+            <span class="tag">Combined Presentation — both criteria sets fully met; the most common presentation, especially in childhood</span>
+          </div>
+          <p style="margin-top:8px;">Presentation can shift over a person's life — hyperactivity often visibly declines with age while inattentive and executive-function difficulties tend to persist, which is why many adults present as inattentive even if diagnosed as combined-type children.</p>
+
+          <h4 class="sub-h">Executive function deficits — the "hidden curriculum" of ADHD</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>EF domain</th><th>What struggles day-to-day</th></tr></thead>
+            <tbody>
+              <tr><td>Response inhibition</td><td>Blurting, interrupting, impulsive decisions before weighing consequences</td></tr>
+              <tr><td>Working memory</td><td>Holding multi-step instructions in mind; mental math; losing the thread mid-task</td></tr>
+              <tr><td>Cognitive flexibility</td><td>Difficulty shifting between tasks or adjusting to unexpected changes</td></tr>
+              <tr><td>Emotional regulation</td><td>Rapid frustration, low tolerance for boredom, big reactions to small setbacks</td></tr>
+              <tr><td>Task initiation & planning</td><td>Chronic procrastination not from laziness but difficulty self-generating the start of a task</td></tr>
+              <tr><td>Time perception</td><td>"Time blindness" — poor internal sense of how much time has passed or remains</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">~9–10%</span><span class="lbl">US children/adolescents</span></div>
+            <div class="stat-box"><span class="num">~2.5%</span><span class="lbl">Adults (often under-diagnosed)</span></div>
+            <div class="stat-box"><span class="num">2–3:1</span><span class="lbl">Male : female ratio in childhood (narrows in adulthood as inattentive girls are recognized later)</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Among the most heritable psychiatric conditions (~74–88%); polygenic, involving dopamine transporter/receptor genes among others.</li>
+            <li><b>Prenatal:</b> Prenatal alcohol or tobacco exposure, and significant prenatal stress, are associated with elevated risk.</li>
+            <li><b>Perinatal:</b> Very low birth weight and extreme prematurity are established risk factors.</li>
+            <li><b>Neurobiological:</b> Delayed cortical maturation and altered fronto-striatal dopamine/norepinephrine signaling are consistently observed, though no single brain scan is diagnostic.</li>
+          </ul>
+
+          <h4 class="sub-h">Medication overview</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Class</th><th>Examples</th><th>Mechanism / notes</th></tr></thead>
+            <tbody>
+              <tr><td>Stimulants (first-line)</td><td>Methylphenidate-based (Ritalin, Concerta); amphetamine-based (Adderall, Vyvanse)</td><td>Increase available dopamine/norepinephrine; ~70–80% response rate; effects are fast-acting, wear off same day</td></tr>
+              <tr><td>Non-stimulants</td><td>Atomoxetine, viloxazine</td><td>Norepinephrine reuptake inhibition; slower onset (weeks), useful when stimulants are contraindicated or poorly tolerated</td></tr>
+              <tr><td>Alpha-2 agonists</td><td>Guanfacine ER, clonidine ER</td><td>Often used adjunctively, or when tics/anxiety co-occur; can help emotional regulation and sleep</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4 class="sub-h">Other evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>Behavioral parent training</b> is first-line for preschool-age children, teaching contingency management and structured routines.</li>
+            <li><b>Classroom behavioral interventions</b> (token systems, structured expectations, preferential seating) and formal school accommodations (504 plan/IEP).</li>
+            <li><b>Cognitive-behavioral therapy</b> for adolescents/adults, targeting organization, time management, and emotional regulation skills directly rather than symptoms alone.</li>
+            <li><b>Combined approach</b> — medication plus behavioral intervention — consistently outperforms either alone in major trials (e.g., the MTA study).</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <p>ADHD inattention is distinguished from the inattention sometimes seen in ASD: in ADHD, attention wanders broadly and inconsistently; in ASD, attention can be intensely fixed on a preferred narrow topic (not a deficit of engagement, but of flexibility). ADHD impulsivity is distinguished from pediatric bipolar disorder by chronicity (ADHD is a constant baseline trait; bipolar mood elevation is episodic). See the full ASD vs ADHD table below.</p>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 5. SLD ============ -->
+    <section class="block" id="sld">
+      <h2 class="section-title" style="color:var(--tab-sld)">5 · Specific Learning Disorder</h2>
+      <p class="section-lede">A circumscribed academic skill deficit that stands out against an otherwise typical intellectual profile — the "unexpected underachievement" disorder.</p>
+
+      <div class="chart" data-open="false" style="--tab-color:var(--tab-sld)">
+        <button class="chart-head" aria-expanded="false">
+          <span class="tabnum">Branch 05</span>
+          <span class="headtext"><h3>Specific Learning Disorder</h3><span>Reading, written expression, and mathematics specifiers</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>A specific breakdown in the cognitive processes underlying one academic domain — most often phonological processing (reading), orthographic/motor planning (writing), or number sense (math) — while general intelligence and access to adequate instruction are both intact. It is fundamentally a disorder of processing, not of effort or intelligence.</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English</h4>
+          <ul class="crit-list">
+            <li>Difficulty learning/using academic skills, with at least one symptom persisting 6+ months despite targeted help: inaccurate/slow/effortful reading, difficulty understanding meaning of what's read, spelling difficulties, difficulties with written expression, difficulty mastering number sense/facts/calculation, or difficulty with mathematical reasoning.</li>
+            <li>Affected skills are substantially and quantifiably below age expectations, confirmed by individually administered standardized tests, and significantly interfere with academic, occupational, or daily performance.</li>
+            <li>Onset during school-age years, though may not fully manifest until academic demands exceed capacity.</li>
+            <li>Not better explained by intellectual disability, uncorrected sensory impairment, other mental/neurological disorders, psychosocial adversity, language proficiency, or inadequate instruction.</li>
+          </ul>
+
+          <h4 class="sub-h">Subtypes / specifiers</h4>
+          <div class="tags">
+            <span class="tag">With impairment in reading (Dyslexia) — word reading accuracy, fluency, decoding, reading comprehension</span>
+            <span class="tag">With impairment in written expression (Dysgraphia) — spelling accuracy, grammar/punctuation, clarity/organization of written expression</span>
+            <span class="tag">With impairment in mathematics (Dyscalculia) — number sense, memorization of arithmetic facts, accurate/fluent calculation, mathematical reasoning</span>
+          </div>
+          <p style="margin-top:8px;"><i>Dyslexia</i> and <i>dyscalculia</i> are the alternative terms explicitly noted in DSM-5-TR for the reading and math specifiers, used widely in education and research settings.</p>
+
+          <h4 class="sub-h">Severity</h4>
+          <div class="tags">
+            <span class="tag severity">Mild — some difficulties in one or two domains; manageable with accommodations</span>
+            <span class="tag severity">Moderate — marked difficulties requiring intensive, specialized teaching and some accommodations to complete activities</span>
+            <span class="tag severity">Severe — severe difficulties affecting several domains; unlikely to learn skills without ongoing intensive individualized specialized teaching</span>
+          </div>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">5–15%</span><span class="lbl">School-age children, across academic domains</span></div>
+            <div class="stat-box"><span class="num">~80%</span><span class="lbl">Of SLD cases involve reading (dyslexia)</span></div>
+            <div class="stat-box"><span class="num">~1.5–3:1</span><span class="lbl">Male : female in clinical referral (closer to equal in epidemiological samples)</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Strongly heritable (40–70%), often familial — dyslexia in particular shows some of the strongest gene-linkage findings in learning research.</li>
+            <li><b>Prenatal/perinatal:</b> Prematurity and low birth weight raise risk, likely via effects on white-matter development in language and numeracy networks.</li>
+            <li><b>Neurobiological:</b> Reading disorder is associated with atypical activation in left-hemisphere temporo-parietal and occipito-temporal reading circuits; math disorder with parietal lobe number-processing regions.</li>
+          </ul>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>Structured literacy / Orton-Gillingham approaches:</b> Explicit, systematic, multisensory phonics instruction — the gold standard for dyslexia.</li>
+            <li><b>Direct math instruction:</b> Explicit strategy instruction and concrete-representational-abstract sequencing for dyscalculia.</li>
+            <li><b>Assistive technology:</b> Text-to-speech, speech-to-text, and calculators as compensatory accommodations rather than replacements for skill instruction.</li>
+            <li><b>School accommodations:</b> Extended time, alternative formats, and IEP/504 support.</li>
+            <li><b>Pharmacological:</b> None treat SLD itself; medication is reserved for co-occurring ADHD, which is common and can worsen academic output independent of the SLD.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <p>Distinguished from Intellectual Disability by specificity — the deficit is confined to academic skill domains against average-range general cognitive ability. Distinguished from a language disorder in that spoken language may be intact while only the written/academic modality is affected (though the two frequently co-occur, since phonological processing underlies both).</p>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 6. MOTOR DISORDERS ============ -->
+    <section class="block" id="motor">
+      <h2 class="section-title" style="color:var(--tab-motor)">6 · Motor Disorders</h2>
+      <p class="section-lede">Three conditions united by disrupted motor control — clumsiness, repetitive movement, and involuntary tics — each with a distinct clinical signature.</p>
+
+      <div class="chart" data-open="false" style="--tab-color:var(--tab-motor)">
+        <button class="chart-head" aria-expanded="false">
+          <span class="tabnum">Branch 06</span>
+          <span class="headtext"><h3>Motor Disorders</h3><span>DCD · Stereotypic Movement Disorder · Tic Disorders (Tourette's vs Chronic Tic)</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>Disruption in motor planning, execution, or inhibition — ranging from poor coordination of purposeful movement (DCD), to self-soothing repetitive motor patterns (Stereotypic Movement Disorder), to involuntary, sudden movements/vocalizations arising from disinhibited cortico-striato-thalamo-cortical motor circuits (tic disorders).</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English — 3 conditions</h4>
+          <ul class="crit-list">
+            <li><b>Developmental Coordination Disorder (DCD):</b> Motor coordination substantially below age/opportunity expectations (clumsiness, slowness, inaccuracy in tasks like catching, handwriting, or tying shoes); onset in early development; significantly interferes with daily activities/academics; not better explained by intellectual disability, visual impairment, or a neurological condition affecting movement (e.g., cerebral palsy).</li>
+            <li><b>Stereotypic Movement Disorder:</b> Repetitive, seemingly driven, purposeless motor behavior (hand-flapping, body-rocking, head-banging, self-biting); onset in early developmental period; interferes with social/academic activities or causes self-injury; not attributable to substance effects, another neurological condition, or better explained by another disorder — includes a specifier for "with self-injurious behavior" and severity ratings (mild/moderate/severe based on whether protective measures are needed).</li>
+            <li><b>Tic Disorders:</b> Sudden, rapid, recurrent, nonrhythmic motor movements or vocalizations. Subdivided by tic type and duration (below).</li>
+          </ul>
+
+          <h4 class="sub-h">Subtypes: Tourette's vs. Persistent (Chronic) Tic vs. Provisional Tic Disorder</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Diagnosis</th><th>Tic type required</th><th>Duration</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag">Tourette's Disorder</span></td><td>Both multiple motor tics <b>and</b> one or more vocal tics (not necessarily concurrently)</td><td>Present for more than 1 year since first tic onset; onset before age 18</td></tr>
+              <tr><td><span class="tag">Persistent (Chronic) Motor or Vocal Tic Disorder</span></td><td>Either motor <b>or</b> vocal tics (not both)</td><td>More than 1 year since first tic onset; onset before age 18</td></tr>
+              <tr><td><span class="tag">Provisional Tic Disorder</span></td><td>Motor and/or vocal tics</td><td>Less than 1 year since first tic onset</td></tr>
+            </tbody>
+          </table></div>
+          <p>All tic diagnoses require onset before age 18 and exclusion of substance or general medical causes; a person can only receive one tic-disorder diagnosis at a time, in a hierarchy where Tourette's supersedes the others once criteria are met.</p>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <div class="stat-grid">
+            <div class="stat-box"><span class="num">5–6%</span><span class="lbl">Children with DCD</span></div>
+            <div class="stat-box"><span class="num">~3–4%</span><span class="lbl">Children with a chronic tic disorder</span></div>
+            <div class="stat-box"><span class="num">~0.3–0.9%</span><span class="lbl">Tourette's Disorder specifically</span></div>
+            <div class="stat-box"><span class="num">3–4:1</span><span class="lbl">Male : female for tic disorders and Tourette's</span></div>
+          </div>
+
+          <h4 class="sub-h">Etiology</h4>
+          <ul class="crit-list">
+            <li><b>Genetic:</b> Tourette's is highly heritable and often familial, implicating basal ganglia–thalamo–cortical circuit genes; DCD shows more modest familial clustering.</li>
+            <li><b>Prenatal/perinatal:</b> Prematurity and low birth weight are associated with DCD; prenatal exposures (e.g., maternal smoking) are studied as possible tic-disorder risk modifiers.</li>
+            <li><b>Neurobiological:</b> Tics are linked to dopaminergic dysregulation and reduced cortical inhibition of the basal ganglia motor loop; stereotypic movement disorder is more associated with sensory self-regulation needs, often overlapping with ASD or ID.</li>
+          </ul>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li><b>DCD:</b> Occupational/physical therapy using task-specific motor training (practicing the actual functional skill, e.g., handwriting or bike riding, rather than generic "sensory" exercises).</li>
+            <li><b>Stereotypic Movement Disorder:</b> Behavioral approaches — habit reversal training, differential reinforcement, and environmental modification/protective equipment when self-injury is present.</li>
+            <li><b>Tic disorders:</b> <b>Comprehensive Behavioral Intervention for Tics (CBIT)</b>, built on habit-reversal training, is first-line. Pharmacology (alpha-2 agonists like guanfacine/clonidine first, then antipsychotics like aripiprazole or risperidone for more severe/impairing tics) is reserved for tics causing significant distress or physical harm.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions — the three-way movement comparison</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Feature</th><th>Tics</th><th>Stereotypies / Stimming</th></tr></thead>
+            <tbody>
+              <tr><td>Onset pattern</td><td>Sudden, abrupt</td><td>Rhythmic, sustained</td></tr>
+              <tr><td>Preceded by urge?</td><td>Usually yes — a premonitory urge relieved by the tic</td><td>Typically no urge; more automatic/self-soothing</td></tr>
+              <tr><td>Suppressibility</td><td>Briefly suppressible with effort/discomfort building</td><td>Can often be interrupted with redirection, less internal "pressure"</td></tr>
+              <tr><td>Variability</td><td>Waxes/wanes, changes character over time, worsens with stress</td><td>Highly consistent, stable pattern for that individual over time</td></tr>
+              <tr><td>Typical context</td><td>Any child; core feature of tic disorders</td><td>Common in ASD/ID as self-regulation; also occurs in typical development</td></tr>
+            </tbody>
+          </table></div>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ 7. OTHER / UNSPECIFIED ============ -->
+    <section class="block" id="other">
+      <h2 class="section-title" style="color:var(--tab-other)">7 · Other Specified / Unspecified Neurodevelopmental Disorder</h2>
+      <p class="section-lede">The clinical safety valve — for real, impairing presentations that don't fit neatly into the six named categories above.</p>
+
+      <div class="chart" data-open="false" style="--tab-color:var(--tab-other)">
+        <button class="chart-head" aria-expanded="false">
+          <span class="tabnum">Branch 07</span>
+          <span class="headtext"><h3>Other / Unspecified NDD</h3><span>Residual category for atypical or incompletely-characterized presentations</span></span>
+          <span class="caret">▾</span>
+        </button>
+        <div class="chart-body"><div class="chart-body-inner"><div class="chart-content">
+
+          <h4 class="sub-h">Core neuropsychological deficit</h4>
+          <p>By definition, non-specific: some identifiable developmental impairment in cognition, communication, behavior, or motor skill is present, but it does not meet full criteria for any of the six named categories, or there is not yet enough information (e.g., in a very young child, or a first assessment) to make a more specific diagnosis.</p>
+
+          <h4 class="sub-h">DSM-5-TR criteria, in plain English</h4>
+          <ul class="crit-list">
+            <li><b>Other Specified Neurodevelopmental Disorder:</b> Used when symptoms cause clinically significant distress/impairment characteristic of a neurodevelopmental disorder, but do not meet full criteria for any specific category, and the clinician documents the specific reason (e.g., "neurodevelopmental disorder associated with prenatal alcohol exposure").</li>
+            <li><b>Unspecified Neurodevelopmental Disorder:</b> Used the same way, but the clinician chooses not to specify the reason, often because there is insufficient information to make a more definitive diagnosis (e.g., in an emergency setting or a very brief initial evaluation).</li>
+          </ul>
+
+          <h4 class="sub-h">Common presentations captured here</h4>
+          <div class="tags">
+            <span class="tag">Neurodevelopmental effects of prenatal alcohol exposure (sub-threshold for FASD-specific criteria)</span>
+            <span class="tag">Sub-threshold, atypical, or mixed presentations spanning ASD/ADHD/SLD features that don't cleanly meet one category</span>
+            <span class="tag">Very early childhood cases where severity/domain assessment is not yet reliable</span>
+          </div>
+
+          <h4 class="sub-h">Key epidemiology</h4>
+          <p>No dedicated prevalence figures exist, by definition — this is a residual coding category rather than a single clinical entity, and its use should decrease over time as follow-up assessment clarifies the picture.</p>
+
+          <h4 class="sub-h">Etiology</h4>
+          <p>Etiology mirrors whichever underlying process is present but incompletely characterized — the category exists precisely because a clean etiological or symptomatic pattern hasn't yet emerged, so no single causal story applies.</p>
+
+          <h4 class="sub-h">Evidence-based treatment</h4>
+          <ul class="crit-list">
+            <li>Treatment targets the specific functional impairments observed (e.g., speech therapy for communication difficulty, OT for motor delay), rather than a single named protocol.</li>
+            <li>Ongoing developmental surveillance and re-assessment are essential — this diagnosis is often provisional, expected to be refined as the child develops and more information becomes available.</li>
+          </ul>
+
+          <h4 class="sub-h">Critical distinctions</h4>
+          <p>The key distinction is procedural, not symptomatic: this category should never be used as a permanent substitute for careful differential diagnosis. It is appropriate when full criteria genuinely aren't met (or can't yet be assessed) — not as a default when a clinician hasn't taken the time to rule out the six specific categories above.</p>
+
+        </div></div></div>
+      </div>
+    </section>
+
+    <!-- ============ ASD vs ADHD COMPARISON ============ -->
+    <section class="block" id="compare">
+      <h2 class="section-title">ASD vs. ADHD — Direct Comparison</h2>
+      <p class="section-lede">The two most commonly confused (and most commonly co-occurring) neurodevelopmental diagnoses, side by side.</p>
+      <div class="compare-wrap">
+        <div class="table-scroll"><table>
+          <thead><tr><th>Dimension</th><th style="color:var(--tab-asd)">Autism Spectrum Disorder</th><th style="color:var(--tab-adhd)">ADHD</th></tr></thead>
+          <tbody>
+            <tr><td>Core deficit</td><td>Social communication + restricted/repetitive behavior</td><td>Executive function / self-regulation</td></tr>
+            <tr><td>Attention pattern</td><td>Can be intensely, narrowly focused on preferred topics; difficulty shifting away</td><td>Broadly inconsistent; difficulty sustaining focus on non-preferred <i>and</i> preferred tasks alike</td></tr>
+            <tr><td>Social difficulty driver</td><td>Reduced intuitive read of social cues, reciprocity, and theory of mind</td><td>Social friction from impulsivity, interrupting, or missing social timing — insight into cues is typically intact</td></tr>
+            <tr><td>Repetitive behavior</td><td>Core diagnostic feature (Domain B) — sameness, stereotypies, fixated interests</td><td>Not a core feature; if present, usually restlessness-driven rather than sameness-driven</td></tr>
+            <tr><td>Sensory sensitivity</td><td>Formal diagnostic criterion (hyper/hypo-reactivity)</td><td>Not a diagnostic criterion, though sensory-seeking restlessness can overlap</td></tr>
+            <tr><td>Typical onset noticed</td><td>Often before age 2–3 (social/language differences)</td><td>Often ages 4–7 as structured demands increase</td></tr>
+            <tr><td>Course</td><td>Lifelong; core features generally persist, presentation adapts with support</td><td>Hyperactivity often declines with age; inattentive/EF difficulties often persist into adulthood</td></tr>
+            <tr><td>First-line treatment</td><td>Behavioral/developmental therapy (e.g., ABA), speech/OT</td><td>Stimulant medication + behavioral parent training</td></tr>
+            <tr><td>Sex ratio</td><td>~3.8 : 1 (male:female)</td><td>~2–3 : 1 (male:female)</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </section>
+
+    <!-- ============ COMORBIDITY ============ -->
+    <section class="block" id="comorbid">
+      <h2 class="section-title">Comorbidity — When Branches Overlap</h2>
+      <p class="section-lede">Neurodevelopmental conditions rarely travel alone. Recognizing overlap changes both assessment and treatment planning.</p>
+      <div class="compare-wrap">
+        <div class="stat-grid" style="margin-bottom:16px;">
+          <div class="stat-box" style="--tab-color:var(--tab-asd)"><span class="num">30–50%</span><span class="lbl">Of children with ASD also meet criteria for ADHD</span></div>
+          <div class="stat-box" style="--tab-color:var(--tab-sld)"><span class="num">~45%</span><span class="lbl">Of children with ADHD have a co-occurring Specific Learning Disorder</span></div>
+          <div class="stat-box" style="--tab-color:var(--tab-motor)"><span class="num">~20%</span><span class="lbl">Of children with Tourette's also meet criteria for ADHD; up to 50%+ show some ADHD symptoms</span></div>
+          <div class="stat-box" style="--tab-color:var(--tab-id)"><span class="num">~30%</span><span class="lbl">Of individuals with ASD also meet criteria for Intellectual Disability</span></div>
+          <div class="stat-box" style="--tab-color:var(--tab-comm)"><span class="num">~40–60%</span><span class="lbl">Of children with a Language Disorder also show reading-related SLD (dyslexia)</span></div>
+          <div class="stat-box" style="--tab-color:var(--tab-other)"><span class="num">~70%</span><span class="lbl">Of individuals with ASD meet criteria for at least one additional psychiatric or developmental diagnosis</span></div>
+        </div>
+        <p style="margin-bottom:0; color:var(--ink-soft);">Because DSM-5 (unlike DSM-IV) explicitly permits an ASD + ADHD dual diagnosis, clinicians should actively screen for both rather than anchoring on whichever presentation is more visible first. Overlapping executive-function and sensory-regulation difficulties across these categories are the biological rule, not the exception — which is exactly why a single unifying framework for treatment planning is useful.</p>
+      </div>
+    </section>
+
+    <!-- ============ TOOLBOX ANALOGY ============ -->
+    <section class="block" id="toolbox">
+      <h2 class="section-title">The Toolbox — Tying It All Together</h2>
+      <p class="section-lede">Think of the developing brain as a workshop being built and equipped over childhood. Each neurodevelopmental disorder reflects a different part of that workshop developing on its own timeline.</p>
+      <div class="toolbox-grid">
+        <div class="tool-card" style="border-top:3px solid var(--tab-id)"><span class="icon">🧰</span><h4>Intellectual Disability</h4><p>The whole toolbox is smaller and simpler than typical — fewer tools, and using each one takes more support, across every job in the workshop.</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-comm)"><span class="icon">🗣️</span><h4>Communication Disorders</h4><p>The workshop's intercom system — the tool for sending and receiving messages — is glitchy, even though the workers and other tools are fine.</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-asd)"><span class="icon">🧭</span><h4>Autism Spectrum Disorder</h4><p>The workshop runs on a different operating system — excellent at deep, focused work and pattern-based tasks, but the social interface and sensory dial calibrate differently than most.</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-adhd)"><span class="icon">⚡</span><h4>ADHD</h4><p>The tools are all there and powerful, but the foreman (executive function) has trouble deciding which tool to pick up, when to put it down, and keeping the whole crew on schedule.</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-sld)"><span class="icon">📐</span><h4>Specific Learning Disorder</h4><p>One specific machine on the floor — the one that processes letters, or numbers — is miswired, while every other machine runs at full, typical capacity.</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-motor)"><span class="icon">🎛️</span><h4>Motor Disorders</h4><p>The workshop's physical movement controls — the robotic arms — either move imprecisely (DCD), loop on their own (stereotypies), or occasionally fire without being asked (tics).</p></div>
+        <div class="tool-card" style="border-top:3px solid var(--tab-other)"><span class="icon">🗂️</span><h4>Other/Unspecified NDD</h4><p>The workshop clearly needs some adjustment, but the blueprint isn't finished yet — this is the folder for "still figuring out exactly which part," not a diagnosis to file away and forget.</p></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Built as an educational reference summarizing DSM-5-TR (2022) categories for Neurodevelopmental Disorders. Prevalence and treatment figures reflect commonly cited ranges in the clinical and epidemiological literature and may vary by source, population, and year. Always consult the DSM-5-TR directly and a licensed clinician for diagnostic decisions.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---- Theme toggle ----
+  var root = document.body;
+  var toggle = document.getElementById('themeToggle');
+  var icon = document.getElementById('themeIcon');
+  var label = document.getElementById('themeLabel');
+
+  function applyTheme(theme){
+    root.setAttribute('data-theme', theme);
+    if(theme === 'dark'){
+      icon.textContent = '☀️';
+      label.textContent = 'Light mode';
+    } else {
+      icon.textContent = '🌙';
+      label.textContent = 'Dark mode';
+    }
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem('ndd-guide-theme'); } catch(e){}
+  if(!saved){
+    saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  applyTheme(saved);
+
+  toggle.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem('ndd-guide-theme', next); } catch(e){}
+  });
+
+  // ---- Accordion ----
+  document.querySelectorAll('.chart-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var chart = btn.closest('.chart');
+      var isOpen = chart.getAttribute('data-open') === 'true';
+      chart.setAttribute('data-open', isOpen ? 'false' : 'true');
+      btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    });
+  });
+
+  // ---- Smooth scroll with sticky-header offset ----
+  var topbar = document.querySelector('header.topbar');
+  document.querySelectorAll('nav.toc a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var target = document.querySelector(a.getAttribute('href'));
+      if(!target) return;
+      e.preventDefault();
+      var offset = (topbar ? topbar.offsetHeight : 0) + 12;
+      var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+      // Auto-open the section's accordion if it's a chart-containing block
+      var chart = target.querySelector('.chart');
+      if(chart) chart.setAttribute('data-open', 'true');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
