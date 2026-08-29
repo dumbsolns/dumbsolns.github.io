@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprehensive Guide: Neurodevelopmental Disorders</title>
+    <style>
+      /* ---------- CSS Variables & Reset ---------- */
+      :root {
+        --bg: #f8f9fc;
+        --surface: #ffffff;
+        --text: #1a1a2e;
+        --text-secondary: #4a4a6a;
+        --border: #e0e4ef;
+        --primary: #4f46e5;
+        --primary-light: #818cf8;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --radius: 16px;
+        --transition: 0.3s ease;
+        --code-bg: #f1f3f5;
+      }
+
+      [data-theme="dark"] {
+        --bg: #0f0f1a;
+        --surface: #1a1a2e;
+        --text: #e8e8f0;
+        --text-secondary: #b0b0c8;
+        --border: #2a2a44;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        --code-bg: #2a2a44;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        padding: 0 20px 60px;
+        transition:
+          background var(--transition),
+          color var(--transition);
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      /* ---------- Header & Nav ---------- */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 30px 0 20px;
+        border-bottom: 2px solid var(--border);
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .header h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .theme-toggle {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--text);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--primary);
+      }
+
+      /* ---------- TOC / Navigation ---------- */
+      .toc {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 20px 28px;
+        margin: 30px 0;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .toc h2 {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+      }
+
+      .toc-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+      }
+
+      .toc-grid a {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: var(--transition);
+        border-bottom: 2px solid transparent;
+        padding-bottom: 2px;
+      }
+
+      .toc-grid a:hover {
+        border-bottom-color: var(--primary);
+      }
+
+      /* ---------- Cards / Sections ---------- */
+      .section {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 30px 32px;
+        margin: 30px 0;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        transition:
+          background var(--transition),
+          border var(--transition);
+        scroll-margin-top: 20px;
+      }
+
+      .section h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section h2 .badge {
+        font-size: 0.7rem;
+        background: var(--primary);
+        color: white;
+        padding: 2px 12px;
+        border-radius: 40px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .section h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 24px 0 12px;
+        color: var(--primary);
+      }
+
+      .section p,
+      .section li {
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+
+      .section ul,
+      .section ol {
+        padding-left: 24px;
+        margin-bottom: 16px;
+      }
+
+      .section li {
+        margin-bottom: 6px;
+      }
+
+      /* ---------- Accordion (for Branches) ---------- */
+      .accordion {
+        margin: 16px 0;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+
+      .accordion-header {
+        background: var(--bg);
+        padding: 16px 24px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: var(--transition);
+        user-select: none;
+      }
+
+      .accordion-header:hover {
+        background: var(--primary-light);
+        color: white;
+      }
+
+      .accordion-header .arrow {
+        transition: transform 0.3s ease;
+        font-size: 1.2rem;
+      }
+
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.4s ease,
+          padding 0.3s ease;
+        padding: 0 24px;
+        background: var(--surface);
+      }
+
+      .accordion-content-inner {
+        padding: 16px 0 24px;
+      }
+
+      .accordion.active .accordion-content {
+        max-height: 800px;
+        padding: 0 24px;
+      }
+
+      .accordion.active .arrow {
+        transform: rotate(180deg);
+      }
+
+      /* ---------- Tables ---------- */
+      .table-wrap {
+        overflow-x: auto;
+        margin: 20px 0;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      th {
+        background: var(--bg);
+        text-align: left;
+        padding: 14px 16px;
+        font-weight: 600;
+        border-bottom: 2px solid var(--border);
+      }
+
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-secondary);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* ---------- Tags / Highlights ---------- */
+      .tag {
+        display: inline-block;
+        background: var(--primary-light);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 12px;
+        border-radius: 40px;
+        margin-right: 6px;
+      }
+
+      .stat-box {
+        background: var(--bg);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin: 20px 0;
+        border-left: 5px solid var(--primary);
+      }
+
+      .stat-box strong {
+        color: var(--text);
+      }
+
+      /* ---------- Footer ---------- */
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 30px 0 10px;
+        border-top: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 700px) {
+        .header h1 {
+          font-size: 1.6rem;
+        }
+        .section {
+          padding: 20px 18px;
+        }
+        .toc-grid {
+          flex-direction: column;
+          gap: 4px;
+        }
+        .accordion-header {
+          font-size: 0.95rem;
+          padding: 14px 16px;
+        }
+        th,
+        td {
+          padding: 10px 12px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+      <header class="header">
+        <h1>🧠 Neurodevelopmental Disorders</h1>
+        <div class="header-controls">
+          <button class="theme-toggle" id="themeToggle">🌓 Dark / Light</button>
+        </div>
+      </header>
+
+      <!-- TOC -->
+      <nav class="toc">
+        <h2>📑 On this page</h2>
+        <div class="toc-grid">
+          <a href="#intro">What are they?</a>
+          <a href="#branches">7 Main Branches</a>
+          <a href="#asd-deep">Deep Dive: ASD</a>
+          <a href="#adhd-deep">Deep Dive: ADHD</a>
+          <a href="#compare">ASD vs ADHD</a>
+          <a href="#comorbidity">Comorbidity</a>
+          <a href="#summary">Summary</a>
+        </div>
+      </nav>
+
+      <!-- SECTION 1: INTRO -->
+      <section class="section" id="intro">
+        <h2>
+          What Are Neurodevelopmental Disorders?
+          <span class="badge">Foundation</span>
+        </h2>
+        <p>
+          <strong>Neurodevelopmental disorders</strong> are a group of
+          conditions that emerge during the
+          <strong>early developmental period</strong> (typically before school
+          age). They are characterized by brain-based impairments that affect
+          personal, social, academic, or occupational functioning. These are
+          <strong>chronic, lifelong conditions</strong> with a strong
+          neurobiological and genetic basis.
+        </p>
+        <div class="stat-box">
+          <strong>🔑 Shared Characteristics:</strong>
+          <ul>
+            <li>
+              <strong>Early Onset:</strong> Symptoms appear in childhood, though
+              they may only be recognized when social or academic demands exceed
+              capacity.
+            </li>
+            <li>
+              <strong>Chronic Course:</strong> They do not come and go in
+              episodes; they persist across the lifespan, though symptoms can
+              change with age and intervention.
+            </li>
+            <li>
+              <strong>High Heritability:</strong> Genetics play a major role,
+              often interacting with prenatal and perinatal environmental
+              factors.
+            </li>
+            <li>
+              <strong>Frequent Comorbidity:</strong> Having one
+              neurodevelopmental disorder significantly increases the likelihood
+              of having another.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- SECTION 2: 7 BRANCHES (ACCORDION) -->
+      <section class="section" id="branches">
+        <h2>The 7 Main Branches <span class="badge">DSM-5</span></h2>
+        <p>Click each branch to expand and learn its core characteristics.</p>
+
+        <!-- Branch 1 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>🧩 1. Intellectual Disability (ID)</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> Global deficits in
+                <strong>general mental abilities</strong> (reasoning,
+                problem-solving, planning, abstract thinking) and
+                <strong>adaptive functioning</strong> (practical, social, and
+                conceptual skills).
+              </p>
+              <p>
+                <strong>Key Facts:</strong> IQ is typically below 70–75, but
+                diagnosis also requires significant impairment in daily life
+                skills (e.g., communication, self-care, social participation).
+                Severity is graded as Mild, Moderate, Severe, or Profound.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 2 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>🗣️ 2. Communication Disorders</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> Persistent difficulties in
+                <strong>language, speech, or social communication</strong> that
+                are not better explained by intellectual disability or sensory
+                issues.
+              </p>
+              <ul>
+                <li>
+                  <strong>Language Disorder:</strong> Impaired acquisition and
+                  use of language (vocabulary, sentence structure, discourse).
+                </li>
+                <li>
+                  <strong>Speech Sound Disorder:</strong> Difficulty with
+                  articulation and phonological processes.
+                </li>
+                <li>
+                  <strong>Childhood-Onset Fluency Disorder:</strong> Stuttering
+                  (disruptions in speech flow).
+                </li>
+                <li>
+                  <strong>Social (Pragmatic) Communication Disorder:</strong>
+                  Trouble using verbal and nonverbal communication in social
+                  contexts.
+                  <em
+                    >Crucially, this lacks the restricted/repetitive behaviors
+                    of ASD.</em
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 3 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>♾️ 3. Autism Spectrum Disorder (ASD)</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> Persistent deficits in
+                <strong>social communication & interaction</strong> across
+                multiple contexts, plus
+                <strong>restricted, repetitive patterns</strong> of behavior,
+                interests, or activities.
+              </p>
+              <p>
+                <strong>Key Facts:</strong> Symptoms must be present in early
+                childhood. Severity is rated by Level 1 (Requiring Support),
+                Level 2 (Substantial), or Level 3 (Very Substantial). Previously
+                separate diagnoses (Asperger's, PDD-NOS, CDD) are now merged
+                into this single umbrella.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 4 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>⚡ 4. Attention-Deficit/Hyperactivity Disorder (ADHD)</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> A persistent pattern of
+                <strong>inattention</strong> and/or
+                <strong>hyperactivity-impulsivity</strong> that interferes with
+                functioning or development.
+              </p>
+              <p>
+                <strong>Key Facts:</strong> Symptoms must be present before age
+                12. Three presentations:
+                <strong>Predominantly Inattentive</strong>,
+                <strong>Predominantly Hyperactive-Impulsive</strong>, or
+                <strong>Combined</strong>. It is often accompanied by executive
+                function deficits (poor working memory, time blindness,
+                emotional dysregulation).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 5 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>📚 5. Specific Learning Disorder</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> Difficulties learning and
+                using <strong>academic skills</strong> that are substantially
+                below age-expected levels, despite average general intelligence.
+              </p>
+              <ul>
+                <li>
+                  <strong>Dyslexia (Impairment in Reading):</strong> Inaccurate
+                  or slow word reading, poor reading comprehension, or poor
+                  spelling.
+                </li>
+                <li>
+                  <strong>Dyscalculia (Impairment in Mathematics):</strong>
+                  Difficulty with number sense, memorizing arithmetic facts, or
+                  accurate calculation.
+                </li>
+                <li>
+                  <strong
+                    >Dysgraphia (Impairment in Written Expression):</strong
+                  >
+                  Problems with grammar, punctuation, sentence organization, or
+                  handwriting fluency.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 6 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>🤸 6. Motor Disorders</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> Abnormalities in
+                <strong>movement and motor control</strong> that are not due to
+                a general medical condition.
+              </p>
+              <ul>
+                <li>
+                  <strong>Developmental Coordination Disorder (DCD):</strong>
+                  Clumsiness; significantly delayed acquisition of motor skills
+                  (e.g., tying shoes, catching a ball) that interferes with
+                  daily life.
+                </li>
+                <li>
+                  <strong>Stereotypic Movement Disorder:</strong> Repetitive,
+                  non-functional motor behaviors (e.g., hand-waving,
+                  body-rocking) that cause self-injury or interference.
+                </li>
+                <li>
+                  <strong>Tic Disorders (incl. Tourette's):</strong> Sudden,
+                  rapid, recurrent, non-rhythmic motor movements or
+                  vocalizations (tics) that are involuntary.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Branch 7 -->
+        <div class="accordion">
+          <div class="accordion-header">
+            <span>🧬 7. Other Neurodevelopmental Disorders</span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <p>
+                <strong>Primary Deficit:</strong> This is a residual category
+                for conditions that cause significant impairment but do not
+                fully meet criteria for the specific disorders above, or are
+                caused by a <strong>known genetic/medical condition</strong>.
+              </p>
+              <p>
+                <strong>Examples:</strong> Rett Syndrome, Fragile X Syndrome, or
+                autism-like presentations with a clear genetic etiology. These
+                are often identified through genetic testing and have
+                characteristic developmental regression or physical features.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: DEEP DIVE ASD -->
+      <section class="section" id="asd-deep">
+        <h2>
+          Deep Dive: Autism Spectrum Disorder (ASD)
+          <span class="badge">Core</span>
+        </h2>
+        <p>
+          <strong
+            >ASD is a lifelong neurodevelopmental condition defined by two core
+            domains.</strong
+          >
+          It occurs in ~1 in 36 children in the U.S., and is about 4x more
+          common in males.
+        </p>
+
+        <h3>Domain 1: Social Communication & Interaction</h3>
+        <p>Deficits in <strong>all three</strong> of these areas:</p>
+        <ul>
+          <li>
+            <strong>Social-Emotional Reciprocity:</strong> Failure to engage in
+            normal back-and-forth conversation; reduced sharing of interests or
+            emotions.
+          </li>
+          <li>
+            <strong>Nonverbal Communication:</strong> Poor integration of eye
+            contact, facial expressions, and gestures.
+          </li>
+          <li>
+            <strong>Developing & Maintaining Relationships:</strong> Difficulty
+            adjusting behavior to social contexts; difficulty making friends;
+            apparent disinterest in peers.
+          </li>
+        </ul>
+
+        <h3>Domain 2: Restricted, Repetitive Behaviors (RRBs)</h3>
+        <p>Must show <strong>at least two</strong> of these four:</p>
+        <ul>
+          <li>
+            <strong>Stereotyped movements/speech:</strong> Hand-flapping,
+            rocking, echolalia (repeating words).
+          </li>
+          <li>
+            <strong>Insistence on sameness:</strong> Extreme distress at small
+            changes; rigid routines.
+          </li>
+          <li>
+            <strong>Fixated interests:</strong> Unusually intense or narrow
+            interests (e.g., memorizing train schedules).
+          </li>
+          <li>
+            <strong>Hyper-/Hyporeactivity to sensory input:</strong> Overwhelmed
+            by sounds/textures, or seeking intense sensory stimulation.
+          </li>
+        </ul>
+
+        <h3>Severity Levels (DSM-5)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Social Communication</th>
+                <th>Restricted / Repetitive Behaviors</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Level 1<br /><small>Requiring Support</small></strong>
+                </td>
+                <td>
+                  Noticeable impairment without support; difficulty initiating
+                  interactions.
+                </td>
+                <td>
+                  Behaviors interfere significantly in one or more contexts;
+                  difficulty switching between activities.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong
+                    >Level 2<br /><small
+                      >Requiring Substantial Support</small
+                    ></strong
+                  >
+                </td>
+                <td>
+                  Marked deficits, apparent even with support; limited
+                  initiation.
+                </td>
+                <td>
+                  Behaviors appear frequently and interfere across multiple
+                  contexts; great distress with change.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong
+                    >Level 3<br /><small
+                      >Requiring Very Substantial Support</small
+                    ></strong
+                  >
+                </td>
+                <td>
+                  Severe deficits; very limited initiation and minimal response
+                  to others.
+                </td>
+                <td>
+                  Behaviors severely interfere across all areas; extreme
+                  difficulty when changed.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <em
+            >Note: These levels are not fixed and can change over a person's
+            life with intervention and environmental support.</em
+          >
+        </p>
+      </section>
+
+      <!-- SECTION 4: DEEP DIVE ADHD -->
+      <section class="section" id="adhd-deep">
+        <h2>Deep Dive: ADHD <span class="badge">Core</span></h2>
+        <p>
+          <strong
+            >ADHD is a distinct neurodevelopmental disorder characterized by
+            persistent inattention and/or hyperactivity-impulsivity.</strong
+          >
+          It affects about 5-7% of children worldwide.
+        </p>
+
+        <h3>The Three Presentations</h3>
+        <ul>
+          <li>
+            <strong>Predominantly Inattentive Presentation:</strong> Difficulty
+            sustaining focus, forgetfulness, easily distracted, disorganized,
+            loses things. (Formerly known as "ADD").
+          </li>
+          <li>
+            <strong>Predominantly Hyperactive-Impulsive Presentation:</strong>
+            Fidgeting, cannot stay seated, talks excessively, interrupts, acts
+            without thinking.
+          </li>
+          <li>
+            <strong>Combined Presentation:</strong> Meets criteria for both
+            inattention and hyperactivity-impulsivity (the most common).
+          </li>
+        </ul>
+
+        <h3>Core Executive Function Deficits</h3>
+        <p>
+          ADHD is fundamentally a disorder of
+          <strong>executive function</strong>—the brain's "conductor" and "brake
+          system." This manifests as:
+        </p>
+        <ul>
+          <li>
+            <strong>Working Memory:</strong> Forgetting instructions or losing
+            track of tasks.
+          </li>
+          <li>
+            <strong>Inhibitory Control:</strong> Blurting out answers,
+            difficulty waiting turns.
+          </li>
+          <li>
+            <strong>Time Blindness:</strong> Underestimating how long tasks
+            take; chronic lateness.
+          </li>
+          <li>
+            <strong>Emotional Dysregulation:</strong> Low frustration tolerance,
+            quick temper, or mood swings.
+          </li>
+        </ul>
+        <div class="stat-box">
+          <strong>📌 Crucial point:</strong> Unlike ASD, individuals with ADHD
+          typically <strong>do not</strong> have deficits in understanding
+          social cues or restricted/repetitive behaviors. Their social issues
+          stem from impulsivity and inattention, not a lack of social intuition.
+        </div>
+      </section>
+
+      <!-- SECTION 5: ASD vs ADHD COMPARISON -->
+      <section class="section" id="compare">
+        <h2>
+          ASD vs ADHD: Direct Comparison
+          <span class="badge">Key Distinctions</span>
+        </h2>
+        <p>
+          Because they frequently co-occur (30–50% of ASD have ADHD), it's vital
+          to distinguish the <strong>root cause</strong> of overlapping
+          behaviors.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Aspect</th>
+                <th>ASD</th>
+                <th>ADHD</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Core Deficit</strong></td>
+                <td>Social communication + Restricted/repetitive behaviors</td>
+                <td>Inattention + Hyperactivity/Impulsivity</td>
+              </tr>
+              <tr>
+                <td><strong>Social Struggles</strong></td>
+                <td>
+                  <em>Do not understand</em> social cues, tone, or unspoken
+                  rules.
+                </td>
+                <td>
+                  <em>Understand</em> rules but fail to follow them due to
+                  impulsivity or zoning out.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Eye Contact</strong></td>
+                <td>Typically avoids or finds it unnatural/overwhelming.</td>
+                <td>
+                  May avoid due to distraction, but can use it normally when
+                  focused.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Repetitive Behaviors</strong></td>
+                <td>
+                  Seek <strong>sameness</strong>; stimming (rocking, flapping);
+                  fixated narrow interests.
+                </td>
+                <td>
+                  Fidget due to need for stimulation; no rigid routines or
+                  narrow interests.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Response to Routine Change</strong></td>
+                <td>Extreme, <strong>meltdown-level</strong> distress.</td>
+                <td>
+                  May be disorganized, but doesn't typically meltdown over a
+                  changed schedule.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Sensory Issues</strong></td>
+                <td>
+                  Core feature (extreme reactions to sounds, textures, lights).
+                </td>
+                <td>Possible, but not a core diagnostic feature.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 6: COMORBIDITY -->
+      <section class="section" id="comorbidity">
+        <h2>
+          Comorbidity: When They Overlap <span class="badge">Important</span>
+        </h2>
+        <p>
+          Having one neurodevelopmental disorder significantly raises the risk
+          of having another. This is due to shared genetic and neurological
+          pathways.
+        </p>
+        <div class="stat-box">
+          <strong>📊 Key Statistics:</strong>
+          <ul>
+            <li>
+              <strong>ASD & ADHD:</strong> 30% to 50% of individuals with ASD
+              also meet criteria for ADHD. Similarly, up to 50-70% of those with
+              ADHD show significant autistic traits.
+            </li>
+            <li>
+              <strong>ADHD & Specific Learning Disorder:</strong> 30% to 50% of
+              children with ADHD have a co-occurring learning disability (most
+              commonly dyslexia).
+            </li>
+            <li>
+              <strong>ASD & Intellectual Disability:</strong> Approximately 30%
+              of autistic individuals have an intellectual disability (IQ < 70).
+            </li>
+            <li>
+              <strong>Motor Disorders & ADHD:</strong> Developmental
+              Coordination Disorder (DCD) is present in up to 50% of children
+              with ADHD.
+            </li>
+          </ul>
+        </div>
+        <p>
+          <strong>Clinical Takeaway:</strong> When evaluating a child,
+          clinicians must screen broadly. If you see one condition, look for the
+          others. The rule change in the DSM-5 (allowing simultaneous ADHD and
+          ASD diagnoses) was a direct response to this overwhelming overlap.
+        </p>
+      </section>
+
+      <!-- SECTION 7: SUMMARY -->
+      <section class="section" id="summary">
+        <h2>
+          Summary: Putting It All Together <span class="badge">Takeaway</span>
+        </h2>
+        <p>
+          Think of the neurodevelopmental disorders as different "tools" in the
+          brain's toolbox:
+        </p>
+        <ul>
+          <li>
+            <strong>Intellectual Disability</strong> = the whole toolbox is
+            smaller.
+          </li>
+          <li>
+            <strong>Specific Learning Disorder</strong> = one specific tool is
+            bent.
+          </li>
+          <li>
+            <strong>ADHD</strong> = the executive manager is distracted and
+            impulsive.
+          </li>
+          <li>
+            <strong>ASD</strong> = the social wiring runs on a different
+            operating system, with rigid behavioral patterns.
+          </li>
+          <li>
+            <strong>Motor Disorders</strong> = the physical arms using the tools
+            are clumsy or jerky.
+          </li>
+          <li>
+            <strong>Communication Disorders</strong> = the language-processing
+            modules are faulty.
+          </li>
+        </ul>
+        <p>
+          While each branch has its own distinct core deficit, they share early
+          onset, chronicity, genetic roots, and high co-occurrence.
+          Understanding these distinctions—and overlaps—is the key to accurate
+          diagnosis, effective intervention, and compassionate support.
+        </p>
+        <div class="stat-box" style="border-left-color: #a855f7">
+          <strong>✨ Final Thought:</strong> Neurodevelopmental disorders are
+          not "diseases" to be cured, but diverse ways of being. With the right
+          support, accommodations, and understanding, individuals across this
+          spectrum can lead fulfilling, productive, and meaningful lives.
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <p>
+          Comprehensive Guide based on DSM-5 criteria & current clinical
+          research. For educational purposes only.
+        </p>
+        <p>
+          Built with ❤️ — fully responsive, dark/light mode, interactive
+          accordion.
+        </p>
+      </footer>
+    </div>
+
+    <!-- ======== JAVASCRIPT ======== -->
+    <script>
+      // -------- 1. DARK/LIGHT TOGGLE --------
+      const toggleBtn = document.getElementById("themeToggle");
+      const html = document.documentElement;
+
+      // Check saved preference
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        html.setAttribute("data-theme", savedTheme);
+        toggleBtn.textContent =
+          savedTheme === "dark" ? "☀️ Light" : "🌓 Dark / Light";
+      }
+
+      toggleBtn.addEventListener("click", () => {
+        const current = html.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+        toggleBtn.textContent =
+          next === "dark" ? "☀️ Light" : "🌓 Dark / Light";
+      });
+
+      // -------- 2. ACCORDION --------
+      const accordionHeaders = document.querySelectorAll(".accordion-header");
+
+      accordionHeaders.forEach((header) => {
+        header.addEventListener("click", () => {
+          const accordion = header.parentElement;
+          // Close all others (optional: if you want only one open at a time, uncomment below)
+          // document.querySelectorAll('.accordion').forEach(acc => {
+          //     if (acc !== accordion) acc.classList.remove('active');
+          // });
+          accordion.classList.toggle("active");
+        });
+      });
+
+      // -------- 3. SMOOTH SCROLL FOR TOC (optional enhancement) --------
+      document.querySelectorAll(".toc-grid a").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute("href").substring(1);
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+
+      console.log("🧠 Neurodevelopmental Disorders Guide loaded successfully!");
+    </script>
+  </body>
+</html>
