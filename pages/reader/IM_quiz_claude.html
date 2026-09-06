@@ -1,0 +1,2932 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Working Papers — Breakeven &amp; Payback / Supply Chain &amp; Organization
+    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0b1c28;
+        --surface: #122a3a;
+        --surface-2: #16324a;
+        --grid-line: rgba(210, 230, 240, 0.055);
+        --hair: rgba(210, 230, 240, 0.14);
+        --ink: #e9f2f7;
+        --ink-dim: #93aebd;
+        --ink-faint: #6c8494;
+        --brass: #e3b25f;
+        --brass-dim: rgba(227, 178, 95, 0.15);
+        --teal: #6fd0c3;
+        --teal-dim: rgba(111, 208, 195, 0.15);
+        --coral: #e08a72;
+        --coral-dim: rgba(224, 138, 114, 0.14);
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+        --sans: "IBM Plex Sans", -apple-system, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background-color: var(--bg);
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 34px 34px;
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      ::selection {
+        background: var(--brass);
+        color: #12212b;
+      }
+
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      /* ---------- Cover ---------- */
+      .cover {
+        padding: 64px 22px 40px;
+        max-width: 860px;
+        margin: 0 auto;
+        border-bottom: 1px solid var(--hair);
+      }
+      .cover-kicker {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        letter-spacing: 0.06em;
+        color: var(--ink-faint);
+        display: flex;
+        justify-content: space-between;
+        border-top: 1px solid var(--hair);
+        border-bottom: 1px solid var(--hair);
+        padding: 8px 0;
+        margin-bottom: 34px;
+      }
+      h1.cover-title {
+        font-family: var(--mono);
+        font-weight: 600;
+        font-size: clamp(28px, 5vw, 44px);
+        line-height: 1.15;
+        margin: 0 0 18px;
+        letter-spacing: -0.01em;
+      }
+      .cover-title .accent {
+        color: var(--brass);
+      }
+      .cover-sub {
+        color: var(--ink-dim);
+        font-size: 16px;
+        max-width: 60ch;
+        margin: 0 0 30px;
+      }
+      .cover-index {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--hair);
+        border: 1px solid var(--hair);
+      }
+      .cover-index a {
+        background: var(--surface);
+        padding: 20px 22px;
+        text-decoration: none;
+        display: block;
+        transition: background 0.15s ease;
+      }
+      .cover-index a:hover {
+        background: var(--surface-2);
+      }
+      .cover-index .tag {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.05em;
+        color: var(--teal);
+        margin-bottom: 8px;
+        display: block;
+      }
+      .cover-index.eco .tag {
+        color: var(--brass);
+      }
+      .cover-index h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .cover-index p {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--ink-dim);
+      }
+
+      @media (max-width: 560px) {
+        .cover-index {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ---------- Sticky nav ---------- */
+      .tocbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(11, 28, 40, 0.92);
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid var(--hair);
+      }
+      .tocbar-inner {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 22px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 52px;
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .tocbar a {
+        text-decoration: none;
+        color: var(--ink-dim);
+        padding: 7px 12px;
+        border-radius: 2px;
+        border: 1px solid transparent;
+      }
+      .tocbar a.eco:hover,
+      .tocbar a.eco.active {
+        color: var(--brass);
+        border-color: var(--brass-dim);
+        background: var(--brass-dim);
+      }
+      .tocbar a.org:hover,
+      .tocbar a.org.active {
+        color: var(--teal);
+        border-color: var(--teal-dim);
+        background: var(--teal-dim);
+      }
+      .tocbar details {
+        margin-left: auto;
+        position: relative;
+      }
+      .tocbar summary {
+        list-style: none;
+        cursor: pointer;
+        color: var(--ink-faint);
+        padding: 7px 10px;
+      }
+      .tocbar summary::-webkit-details-marker {
+        display: none;
+      }
+      .tocmenu {
+        position: absolute;
+        right: 0;
+        top: 38px;
+        background: var(--surface-2);
+        border: 1px solid var(--hair);
+        padding: 10px;
+        width: 250px;
+        max-height: 70vh;
+        overflow: auto;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      }
+      .tocmenu .grp {
+        font-size: 11px;
+        color: var(--ink-faint);
+        margin: 10px 4px 4px;
+        letter-spacing: 0.05em;
+      }
+      .tocmenu a {
+        display: block;
+        padding: 6px 8px;
+        font-size: 12.5px;
+        color: var(--ink-dim);
+        text-decoration: none;
+        border-radius: 2px;
+      }
+      .tocmenu a:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--ink);
+      }
+
+      /* ---------- Chapters / sheets ---------- */
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 10px 22px 40px;
+      }
+      .chapter-head {
+        padding: 56px 0 26px;
+        margin-top: 20px;
+      }
+      .chapter-head .num {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-faint);
+        letter-spacing: 0.08em;
+      }
+      .chapter-head h2 {
+        font-family: var(--mono);
+        font-size: clamp(24px, 4vw, 32px);
+        margin: 8px 0 10px;
+        font-weight: 600;
+      }
+      .chapter.eco .chapter-head h2 {
+        color: var(--brass);
+      }
+      .chapter.org .chapter-head h2 {
+        color: var(--teal);
+      }
+      .chapter-head p {
+        color: var(--ink-dim);
+        max-width: 58ch;
+        margin: 0;
+      }
+
+      .sheet {
+        border-top: 1px solid var(--hair);
+        padding: 34px 0;
+      }
+      .sheet-tag {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.05em;
+        color: var(--ink-faint);
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .chapter.eco .sheet-tag {
+        color: var(--brass);
+        opacity: 0.75;
+      }
+      .chapter.org .sheet-tag {
+        color: var(--teal);
+        opacity: 0.75;
+      }
+      .sheet h3 {
+        font-size: 20px;
+        margin: 0 0 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .sheet .lede {
+        color: var(--ink-dim);
+        margin: 0 0 18px;
+        max-width: 62ch;
+      }
+      .sheet p {
+        margin: 0 0 12px;
+        max-width: 66ch;
+      }
+
+      /* ---------- Cards / grids ---------- */
+      .grid {
+        display: grid;
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .grid.cols-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+      .grid.cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .grid.cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      @media (max-width: 640px) {
+        .grid.cols-2,
+        .grid.cols-3,
+        .grid.cols-4 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--hair);
+        padding: 16px 18px;
+      }
+      .card .lbl {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.03em;
+        margin-bottom: 6px;
+        display: block;
+      }
+      .chapter.eco .card .lbl {
+        color: var(--brass);
+      }
+      .chapter.org .card .lbl {
+        color: var(--teal);
+      }
+      .card p {
+        margin: 0;
+        font-size: 14.5px;
+        color: var(--ink-dim);
+      }
+      .card p.tight {
+        margin-top: 4px;
+      }
+
+      .num-card {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 14px 0;
+        border-top: 1px solid var(--grid-line);
+      }
+      .num-card:first-child {
+        border-top: none;
+      }
+      .num-card .n {
+        font-family: var(--mono);
+        font-size: 13px;
+        width: 26px;
+        flex: none;
+        padding-top: 2px;
+      }
+      .chapter.eco .num-card .n {
+        color: var(--brass);
+      }
+      .chapter.org .num-card .n {
+        color: var(--teal);
+      }
+      .num-card .t {
+        font-weight: 600;
+        margin-bottom: 3px;
+        font-size: 15px;
+      }
+      .num-card .d {
+        color: var(--ink-dim);
+        font-size: 14.5px;
+      }
+
+      /* formula block */
+      .formula {
+        font-family: var(--mono);
+        background: var(--surface-2);
+        border-left: 3px solid var(--brass);
+        padding: 16px 20px;
+        margin: 16px 0;
+        font-size: 15px;
+        overflow-x: auto;
+        white-space: pre;
+      }
+      .chapter.org .formula {
+        border-left-color: var(--teal);
+      }
+
+      .steps {
+        margin: 16px 0;
+        padding: 0;
+      }
+      .steps li {
+        margin-bottom: 8px;
+        color: var(--ink-dim);
+        font-size: 14.5px;
+      }
+
+      .callout {
+        border: 1px dashed var(--coral);
+        background: var(--coral-dim);
+        padding: 14px 18px;
+        margin: 18px 0;
+        font-size: 14.5px;
+      }
+      .callout .lbl {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--coral);
+        letter-spacing: 0.05em;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .worked {
+        background: var(--surface);
+        border: 1px solid var(--hair);
+        padding: 20px 22px;
+        margin: 18px 0;
+      }
+      .worked .lbl {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--ink-faint);
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+        display: block;
+      }
+      .worked .line {
+        font-family: var(--mono);
+        font-size: 14px;
+        margin: 4px 0;
+        color: var(--ink-dim);
+      }
+      .worked .line b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .worked .result {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--hair);
+        font-family: var(--mono);
+        font-size: 15px;
+        color: var(--brass);
+        font-weight: 600;
+      }
+      .chapter.org .worked .result {
+        color: var(--teal);
+      }
+
+      figure {
+        margin: 20px 0;
+        text-align: center;
+      }
+      figure svg {
+        width: 100%;
+        height: auto;
+        max-width: 560px;
+        display: block;
+        margin: 0 auto;
+      }
+      figcaption {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+        margin-top: 10px;
+        font-family: var(--mono);
+      }
+
+      table.compare {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+      table.compare th,
+      table.compare td {
+        border: 1px solid var(--hair);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      table.compare th {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.04em;
+        color: var(--ink-faint);
+        font-weight: 500;
+        background: var(--surface);
+      }
+      table.compare td {
+        color: var(--ink-dim);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 14px 0;
+      }
+      .pill {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 5px 10px;
+        border: 1px solid var(--hair);
+        color: var(--ink-dim);
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 16px 0;
+      }
+      @media (max-width: 640px) {
+        .two-col {
+          grid-template-columns: 1fr;
+        }
+      }
+      .two-col .box {
+        border: 1px solid var(--hair);
+        padding: 16px 18px;
+        background: var(--surface);
+      }
+      .two-col .box h4 {
+        margin: 0 0 8px;
+        font-size: 14.5px;
+        font-family: var(--mono);
+        letter-spacing: 0.03em;
+      }
+      .two-col .box ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--ink-dim);
+        font-size: 14px;
+      }
+      .two-col .box ul li {
+        margin-bottom: 4px;
+      }
+      .two-col .box.hi-brass {
+        border-color: var(--brass-dim);
+        background: linear-gradient(180deg, var(--brass-dim), transparent 70%);
+      }
+      .two-col .box.hi-brass h4 {
+        color: var(--brass);
+      }
+      .two-col .box.hi-teal {
+        border-color: var(--teal-dim);
+        background: linear-gradient(180deg, var(--teal-dim), transparent 70%);
+      }
+      .two-col .box.hi-teal h4 {
+        color: var(--teal);
+      }
+
+      .quad {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1px;
+        background: var(--hair);
+        border: 1px solid var(--hair);
+        margin: 18px 0;
+        position: relative;
+      }
+      .quad .cell {
+        background: var(--surface);
+        padding: 16px;
+        font-size: 13.5px;
+        color: var(--ink-dim);
+      }
+      .quad .cell b {
+        display: block;
+        color: var(--ink);
+        font-size: 13.5px;
+        margin-bottom: 4px;
+        font-family: var(--mono);
+      }
+      .quad-axis-top,
+      .quad-axis-left {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-faint);
+        text-align: center;
+        letter-spacing: 0.04em;
+        padding: 4px 0;
+      }
+
+      details.sub {
+        border-top: 1px solid var(--grid-line);
+        padding: 10px 0;
+      }
+      details.sub summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14.5px;
+        padding: 6px 0;
+        list-style: none;
+      }
+      details.sub summary::-webkit-details-marker {
+        display: none;
+      }
+      details.sub summary::before {
+        content: "+ ";
+        font-family: var(--mono);
+        color: var(--ink-faint);
+      }
+      details.sub[open] summary::before {
+        content: "– ";
+      }
+      details.sub .body {
+        padding: 6px 0 4px 18px;
+        color: var(--ink-dim);
+        font-size: 14.5px;
+      }
+
+      footer {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px 22px 80px;
+        border-top: 1px solid var(--hair);
+        color: var(--ink-faint);
+        font-family: var(--mono);
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .back-top {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        font-family: var(--mono);
+        font-size: 12px;
+        background: var(--surface-2);
+        border: 1px solid var(--hair);
+        color: var(--ink-dim);
+        padding: 10px 12px;
+        text-decoration: none;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .back-top.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      svg text {
+        font-family: var(--mono);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="cover-kicker">
+        <span>WORKING PAPERS — COURSE NOTES</span><span>VOL. II</span>
+      </div>
+      <h1 class="cover-title">
+        Breakeven, Payback<br />&amp; the
+        <span class="accent">Systems</span> Around Them
+      </h1>
+      <p class="cover-sub">
+        Two working chapters: the arithmetic of finding where a project stops
+        losing money, and the structures and people that make a supply chain —
+        or any organization — run without breaking down.
+      </p>
+      <div class="cover-index">
+        <a href="#ch1" class="tag-wrap eco">
+          <span class="tag">CH. 13 · ENGINEERING ECONOMY</span>
+          <h3>Breakeven &amp; Payback Analysis</h3>
+          <p>
+            Fixed vs. variable cost, one-project and two-alternative breakeven,
+            and no-return vs. discounted payback.
+          </p>
+        </a>
+        <a href="#ch2" class="tag-wrap org">
+          <span class="tag">CH. 14 · SCM &amp; ORGANIZATION</span>
+          <h3>Supply Chain, Structure &amp; People</h3>
+          <p>
+            Supply chain flows and the bullwhip effect, org design,
+            coordination, personnel, motivation and leadership.
+          </p>
+        </a>
+      </div>
+    </div>
+
+    <nav class="tocbar">
+      <div class="tocbar-inner">
+        <a href="#ch1" class="eco">Ch.13 — Breakeven</a>
+        <a href="#ch2" class="org">Ch.14 — SCM &amp; Org</a>
+        <details>
+          <summary>Contents ▾</summary>
+          <div class="tocmenu">
+            <div class="grp">BREAKEVEN &amp; PAYBACK</div>
+            <a href="#s-outcomes">Learning outcomes</a>
+            <a href="#s-whatis">What is a breakeven point</a>
+            <a href="#s-crmodel">Cost–revenue model</a>
+            <a href="#s-formula">Breakeven formula (linear)</a>
+            <a href="#s-ex1">Worked example — one project</a>
+            <a href="#s-twoalt">Breakeven — two alternatives</a>
+            <a href="#s-ex2">Worked example — make vs. buy</a>
+            <a href="#s-payback">Payback period analysis</a>
+            <a href="#s-remember">Points to remember</a>
+            <div class="grp">SUPPLY CHAIN MANAGEMENT</div>
+            <a href="#s-scmfound">Foundations</a>
+            <a href="#s-process">Cyclic &amp; push/pull views</a>
+            <a href="#s-drivers">Six performance drivers</a>
+            <a href="#s-coordfail">Coordination failure</a>
+            <a href="#s-bullwhip">The bullwhip effect</a>
+            <a href="#s-cases">Case studies</a>
+            <div class="grp">ORGANIZATION &amp; PEOPLE</div>
+            <a href="#s-orgdesign">Organizational design</a>
+            <a href="#s-structures">Common structures</a>
+            <a href="#s-span">Span of control</a>
+            <a href="#s-central">Centralization</a>
+            <a href="#s-coordmgmt">Coordination in management</a>
+            <a href="#s-personnel">Personnel management</a>
+            <a href="#s-motivation">Motivation theories</a>
+            <a href="#s-leadership">Leadership theories</a>
+          </div>
+        </details>
+      </div>
+    </nav>
+
+    <main>
+      <!-- ================= CHAPTER 1 ================= -->
+      <section id="ch1" class="chapter eco">
+        <div class="chapter-head">
+          <div class="num">CHAPTER 13</div>
+          <h2>Breakeven &amp; Payback Analysis</h2>
+          <p>
+            Engineering Economy — finding the value of a parameter that makes
+            two things equal, and how fast an investment pays for itself.
+          </p>
+        </div>
+
+        <div class="sheet" id="s-outcomes">
+          <div class="sheet-tag">
+            <span>13–1</span><span>LEARNING OUTCOMES</span>
+          </div>
+          <div class="num-card">
+            <span class="n">01</span>
+            <div>
+              <div class="t">Breakeven point — one parameter</div>
+              <div class="d">
+                Finding the single value of a variable (like quantity) that
+                makes a project break even.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">02</span>
+            <div>
+              <div class="t">Breakeven point — two alternatives</div>
+              <div class="d">
+                Finding the value of a common variable at which two competing
+                alternatives cost the same.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">03</span>
+            <div>
+              <div class="t">Payback period analysis</div>
+              <div class="d">
+                Estimating how long it takes cash inflows to recover an initial
+                investment.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-whatis">
+          <div class="sheet-tag">
+            <span>13–2 / 13–4</span><span>WHAT IS A BREAKEVEN POINT</span>
+          </div>
+          <h3>Value of a parameter that makes two elements equal</h3>
+          <p class="lede">
+            The parameter can be revenue, cost, supply, demand, or almost
+            anything else — for a single project, or for a comparison between
+            two alternatives.
+          </p>
+          <div class="two-col">
+            <div class="box">
+              <h4>ONE PROJECT</h4>
+              <p style="color: var(--ink-dim); font-size: 14px; margin: 0">
+                The breakeven point is identified as
+                <b style="color: var(--ink)">Q<sub>BE</sub></b
+                >, determined using linear or non-linear relations for revenue
+                and cost.
+              </p>
+            </div>
+            <div class="box">
+              <h4>TWO ALTERNATIVES</h4>
+              <p style="color: var(--ink-dim); font-size: 14px; margin: 0">
+                Determine one of the parameters —
+                <b style="color: var(--ink)">P, A, F, i,</b> or
+                <b style="color: var(--ink)">n</b> — while holding the others
+                constant.
+              </p>
+            </div>
+          </div>
+          <p class="lede" style="margin-top: 18px">
+            A breakeven value can be found by any of three routes:
+          </p>
+          <div class="pill-row">
+            <span class="pill">Direct solution of relations</span>
+            <span class="pill">Trial and error</span>
+            <span class="pill">Spreadsheet functions or tools</span>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-crmodel">
+          <div class="sheet-tag">
+            <span>13–4</span><span>COST–REVENUE MODEL — ONE PROJECT</span>
+          </div>
+          <h3>Fixed cost, variable cost, revenue, profit</h3>
+          <div class="grid cols-2">
+            <div class="card">
+              <span class="lbl">FIXED COST, FC</span>
+              <p>
+                Costs <b style="color: var(--ink)">not</b> directly dependent on
+                the variable — buildings, fixed overhead, insurance, minimum
+                workforce cost.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">VARIABLE COST, VC</span>
+              <p>
+                Costs that change with the parameter — labor, material,
+                marketing. Variable cost <i>per unit</i> is
+                <b style="color: var(--ink)">v</b>.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">TOTAL COST, TC</span>
+              <p>
+                Sum of fixed and variable costs:
+                <b style="color: var(--ink)">TC = FC + VC</b>
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">REVENUE, R</span>
+              <p>
+                Amount dependent on quantity sold. Revenue <i>per unit</i> is
+                <b style="color: var(--ink)">r</b>.
+              </p>
+            </div>
+          </div>
+          <div class="formula">Profit, P = R – TC = R – (FC + VC)</div>
+        </div>
+
+        <div class="sheet" id="s-formula">
+          <div class="sheet-tag">
+            <span>13–5</span><span>BREAKEVEN FOR LINEAR R AND TC</span>
+          </div>
+          <h3>Set R = TC and solve for Q = Q<sub>BE</sub></h3>
+          <div class="formula">R = TC rQ = FC + vQ FC Q_BE = ───── r – v</div>
+          <p>
+            When the variable cost, <b>v</b>, is lowered, Q<sub>BE</sub>
+            decreases — the breakeven point moves left, so the project turns a
+            profit sooner.
+          </p>
+          <figure>
+            <svg
+              viewBox="0 0 640 380"
+              role="img"
+              aria-label="Breakeven chart showing revenue and total cost lines crossing at the breakeven quantity"
+            >
+              <line
+                x1="70"
+                y1="320"
+                x2="600"
+                y2="320"
+                stroke="var(--hair)"
+                stroke-width="1.5"
+              />
+              <line
+                x1="70"
+                y1="320"
+                x2="70"
+                y2="20"
+                stroke="var(--hair)"
+                stroke-width="1.5"
+              />
+              <text x="40" y="30" fill="#93aebd" font-size="13">$</text>
+              <text x="560" y="345" fill="#93aebd" font-size="13">Q</text>
+              <polygon
+                points="70,320 70,260 280,200 280,320"
+                fill="#e08a72"
+                opacity="0.12"
+              />
+              <polygon
+                points="280,200 560,120 560,320 280,320"
+                fill="#6fd0c3"
+                opacity="0.12"
+              />
+              <line
+                x1="70"
+                y1="320"
+                x2="560"
+                y2="40"
+                stroke="#6fd0c3"
+                stroke-width="2.2"
+              />
+              <text x="565" y="45" fill="#6fd0c3" font-size="14">R</text>
+              <line
+                x1="70"
+                y1="260"
+                x2="560"
+                y2="120"
+                stroke="#e3b25f"
+                stroke-width="2.2"
+              />
+              <text x="565" y="125" fill="#e3b25f" font-size="14">TC</text>
+              <line
+                x1="280"
+                y1="200"
+                x2="280"
+                y2="320"
+                stroke="#e9f2f7"
+                stroke-width="1"
+                stroke-dasharray="4 4"
+                opacity="0.6"
+              />
+              <circle cx="280" cy="200" r="4.5" fill="#e9f2f7" />
+              <text x="230" y="345" fill="#e9f2f7" font-size="13">Q_BE</text>
+              <text x="105" y="290" fill="#e08a72" font-size="13">Loss</text>
+              <text x="470" y="290" fill="#6fd0c3" font-size="13">Profit</text>
+              <text x="240" y="180" fill="#e9f2f7" font-size="12" opacity="0.8">
+                Breakeven
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 13–1 — Revenue and total-cost lines cross at Q_BE; loss to
+              the left, profit to the right.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="sheet" id="s-ex1">
+          <div class="sheet-tag">
+            <span>13–6</span><span>WORKED EXAMPLE — ONE-PROJECT BREAKEVEN</span>
+          </div>
+          <h3>A plant producing above its breakeven level</h3>
+          <p class="lede">
+            A plant produces 15,000 units/month. FC = $75,000/month, revenue is
+            $8/unit, and variable cost is $2.50/unit. Find the breakeven level
+            and the expected monthly profit or loss.
+          </p>
+          <div class="worked">
+            <span class="lbl">SOLUTION</span>
+            <div class="line">Q_BE = FC / (r – v) = 75,000 / (8.00 – 2.50)</div>
+            <div class="line"><b>Q_BE = 13,636 units/month</b></div>
+            <div class="line" style="margin-top: 10px">
+              Production (15,000) is above breakeven (13,636), so the plant is
+              profitable.
+            </div>
+            <div class="line" style="margin-top: 10px">
+              Profit = (r – v)Q – FC = (8.00 – 2.50)(15,000) – 75,000
+            </div>
+            <div class="result">Profit = $7,500 / month</div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-twoalt">
+          <div class="sheet-tag">
+            <span>13–7</span><span>BREAKEVEN BETWEEN TWO ALTERNATIVES</span>
+          </div>
+          <h3>Finding the value of a common variable</h3>
+          <ol class="steps">
+            <li>
+              <b style="color: var(--ink)">1.</b> Define the common variable.
+            </li>
+            <li>
+              <b style="color: var(--ink)">2.</b> Develop equivalence PW, AW, or
+              FW relations as a function of that variable, for each alternative.
+            </li>
+            <li>
+              <b style="color: var(--ink)">3.</b> Equate the relations and solve
+              for the variable — this is the breakeven value.
+            </li>
+          </ol>
+          <div class="two-col">
+            <div
+              class="box hi-coral"
+              style="
+                border-color: rgba(224, 138, 114, 0.35);
+                background: linear-gradient(
+                  180deg,
+                  var(--coral-dim),
+                  transparent 70%
+                );
+              "
+            >
+              <h4 style="color: var(--coral)">VALUE BELOW BREAKEVEN</h4>
+              <ul>
+                <li>
+                  Select the alternative with the <b>higher</b> variable cost —
+                  the larger slope.
+                </li>
+              </ul>
+            </div>
+            <div class="box hi-teal">
+              <h4>VALUE ABOVE BREAKEVEN</h4>
+              <ul>
+                <li>
+                  Select the alternative with the <b>lower</b> variable cost.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-ex2">
+          <div class="sheet-tag">
+            <span>13–15</span><span>WORKED EXAMPLE — MAKE VS. BUY</span>
+          </div>
+          <h3>Two-alternative breakeven analysis</h3>
+          <p class="lede">
+            Common variable X = units produced per year. AW relations:
+          </p>
+          <div class="formula">
+            AW_make = -18,000(A/P,15%,6) + 2,000(A/F,15%,6) - 0.4X AW_buy =
+            -1.5X
+          </div>
+          <div class="worked">
+            <span class="lbl">SOLUTION — EQUATE AND SOLVE FOR X</span>
+            <div class="line">-1.5X = -4,528 - 0.4X</div>
+            <div class="result">X = 4,116 units / year</div>
+          </div>
+          <figure>
+            <svg
+              viewBox="0 0 640 380"
+              role="img"
+              aria-label="AW make versus AW buy lines crossing at X = 4116 units per year"
+            >
+              <line
+                x1="70"
+                y1="320"
+                x2="600"
+                y2="320"
+                stroke="var(--hair)"
+                stroke-width="1.5"
+              />
+              <line
+                x1="70"
+                y1="320"
+                x2="70"
+                y2="20"
+                stroke="var(--hair)"
+                stroke-width="1.5"
+              />
+              <text x="20" y="30" fill="#93aebd" font-size="12">
+                AW, $1000/yr
+              </text>
+              <text x="540" y="345" fill="#93aebd" font-size="12">
+                X, 1000 units/yr
+              </text>
+              <line
+                x1="70"
+                y1="320"
+                x2="560"
+                y2="57.5"
+                stroke="#e08a72"
+                stroke-width="2.2"
+              />
+              <text x="565" y="60" fill="#e08a72" font-size="13">AW_buy</text>
+              <line
+                x1="70"
+                y1="161.5"
+                x2="560"
+                y2="91.5"
+                stroke="#e3b25f"
+                stroke-width="2.2"
+              />
+              <text x="565" y="95" fill="#e3b25f" font-size="13">AW_make</text>
+              <line
+                x1="473"
+                y1="104"
+                x2="473"
+                y2="320"
+                stroke="#e9f2f7"
+                stroke-width="1"
+                stroke-dasharray="4 4"
+                opacity="0.6"
+              />
+              <circle cx="473" cy="104" r="4.5" fill="#e9f2f7" />
+              <text x="420" y="345" fill="#e9f2f7" font-size="12">4.116</text>
+              <text
+                x="120"
+                y="140"
+                fill="#e9f2f7"
+                font-size="12"
+                opacity="0.85"
+              >
+                Make cheaper here →
+              </text>
+              <text x="330" y="60" fill="#e9f2f7" font-size="12" opacity="0.85">
+                ← Buy cheaper here
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 13–2 — Below 4,116 units/yr buying is cheaper; above it,
+              making is cheaper.
+            </figcaption>
+          </figure>
+          <div class="callout">
+            <span class="lbl">DECISION RULE</span>
+            If anticipated production &gt; 4,116 units/year, select
+            <b>Make</b> (the lower variable-cost option). Below it, select
+            <b>Buy</b>.
+          </div>
+        </div>
+
+        <div class="sheet" id="s-payback">
+          <div class="sheet-tag">
+            <span>13–11</span><span>PAYBACK PERIOD ANALYSIS</span>
+          </div>
+          <h3>How fast an investment recovers itself</h3>
+          <p class="lede">
+            Payback period: the estimated amount of time, n<sub>p</sub>, for
+            cash inflows to recover an initial investment, P, plus a stated rate
+            of return, i%.
+          </p>
+          <div class="grid cols-2">
+            <div class="card">
+              <span class="lbl">NO-RETURN PAYBACK</span>
+              <p>Rate of return is treated as zero (i = 0%).</p>
+            </div>
+            <div class="card">
+              <span class="lbl">DISCOUNTED PAYBACK</span>
+              <p>Considers the time value of money (i &gt; 0%).</p>
+            </div>
+          </div>
+          <div class="callout">
+            <span class="lbl">CAUTION</span>
+            Payback period analysis is a good <b>initial screening tool</b> —
+            not the primary method for justifying a project or choosing between
+            alternatives.
+          </div>
+        </div>
+
+        <div class="sheet" id="s-remember">
+          <div class="sheet-tag">
+            <span>13–13</span><span>POINTS TO REMEMBER</span>
+          </div>
+          <h3>Limits of payback analysis</h3>
+          <div class="num-card">
+            <span class="n">—</span>
+            <div>
+              <div class="d">
+                No-return payback neglects the time value of money, so no return
+                is expected on the investment made.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">—</span>
+            <div>
+              <div class="d">
+                Cash flows after the payback period aren't considered — the true
+                return may be higher if those later flows are positive.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">—</span>
+            <div>
+              <div class="d">
+                The payback approach differs fundamentally from PW, AW, ROR, and
+                B/C analysis — it can lead to selecting a different alternative
+                than they would.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">—</span>
+            <div>
+              <div class="d">
+                Rely on payback as a supplemental tool; use PW or AW at the MARR
+                for the reliable decision.
+              </div>
+            </div>
+          </div>
+          <div class="num-card">
+            <span class="n">—</span>
+            <div>
+              <div class="d">
+                Discounted payback (i &gt; 0%) gives a better sense of the risk
+                involved.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CHAPTER 2 ================= -->
+      <section id="ch2" class="chapter org">
+        <div class="chapter-head">
+          <div class="num">CHAPTER 14</div>
+          <h2>Supply Chain, Structure &amp; People</h2>
+          <p>
+            How goods and information move through a chain of firms, and how the
+            people and structures inside any one firm are organized,
+            coordinated, and led.
+          </p>
+        </div>
+
+        <div class="sheet" id="s-scmfound">
+          <div class="sheet-tag">
+            <span>SCM–01</span><span>FOUNDATIONS</span>
+          </div>
+          <h3>What is a supply chain?</h3>
+          <p class="lede">
+            Every party involved, directly or indirectly, in fulfilling a
+            customer request — not just manufacturers and suppliers, but
+            transporters, warehouses, retailers, and customers themselves.
+          </p>
+          <figure>
+            <svg
+              viewBox="0 0 640 200"
+              role="img"
+              aria-label="Supply chain flow diagram from supplier to customer"
+            >
+              <text
+                x="320"
+                y="30"
+                text-anchor="middle"
+                fill="#93aebd"
+                font-size="12"
+              >
+                Information &amp; funds ↔
+              </text>
+              <path
+                d="M600,45 L40,45"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                stroke-dasharray="3 4"
+                marker-end="url(#arrL)"
+              />
+              <defs>
+                <marker
+                  id="arrL"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="4"
+                  refY="4"
+                  orient="auto"
+                >
+                  <path d="M8,0 L0,4 L8,8 Z" fill="#6fd0c3" />
+                </marker>
+                <marker
+                  id="arrR"
+                  markerWidth="8"
+                  markerHeight="8"
+                  refX="4"
+                  refY="4"
+                  orient="auto"
+                >
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#e3b25f" />
+                </marker>
+              </defs>
+              <g font-size="12" fill="#e9f2f7">
+                <rect
+                  x="20"
+                  y="75"
+                  width="94"
+                  height="50"
+                  fill="#122a3a"
+                  stroke="#6fd0c3"
+                  stroke-width="1.3"
+                />
+                <text x="67" y="105" text-anchor="middle">Supplier</text>
+                <rect
+                  x="140"
+                  y="75"
+                  width="110"
+                  height="50"
+                  fill="#122a3a"
+                  stroke="#6fd0c3"
+                  stroke-width="1.3"
+                />
+                <text x="195" y="105" text-anchor="middle">Manufacturer</text>
+                <rect
+                  x="276"
+                  y="75"
+                  width="100"
+                  height="50"
+                  fill="#122a3a"
+                  stroke="#6fd0c3"
+                  stroke-width="1.3"
+                />
+                <text x="326" y="105" text-anchor="middle">Distributor</text>
+                <rect
+                  x="400"
+                  y="75"
+                  width="90"
+                  height="50"
+                  fill="#122a3a"
+                  stroke="#6fd0c3"
+                  stroke-width="1.3"
+                />
+                <text x="445" y="105" text-anchor="middle">Retailer</text>
+                <rect
+                  x="516"
+                  y="75"
+                  width="90"
+                  height="50"
+                  fill="#122a3a"
+                  stroke="#6fd0c3"
+                  stroke-width="1.3"
+                />
+                <text x="561" y="105" text-anchor="middle">Customer</text>
+              </g>
+              <path
+                d="M40,155 L600,155"
+                stroke="#e3b25f"
+                stroke-width="1.4"
+                marker-end="url(#arrR)"
+              />
+              <text
+                x="320"
+                y="180"
+                text-anchor="middle"
+                fill="#93aebd"
+                font-size="12"
+              >
+                Material flow →
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 14–1 — Material moves downstream; information and funds move
+              both ways.
+            </figcaption>
+          </figure>
+          <div class="grid cols-3">
+            <div class="card">
+              <span class="lbl">DYNAMIC, NOT STATIC</span>
+              <p>
+                Constant flow of products, information, and funds between
+                stages.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">CUSTOMER-TRIGGERED</span>
+              <p>
+                Every chain exists to satisfy a customer need — and generate
+                profit while doing it.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">OBJECTIVE</span>
+              <p>
+                Maximize total supply-chain surplus, not the profit of any
+                single stage.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-process">
+          <div class="sheet-tag">
+            <span>SCM–02 / 03</span><span>CYCLIC &amp; PUSH/PULL VIEWS</span>
+          </div>
+          <h3>Two ways to view supply-chain processes</h3>
+          <p class="lede">
+            <b style="color: var(--ink)">Cyclic view:</b> every process is a
+            series of cycles performed at the interface between two successive
+            stages.
+          </p>
+          <div class="grid cols-4">
+            <div class="card">
+              <span class="lbl">PROCUREMENT</span>
+              <p>
+                Manufacturer orders components → supplier production → shipping
+                → receiving.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">MANUFACTURING</span>
+              <p>
+                Order arrival → production scheduling → manufacturing →
+                shipping.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">REPLENISHMENT</span>
+              <p>
+                Retailer order trigger → distributor fulfillment → receiving.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">CUSTOMER ORDER</span>
+              <p>Customer arrival → order entry → fulfillment → receiving.</p>
+            </div>
+          </div>
+          <p class="lede" style="margin-top: 22px">
+            <b style="color: var(--ink)">Push/pull view:</b> processes are
+            classified by whether they run ahead of, or in response to, an
+            actual order.
+          </p>
+          <div class="two-col">
+            <div class="box hi-brass">
+              <h4>PUSH PROCESSES</h4>
+              <p
+                style="
+                  margin-bottom: 8px;
+                  font-size: 13.5px;
+                  color: var(--ink-dim);
+                "
+              >
+                Executed in anticipation of demand — forecast-driven,
+                speculative, needs safety stock.
+              </p>
+              <ul>
+                <li>Raw material procurement</li>
+                <li>Production scheduling</li>
+                <li>Manufacturing</li>
+                <li>Primary distribution</li>
+              </ul>
+            </div>
+            <div class="box hi-teal">
+              <h4>PULL PROCESSES</h4>
+              <p
+                style="
+                  margin-bottom: 8px;
+                  font-size: 13.5px;
+                  color: var(--ink-dim);
+                "
+              >
+                Executed in response to an actual order — reactive,
+                demand-driven.
+              </p>
+              <ul>
+                <li>Order fulfillment</li>
+                <li>Final assembly (some chains)</li>
+                <li>Last-mile delivery</li>
+              </ul>
+            </div>
+          </div>
+          <p>
+            The push–pull boundary's position depends on demand uncertainty and
+            lead time. A make-to-stock chain pushes further (boundary near the
+            customer); a make-to-order chain pulls further upstream. Moving the
+            boundary upstream cuts inventory risk but raises response time.
+          </p>
+        </div>
+
+        <div class="sheet" id="s-drivers">
+          <div class="sheet-tag">
+            <span>SCM–04</span><span>PERFORMANCE FRAMEWORK</span>
+          </div>
+          <h3>Six major drivers of supply-chain performance</h3>
+          <p class="lede">
+            These drivers determine the responsiveness–efficiency trade-off of
+            the entire chain.
+          </p>
+          <div class="grid cols-3">
+            <div class="card">
+              <span class="lbl">FACILITIES</span>
+              <p>
+                Locations where inventory is stored, assembled, or fabricated —
+                plants and warehouses.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">INVENTORY</span>
+              <p>
+                Raw materials, WIP, and finished goods held to buffer
+                mismatches.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">TRANSPORTATION</span>
+              <p>
+                Moving inventory between stages; mode choice trades cost against
+                speed.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">INFORMATION</span>
+              <p>
+                Data on demand, forecasts, inventory, and capacity that
+                coordinates all other drivers.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">SOURCING</span>
+              <p>
+                Deciding who performs each activity — make vs. buy, supplier
+                selection.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">PRICING</span>
+              <p>
+                How pricing decisions shape the demand patterns customers
+                exhibit.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-coordfail">
+          <div class="sheet-tag">
+            <span>SCM–05</span><span>COORDINATION</span>
+          </div>
+          <h3>Lack of coordination in the supply chain</h3>
+          <p class="lede">
+            Coordination exists when every stage acts to maximize total
+            supply-chain profit. Poor coordination arises from misaligned
+            objectives or distorted information.
+          </p>
+          <div class="two-col">
+            <div class="box">
+              <h4 style="color: var(--coral)">CAUSES</h4>
+              <ul>
+                <li>
+                  Incentive misalignment across independently owned stages
+                </li>
+                <li>
+                  Information processing errors (forecasts, orders, lead times)
+                </li>
+                <li>Operational and financial inefficiency between stages</li>
+                <li>
+                  Order batching — large, infrequent orders to save on fixed
+                  costs
+                </li>
+                <li>Price fluctuations — promotions and forward buying</li>
+                <li>Rationing and shortage gaming during supply constraints</li>
+              </ul>
+            </div>
+            <div class="box">
+              <h4 style="color: var(--coral)">EFFECTS</h4>
+              <ul>
+                <li>
+                  Manufacturing cost ↑ — erratic orders force excess capacity or
+                  overtime
+                </li>
+                <li>
+                  Inventory cost ↑ — more safety stock to buffer variability
+                </li>
+                <li>
+                  Replenishment lead time ↑ — overloaded stages fall behind
+                </li>
+                <li>
+                  Transportation cost ↑ — irregular shipments break full-load
+                  efficiency
+                </li>
+                <li>
+                  Product availability ↓ — stockouts despite higher total
+                  inventory
+                </li>
+                <li>
+                  Relationships across the chain ↓ — trust erodes, information
+                  sharing drops
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-bullwhip">
+          <div class="sheet-tag">
+            <span>SCM–06 / 08</span><span>COORDINATION FAILURE IN ACTION</span>
+          </div>
+          <h3>The bullwhip effect</h3>
+          <p class="lede">
+            The single most-cited symptom of poor supply-chain coordination:
+            order fluctuations amplify as they move upstream, away from the end
+            customer.
+          </p>
+          <figure>
+            <svg
+              viewBox="0 0 640 320"
+              role="img"
+              aria-label="Bar chart showing order variability amplifying from customer to manufacturer"
+            >
+              <line
+                x1="60"
+                y1="280"
+                x2="600"
+                y2="280"
+                stroke="var(--hair)"
+                stroke-width="1.5"
+              />
+              <g font-size="13" fill="#e9f2f7">
+                <rect x="80" y="270.6" width="90" height="9.4" fill="#6fd0c3" />
+                <text x="125" y="262" text-anchor="middle" fill="#93aebd">
+                  ±3%
+                </text>
+                <text x="125" y="300" text-anchor="middle" font-size="12">
+                  Customer
+                </text>
+
+                <rect
+                  x="210"
+                  y="217.2"
+                  width="90"
+                  height="62.8"
+                  fill="#6fd0c3"
+                />
+                <text x="255" y="208" text-anchor="middle" fill="#93aebd">
+                  ±20%
+                </text>
+                <text x="255" y="300" text-anchor="middle" font-size="12">
+                  Retailer
+                </text>
+
+                <rect
+                  x="340"
+                  y="138.6"
+                  width="90"
+                  height="141.4"
+                  fill="#e3b25f"
+                />
+                <text x="385" y="130" text-anchor="middle" fill="#93aebd">
+                  ±45%
+                </text>
+                <text x="385" y="300" text-anchor="middle" font-size="12">
+                  Distributor
+                </text>
+
+                <rect
+                  x="470"
+                  y="60.2"
+                  width="90"
+                  height="219.8"
+                  fill="#e08a72"
+                />
+                <text x="515" y="52" text-anchor="middle" fill="#93aebd">
+                  ±70%
+                </text>
+                <text x="515" y="300" text-anchor="middle" font-size="12">
+                  Manufacturer
+                </text>
+              </g>
+              <text
+                x="320"
+                y="30"
+                text-anchor="middle"
+                fill="#93aebd"
+                font-size="12"
+              >
+                Order-quantity variability, moving upstream →
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 14–2 — Illustrative order variability by stage: the further
+              from the customer, the wider the swing.
+            </figcaption>
+          </figure>
+          <p>
+            <b style="color: var(--ink)">Root cause:</b> each stage forecasts
+            and orders independently, amplifying small demand signals — an
+            <i>information</i> problem, not a demand problem.
+          </p>
+          <table class="compare">
+            <tr>
+              <th>Cause</th>
+              <th>Why it happens</th>
+              <th>Countermeasure</th>
+            </tr>
+            <tr>
+              <td>Demand forecast updating</td>
+              <td>
+                Each stage forecasts from the order it receives, not true
+                demand, compounding error upstream.
+              </td>
+              <td>Share point-of-sale data; forecast from actual demand.</td>
+            </tr>
+            <tr>
+              <td>Order batching</td>
+              <td>
+                Periodic or lot-size ordering creates lumpy, infrequent orders.
+              </td>
+              <td>
+                Enable smaller, more frequent replenishment; use third-party
+                consolidation.
+              </td>
+            </tr>
+            <tr>
+              <td>Price fluctuation</td>
+              <td>
+                Trade promotions and forward buying drive large, irregular
+                purchases.
+              </td>
+              <td>Stabilize pricing; move toward every-day-low-pricing.</td>
+            </tr>
+            <tr>
+              <td>Rationing &amp; shortage gaming</td>
+              <td>
+                Inflated orders during shortages misrepresent real demand.
+              </td>
+              <td>
+                Allocate based on past sales; share capacity/inventory data.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="sheet" id="s-cases">
+          <div class="sheet-tag">
+            <span>SCM–07</span><span>CASE STUDIES</span>
+          </div>
+          <h3>Bullwhip effect in the real world</h3>
+          <div class="grid cols-2">
+            <div class="card">
+              <span class="lbl">PROCTER &amp; GAMBLE — PAMPERS</span>
+              <p>
+                <b style="color: var(--ink)">Problem:</b> retail diaper demand
+                was famously steady, yet factory orders from distributors swung
+                far more sharply than actual sell-through.<br /><br />
+                <b style="color: var(--ink)">Response:</b> a Continuous
+                Replenishment Program sharing point-of-sale data directly with
+                retailers.<br /><br />
+                <b style="color: var(--ink)">Result:</b> order variability
+                compressed sharply — lower inventory and fewer stockouts
+                together.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">BARILLA SPA — VENDOR-MANAGED INVENTORY</span>
+              <p>
+                <b style="color: var(--ink)">Problem:</b> trade promotions and
+                volume discounts led to large, irregular distributor orders
+                despite stable end-consumer demand.<br /><br />
+                <b style="color: var(--ink)">Response:</b> a VMI pilot using
+                retailers' actual sell-through data to set shipment
+                quantities.<br /><br />
+                <b style="color: var(--ink)">Result:</b> smoother production and
+                lower inventory chain-wide.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-orgdesign">
+          <div class="sheet-tag">
+            <span>ORG–01</span><span>ORGANIZATION: DESIGN &amp; STRUCTURE</span>
+          </div>
+          <h3>Six building blocks of organizational design</h3>
+          <div class="grid cols-3">
+            <div class="card">
+              <span class="lbl">WORK SPECIALIZATION</span>
+              <p>
+                Dividing tasks into narrow, repeatable jobs rather than one
+                person doing the whole job.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">DEPARTMENTALIZATION</span>
+              <p>
+                Grouping jobs by function, product, geography, process, or
+                customer.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">CHAIN OF COMMAND</span>
+              <p>
+                The unbroken line of authority from top to bottom, clarifying
+                who reports to whom.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">SPAN OF CONTROL</span>
+              <p>
+                How many subordinates a manager can efficiently and effectively
+                direct.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">CENTRALIZATION</span>
+              <p>
+                How much decision-making authority sits at upper levels vs. is
+                pushed down.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">FORMALIZATION</span>
+              <p>
+                The degree to which jobs are standardized via rules, procedures,
+                and documentation.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-structures">
+          <div class="sheet-tag">
+            <span>ORG–02</span><span>COMMON ORGANIZATIONAL STRUCTURES</span>
+          </div>
+          <h3>The same building blocks, four recurring forms</h3>
+          <div class="grid cols-2">
+            <div class="card">
+              <svg
+                viewBox="0 0 200 120"
+                style="
+                  max-width: 100%;
+                  height: 90px;
+                  display: block;
+                  margin: 0 auto 10px;
+                "
+              >
+                <circle
+                  cx="100"
+                  cy="18"
+                  r="12"
+                  fill="none"
+                  stroke="#6fd0c3"
+                  stroke-width="1.4"
+                />
+                <text
+                  x="100"
+                  y="22"
+                  text-anchor="middle"
+                  font-size="9"
+                  fill="#e9f2f7"
+                >
+                  CEO
+                </text>
+                <line
+                  x1="100"
+                  y1="30"
+                  x2="100"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <line
+                  x1="30"
+                  y1="45"
+                  x2="170"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <g font-size="8" fill="#e9f2f7">
+                  <line
+                    x1="30"
+                    y1="45"
+                    x2="30"
+                    y2="58"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="8"
+                    y="58"
+                    width="44"
+                    height="20"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="30" y="71" text-anchor="middle">Mktg</text>
+                  <line
+                    x1="76"
+                    y1="45"
+                    x2="76"
+                    y2="58"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="54"
+                    y="58"
+                    width="44"
+                    height="20"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="76" y="71" text-anchor="middle">Ops</text>
+                  <line
+                    x1="122"
+                    y1="45"
+                    x2="122"
+                    y2="58"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="100"
+                    y="58"
+                    width="44"
+                    height="20"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="122" y="71" text-anchor="middle">Finance</text>
+                  <line
+                    x1="170"
+                    y1="45"
+                    x2="170"
+                    y2="58"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="148"
+                    y="58"
+                    width="44"
+                    height="20"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="170" y="71" text-anchor="middle">HR</text>
+                </g>
+              </svg>
+              <span class="lbl">FUNCTIONAL</span>
+              <p>
+                Groups people by specialty. Efficient, but silos can slow
+                cross-department work.
+              </p>
+            </div>
+            <div class="card">
+              <svg
+                viewBox="0 0 200 120"
+                style="
+                  max-width: 100%;
+                  height: 90px;
+                  display: block;
+                  margin: 0 auto 10px;
+                "
+              >
+                <circle
+                  cx="100"
+                  cy="18"
+                  r="12"
+                  fill="none"
+                  stroke="#6fd0c3"
+                  stroke-width="1.4"
+                />
+                <text
+                  x="100"
+                  y="22"
+                  text-anchor="middle"
+                  font-size="9"
+                  fill="#e9f2f7"
+                >
+                  CEO
+                </text>
+                <line
+                  x1="100"
+                  y1="30"
+                  x2="100"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <line
+                  x1="45"
+                  y1="45"
+                  x2="155"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <g font-size="9" fill="#e9f2f7">
+                  <line
+                    x1="45"
+                    y1="45"
+                    x2="45"
+                    y2="60"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="18"
+                    y="60"
+                    width="54"
+                    height="24"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="45" y="75" text-anchor="middle">Div. A</text>
+                  <line
+                    x1="100"
+                    y1="45"
+                    x2="100"
+                    y2="60"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="73"
+                    y="60"
+                    width="54"
+                    height="24"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="100" y="75" text-anchor="middle">Div. B</text>
+                  <line
+                    x1="155"
+                    y1="45"
+                    x2="155"
+                    y2="60"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <rect
+                    x="128"
+                    y="60"
+                    width="54"
+                    height="24"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1.2"
+                  />
+                  <text x="155" y="75" text-anchor="middle">Div. C</text>
+                </g>
+              </svg>
+              <span class="lbl">DIVISIONAL</span>
+              <p>
+                Groups by product, region, or customer segment — each division
+                runs semi-autonomously.
+              </p>
+            </div>
+            <div class="card">
+              <svg
+                viewBox="0 0 200 120"
+                style="
+                  max-width: 100%;
+                  height: 90px;
+                  display: block;
+                  margin: 0 auto 10px;
+                "
+              >
+                <g font-size="9" fill="#e9f2f7">
+                  <text x="70" y="14" text-anchor="middle">Eng</text>
+                  <text x="110" y="14" text-anchor="middle">Mktg</text>
+                  <text x="150" y="14" text-anchor="middle">Fin</text>
+                  <text x="20" y="46" text-anchor="middle">Proj A</text>
+                  <text x="20" y="80" text-anchor="middle">Proj B</text>
+                </g>
+                <g stroke="#6fd0c3" stroke-width="1" opacity="0.6">
+                  <line x1="45" y1="20" x2="45" y2="90" />
+                  <line x1="45" y1="42" x2="170" y2="42" />
+                  <line x1="90" y1="20" x2="90" y2="90" />
+                  <line x1="45" y1="76" x2="170" y2="76" />
+                  <line x1="130" y1="20" x2="130" y2="90" />
+                </g>
+                <circle cx="90" cy="42" r="4" fill="#e3b25f" />
+                <circle cx="130" cy="76" r="4" fill="#e3b25f" />
+                <circle cx="45" cy="42" r="4" fill="#e3b25f" />
+              </svg>
+              <span class="lbl">MATRIX</span>
+              <p>
+                Dual reporting lines: employees answer to both a functional
+                manager and a project manager.
+              </p>
+            </div>
+            <div class="card">
+              <svg
+                viewBox="0 0 200 120"
+                style="
+                  max-width: 100%;
+                  height: 90px;
+                  display: block;
+                  margin: 0 auto 10px;
+                "
+              >
+                <rect
+                  x="80"
+                  y="10"
+                  width="40"
+                  height="20"
+                  fill="none"
+                  stroke="#6fd0c3"
+                  stroke-width="1.4"
+                />
+                <text
+                  x="100"
+                  y="24"
+                  text-anchor="middle"
+                  font-size="9"
+                  fill="#e9f2f7"
+                >
+                  Owner
+                </text>
+                <line
+                  x1="100"
+                  y1="30"
+                  x2="100"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <line
+                  x1="20"
+                  y1="45"
+                  x2="180"
+                  y2="45"
+                  stroke="#6fd0c3"
+                  stroke-width="1.2"
+                />
+                <g font-size="8" fill="#e9f2f7">
+                  <line
+                    x1="20"
+                    y1="45"
+                    x2="20"
+                    y2="55"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="8"
+                    y="55"
+                    width="24"
+                    height="18"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <text x="20" y="67" text-anchor="middle">A</text>
+                  <line
+                    x1="60"
+                    y1="45"
+                    x2="60"
+                    y2="55"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="48"
+                    y="55"
+                    width="24"
+                    height="18"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <text x="60" y="67" text-anchor="middle">B</text>
+                  <line
+                    x1="100"
+                    y1="45"
+                    x2="100"
+                    y2="55"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="88"
+                    y="55"
+                    width="24"
+                    height="18"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <text x="100" y="67" text-anchor="middle">C</text>
+                  <line
+                    x1="140"
+                    y1="45"
+                    x2="140"
+                    y2="55"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="128"
+                    y="55"
+                    width="24"
+                    height="18"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <text x="140" y="67" text-anchor="middle">D</text>
+                  <line
+                    x1="180"
+                    y1="45"
+                    x2="180"
+                    y2="55"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <rect
+                    x="168"
+                    y="55"
+                    width="24"
+                    height="18"
+                    fill="none"
+                    stroke="#6fd0c3"
+                    stroke-width="1"
+                  />
+                  <text x="180" y="67" text-anchor="middle">E</text>
+                </g>
+              </svg>
+              <span class="lbl">FLAT</span>
+              <p>
+                Few management layers, wide spans of control — faster decisions,
+                more autonomy.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-span">
+          <div class="sheet-tag">
+            <span>ORG–03</span
+            ><span>SPAN OF CONTROL &amp; CHAIN OF COMMAND</span>
+          </div>
+          <h3>Levels and span trade off directly</h3>
+          <div class="two-col">
+            <div class="box">
+              <h4>TALL STRUCTURE</h4>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 3px;
+                  margin: 10px 0;
+                "
+              >
+                <div
+                  style="height: 12px; background: #6fd0c3; width: 20%"
+                ></div>
+                <div
+                  style="
+                    height: 12px;
+                    background: #6fd0c3;
+                    width: 34%;
+                    opacity: 0.85;
+                  "
+                ></div>
+                <div
+                  style="
+                    height: 12px;
+                    background: #6fd0c3;
+                    width: 50%;
+                    opacity: 0.7;
+                  "
+                ></div>
+                <div
+                  style="
+                    height: 12px;
+                    background: #6fd0c3;
+                    width: 66%;
+                    opacity: 0.55;
+                  "
+                ></div>
+                <div
+                  style="
+                    height: 12px;
+                    background: #6fd0c3;
+                    width: 82%;
+                    opacity: 0.4;
+                  "
+                ></div>
+                <div
+                  style="
+                    height: 12px;
+                    background: #6fd0c3;
+                    width: 100%;
+                    opacity: 0.25;
+                  "
+                ></div>
+              </div>
+              <p style="font-size: 13.5px; color: var(--ink-dim); margin: 0">
+                Many levels, narrow span (~3–5 direct reports). Tight control,
+                slower decisions, higher coordination cost.
+              </p>
+            </div>
+            <div class="box">
+              <h4>FLAT STRUCTURE</h4>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 6px;
+                  margin: 10px 0;
+                "
+              >
+                <div
+                  style="height: 18px; background: #e3b25f; width: 22%"
+                ></div>
+                <div
+                  style="
+                    height: 18px;
+                    background: #e3b25f;
+                    width: 60%;
+                    opacity: 0.7;
+                  "
+                ></div>
+                <div
+                  style="
+                    height: 18px;
+                    background: #e3b25f;
+                    width: 100%;
+                    opacity: 0.4;
+                  "
+                ></div>
+              </div>
+              <p style="font-size: 13.5px; color: var(--ink-dim); margin: 0">
+                Few levels, wide span (12+ direct reports). Faster decisions,
+                more autonomy, harder to closely supervise.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheet" id="s-central">
+          <div class="sheet-tag">
+            <span>ORG–04</span><span>CENTRALIZATION VS. DECENTRALIZATION</span>
+          </div>
+          <h3>Where decision-making authority sits</h3>
+          <div class="two-col">
+            <div class="box hi-brass">
+              <h4>CENTRALIZATION</h4>
+              <ul>
+                <li>Consistent, standardized decisions</li>
+                <li>Strong top-down control</li>
+                <li>Simpler for small or stable firms</li>
+                <li>Slower response to local conditions</li>
+              </ul>
+            </div>
+            <div class="box hi-teal">
+              <h4>DECENTRALIZATION</h4>
+              <ul>
+                <li>Faster, locally-informed decisions</li>
+                <li>Builds lower-level management skill</li>
+                <li>Fits dynamic, complex environments</li>
+                <li>Risk of inconsistent execution</li>
+              </ul>
+            </div>
+          </div>
+          <p>
+            Organization size, environmental volatility, strategy, and the cost
+            of a wrong decision all tip the balance — most firms centralize some
+            decisions (e.g. finance) while decentralizing others (e.g. local
+            pricing).
+          </p>
+        </div>
+
+        <div class="sheet" id="s-coordmgmt">
+          <div class="sheet-tag">
+            <span>ORG–05 / 06</span><span>COORDINATION IN MANAGEMENT</span>
+          </div>
+          <h3>The glue that holds an organization together</h3>
+          <p class="lede">
+            Coordination is the process of synchronizing the activities of
+            individuals and departments toward common goals — Mary Parker
+            Follett called it "the glue that holds an organization together."
+            Every managerial function — planning, organizing, staffing,
+            directing — ultimately exists to coordinate effort, and the need
+            grows with complexity.
+          </p>
+          <div class="quad">
+            <div class="quad-axis-top" style="grid-column: 1/3">
+              — HORIZONTAL &nbsp;·&nbsp; VERTICAL —
+            </div>
+            <div class="cell">
+              <b>INTERNAL · VERTICAL</b>Between hierarchy levels inside the firm
+              — e.g. a plant manager aligning shift supervisors with head-office
+              targets.
+            </div>
+            <div class="cell">
+              <b>INTERNAL · HORIZONTAL</b>Between departments at the same level
+              — e.g. production and sales agreeing on a delivery schedule.
+            </div>
+            <div class="cell">
+              <b>EXTERNAL · VERTICAL</b>Up/down a supply chain — e.g. a retailer
+              aligning replenishment cycles with a supplier.
+            </div>
+            <div class="cell">
+              <b>EXTERNAL · HORIZONTAL</b>With outside peers — joint ventures,
+              industry consortia, or regulator liaison.
+            </div>
+          </div>
+          <div class="grid cols-4" style="margin-top: 24px">
+            <div class="card">
+              <span class="lbl">1. DIRECT CONTACT</span>
+              <p>
+                Coordinate through person-to-person communication, not just
+                paperwork.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">2. EARLY STAGE</span>
+              <p>Involve stakeholders while plans are still being formed.</p>
+            </div>
+            <div class="card">
+              <span class="lbl">3. RECIPROCAL RELATIONS</span>
+              <p>
+                Every factor affects, and is affected by, every other factor.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">4. CONTINUOUS PROCESS</span>
+              <p>Coordination is ongoing, not a one-time event.</p>
+            </div>
+          </div>
+          <p class="lede" style="margin-top: 18px">
+            Common techniques: committees &amp; task forces, liaison roles,
+            integrator/project-manager roles, standard rules &amp; procedures,
+            shared goals &amp; plans, and shared information systems (ERP/MIS).
+          </p>
+        </div>
+
+        <div class="sheet" id="s-personnel">
+          <div class="sheet-tag">
+            <span>PM–01 / 03</span><span>PERSONNEL MANAGEMENT</span>
+          </div>
+          <h3>Obtaining, developing, and maintaining a workforce</h3>
+          <div class="grid cols-3">
+            <div class="card">
+              <span class="lbl">MANPOWER PLANNING</span>
+              <p>
+                Forecasting workforce needs against goals and current capacity.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">RECRUITMENT &amp; SELECTION</span>
+              <p>Attracting, screening, and choosing the right people.</p>
+            </div>
+            <div class="card">
+              <span class="lbl">TRAINING &amp; DEVELOPMENT</span>
+              <p>Building employee skills, knowledge, and capability.</p>
+            </div>
+            <div class="card">
+              <span class="lbl">COMPENSATION &amp; BENEFITS</span>
+              <p>Designing fair pay, incentives, and benefit structures.</p>
+            </div>
+            <div class="card">
+              <span class="lbl">PERFORMANCE APPRAISAL</span>
+              <p>Systematically evaluating and improving performance.</p>
+            </div>
+            <div class="card">
+              <span class="lbl">WELFARE &amp; SAFETY</span>
+              <p>
+                Safe conditions, employee welfare, and industrial relations.
+              </p>
+            </div>
+          </div>
+          <div class="two-col" style="margin-top: 20px">
+            <div class="box">
+              <h4>ORGANIZATIONAL OBJECTIVES</h4>
+              <ul>
+                <li>Right people, right jobs</li>
+                <li>Higher productivity</li>
+                <li>Lower turnover &amp; absenteeism</li>
+                <li>Legal &amp; regulatory compliance</li>
+              </ul>
+            </div>
+            <div class="box">
+              <h4>INDIVIDUAL &amp; SOCIAL OBJECTIVES</h4>
+              <ul>
+                <li>Job satisfaction</li>
+                <li>Growth &amp; career development</li>
+                <li>Fair treatment &amp; voice</li>
+                <li>Social responsibility</li>
+              </ul>
+            </div>
+          </div>
+          <p class="lede" style="margin-top: 20px">
+            Functions unfold as a continuous cycle, from planning a hire through
+            to separation:
+          </p>
+          <figure>
+            <svg
+              viewBox="0 0 400 400"
+              role="img"
+              aria-label="Employee life cycle diagram with six stages arranged in a circle"
+            >
+              <circle
+                cx="200"
+                cy="200"
+                r="150"
+                fill="none"
+                stroke="var(--hair)"
+                stroke-width="1.3"
+                stroke-dasharray="2 6"
+              />
+              <g font-size="12.5" fill="#e9f2f7" text-anchor="middle">
+                <circle cx="200" cy="50" r="7" fill="#6fd0c3" />
+                <text x="200" y="34">Procurement</text>
+                <circle cx="330" cy="125" r="7" fill="#6fd0c3" />
+                <text x="356" y="120" text-anchor="start">Development</text>
+                <circle cx="330" cy="275" r="7" fill="#6fd0c3" />
+                <text x="356" y="280" text-anchor="start">Compensation</text>
+                <circle cx="200" cy="350" r="7" fill="#6fd0c3" />
+                <text x="200" y="374">Integration</text>
+                <circle cx="70" cy="275" r="7" fill="#6fd0c3" />
+                <text x="44" y="280" text-anchor="end">Maintenance</text>
+                <circle cx="70" cy="125" r="7" fill="#6fd0c3" />
+                <text x="44" y="120" text-anchor="end">Separation</text>
+              </g>
+              <path
+                d="M215,53 A150,150 0 0,1 325,132"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <path
+                d="M332,140 A150,150 0 0,1 332,260"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <path
+                d="M323,285 A150,150 0 0,1 213,349"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <path
+                d="M187,349 A150,150 0 0,1 77,270"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <path
+                d="M70,260 A150,150 0 0,1 70,140"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <path
+                d="M77,130 A150,150 0 0,1 185,53"
+                fill="none"
+                stroke="#6fd0c3"
+                stroke-width="1.4"
+                marker-end="url(#arrL2)"
+              />
+              <defs>
+                <marker
+                  id="arrL2"
+                  markerWidth="7"
+                  markerHeight="7"
+                  refX="3.5"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <path d="M0,0 L7,3.5 L0,7 Z" fill="#6fd0c3" />
+                </marker>
+              </defs>
+            </svg>
+            <figcaption>
+              Fig. 14–3 — Poor selection raises training cost; weak development
+              undermines appraisal and pay — each stage feeds the next.
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="sheet" id="s-motivation">
+          <div class="sheet-tag">
+            <span>MOT–01…05</span><span>MOTIVATION THEORIES</span>
+          </div>
+          <h3>What drives effort, and how</h3>
+          <p class="lede">
+            Content theories focus on
+            <b style="color: var(--ink)">what</b> motivates people (Maslow,
+            Herzberg, McClelland). Process theories focus on
+            <b style="color: var(--ink)">how</b> motivation happens (Vroom,
+            Adams, McGregor).
+          </p>
+
+          <figure>
+            <svg
+              viewBox="0 0 500 380"
+              role="img"
+              aria-label="Maslow's hierarchy of needs pyramid"
+            >
+              <polygon
+                points="102,360 398,360 326,300 174,300"
+                fill="#122a3a"
+                stroke="#6fd0c3"
+                stroke-width="1.2"
+              />
+              <text
+                x="250"
+                y="335"
+                text-anchor="middle"
+                font-size="13"
+                fill="#e9f2f7"
+              >
+                Physiological
+              </text>
+              <polygon
+                points="174,300 326,300 268,240 232,240"
+                fill="#122a3a"
+                stroke="#6fd0c3"
+                stroke-width="1.2"
+              />
+              <text
+                x="250"
+                y="275"
+                text-anchor="middle"
+                font-size="13"
+                fill="#e9f2f7"
+              >
+                Safety &amp; Security
+              </text>
+              <polygon
+                points="232,240 268,240 242,180 258,180"
+                fill="#122a3a"
+                stroke="#6fd0c3"
+                stroke-width="1.2"
+              />
+              <text
+                x="250"
+                y="215"
+                text-anchor="middle"
+                font-size="13"
+                fill="#e9f2f7"
+              >
+                Social / Belonging
+              </text>
+              <polygon points="196,180 304,180 250,60 250,60" fill="none" />
+              <polygon
+                points="184,180 316,180 268,120 232,120"
+                fill="#122a3a"
+                stroke="#6fd0c3"
+                stroke-width="1.2"
+              />
+              <text
+                x="250"
+                y="155"
+                text-anchor="middle"
+                font-size="13"
+                fill="#e9f2f7"
+              >
+                Esteem
+              </text>
+              <polygon
+                points="232,120 268,120 250,60"
+                fill="#122a3a"
+                stroke="#6fd0c3"
+                stroke-width="1.2"
+              />
+              <text
+                x="250"
+                y="98"
+                text-anchor="middle"
+                font-size="11.5"
+                fill="#e9f2f7"
+              >
+                Self-
+                <tspan x="250" dy="14">Actual.</tspan>
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 14–4 — Maslow's hierarchy: lower needs generally satisfy
+              before higher ones motivate behavior.
+            </figcaption>
+          </figure>
+
+          <details class="sub" open>
+            <summary>Herzberg's Two-Factor Theory</summary>
+            <div class="body">
+              <b style="color: var(--ink)">Hygiene factors</b> prevent
+              dissatisfaction but don't motivate on their own: salary &amp; job
+              security, company policy, working conditions, relationships with
+              supervisor/peers, status.<br /><br />
+              <b style="color: var(--ink)">Motivators</b> actively drive
+              satisfaction and performance: achievement, recognition, the work
+              itself, responsibility, advancement &amp; growth.<br /><br />
+              Practical takeaway: fixing pay or conditions removes complaints,
+              but only meaningful work, recognition, and growth actually
+              motivate.
+            </div>
+          </details>
+          <details class="sub">
+            <summary>McGregor's Theory X and Theory Y</summary>
+            <div class="body">
+              <b style="color: var(--ink)">Theory X</b> assumes employees
+              inherently dislike work — must be directed and controlled, avoid
+              responsibility, are motivated mainly by pay and job security, and
+              are managed through close supervision.<br /><br />
+              <b style="color: var(--ink)">Theory Y</b> assumes employees find
+              work naturally engaging — self-directed once committed, seek out
+              responsibility, motivated by achievement and growth, and are
+              managed through participative, empowering styles.<br /><br />
+              Neither is universally correct — a manager's assumptions about
+              people shape the style they choose, and that style shapes how
+              employees actually behave.
+            </div>
+          </details>
+          <details class="sub">
+            <summary>
+              Vroom's Expectancy Theory &amp; McClelland's Need Theory
+            </summary>
+            <div class="body">
+              <div class="formula" style="margin: 10px 0">
+                Motivation Force = Expectancy × Instrumentality × Valence
+              </div>
+              Expectancy: will my effort lead to good performance?
+              Instrumentality: will good performance lead to a reward? Valence:
+              do I actually value that reward?<br /><br />
+              McClelland's need theory: everyone carries a mix of three learned
+              needs — <b style="color: var(--ink)">nAch</b> (drive to excel and
+              get feedback), <b style="color: var(--ink)">nAff</b> (desire for
+              close relationships),
+              <b style="color: var(--ink)">nPow</b> (desire to influence and
+              control outcomes) — one usually dominates.
+            </div>
+          </details>
+        </div>
+
+        <div class="sheet" id="s-leadership">
+          <div class="sheet-tag">
+            <span>LEAD–01…04</span><span>LEADERSHIP THEORIES</span>
+          </div>
+          <h3>From who leaders are, to what they do, to it depends</h3>
+          <div class="grid cols-4">
+            <div class="card">
+              <span class="lbl">1930s–40s</span>
+              <p>
+                <b style="color: var(--ink)">Trait theories</b> — great leaders
+                are born with fixed traits: intelligence, confidence, drive.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">1940s–60s</span>
+              <p>
+                <b style="color: var(--ink)">Behavioral theories</b> —
+                leadership is a set of learnable behaviors.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">1960s–80s</span>
+              <p>
+                <b style="color: var(--ink)">Contingency / situational</b> —
+                effectiveness depends on matching style to situation.
+              </p>
+            </div>
+            <div class="card">
+              <span class="lbl">1980s–now</span>
+              <p>
+                <b style="color: var(--ink)">Modern theories</b> —
+                transformational, transactional, servant leadership.
+              </p>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 32px">Blake &amp; Mouton's Managerial Grid</h3>
+          <p class="lede">
+            Plots leadership style on two independent behaviors: concern for
+            people, and concern for production/results.
+          </p>
+          <figure>
+            <svg
+              viewBox="0 0 420 400"
+              role="img"
+              aria-label="Blake and Mouton managerial grid plotting five leadership styles"
+            >
+              <rect
+                x="60"
+                y="20"
+                width="320"
+                height="320"
+                fill="none"
+                stroke="var(--hair)"
+                stroke-width="1.3"
+              />
+              <text
+                x="220"
+                y="368"
+                text-anchor="middle"
+                font-size="12"
+                fill="#93aebd"
+              >
+                Concern for production / results →
+              </text>
+              <text
+                x="25"
+                y="180"
+                text-anchor="middle"
+                font-size="12"
+                fill="#93aebd"
+                transform="rotate(-90 25 180)"
+              >
+                Concern for people →
+              </text>
+              <circle cx="60" cy="340" r="5" fill="#e08a72" />
+              <text
+                x="60"
+                y="358"
+                text-anchor="middle"
+                font-size="11"
+                fill="#e9f2f7"
+              >
+                (1,1) Impoverished
+              </text>
+              <circle cx="60" cy="20" r="5" fill="#e3b25f" />
+              <text
+                x="115"
+                y="24"
+                text-anchor="start"
+                font-size="11"
+                fill="#e9f2f7"
+              >
+                (1,9) Country Club
+              </text>
+              <circle cx="380" cy="340" r="5" fill="#e3b25f" />
+              <text
+                x="380"
+                y="325"
+                text-anchor="end"
+                font-size="11"
+                fill="#e9f2f7"
+              >
+                (9,1) Authority-Obedience
+              </text>
+              <circle cx="220" cy="180" r="5" fill="#93aebd" />
+              <text
+                x="235"
+                y="184"
+                text-anchor="start"
+                font-size="11"
+                fill="#e9f2f7"
+              >
+                (5,5) Middle-of-Road
+              </text>
+              <circle cx="380" cy="20" r="5.5" fill="#6fd0c3" />
+              <text
+                x="380"
+                y="14"
+                text-anchor="end"
+                font-size="11"
+                fill="#6fd0c3"
+              >
+                (9,9) Team Management
+              </text>
+            </svg>
+            <figcaption>
+              Fig. 14–5 — (9,9) Team Management is the grid's ideal: high
+              concern for both people and results.
+            </figcaption>
+          </figure>
+
+          <details class="sub">
+            <summary>
+              Fiedler's Contingency Model &amp; Hersey–Blanchard's Situational
+              Leadership
+            </summary>
+            <div class="body">
+              <b style="color: var(--ink)">Fiedler:</b> a leader's fixed style
+              (task- or relationship-oriented) is matched to how favorable the
+              situation is, based on leader–member relations, task structure,
+              and position power. Very favorable or very unfavorable situations
+              call for a task-oriented style; moderately favorable situations
+              call for a relationship-oriented style.<br /><br />
+              <b style="color: var(--ink)">Hersey &amp; Blanchard:</b> Telling
+              (high task, low relationship — low-readiness followers) → Selling
+              (high task, high relationship) → Participating (low task, high
+              relationship) → Delegating (low task, low relationship —
+              high-readiness followers).
+            </div>
+          </details>
+          <details class="sub">
+            <summary>Transformational vs. Transactional Leadership</summary>
+            <div class="body">
+              <b style="color: var(--ink)">Transformational</b> leaders inspire
+              followers to exceed self-interest for a larger vision: idealized
+              influence, inspirational motivation, intellectual stimulation,
+              individualized consideration.<br /><br />
+              <b style="color: var(--ink)">Transactional</b> leaders manage
+              performance through a clear exchange of reward for effort:
+              contingent reward, active management by exception, passive
+              management by exception, and laissez-faire (often excluded as
+              "non-leadership").<br /><br />
+              Most effective leaders blend both — transactional structure for
+              reliable execution, transformational vision for growth and change.
+            </div>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span
+        >Compiled from course slide decks — Engineering Economy Ch.13 &amp;
+        Supply Chain / Organizational Behavior notes</span
+      >
+      <span>2 chapters</span>
+    </footer>
+
+    <a href="#top" class="back-top" id="backTop">↑ Top</a>
+
+    <script>
+      var backTop = document.getElementById("backTop");
+      window.addEventListener("scroll", function () {
+        if (window.scrollY > 600) backTop.classList.add("show");
+        else backTop.classList.remove("show");
+      });
+
+      var sections = [
+        { id: "ch1", el: document.getElementById("ch1") },
+        { id: "ch2", el: document.getElementById("ch2") },
+      ];
+      var navLinks = document.querySelectorAll(".tocbar-inner > a");
+      function setActive() {
+        var pos = window.scrollY + 120;
+        var activeId = sections[0].id;
+        sections.forEach(function (s) {
+          if (s.el.offsetTop <= pos) activeId = s.id;
+        });
+        navLinks.forEach(function (a) {
+          a.classList.toggle(
+            "active",
+            a.getAttribute("href") === "#" + activeId,
+          );
+        });
+      }
+      window.addEventListener("scroll", setActive);
+      setActive();
+    </script>
+  </body>
+</html>
