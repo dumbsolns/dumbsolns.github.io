@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Page-specific bits that don't belong in the shared stylesheet */
+      .pdf-frame {
+        display: block;
+        width: 100%;
+        height: 85vh;
+        border: none;
+      }
+      .fallback {
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="headTitle">Document</p>
+
+    <p class="contents">
+      <a
+        href="https://dumbsolns.github.io/notes/4_1/Compiler.pdf"
+        target="_blank"
+        rel="noopener"
+        >Open in new tab</a
+      >
+      &nbsp;|&nbsp;
+      <a href="https://dumbsolns.github.io/notes/4_1/Compiler.pdf" download
+        >Download</a
+      >
+    </p>
+
+    <!-- Swap the src below with your raw GitHub PDF link, e.g.:
+       https://raw.githubusercontent.com/USERNAME/REPO/main/path/to/file.pdf
+       or, since this page lives in the same repo, a relative path like:
+       ../files/mydoc.pdf -->
+    <iframe
+      class="pdf-frame"
+      src="https://dumbsolns.github.io/notes/4_1/Compiler.pdf"
+      title="PDF document"
+    >
+      <p class="fallback contents">
+        Your browser can't display embedded PDFs.
+        <a href="https://dumbsolns.github.io/notes/4_1/Compiler.pdf"
+          >Click here to download the PDF instead.</a
+        >
+      </p>
+    </iframe>
+  </body>
+</html>
