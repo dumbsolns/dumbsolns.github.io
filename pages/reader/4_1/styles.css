@@ -1,0 +1,74 @@
+* {
+  margin: 0px auto;
+  font-family: sans-serif;
+  /*Add fonts styles later*/
+}
+
+body {
+  background-color: rgb(6, 18, 46);
+}
+
+a:link {
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:visited {
+  /* make it green later */
+  color: white;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgb(177, 231, 231);
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+a:active {
+  color: rgb(177, 231, 231);
+  background-color: transparent;
+  text-decoration: underline;
+}
+
+/*Class Headers*/
+
+.headTitle {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 69px;
+  color: white;
+}
+
+.semTitle {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 55px;
+  color: white;
+}
+
+.gap {
+  font-size: 75px;
+}
+
+.contents {
+  margin: 0px auto;
+  text-align: center;
+  /* font-weight: bold;
+    font-style: italic; */
+  font-size: 23px;
+  color: white;
+}
+
+.contents th {
+  margin: 0px auto;
+  text-align: center;
+  /* font-weight: bold;
+    font-style: italic; */
+  font-size: 36px;
+  color: white;
+}
