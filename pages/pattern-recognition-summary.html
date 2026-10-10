@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pattern Recognition: Exam Overview</title>
+    <style>
+      :root {
+        --bg: #f4f7f9;
+        --card: #fff;
+        --ink: #16222c;
+        --mute: #5a6a77;
+        --line: #d5dee5;
+        --ac: #0b6e73;
+        --ac2: #3a4bb8;
+        --tint: #e3f1f1;
+        --code: #eef2f7;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #10171d;
+          --card: #18222b;
+          --ink: #e6edf2;
+          --mute: #9bacb9;
+          --line: #2c3b47;
+          --ac: #4cc3c8;
+          --ac2: #97a5ff;
+          --tint: #16343a;
+          --code: #202c37;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 104px;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.65 system-ui,
+          -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--card);
+        border-bottom: 1px solid var(--line);
+      }
+      .bar {
+        max-width: 860px;
+        margin: auto;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .back {
+        display: inline-block;
+        padding: 7px 13px;
+        border: 1px solid var(--ac);
+        border-radius: 8px;
+        color: var(--ac);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        white-space: nowrap;
+      }
+      .back:hover,
+      .back:focus-visible {
+        background: var(--ac);
+        color: var(--bg);
+      }
+      .bar b {
+        font-size: 15px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      nav {
+        max-width: 860px;
+        margin: auto;
+        padding: 0 14px 8px;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      nav a {
+        flex: none;
+        padding: 3px 11px;
+        border-radius: 99px;
+        background: var(--tint);
+        color: var(--ac);
+        text-decoration: none;
+        font-size: 14px;
+      }
+      main {
+        max-width: 860px;
+        margin: auto;
+        padding: 18px 14px 60px;
+      }
+      h1 {
+        font:
+          700 1.9rem/1.2 Georgia,
+          "Times New Roman",
+          serif;
+        margin: 0.4em 0 0.3em;
+      }
+      h2 {
+        font:
+          700 1.4rem/1.25 Georgia,
+          serif;
+        margin: 0 0 0.5rem;
+        color: var(--ac);
+      }
+      h3 {
+        font-size: 1.02rem;
+        margin: 1.1rem 0 0.3rem;
+      }
+      section {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px 18px 14px;
+        margin: 18px 0;
+      }
+      .lead {
+        color: var(--mute);
+        margin: 0 0 1rem;
+      }
+      .bk {
+        background: var(--tint);
+        border-left: 4px solid var(--ac);
+        padding: 8px 12px;
+        margin: 0 0 0.9rem;
+        font-size: 0.92rem;
+        border-radius: 0 6px 6px 0;
+      }
+      .bk i {
+        color: var(--ac2);
+        font-style: normal;
+        font-weight: 600;
+      }
+      ul {
+        padding-left: 1.2rem;
+        margin: 0.3rem 0;
+      }
+      li {
+        margin: 0.25rem 0;
+      }
+      .f {
+        background: var(--code);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin: 0.5rem 0;
+        overflow-x: auto;
+        font:
+          0.9rem/1.6 ui-monospace,
+          Menlo,
+          Consolas,
+          monospace;
+        white-space: pre;
+      }
+      code {
+        background: var(--code);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font:
+          0.88em ui-monospace,
+          Menlo,
+          Consolas,
+          monospace;
+      }
+      .tw {
+        overflow-x: auto;
+        margin: 0.6rem 0;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 480px;
+        font-size: 0.92rem;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 6px 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: var(--tint);
+      }
+      .note {
+        color: var(--mute);
+        font-size: 0.88rem;
+      }
+      a:focus-visible {
+        outline: 3px solid var(--ac2);
+        outline-offset: 2px;
+      }
+      @media (max-width: 520px) {
+        h1 {
+          font-size: 1.55rem;
+        }
+        section {
+          padding: 14px 12px;
+        }
+        body {
+          font-size: 15.5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <a class="back" href="https://dumbsolns.github.io/"
+          >&larr; Back to home</a
+        ><b>Pattern Recognition (CSE4113 / CSE4213)</b>
+      </div>
+      <nav aria-label="Chapters">
+        <a href="#c1">1 Intro</a><a href="#c2">2 Linear models</a
+        ><a href="#c3">3 SVM</a><a href="#c4">4 Bayes decision</a
+        ><a href="#c5">5 Estimation</a><a href="#c6">6 PCA</a
+        ><a href="#c7">7 LDA</a><a href="#c8">8 Clustering</a
+        ><a href="#c9">9 RL</a><a href="#c10">10 Evaluation</a
+        ><a href="#cs">Cheat sheet</a>
+      </nav>
+    </header>
+    <main>
+      <h1>Exam overview: everything taught in class</h1>
+      <p class="lead">
+        Ten topics in lecture order, with key formulas and book references.
+        Chapter numbers refer to the editions most commonly used (Bishop 2006,
+        Duda, Hart &amp; Stork 2nd ed., Sutton &amp; Barto 2nd ed.); check them
+        against your own copy.
+      </p>
+      <p class="note">
+        <b>Course books:</b> (B) Bishop,
+        <i>Pattern Recognition and Machine Learning</i>; (D) Duda, Hart &amp;
+        Stork, <i>Pattern Classification</i>; (S) Schalkoff,
+        <i>Pattern Recognition: Statistical, Structural and Neural Approaches</i
+        >. Extra sources used in slides: (SB) Sutton &amp; Barto,
+        <i>Reinforcement Learning</i>; (M) Mitchell, <i>Machine Learning</i>;
+        (T) Tan, Steinbach &amp; Kumar, <i>Introduction to Data Mining</i>.
+      </p>
+
+      <section id="c1">
+        <h2>1. Introduction, features and the design cycle</h2>
+        <div class="bk">
+          <i>Read:</i> D Ch. 1 "Introduction" (fish example, design cycle); B
+          Ch. 1 "Introduction" (curve fitting, model selection, curse of
+          dimensionality); B &sect;3.2 "The Bias-Variance Decomposition".
+        </div>
+        <ul>
+          <li>
+            <b>Pattern recognition:</b> assigning an unknown object to a class
+            from measured data. Two modes: <b>classification</b> (known
+            categories) and <b>clustering</b> (learning categories).
+            Applications: OCR, biometrics (fingerprint, iris, face), speech,
+            medical diagnosis, bioinformatics, remote sensing, license plates.
+          </li>
+          <li>
+            <b>Pattern class:</b> a collection of similar objects. Difficulty
+            comes from <b>intra-class variability</b> (many ways to write a "3")
+            and <b>inter-class similarity</b> (identical twins, 0/D, 8/B).
+          </li>
+          <li>
+            <b>Features</b> are measurable quantities; together they form a
+            feature vector
+            <code>x = (x1,...,xl)<sup>T</sup> in R<sup>l</sup></code
+            >, treated as a random vector.
+          </li>
+          <li>
+            <b>Fish example</b> (sea bass vs salmon): preprocessing, feature
+            extraction, classification. Length alone overlaps heavily; lightness
+            is better; length + lightness/width gives a 2-D feature space with a
+            decision boundary. Unequal costs of errors shift the threshold.
+            Adding features does not always help: avoid unreliable, correlated
+            (redundant) or costly features. Too many features means the
+            <b>curse of dimensionality</b>.
+          </li>
+          <li>
+            <b>Design cycle:</b> collect data &rarr; select features &rarr;
+            select model &rarr; train classifier &rarr; evaluate. System
+            pipeline: sensing &rarr; pre-processing &rarr; feature extraction
+            &rarr; classification &rarr; post-processing. Good features are
+            discriminative and invariant to translation, rotation and scale, and
+            robust to occlusion, deformation and illumination.
+          </li>
+          <li>
+            <b>Learning types:</b> supervised (labels or costs given),
+            unsupervised (find natural groupings), reinforcement (only
+            right/wrong feedback).
+          </li>
+          <li>
+            <b>Overfitting:</b> perfect on training data, poor on unseen data.
+            Causes: little data, too many features, overly complex model. Fixes:
+            tune hyperparameters, reduce features, ensembles (e.g. random
+            forest), regularization.
+          </li>
+          <li>
+            <b>Bias-variance:</b> high bias = too simple (underfits); high
+            variance = too flexible (fits noise). Training error keeps falling
+            with complexity while test error is U-shaped; pick the complexity at
+            the minimum of test error.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c2">
+        <h2>2. Linear discriminants, least squares, perceptron</h2>
+        <div class="bk">
+          <i>Read:</i> B Ch. 4 "Linear Models for Classification": &sect;4.1.1
+          Two classes, &sect;4.1.2 Multiple classes, &sect;4.1.3 Least squares
+          for classification, &sect;4.1.7 The perceptron algorithm. D Ch. 5
+          "Linear Discriminant Functions".
+        </div>
+        <div class="f">
+          y(x) = w<sup>T</sup>x + w0 class C1 if y(x) &ge; 0, else C2 boundary:
+          y(x) = 0 (w is normal to the hyperplane) signed distance of x: r =
+          y(x) / ||w|| origin to hyperplane: -w0 / ||w||
+        </div>
+        <ul>
+          <li>
+            <b>w</b> tilts the hyperplane; <b>bias w0</b> shifts it from the
+            origin.
+          </li>
+          <li>
+            <b>K &gt; 2 classes:</b> one-versus-rest (K-1 classifiers),
+            one-versus-one (K(K-1)/2 classifiers), or a single K-class
+            discriminant (assign to class k if
+            <code>y_k(x) &gt; y_j(x)</code> for all j&ne;k). Both one-vs-rest
+            and one-vs-one leave ambiguous regions; the K-class form does not.
+            Its decision regions are <b>singly connected and convex</b>.
+          </li>
+          <li>
+            <b>Least squares:</b> minimise sum-of-squares error
+            <code>E = &frac12; Tr{(XW-T)<sup>T</sup>(XW-T)}</code> with
+            augmented inputs. Set the derivative to zero:
+            <div class="f">
+              W = (X<sup>T</sup>X)<sup>-1</sup> X<sup>T</sup> T = X&dagger; T
+              (X&dagger; = pseudo-inverse)
+            </div>
+            Closed form, but sensitive to outliers and needs all data in memory.
+          </li>
+          <li>
+            <b>Perceptron</b> (Rosenblatt 1957; XOR limit shown by Minsky 1969;
+            backprop revival 1986): feature map &phi;(x), targets t = &plusmn;1.
+            A point is correct if <code>w<sup>T</sup>&phi;(x)t &gt; 0</code>.
+            <div class="f">
+              E_P(w) = - &sum;_{n in M} w<sup>T</sup>&phi;(x_n) t_n (M =
+              misclassified points) update: w &larr; w + &eta; &phi;(x_n) t_n
+            </div>
+            Each update lowers the error of that point. Converges only if the
+            data are <b>linearly separable</b>. Batch updates suit small data
+            and stable tracking; single-sample (stochastic) updates suit big or
+            streaming data. Class example: start w=(-2.5,1,0) on points (2,3)+,
+            (3,2)+, (1,1)-; after updates w=(-3.5,1,1).
+          </li>
+        </ul>
+        <div class="tw">
+          <table>
+            <tr>
+              <th></th>
+              <th>Least squares</th>
+              <th>Perceptron</th>
+            </tr>
+            <tr>
+              <td>Learning</td>
+              <td>One-shot, matrix inversion</td>
+              <td>Iterative, error by error</td>
+            </tr>
+            <tr>
+              <td>Loss</td>
+              <td>Squared error</td>
+              <td>Perceptron criterion</td>
+            </tr>
+            <tr>
+              <td>Outliers</td>
+              <td>Sensitive</td>
+              <td>Less sensitive</td>
+            </tr>
+            <tr>
+              <td>Data</td>
+              <td>Batch, whole matrix X</td>
+              <td>Online / streaming</td>
+            </tr>
+            <tr>
+              <td>Use when</td>
+              <td>Small-medium data, fast closed form</td>
+              <td>Large data, separable, avoid matrix inverse</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
+      <section id="c3">
+        <h2>3. Support vector machines</h2>
+        <div class="bk">
+          <i>Read:</i> B Ch. 7 "Sparse Kernel Machines", &sect;7.1 "Maximum
+          Margin Classifiers" (with Appendix E "Lagrange Multipliers"); D Ch. 5
+          &sect;5.11 "Support Vector Machines"; B Ch. 6 "Kernel Methods" for
+          kernels.
+        </div>
+        <ul>
+          <li>
+            Many hyperplanes separate the data; choose the one with the
+            <b>maximum margin</b> (Vapnik &amp; Chervonenkis, 1960s; popular
+            after 1992).
+          </li>
+          <li>
+            Margin lines: <code>w&middot;x+b = +1</code> and <code>-1</code>,
+            margin = <code>2/||w||</code>. Maximising margin = minimising
+            <code>&frac12;||w||&sup2;</code>:
+            <div class="f">
+              minimise &frac12;||w||&sup2; subject to y_i (w&middot;x_i + b)
+              &ge; 1
+            </div>
+          </li>
+          <li>
+            <b>Lagrangian (primal):</b>
+            <code
+              >L_P = &frac12;||w||&sup2; - &sum; &lambda;_i [y_i(w&middot;x_i+b)
+              - 1]</code
+            >. Setting derivatives to zero gives
+            <code>w = &sum; &lambda;_i y_i x_i</code> and
+            <code>&sum; &lambda;_i y_i = 0</code>. Substituting gives the
+            <b>dual</b>, a quadratic programme (solved by SMO / LIBSVM):
+            <div class="f">
+              L_D = &sum; &lambda;_i - &frac12; &sum;&sum; &lambda;_i &lambda;_j
+              y_i y_j (x_i &middot; x_j) classify: f(z) = sign(w&middot;z + b)
+            </div>
+          </li>
+          <li>
+            <b>KKT conditions:</b> &lambda;_i &ge; 0 and
+            &lambda;_i[y_i(w&middot;x_i+b) - 1] = 0. So either &lambda;_i = 0
+            (point irrelevant) or the point lies exactly on the margin: a
+            <b>support vector</b>. Only support vectors define w. Strong duality
+            lets us swap min and max.
+          </li>
+          <li>
+            <b>Soft margin:</b> a single noisy point can shrink the margin, or
+            make the problem infeasible. Add slack &xi;_i &ge; 0 and penalty C:
+            minimise <code>&frac12;||w||&sup2; + C&sum;&xi;_i</code>.
+          </li>
+          <li>
+            <b>Non-separable data:</b> map x to &phi;(x). The
+            <b>kernel trick</b> computes &phi;(x)&middot;&phi;(z) as K(x,z)
+            without going to the high-dimensional space. This works because the
+            <b>dual</b> depends only on dot products, which is why the dual is
+            preferred over the primal.
+          </li>
+          <li>
+            <b>Kernels:</b> linear (already separable, many features);
+            polynomial <code>(&gamma;x&middot;z + c)<sup>d</sup></code> (known
+            feature interactions); <b>RBF</b>
+            <code>exp(-&gamma;||x-z||&sup2;)</code> (no prior knowledge,
+            non-separable). Large &gamma; = narrow bumps, tight boundary,
+            overfitting; small &gamma; = smooth boundary, underfitting.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c4">
+        <h2>4. Bayesian decision theory</h2>
+        <div class="bk">
+          <i>Read:</i> D Ch. 2 "Bayesian Decision Theory" (&sect;2.1&ndash;2.10:
+          minimum-error-rate classification, discriminant functions, normal
+          density, error bounds, ROC, discrete and missing features, compound
+          decisions); B &sect;1.5 "Decision Theory".
+        </div>
+        <ul>
+          <li>
+            <b>Terms:</b> prior P(&omega;_j), likelihood p(x|&omega;_j),
+            evidence p(x), posterior P(&omega;_j|x).
+            <div class="f">
+              P(&omega;_j|x) = p(x|&omega;_j) P(&omega;_j) / p(x) posterior =
+              likelihood &times; prior / evidence
+            </div>
+          </li>
+          <li>
+            <b>Rules:</b> priors only: pick the larger prior (same decision
+            always). With x: decide &omega;1 if
+            <code>P(&omega;1|x) &gt; P(&omega;2|x)</code>, equivalently
+            <code>p(x|&omega;1)P(&omega;1) &gt; p(x|&omega;2)P(&omega;2)</code>,
+            or the <b>likelihood ratio</b>
+            <code>p(x|&omega;1)/p(x|&omega;2) &gt; P(&omega;2)/P(&omega;1)</code
+            >. <code>P(error|x) = min[P(&omega;1|x), P(&omega;2|x)]</code>;
+            Bayes rule minimises average error.
+          </li>
+          <li>
+            <b>Where probabilities come from:</b> objective (from
+            experiments/histograms; car-price example: priors 0.183 / 0.817 gave
+            posterior 0.438), subjective (assumed Gaussian, equal priors), or a
+            mix (model plus data-fitted &mu;, &Sigma;).
+          </li>
+          <li>
+            <b>General theory:</b> d-dim features, c classes, actions &alpha;_i
+            (including reject), loss &lambda;(&alpha;_i|&omega;_j).
+            <div class="f">
+              conditional risk: R(&alpha;_i|x) = &sum;_j
+              &lambda;(&alpha;_i|&omega;_j) P(&omega;_j|x) Bayes rule: choose
+              the &alpha;_i with minimum R(&alpha;_i|x); minimum overall risk =
+              <b>Bayes risk</b>
+            </div>
+            Two classes: decide &omega;1 if
+            <code
+              >(&lambda;21-&lambda;11) p(x|&omega;1)P(&omega;1) &gt;
+              (&lambda;12-&lambda;22) p(x|&omega;2)P(&omega;2)</code
+            >. With <b>zero-one loss</b> this reduces to maximum posterior and
+            risk = error probability.
+          </li>
+          <li>
+            <b>Discriminants:</b> assign to &omega;_i if g_i(x) &gt; g_j(x). Use
+            <code>g_i = P(&omega;_i|x)</code>, or
+            <code>g_i = ln p(x|&omega;_i) + ln P(&omega;_i)</code>. Any
+            monotonically increasing f(g_i) gives the same decisions. Two
+            classes: a single <b>dichotomizer</b> g = g1 - g2 (log-likelihood
+            ratio).
+          </li>
+        </ul>
+        <h3>Gaussian class densities N(&mu;_i, &Sigma;_i)</h3>
+        <div class="tw">
+          <table>
+            <tr>
+              <th>Case</th>
+              <th>Assumption</th>
+              <th>Boundary</th>
+            </tr>
+            <tr>
+              <td>I</td>
+              <td>&Sigma;_i = &sigma;&sup2;I (spheres)</td>
+              <td>
+                Hyperplane through x0, <b>orthogonal</b> to the line joining
+                means; equal priors give the
+                <b>minimum Euclidean distance</b> classifier; x0 moves away from
+                the more likely class
+              </td>
+            </tr>
+            <tr>
+              <td>II</td>
+              <td>&Sigma;_i = &Sigma; (identical ellipses)</td>
+              <td>
+                Hyperplane through x0, <b>not</b> orthogonal to the means line;
+                equal priors give the <b>Mahalanobis distance</b> classifier
+              </td>
+            </tr>
+            <tr>
+              <td>III</td>
+              <td>&Sigma;_i arbitrary</td>
+              <td>
+                Hyperquadrics (non-linear): pairs of planes, spheres,
+                ellipsoids, paraboloids; need not pass through the midpoint of
+                the means
+              </td>
+            </tr>
+          </table>
+        </div>
+        <ul>
+          <li>
+            <b>Error bounds:</b> Chernoff bound = minimise
+            <code>e<sup>-k(&beta;)</sup></code> over &beta; (1-D problem);
+            <b>Bhattacharyya</b> sets &beta; = 0.5 (easier, looser). Only good
+            for Gaussians. Class example: k(0.5) = 4.06 gives P(error) &le;
+            0.0087.
+          </li>
+          <li>
+            <b>ROC:</b> classifier threshold
+            <code>a = P(&omega;2)/P(&omega;1)</code> (or <code>b</code> with
+            losses); changing it trades false accepts (FAR) vs false rejects
+            (FRR), e.g. biometric authentication of authentic vs impostor.
+          </li>
+          <li>
+            <b>Discrete features:</b> replace integrals with sums.
+            <b>Missing features:</b> marginalise over the missing ones:
+            <code
+              >P(&omega;_i|x_g) = &int; P(&omega;_i|x_g,x_b) p(x_g,x_b) dx_b /
+              p(x_g)</code
+            >. <b>Compound decisions:</b> decide n patterns jointly when
+            successive states are dependent.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c5">
+        <h2>5. Parameter estimation: MLE, Bayesian estimation, MAP</h2>
+        <div class="bk">
+          <i>Read:</i> D Ch. 3 "Maximum-Likelihood and Bayesian Parameter
+          Estimation" (&sect;3.2 Maximum Likelihood, &sect;3.3&ndash;3.4
+          Bayesian Estimation: Gaussian case, &sect;3.5 Problems of
+          dimensionality); B &sect;2.3.4 "Maximum likelihood for the Gaussian",
+          &sect;2.3.6 "Bayesian inference for the Gaussian", &sect;1.2.5 "Curve
+          fitting re-visited" (MAP).
+        </div>
+        <ul>
+          <li>
+            <b>Problem:</b> priors and class-conditional densities are rarely
+            known. Assume a parametric form (e.g. Gaussian) and estimate &theta;
+            from training data. Priors are easy; densities, especially in high
+            dimensions, are hard.
+          </li>
+          <li>
+            <b>MLE:</b> &theta; is fixed but unknown. Samples are i.i.d.;
+            classes are treated separately.
+            <div class="f">
+              p(D|&theta;) = &prod;_k p(x_k|&theta;) &theta;^ = argmax
+              p(D|&theta;) = argmax &sum; ln p(x_k|&theta;) (set &nabla;_&theta;
+              = 0)
+            </div>
+          </li>
+          <li>
+            <b>Gaussian MLE:</b> <code>&mu;^ = (1/n)&sum;x_k</code>,
+            <code>&Sigma;^ = (1/n)&sum;(x_k-&mu;^)(x_k-&mu;^)<sup>T</sup></code
+            >. Derivation uses
+            <code>&nabla;_&mu; ln p = &Sigma;<sup>-1</sup>(x-&mu;)</code>.
+          </li>
+          <li>
+            <b>Bias:</b> estimator is unbiased if E[&theta;^] = &theta;.
+            <code>&mu;^</code> is unbiased with variance &sigma;&sup2;/n (&rarr;
+            0, so it converges). The ML variance is <b>biased</b>:
+            <code>E[&sigma;^&sup2;] = ((n-1)/n)&sigma;&sup2;</code>, an
+            underestimate. The unbiased estimator divides by
+            <b>n-1</b> (Bessel's correction). Bias vs variance trade-off:
+            usually reduce one at the expense of the other.
+          </li>
+          <li>
+            <b>MLE limitation:</b> unseen events get probability 0 (bag-of-words
+            sentence with an unseen word has probability 0). A prior fixes this:
+            Bayesian learning.
+          </li>
+          <li>
+            <b>Bayesian estimation:</b> &theta; is a random variable with prior
+            p(&theta;); data revise it to the posterior.
+            <div class="f">
+              p(&theta;|D) = p(D|&theta;) p(&theta;) / &int;
+              p(D|&theta;)p(&theta;)d&theta; p(x|D) = &int; p(x|&theta;)
+              p(&theta;|D) d&theta;
+            </div>
+          </li>
+          <li>
+            <b>Univariate Gaussian, unknown mean</b> (prior
+            N(&mu;0,&sigma;0&sup2;)): posterior is Gaussian N(&mu;_n,
+            &sigma;_n&sup2;), a <b>conjugate prior</b> / reproducing density.
+            <div class="f">
+              &mu;_n = [n&sigma;0&sup2;/(n&sigma;0&sup2;+&sigma;&sup2;)]
+              x&#772;_n + [&sigma;&sup2;/(n&sigma;0&sup2;+&sigma;&sup2;)] &mu;0
+              &sigma;_n&sup2; = &sigma;0&sup2;&sigma;&sup2; /
+              (n&sigma;0&sup2;+&sigma;&sup2;) &rarr; &sigma;&sup2;/n for large n
+            </div>
+            &mu;_n is the best guess, &sigma;_n&sup2; the remaining uncertainty;
+            the posterior sharpens as n grows.
+          </li>
+          <li>
+            <b>MAP:</b> <code>&theta;^ = argmax p(x|&theta;)p(&theta;)</code>.
+            For N = 1 Gaussian:
+            <code
+              >&theta; = (&sigma;0&sup2;x +
+              &sigma;&sup2;&theta;0)/(&sigma;0&sup2;+&sigma;&sup2;)</code
+            >. If &sigma;0 = 0, trust the prior fully (&theta;0); if &sigma;0
+            &rarr; &infin;, trust the data (MAP = MLE).
+          </li>
+        </ul>
+      </section>
+
+      <section id="c6">
+        <h2>6. Principal component analysis (PCA)</h2>
+        <div class="bk">
+          <i>Read:</i> B &sect;12.1 "Principal Component Analysis" (Ch. 12
+          "Continuous Latent Variables"); D Ch. 3 &sect;3.8.1 "Principal
+          Component Analysis (PCA)".
+        </div>
+        <ul>
+          <li>
+            <b>Goal:</b> data compression / dimensionality reduction
+            (2D&rarr;1D, 3D&rarr;2D) by keeping directions of
+            <b>maximum variance</b>, because variation carries information. PC1
+            is the direction of largest spread; PC2 is orthogonal to it (zero
+            redundancy). Components are blends of original features, not simply
+            dropped features.
+          </li>
+          <li>
+            <b>Background:</b> mean, variance, covariance (positive: increase
+            together; negative: opposite; zero: independent), covariance matrix
+            S. Eigenvector: <code>Av = &lambda;v</code>; eigenvalues measure
+            variation.
+          </li>
+          <li>
+            <b>Derivation:</b> for centred data X and unit vector u (<code
+              >u<sup>T</sup>u = 1</code
+            >), variance of projection = <code>u<sup>T</sup>Su</code>. Maximise
+            with a Lagrange multiplier:
+            <div class="f">
+              L = u<sup>T</sup>Su - &lambda;(u<sup>T</sup>u - 1) &rArr; Su =
+              &lambda;u, variance = &lambda; eigenvalues from det(S - &lambda;I)
+              = 0
+            </div>
+            Largest eigenvalue's eigenvector = PC1. S uses 1/(n-1).
+          </li>
+          <li>
+            <b>Steps:</b> (1) get data; (2) subtract mean; (3) covariance
+            matrix; (4) eigenvectors and eigenvalues; (5) sort eigenvalues
+            descending, keep top p (n&rarr;p dimensions) to form the feature
+            vector; (6) new data = (feature vector)<sup>T</sup> &times; (centred
+            data). Exact original data is recovered only if
+            <b>all</b> eigenvectors are kept; otherwise information is lost.
+          </li>
+          <li>PCA is unsupervised and ignores class labels.</li>
+        </ul>
+      </section>
+
+      <section id="c7">
+        <h2>7. Linear discriminant analysis (Fisher LDA)</h2>
+        <div class="bk">
+          <i>Read:</i> B &sect;4.1.4 "Fisher's linear discriminant" and
+          &sect;4.1.6 "Fisher's discriminant for multiple classes"; D Ch. 3
+          &sect;3.8.2 "Fisher Linear Discriminant" and &sect;3.8.3 "Multiple
+          Discriminant Analysis".
+        </div>
+        <ul>
+          <li>
+            <b>Objective:</b> reduce dimension while preserving
+            <b>class discriminatory information</b> (PCA ignores classes).
+            Project onto a hyperplane of dimension C-1.
+          </li>
+          <li>
+            <b>Fisher criterion (two classes):</b> distance between projected
+            means alone is not enough (it ignores spread). Maximise separation
+            of means relative to within-class scatter:
+            <div class="f">
+              J(w) = (m~1 - m~2)&sup2; / (s~1&sup2; + s~2&sup2;) = (w<sup
+                >T</sup
+              >
+              S_B w) / (w<sup>T</sup> S_W w) S_W = S1 + S2 (within-class), S_B =
+              (&mu;1-&mu;2)(&mu;1-&mu;2)<sup>T</sup> (between-class, rank 1)
+              solution: eigenvectors of S_W<sup>-1</sup> S_B ; two classes: w*
+              &prop; S_W<sup>-1</sup>(&mu;1 - &mu;2)
+            </div>
+          </li>
+          <li>
+            <b>Worked example:</b> &omega;1 = {(4,2),(2,4),(2,3),(3,6),(4,4)},
+            &omega;2 = {(9,10),(6,8),(9,5),(8,7),(10,8)}. Compute means, class
+            covariances, S_W, S_B, then eigenvalues. The eigenvector with the
+            <b>largest</b> eigenvalue (12.2) separates well; the one with
+            eigenvalue &asymp; 0 does not.
+          </li>
+          <li>
+            <b>PCA vs LDA:</b> PCA = maximum variance, unsupervised; LDA =
+            maximum class separability, supervised.
+          </li>
+          <li>
+            <b>Limitations:</b> at most <b>C-1</b> projections; parametric
+            (assumes unimodal Gaussian classes); fails when the class
+            information is in the <b>variance</b> rather than the mean.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c8">
+        <h2>8. Clustering: k-means and hierarchical</h2>
+        <div class="bk">
+          <i>Read:</i> D Ch. 10 "Unsupervised Learning and Clustering"
+          (&sect;10.6 Criterion Functions, &sect;10.7 Iterative Optimization /
+          k-means, &sect;10.9 Hierarchical Clustering); B &sect;9.1 "K-means
+          Clustering"; T Ch. 8 "Cluster Analysis: Basic Concepts and Algorithms"
+          (linkage methods).
+        </div>
+        <ul>
+          <li>
+            <b>Clustering:</b> group objects so that intra-cluster distances are
+            small and inter-cluster distances large. Needs a proximity measure,
+            a criterion function, and an algorithm. Questions: how many
+            clusters? Applications: gene expression, face and news clustering,
+            marketing, land use, climate.
+          </li>
+          <li>
+            <b>Distances:</b> Euclidean (L2), Manhattan (L1), Chebyshev /
+            supremum (L&infin;), Minkowski
+            <code>(&sum;|x_i-y_i|<sup>h</sup>)<sup>1/h</sup></code
+            >. Similarity: <b>cosine</b>
+            <code>x&middot;y/(||x|| ||y||)</code> (scale invariant, text),
+            correlation coefficient. Feature scaling can hurt if variance comes
+            from cluster structure. Example: x1=(1,2), x2=(3,5): Euclidean 3.61,
+            Manhattan 5, supremum 3.
+          </li>
+          <li>
+            <b>SSE criterion:</b>
+            <code>J = &sum;_i &sum;_{x in D_i} ||x - &mu;_i||&sup2;</code>, with
+            &mu;_i the cluster mean; number of clusters fixed.
+          </li>
+          <li>
+            <b>k-means</b> (MacQueen 1967, partitional): (1) choose k seeds as
+            centroids; (2) assign each point to the closest centroid; (3)
+            recompute centroids; (4) repeat until no reassignments, no centroid
+            change, or small SSE decrease. Results depend on seeds (can reach
+            sub-optimal clusterings). Heuristics: random points, furthest-centre
+            heuristic, multiple restarts, initialise from another method (e.g.
+            Ward). Class example (k=2, m1=(1,1), m2=(5,7)) converged to {1,2}
+            and {3..7} with centroids (1.25,1.5) and (3.9,5.1).
+          </li>
+          <li>
+            <b>Hierarchical:</b> <b>agglomerative</b> (bottom-up, merge two
+            closest clusters, update distance matrix) or
+            <b>divisive</b> (top-down split). A <b>dendrogram</b> records
+            merges; cut it at a level to get clusters.
+          </li>
+        </ul>
+        <div class="tw">
+          <table>
+            <tr>
+              <th>Inter-cluster distance</th>
+              <th>Definition</th>
+              <th>Strength / weakness</th>
+            </tr>
+            <tr>
+              <td>MIN (single link)</td>
+              <td>closest pair</td>
+              <td>
+                Handles non-elliptical shapes; sensitive to noise and outliers
+              </td>
+            </tr>
+            <tr>
+              <td>MAX (complete link)</td>
+              <td>farthest pair</td>
+              <td>
+                Robust to noise; breaks large clusters; biased to globular
+              </td>
+            </tr>
+            <tr>
+              <td>Group average</td>
+              <td>mean of all pair distances</td>
+              <td>Compromise; robust; biased to globular</td>
+            </tr>
+            <tr>
+              <td>Centroid</td>
+              <td>distance between centroids</td>
+              <td>Uses cluster centres only</td>
+            </tr>
+            <tr>
+              <td>Ward's</td>
+              <td>increase in squared error on merge</td>
+              <td>Robust; globular; hierarchical analogue of k-means</td>
+            </tr>
+          </table>
+        </div>
+        <ul>
+          <li>
+            <b>Cost:</b> O(N&sup2;) space, O(N&sup3;) time (O(N&sup2; log N) for
+            some methods). <b>Pros:</b> no fixed k; meaningful taxonomies.
+            <b>Cons:</b> merges cannot be undone; no objective function directly
+            minimised; trouble with sizes, shapes and outliers.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c9">
+        <h2>9. Reinforcement learning</h2>
+        <div class="bk">
+          <i>Read:</i> SB Ch. 3 "Finite Markov Decision Processes" (returns,
+          value functions, Bellman equations, optimal policies); SB Ch. 6
+          "Temporal-Difference Learning" (&sect;6.5 Q-learning); Mnih et al.
+          (2015) "Human-level control through deep reinforcement learning" for
+          DQN. Not covered by the three course textbooks.
+        </div>
+        <ul>
+          <li>
+            <b>Idea:</b> when labelled examples are unavailable, an
+            <b>agent</b> takes <b>actions</b> in an <b>environment</b> and
+            receives a <b>new state</b> and a <b>reward</b> (chess, robots,
+            driving).
+          </li>
+          <li>
+            <b>MDP:</b> states S, actions A, transition probability
+            <code>T(s,a,s')</code>, reward <code>R(s,a,s')</code>, discount
+            &gamma;. A <b>policy</b> &pi;(a|s) is the strategy; goal = optimal
+            policy.
+          </li>
+          <li>
+            <b>Return:</b>
+            <code
+              >G_t = R_{t+1} + &gamma;R_{t+2} + &gamma;&sup2;R_{t+3} + ...</code
+            >. The future is stochastic, so use expectations:
+            <div class="f">
+              V_&pi;(s) = E_&pi;[G_t | S_t = s] Q_&pi;(s,a) = E_&pi;[G_t |
+              S_t=s, A_t=a] Bellman: V_&pi;(s) = E[R_{t+1} + &gamma;
+              V_&pi;(S_{t+1})] Q*(s,a) = E[R_{t+1} + &gamma; max_a' Q*(S_{t+1},
+              a')] &pi;* has V(s) = max_&pi; V_&pi;(s)
+            </div>
+          </li>
+          <li>
+            <b>TD learning</b> (transition probabilities unknown): use sampled
+            target <code>r + &gamma;V(s')</code> and update incrementally:
+            <code>V(s) &larr; V(s) + &alpha;[r + &gamma;V(s') - V(s)]</code>.
+          </li>
+          <li>
+            <b>Q-learning:</b>
+            <code
+              >Q(s,a) &larr; Q(s,a) + &alpha;[r + &gamma; max_a' Q(s',a') -
+              Q(s,a)]</code
+            >. With <b>&epsilon;-greedy</b> exploration: random action with
+            probability &epsilon;, else best-known action.
+          </li>
+          <li>
+            <b>Tabular Q-learning fails</b> for huge state spaces (chess,
+            driving). Fix: <b>function approximation</b> with a neural network.
+            The TD error becomes an MSE loss &rArr; <b>DQN</b>.
+          </li>
+          <li>
+            <b>Modern families:</b> value-based (DQN); policy-based /
+            actor-critic (PPO, SAC); <b>RLHF</b> (policy gradient guided by a
+            reward model learned from human preferences, used in LLMs).
+          </li>
+          <li>
+            <b>Class example (grid "combini"):</b> 7&times;8 = 56 states; reward
+            +1 at the combini, -1 at the lecture hall, -0.1 per step; the
+            optimal policy gives the best direction at every state.
+          </li>
+        </ul>
+      </section>
+
+      <section id="c10">
+        <h2>10. Evaluating learning methods</h2>
+        <div class="bk">
+          <i>Read:</i> M Ch. 5 "Evaluating Hypotheses" (confidence intervals,
+          t-tests); B &sect;1.3 "Model Selection" (cross-validation); D Ch. 9
+          &sect;9.6 "Resampling for Estimating Statistics and Classifier
+          Accuracy"; Fawcett (2006) "An introduction to ROC analysis".
+        </div>
+        <ul>
+          <li>
+            <b>Splitting:</b> never let test labels influence learning. Training
+            / validation (tuning) / test sets. A single split wastes data and
+            can be unrepresentative. <b>Learning curves</b> plot accuracy
+            against training size. <b>Random resampling</b> repeats splits;
+            <b>stratified sampling</b> keeps class proportions.
+          </li>
+          <li>
+            <b>Cross-validation:</b> n folds, each fold tested once (e.g. 5
+            folds with 11+17+16+13+16 correct of 100 gives 73%). 10-fold is
+            common; <b>leave-one-out</b> sets n = #instances.
+            <b>Internal CV</b> inside each training set selects hyperparameters
+            (e.g. k in k-NN). CV evaluates a <i>learning method</i>, not a
+            single model.
+          </li>
+          <li>
+            <b>Confusion matrix (TP, FP, FN, TN) and metrics:</b>
+            <div class="f">
+              accuracy = (TP+TN)/(TP+FP+FN+TN) recall = TPR = sensitivity =
+              TP/(TP+FN) FPR = FP/(FP+TN) = 1 - specificity precision =
+              TP/(TP+FP) F1 = 2PR/(P+R) (harmonic mean)
+            </div>
+            Accuracy misleads with class skew (99.9% by predicting all-negative
+            on 9990:10) or unequal costs.
+          </li>
+          <li>
+            <b>ROC curve:</b> TPR vs FPR as the threshold varies. Build it by
+            sorting scores high to low and updating TP/FP. Lowering the
+            threshold raises both TPR and FPR (sensitivity up, specificity
+            down). Points: (0,0) never positive; (1,1) always positive; (0,1)
+            perfect; diagonal = random; northwest is better; left side =
+            "conservative", upper right = "liberal". <b>AUC</b>: 0.9&ndash;1
+            excellent, 0.8&ndash;0.9 good, 0.7&ndash;0.8 fair, 0.6&ndash;0.7
+            poor, 0.5&ndash;0.6 fail. ROC is insensitive to class distribution
+            and finds the best threshold for given costs.
+          </li>
+          <li>
+            <b>Precision-recall curves:</b> suit tasks with many negatives;
+            default precision = fraction of positives. For CV, pool predictions,
+            or average per-fold ROC curves.
+          </li>
+          <li>
+            <b>Special classifiers:</b> perfect (TPR 1, FPR 0, acc 1); worst
+            (TPR 0, FPR 1); ultra-liberal (always +: TPR 1, FPR 1);
+            ultra-conservative (always -: TPR 0, FPR 0, precision undefined).
+          </li>
+          <li>
+            <b>Confidence interval on error</b> (n &ge; 30, r errors):
+            <code>error = r/n</code>, true error in
+            <code>error &plusmn; z_N &radic;(error(1-error)/n)</code>, z = 1.96
+            for 95% (normal approximation of the binomial).
+            <b>Bootstrap:</b> resample with replacement ~1000 times and take the
+            2.5% / 97.5% points.
+          </li>
+          <li>
+            <b>Comparing systems:</b> <b>paired t-test</b> on per-fold
+            differences &delta;_i. Null: equal accuracy.
+            <code
+              >t = &delta;&#772; / &radic;[ &sum;(&delta;_i-&delta;&#772;)&sup2;
+              / (n(n-1)) ]</code
+            >, n-1 degrees of freedom; reject if p &lt; 0.05. Use a
+            <b>two-tailed</b> test (we do not know which is better).
+            <b>Sign test</b> for small data. Also scatter plots and
+            <b>lesion studies</b> (remove components to see their contribution).
+          </li>
+          <li>
+            <b>Pitfalls:</b> test data not representative; preprocessing
+            (feature selection, tuning, thresholds) using labels outside the
+            training fold; repeatedly tweaking on the same data (human
+            overfitting).
+          </li>
+        </ul>
+      </section>
+
+      <section id="cs">
+        <h2>Cheat sheet: quick comparisons</h2>
+        <div class="tw">
+          <table>
+            <tr>
+              <th>Topic</th>
+              <th>Remember</th>
+            </tr>
+            <tr>
+              <td>MLE vs MAP vs Bayes</td>
+              <td>
+                MLE: &theta; fixed, maximise likelihood. MAP: &theta; random,
+                maximise posterior (point estimate). Bayes: keep the full
+                posterior p(&theta;|D)
+              </td>
+            </tr>
+            <tr>
+              <td>PCA vs LDA</td>
+              <td>
+                PCA: variance, unsupervised, S eigenvectors. LDA: separability,
+                supervised, eigenvectors of S_W<sup>-1</sup>S_B, at most C-1
+                dims
+              </td>
+            </tr>
+            <tr>
+              <td>LS vs perceptron vs SVM</td>
+              <td>
+                LS: closed form, outlier-sensitive. Perceptron: iterative, any
+                separating line. SVM: maximum margin, support vectors, kernels
+              </td>
+            </tr>
+            <tr>
+              <td>Primal vs dual (SVM)</td>
+              <td>Dual uses only dot products &rArr; kernel trick</td>
+            </tr>
+            <tr>
+              <td>k-means vs hierarchical</td>
+              <td>
+                k-means: fixed k, minimises SSE, seed-dependent. Hierarchical:
+                dendrogram, no k, merges irreversible
+              </td>
+            </tr>
+            <tr>
+              <td>Gaussian cases</td>
+              <td>
+                &sigma;&sup2;I: Euclidean, plane &perp; means. Shared &Sigma;:
+                Mahalanobis, plane. Arbitrary &Sigma;: quadratic boundary
+              </td>
+            </tr>
+            <tr>
+              <td>Zero-one loss</td>
+              <td>Min risk = max posterior = min error</td>
+            </tr>
+            <tr>
+              <td>Bias / variance</td>
+              <td>
+                Simple model: high bias. Flexible model: high variance. ML
+                variance estimate is biased by (n-1)/n
+              </td>
+            </tr>
+            <tr>
+              <td>Supervised / unsupervised / RL</td>
+              <td>Labels given / structure only / reward feedback</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
