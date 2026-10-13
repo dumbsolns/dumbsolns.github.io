@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern Recognition: Solved Past Questions</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:860px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.back{padding:7px 13px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:15px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+.bar a.alt{font-size:14px;color:var(--ac2)}
+nav{max-width:860px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:860px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2rem 0 .6rem;color:var(--ac)}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+button{font:inherit;font-size:14px;padding:5px 12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;cursor:pointer;margin-right:6px}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:10px 0;padding:0 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:600;list-style-position:outside}
+summary small{display:block;font-weight:400;color:var(--mute);font-size:.84rem}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+details>div{padding-bottom:12px}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:6px 11px;margin:.2rem 0 .7rem;font-size:.9rem;border-radius:0 6px 6px 0}
+.ans{border-left:4px solid var(--ok);padding:4px 11px;margin:.6rem 0;background:var(--code);border-radius:0 6px 6px 0;font-weight:600}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.2rem 0}
+.f{background:var(--code);padding:8px 12px;border-radius:6px;margin:.5rem 0;overflow-x:auto;font:.88rem/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.5rem 0}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 12px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Back to home</a><a class="alt" href="pattern-recognition-summary.html">Chapter notes</a></div>
+ <nav aria-label="Sections"><a href="#freq">Frequency</a><a href="#calc">Calculations</a><a href="#proof">Derivations</a><a href="#short">Short answers</a></nav>
+</header>
+<main>
+<h1>Solved past questions (CSE 4113)</h1>
+<p class="lead">Worked answers for the question papers you shared, written with the methods from the chapter notes. Tap a question to open it.</p>
+<p><button id="eo">Expand all</button><button id="co">Collapse all</button></p>
+<p class="note">Exams: S25 = Spring 2025, F24 = Fall 2024, S24 = Spring 2024, F23 = Fall 2023, S23 = Spring 2023, S23i = Spring 2023 improvement, F22 = Fall 2022. Books: (B) Bishop PRML, (D) Duda-Hart-Stork, (SB) Sutton &amp; Barto, (M) Mitchell, (T) Tan et al. Chapter numbers are from the usual editions; check your copy. Variances use 1/n (MLE) unless stated.</p>
+
+<h2 id="freq">What keeps repeating</h2>
+<div class="tw"><table><tr><th>Topic</th><th>Seen in</th></tr>
+<tr><td>Perceptron (batch, single sample, convergence proof)</td><td>F24, S24, F23, F22, S24/S23 (convergence proof)</td></tr>
+<tr><td>LDA 2D→1D numeric</td><td>S25, F24, S24, S23</td></tr>
+<tr><td>Gaussian Naive Bayes / Naive Bayes counts</td><td>S25, F23, S23, S24, S23i</td></tr>
+<tr><td>k-means two iterations</td><td>S25, S23</td></tr>
+<tr><td>ROC from scores</td><td>F23, S23, S23i, F22</td></tr>
+<tr><td>PCA (price/weight table)</td><td>F23, S23i, F22</td></tr>
+<tr><td>Hierarchical clustering, single link</td><td>F23, S23i, F22</td></tr>
+<tr><td>SVM theory (Lagrange, dual, margin, kernel, KKT)</td><td>every paper</td></tr>
+<tr><td>MLE / MAP / Bayes estimation derivations</td><td>F24, S23, S23i, F22</td></tr>
+<tr><td>Bayesian network probabilities</td><td>S25, S23i, F22</td></tr>
+<tr><td>Edit distance, Bellman principle</td><td>F23, S23, S23i, F22</td></tr>
+<tr><td>Q-learning, MDP</td><td>S23, S23i, F22, S25</td></tr>
+<tr><td>Linear regression gradient descent</td><td>S25, F24</td></tr></table></div>
+
+<h2 id="calc">A. Numerical problems</h2>
+
+<details><summary>A1. k-means, two iterations <small>S25, S23 · 6 points, k=2, C1=(1,1), C2=(5,7)</small></summary><div>
+<div class="bk">Read: D Ch. 10 §10.7; B §9.1 "K-means Clustering".</div>
+<p>Assign each point to the nearest centroid (Euclidean), then recompute centroids.</p>
+<div class="tw"><table><tr><th>Pt</th><th>(A1,A2)</th><th>d to C1 (1,1)</th><th>d to C2 (5,7)</th><th>Cluster</th></tr>
+<tr><td>1</td><td>1,1</td><td>0</td><td>7.21</td><td>1</td></tr>
+<tr><td>2</td><td>1.5,2</td><td>1.12</td><td>6.10</td><td>1</td></tr>
+<tr><td>3</td><td>3,4</td><td>3.61</td><td>3.61</td><td>tie → 1</td></tr>
+<tr><td>4</td><td>5,7</td><td>7.21</td><td>0</td><td>2</td></tr>
+<tr><td>5</td><td>3.5,5</td><td>4.72</td><td>2.50</td><td>2</td></tr>
+<tr><td>6</td><td>4.5,5</td><td>5.32</td><td>2.06</td><td>2</td></tr></table></div>
+<p><b>Iteration 1 update:</b> C1 = mean of {1,2,3} = (1.83, 2.33); C2 = mean of {4,5,6} = (4.33, 5.67).</p>
+<div class="tw"><table><tr><th>Pt</th><th>d to C1</th><th>d to C2</th><th>Cluster</th></tr>
+<tr><td>1</td><td>1.57</td><td>5.73</td><td>1</td></tr><tr><td>2</td><td>0.47</td><td>4.63</td><td>1</td></tr><tr><td>3</td><td>2.03</td><td>2.13</td><td>1</td></tr>
+<tr><td>4</td><td>5.64</td><td>1.49</td><td>2</td></tr><tr><td>5</td><td>3.14</td><td>1.07</td><td>2</td></tr><tr><td>6</td><td>3.77</td><td>0.69</td><td>2</td></tr></table></div>
+<p>No point changes cluster, so centroids stay the same (the stopping rule from the notes: no reassignment).</p>
+<div class="ans">Clusters {1,2,3} and {4,5,6}; centroids (1.83, 2.33) and (4.33, 5.67).</div>
+<p class="note">Point 3 is a tie in iteration 1. If you break it towards C2 you get C1=(1.25,1.5), C2=(4.0,5.25) and the process ends with {1,2} and {3,4,5,6}. State your tie rule.</p>
+</div></details>
+
+<details><summary>A2. LDA, 2D to 1D <small>S25, F24 (dataset 1) · S24 (dataset 2) · S23 (dataset 3)</small></summary><div>
+<div class="bk">Read: B §4.1.4 "Fisher's linear discriminant"; D Ch. 3 §3.8.2 "Fisher Linear Discriminant".</div>
+<div class="f">m_i = class mean;  S_i = Σ(x−m_i)(x−m_i)ᵀ;  S_W = S1+S2;  S_B = (m1−m2)(m1−m2)ᵀ
+w ∝ S_W⁻¹(m1−m2)  (largest eigenvector of S_W⁻¹S_B);   y = wᵀx</div>
+<p><b>Dataset 1</b> — class 0: (1,2),(3,1); class 1: (6,5),(8,7).</p>
+<ul><li>m1 = (2, 1.5), m2 = (7, 6); S1 = [[2,−1],[−1,0.5]], S2 = [[2,2],[2,2]]; S_W = [[4,1],[1,2.5]], |S_W| = 9.</li>
+<li>S_B = [[25,22.5],[22.5,20.25]]. S_W⁻¹ = (1/9)[[2.5,−1],[−1,4]].</li>
+<li>w = S_W⁻¹(m1−m2) = (1/9)(−8, −13) → direction (8,13); unit vector w = (0.524, 0.852). Largest eigenvalue of S_W⁻¹S_B = 10.94 (the other is 0).</li>
+<li>Projections y = 0.524x1+0.852x2: class 0 → 2.23, 2.42; class 1 → 7.40, 10.15. Classes are clearly separated.</li></ul>
+<p><b>Dataset 2</b> — class 0: (2,3),(3,5); class 1: (5,8),(6,10).</p>
+<ul><li>m1 = (2.5,4), m2 = (5.5,9); S1 = S2 = [[0.5,1],[1,2]]; S_W = [[1,2],[2,4]] is <b>singular</b> (|S_W| = 0): all points in each class lie on a line of slope 2.</li>
+<li>So S_W⁻¹ does not exist. Choose w to make within-class scatter zero: w ⟂ (1,2), i.e. w = (2,−1)/√5 = (0.894, −0.447).</li>
+<li>Projections: class 0 → 0.447, 0.447; class 1 → 0.894, 0.894. Within-class scatter is 0, so J(w) → ∞ (perfect separation). (Equivalent: use S_W + εI and let ε→0.)</li></ul>
+<p><b>Dataset 3</b> — ω1: (4,2),(2,4),(2,3),(3,6),(4,4); ω2: (9,10),(6,8),(9,5),(8,7),(10,8).</p>
+<ul><li>m1 = (3, 3.8), m2 = (8.4, 7.6); S1 = [[4,−1],[−1,8.8]], S2 = [[9.2,−0.2],[−0.2,13.2]]; S_W = [[13.2,−1.2],[−1.2,22]].</li>
+<li>S_B = [[29.16,20.52],[20.52,14.44]]. w ∝ S_W⁻¹(m1−m2) = (−0.427,−0.196) → unit w = (0.909, 0.417).</li>
+<li>With covariance matrices (÷(N−1)) as in class, the nonzero eigenvalue is 12.20 (it scales with the convention; w does not change).</li>
+<li>Projections y = 0.909x1+0.417x2: ω1 → 4.47, 3.49, 3.07, 5.23, 5.30; ω2 → 12.35, 8.79, 10.27, 10.19, 12.43. Threshold anywhere between 5.3 and 8.8.</li></ul>
+<div class="ans">Datasets 1, 3: w = (0.524, 0.852) and (0.909, 0.417). Dataset 2: w = (2, −1)/√5 (S_W singular).</div>
+</div></details>
+
+<details><summary>A3. Gaussian Naive Bayes <small>S25, F23, S23 · x1..x5, classify x6 = (0.9, 0.4)</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.6 "Discriminant functions for the normal density"; D Ch. 3 §3.2 "Maximum likelihood" (to estimate μ, σ²); B §4.2 for generative models.</div>
+<p>Model: P(class) × Π_features N(x_f; μ, σ²) with parameters from MLE (μ = mean, σ² = mean squared deviation).</p>
+<div class="tw"><table><tr><th>Class</th><th>Prior</th><th>F1: μ, σ²</th><th>F2: μ, σ²</th></tr>
+<tr><td>+ (x1,x2,x3)</td><td>3/5 = 0.6</td><td>0.20, 0.00667</td><td>0.40, 0.02667</td></tr>
+<tr><td>− (x4,x5)</td><td>2/5 = 0.4</td><td>0.75, 0.0025</td><td>0.20, 0.01</td></tr></table></div>
+<p><b>x6 = (0.9, 0.4):</b></p>
+<ul><li>+ : N(0.9; 0.2, 0.00667) = 4.88·e^(−36.75) ≈ 5×10⁻¹⁶ (essentially 0); N(0.4; 0.4, 0.02667) = 2.44. Score = 0.6 · 5×10⁻¹⁶ · 2.44 ≈ 8×10⁻¹⁶.</li>
+<li>− : N(0.9; 0.75, 0.0025) = 7.98·e^(−4.5) = 0.0886 (σ = 0.05, z = 3); N(0.4; 0.2, 0.01) = 0.540. Score = 0.4 · 0.0886 · 0.540 = 0.0191.</li></ul>
+<div class="ans">Class −. With the unbiased variance (÷(n−1)) the scores are 1.1×10⁻¹⁰ vs 0.247: same decision.</div>
+</div></details>
+
+<details><summary>A4. Linear regression by gradient descent <small>S25, F24 · (0,1),(1,3),(2,5),(3,7), w=b=0, η=0.01</small></summary><div>
+<div class="bk">Read: B Ch. 3 "Linear Models for Regression" (§3.1.3 sequential learning); B §1.1 for squared error.</div>
+<div class="f">ŷ = wx + b,   L = (1/n)Σ(y−ŷ)²
+∂L/∂w = −(2/n)Σ x(y−ŷ),   ∂L/∂b = −(2/n)Σ(y−ŷ)
+w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
+<div class="tw"><table><tr><th>Iter</th><th>Loss before update</th><th>∂L/∂w</th><th>∂L/∂b</th><th>w</th><th>b</th></tr>
+<tr><td>1</td><td>21.00</td><td>−17.00</td><td>−8.00</td><td>0.1700</td><td>0.0800</td></tr>
+<tr><td>2</td><td>17.62</td><td>−15.57</td><td>−7.33</td><td>0.3257</td><td>0.1533</td></tr>
+<tr><td>3</td><td>14.78</td><td>−14.26</td><td>−6.72</td><td>0.4683</td><td>0.2205</td></tr></table></div>
+<p>Iteration 1 by hand: ŷ = 0 for all, errors = (1,3,5,7), Σ = 16 and Σx·e = 0+3+10+21 = 34, so ∂L/∂w = −(2/4)·34 = −17 and ∂L/∂b = −(2/4)·16 = −8.</p>
+<div class="ans">After 3 steps w = 0.468, b = 0.220, loss = 12.40 (true line is y = 2x+1, loss → 0).</div>
+<p class="note">If your course defines L = (1/2n)Σ(...)², every gradient is halved (w = 0.0850, 0.1628, 0.2342 after steps 1–3 and b = 0.04, 0.0767, 0.1102).</p>
+</div></details>
+
+<details><summary>A5a. Batch perceptron <small>F24 · (1,2)+, (4,3)+, (3,−1)−, (−2,−2)−, w=[0,0], η=1</small></summary><div>
+<div class="bk">Read: B §4.1.7 "The perceptron algorithm"; D Ch. 5 §5.5 "Perceptron criterion".</div>
+<p>Rule: with t = ±1, a sample is misclassified if t·wᵀx ≤ 0. Batch update: w ← w + η Σ_{misclassified} t·x.</p>
+<ul><li>Iter 1: w = (0,0), all scores 0, all misclassified. w = (1,2)+(4,3)−(3,−1)−(−2,−2) = (4, 8).</li>
+<li>Iter 2: scores: (1,2) → 20 ✓, (4,3) → 40 ✓, (3,−1) → 4 but t = −1 ✗, (−2,−2) → −24 ✓. Update w = (4,8) − (3,−1) = (1, 9).</li>
+<li>Iter 3: (1,2) → 19 ✓, (4,3) → 31 ✓, (3,−1) → −6 ✓, (−2,−2) → −20 ✓. No errors, stop.</li></ul>
+<div class="ans">w = (1, 9); boundary x1 + 9x2 = 0.</div>
+</div></details>
+
+<details><summary>A5b. Fixed-increment single-sample perceptron <small>S24 · (2,1)+, (3,4)+, (−1,3)−, (−2,−3)−, w=[0,0], η=1</small></summary><div>
+<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5. Update on one misclassified sample at a time: w ← w + t·x.</div>
+<ul><li>Epoch 1: (2,1): score 0 ✗ → w = (2,1). (3,4): 10 ✓. (−1,3): score 1, t=−1 ✗ → w = (2,1)−(−1,3) = (3,−2). (−2,−3): 0 ✗ → w = (3,−2)−(−2,−3) = (5, 1).</li>
+<li>Epoch 2 check: (2,1) → 11 ✓; (3,4) → 19 ✓; (−1,3) → −2 ✓; (−2,−3) → −13 ✓. Converged.</li></ul>
+<div class="ans">w = (5, 1); boundary 5x1 + x2 = 0.</div>
+</div></details>
+
+<details><summary>A5c. Batch perceptron with feature map φ <small>F23, F22 · ω1: (4,3),(2,3); ω2: (6,1),(−1,−4); φ = [x1³, x2³, x1+x2, x1x2]; η=1, w=0.5</small></summary><div>
+<div class="bk">Read: B §4.1.7 (the perceptron works on φ(x)); B Ch. 4 intro on fixed basis functions.</div>
+<div class="tw"><table><tr><th>Point</th><th>φ(x)</th><th>t</th></tr>
+<tr><td>(4,3)</td><td>[64, 27, 7, 12]</td><td>+1</td></tr><tr><td>(2,3)</td><td>[8, 27, 5, 6]</td><td>+1</td></tr>
+<tr><td>(6,1)</td><td>[216, 1, 7, 6]</td><td>−1</td></tr><tr><td>(−1,−4)</td><td>[−1, −64, −5, 4]</td><td>−1</td></tr></table></div>
+<ul><li>Iter 1: w = [.5,.5,.5,.5]. Scores: 55.5, 23, +115 (t=−1 ✗), −33 ✓. Update w = w − φ(6,1) = [−215.5, −0.5, −6.5, −5.5].</li>
+<li>Iter 2: scores: (4,3) → −13 970 ✗, (2,3) → −1 783 ✗, (6,1) → −46 600 ✓, (−1,−4) → +258 (t=−1) ✗. Update w += φ(4,3)+φ(2,3)−φ(−1,−4) = [73,118,17,14] → w = [−142.5, 117.5, 10.5, 8.5].</li></ul>
+<div class="ans">After two updates w = [−142.5, 117.5, 10.5, 8.5]; boundary −142.5x1³ + 117.5x2³ + 10.5(x1+x2) + 8.5x1x2 = 0 (not yet converged; keep iterating until no errors).</div>
+<p class="note">If your sheet adds a bias term φ0 = 1 with w0 = 0.5, keep a fifth component; the steps are identical.</p>
+</div></details>
+
+<details><summary>A6. Classify with Gaussian classes (equal priors) <small>F24 · μ1=(0,0), μ2=(2,0), σ²=1 → x=(1,0) · S24 · Σ=[[2,.5],[.5,1]], μ1=(1,1), μ2=(3,−1) → x=(2.5,.5)</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.6 (cases I and II), "Discriminant functions for the normal density".</div>
+<p><b>F24 (Σ = σ²I, case I):</b> with equal priors the rule is minimum Euclidean distance. d²(x, μ1) = 1, d²(x, μ2) = 1: the point lies exactly on the boundary x1 = 1 (g1 = g2).</p>
+<div class="ans">It is a tie. Either class is acceptable; state the tie-break (e.g. choose ω1).</div>
+<p><b>S24 (shared Σ, case II):</b> equal priors → minimum Mahalanobis distance. Σ⁻¹ = (1/1.75)[[1,−0.5],[−0.5,2]].</p>
+<ul><li>x−μ1 = (1.5,−0.5): Σ⁻¹(x−μ1) = (1,−1), r² = 1.5+0.5 = 2.00.</li>
+<li>x−μ2 = (−0.5, 1.5): Σ⁻¹(x−μ2) = (−0.714, 1.857), r² = 0.357+2.786 = 3.14.</li></ul>
+<div class="ans">r1² = 2.00 &lt; r2² = 3.14 → ω1.</div>
+</div></details>
+
+<details><summary>A7. Tumor classification, decision boundary <small>S23i · means 15 (benign), 12 (malignant), σ=2</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.6; Gaussian 1-D case of the discriminants.</div>
+<p>Equal σ, so boundary (from g_B = g_M): x* = (μB+μM)/2 + [σ²/(μB−μM)]·ln[P(M)/P(B)]. Decide benign if x &gt; x*.</p>
+<ul><li>(i) P(B)=P(M): x* = 13.5.</li>
+<li>(ii) P(B)=2P(M): x* = 13.5 + (4/3)·ln(1/2) = 13.5 − 0.924 = 12.58. More likely benign → boundary shifts towards the malignant mean.</li></ul>
+<div class="ans">(i) x* = 13.5, (ii) x* ≈ 12.58.</div>
+</div></details>
+
+<details><summary>A8. Macro and micro averaging <small>S25 · 3-class confusion matrix</small></summary><div>
+<div class="bk">Read: Chapter notes §10 "Evaluating learning methods" (confusion matrix, precision, recall, F-measure); M Ch. 5.</div>
+<p>Rows = actual, columns = predicted: Spam (50,5,5), Promotional (10,30,10), Important (5,10,25). Total 150. Correct = 50+30+25 = 105.</p>
+<div class="tw"><table><tr><th>Class</th><th>TP</th><th>Precision = TP/col sum</th><th>Recall = TP/row sum</th><th>F1</th></tr>
+<tr><td>Spam</td><td>50</td><td>50/65 = 0.769</td><td>50/60 = 0.833</td><td>0.800</td></tr>
+<tr><td>Promotional</td><td>30</td><td>30/45 = 0.667</td><td>30/50 = 0.600</td><td>0.632</td></tr>
+<tr><td>Important</td><td>25</td><td>25/40 = 0.625</td><td>25/40 = 0.625</td><td>0.625</td></tr></table></div>
+<ul><li><b>Macro</b> (average of per-class values): P = 0.687, R = 0.686, F1 = 0.686.</li>
+<li><b>Micro</b> (pool TP, FP, FN first): TP = 105, FP = FN = 45 → P = R = F1 = 105/150 = 0.70 (equals accuracy).</li>
+<li><b>Difference:</b> macro treats every class equally (small classes count as much as big ones); micro weights by the number of samples, so frequent classes dominate. Use macro when rare classes matter. In single-label multi-class problems micro-P = micro-R = accuracy.</li></ul>
+</div></details>
+
+<details><summary>A9. SVM from given support vectors <small>F23 · v1=(−1,1), v2=(2,0), v3=(1,−1), v4=(0,2); α = −.5, .5, −.5, .5 (signed); b=−1; classify (1,1)</small></summary><div>
+<div class="bk">Read: B §7.1 "Maximum Margin Classifiers"; D Ch. 5 §5.11. Here α_k already contains the label (α = λ·y).</div>
+<ul><li><b>w:</b> w = Σα_k v_k = −.5(−1,1) + .5(2,0) − .5(1,−1) + .5(0,2) = (0.5,−0.5)+(1,0)+(−0.5,0.5)+(0,1) = <b>(1, 1)</b>.</li>
+<li><b>Check:</b> w·v + b: v1 → −1+1−1 = −1; v2 → 2−1 = +1; v3 → 1−1−1 = −1; v4 → 2−1 = +1. All four sit exactly on the margins (±1), as support vectors must.</li>
+<li><b>Hyperplane:</b> x1 + x2 − 1 = 0 (line through (1,0) and (0,1)); margin lines x1+x2 = 0 and x1+x2 = 2; margin width 2/‖w‖ = √2. Plot: (−1,1),(1,−1) on the line x1+x2=0; (2,0),(0,2) on x1+x2=2.</li>
+<li><b>Classify x=(1,1):</b> x·v = (0, 2, 0, 2). h(x) = sgn(−.5·0 + .5·2 − .5·0 + .5·2 + (−1)) = sgn(2 − 1) = sgn(+1) = <b>+1</b>. On the plot (1,1) is on the same side as v2, v4 (x1+x2 = 2 &gt; 1).</li></ul>
+<div class="ans">w = (1,1); h(1,1) = +1 (class of v2, v4).</div>
+</div></details>
+
+<details><summary>A10. Bayesian networks <small>S25 heart disease · S23i E,S,M,B · F22 car</small></summary><div>
+<div class="bk">Read: Bishop Ch. 8 "Graphical Models" (§8.1 Bayesian Networks); D Ch. 2 §2.11 for Bayes-net context. Joint = Π P(node | parents).</div>
+<p><b>"Prove it is a Bayesian network" (S25):</b> (1) nodes are random variables; (2) edges are directed and the graph has no directed cycle (Exercise→HD, Diet→HD, Diet→Heartburn, HD→BloodPressure, HD→ChestPain, Heartburn→ChestPain: a DAG); (3) every node has a conditional probability table given its parents (root nodes have priors); so the joint factorises as
+<span class="f" style="display:block">P(E,D,HD,Hb,BP,CP) = P(E)P(D)P(HD|E,D)P(Hb|D)P(BP|HD)P(CP|HD,Hb)</span></p>
+<p><b>P(HD = Yes)</b> (E=Yes 0.7, D=Healthy 0.25; P(HD|E,D) = 0.25, 0.45, 0.55, 0.75):</p>
+<div class="f">= 0.7·0.25·0.25 + 0.7·0.75·0.45 + 0.3·0.25·0.55 + 0.3·0.75·0.75
+= 0.04375 + 0.23625 + 0.04125 + 0.16875 = 0.49</div>
+<div class="ans">P(HD = Yes) = 0.49.</div>
+<p><b>S23i network</b> E → S ← M → B; P(E)=0.4; P(M)=0.1; P(+s|+e,+m)=1.0, (+e,−m)=0.8, (−e,+m)=0.3, (−e,−m)=0.1; P(+b|+m)=1.0, P(+b|−m)=0.1.</p>
+<ul><li>(i) P(−e,−s,−m,−b) = P(−e)·P(−m)·P(−s|−e,−m)·P(−b|−m) = 0.6·0.9·0.9·0.9 = <b>0.4374</b>.</li>
+<li>(ii) P(+b) = P(+b|+m)P(+m) + P(+b|−m)P(−m) = 1·0.1 + 0.1·0.9 = <b>0.19</b>.</li>
+<li>(iii) P(+m|+b) = P(+b|+m)P(+m)/P(+b) = 0.1/0.19 = <b>0.526</b>.</li></ul>
+<p><b>F22 car network:</b> arcs Battery→Panel; Fuel→Gauge; Panel→Gauge; Battery→Engine; Starter→Engine; Fuel→Engine. Priors: P(Battery=charged)=0.6, P(Starter=works)=0.5, P(Fuel=empty)=0.5.</p>
+<div class="tw"><table><tr><th>Node</th><th>Condition</th><th>Probability</th></tr>
+<tr><td>Panel works</td><td>battery charged / not</td><td>0.9 / 0.5</td></tr>
+<tr><td>Gauge shows empty</td><td>panel works &amp; tank not empty</td><td>0.1</td></tr>
+<tr><td></td><td>panel works &amp; tank empty</td><td>0.8</td></tr>
+<tr><td></td><td>panel not working (any tank)</td><td>1.0</td></tr>
+<tr><td>Engine starts</td><td>tank not empty, starter works, battery charged</td><td>0.6</td></tr>
+<tr><td></td><td>tank not empty, starter works, battery not charged</td><td>0.2</td></tr>
+<tr><td></td><td>all other cases</td><td>0</td></tr></table></div>
+</div></details>
+
+<details><summary>A11. ROC curve from scores <small>F23, S23 (20 instances) · S23i, F22 (10 instances)</small></summary><div>
+<div class="bk">Read: Chapter notes §10 (ROC, "Algorithm": sort scores and sweep); Fawcett (2006) "An introduction to ROC analysis"; D Ch. 2 §2.8.3 "Receiver operating characteristics".</div>
+<p>Predict positive if score ≥ threshold. TPR = TP/P, FPR = FP/N.</p>
+<p><b>10 instances (P = 6: scores .9,.8,.6,.55,.54,.51; N = 4: .7,.53,.52,.505):</b></p>
+<div class="tw"><table><tr><th>Threshold</th><th>TP</th><th>FP</th><th>TPR</th><th>FPR</th></tr>
+<tr><td>0.75</td><td>2</td><td>0</td><td>0.333</td><td>0</td></tr><tr><td>0.57</td><td>3</td><td>1</td><td>0.500</td><td>0.25</td></tr>
+<tr><td>0.53</td><td>5</td><td>2</td><td>0.833</td><td>0.50</td></tr><tr><td>0.50</td><td>6</td><td>4</td><td>1.000</td><td>1.00</td></tr></table></div>
+<p><b>20 instances (P = 10, N = 10):</b></p>
+<div class="tw"><table><tr><th>Threshold</th><th>TP</th><th>FP</th><th>TPR</th><th>FPR</th></tr>
+<tr><td>0.9</td><td>1</td><td>0</td><td>0.1</td><td>0</td></tr><tr><td>0.8</td><td>2</td><td>0</td><td>0.2</td><td>0</td></tr>
+<tr><td>0.54</td><td>5</td><td>1</td><td>0.5</td><td>0.1</td></tr><tr><td>0.4</td><td>7</td><td>4</td><td>0.7</td><td>0.4</td></tr>
+<tr><td>0.36</td><td>8</td><td>7</td><td>0.8</td><td>0.7</td></tr></table></div>
+<p>Plot FPR on x, TPR on y, add (0,0) and (1,1), and join the points; the curve lies above the diagonal. Cross-validation estimates how well a learning method generalises: see C2.</p>
+</div></details>
+
+<details><summary>A12. PCA, price and weight <small>F23, S23i, F22 · (4,7), (5,6), (3,1)</small></summary><div>
+<div class="bk">Read: B §12.1 "Principal Component Analysis"; D Ch. 3 §3.8.1.</div>
+<ol><li><b>Mean:</b> (4, 4.667). <b>Centred:</b> (0, 2.333), (1, 1.333), (−1, −3.667).</li>
+<li><b>Covariance (÷(n−1) = ÷2):</b> var(price) = 1, var(weight) = 10.333, cov = 2.5 → C = [[1, 2.5],[2.5, 10.333]].</li>
+<li><b>Eigenvalues:</b> det(C−λI) = λ² − 11.333λ + 4.083 = 0 → λ1 = 10.961, λ2 = 0.373 (sum = trace = 11.333).</li>
+<li><b>Eigenvectors:</b> for λ1: (C−λ1I)v = 0 → v1 = (0.243, 0.970); for λ2: v2 = (−0.970, 0.243). Orthogonal and unit length.</li>
+<li><b>Feature vector</b> (keep largest eigenvalue only): W = (0.243, 0.970)ᵀ. PC1 explains 10.961/11.333 = 96.7% of the variance.</li>
+<li><b>Projection</b> y = Wᵀ(x−mean): 2.26, 1.54, −3.80.</li></ol>
+<div class="ans">Feature vector (0.243, 0.970): weight dominates the first principal component.</div>
+</div></details>
+
+<details><summary>A13. Agglomerative clustering, Manhattan distance, single link <small>F23, S23i, F22 · points 1=(0,0,0), 2=(1,1,0), 3=(1,1,1), 4=(1,1,0)</small></summary><div>
+<div class="bk">Read: D Ch. 10 §10.9 "Hierarchical Clustering"; T Ch. 8 (single link = MIN).</div>
+<div class="tw"><table><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tr><th>1</th><td>0</td><td>2</td><td>3</td><td>2</td></tr><tr><th>2</th><td></td><td>0</td><td>1</td><td>0</td></tr><tr><th>3</th><td></td><td></td><td>0</td><td>1</td></tr></table></div>
+<ol><li>Smallest distance 0: merge {2,4} at height 0.</li>
+<li>Single link: d({2,4},1) = min(2,2) = 2; d({2,4},3) = min(1,1) = 1; d(1,3) = 3. Merge {2,4,3} at height 1.</li>
+<li>d({2,3,4},1) = min(2,3,2) = 2. Merge everything at height 2.</li></ol>
+<div class="ans">Dendrogram: (2,4) at 0 → joined by 3 at 1 → joined by 1 at 2.</div>
+</div></details>
+
+<details><summary>A14. Edit distance and Bellman's principle <small>F23, S23i: google → doodle · F22: pattern → petern</small></summary><div>
+<div class="bk">Read: Dynamic programming / Bellman's optimality principle; the edit-distance table is the standard DP of Jurafsky &amp; Martin, "Minimum Edit Distance" (Speech and Language Processing, Ch. 2).</div>
+<p><b>Bellman's principle:</b> an optimal solution is built from optimal solutions of its sub-problems. For edit distance, D(i,j) = min{ D(i−1,j)+1 (delete), D(i,j−1)+1 (insert), D(i−1,j−1) + (0 if s_i = t_j else substitution cost) }. Fill the table, then trace back.</p>
+<ul><li><b>google → doodle:</b> g-o-o-g-l-e vs d-o-o-d-l-e. Only positions 1 and 4 differ. Operations: substitute g→d (position 1), substitute g→d (position 4). Distance = <b>2</b> (unit cost); if substitution costs 2 (insert + delete), distance = 4.</li>
+<li><b>pattern → petern:</b> p-a-t-t-e-r-n → p-e-t-e-r-n. Operations: substitute a→e, delete one t. Distance = <b>2</b> (unit cost; 3 with substitution cost 2).</li></ul>
+<p class="note">S23's handwritten target word is hard to read; use the same table method on that word.</p>
+</div></details>
+
+<details><summary>A15. Cosine similarity of two documents <small>S23, F22</small></summary><div>
+<div class="bk">Read: Chapter notes §8 (cosine similarity for text); D Ch. 10 §10.6; T Ch. 2 "Data" (proximity measures).</div>
+<p>Term-frequency vectors are sparse, with many zero counts, and document length varies, so use <b>cosine similarity</b> (ignores vector length; zero-zero matches do not count). D1 = (5,4,2,0,0,1,0), D2 = (0,3,4,0,1,0,0).</p>
+<div class="f">D1·D2 = 4·3 + 2·4 = 20
+‖D1‖ = √(25+16+4+1) = √46 = 6.78,   ‖D2‖ = √(9+16+1) = √26 = 5.10
+cos = 20 / (6.78·5.10) = 0.578</div>
+<div class="ans">Similarity ≈ 0.58 (angle ≈ 54.7°): moderately similar.</div>
+</div></details>
+
+<details><summary>A16. Extreme values with constraints <small>F23, S23i · f = x²+y², x+1 = 0, y+1 = 0</small></summary><div>
+<div class="bk">Read: B Appendix E "Lagrange Multipliers"; D Ch. 5 §5.11 (constrained optimisation).</div>
+<div class="f">L = x² + y² + λ1(x+1) + λ2(y+1)
+∂L/∂x = 2x + λ1 = 0,  ∂L/∂y = 2y + λ2 = 0,  x+1 = 0,  y+1 = 0</div>
+<p>The constraints already fix (x,y) = (−1,−1); then λ1 = λ2 = 2.</p>
+<div class="ans">The only feasible point is (−1,−1) and f(−1,−1) = 2 (min and max coincide).</div>
+</div></details>
+
+<details><summary>A17. Naive Bayes with counts and Laplace smoothing <small>S24 play golf · S23i A,B,C</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.9 "Bayes decision theory: discrete features"; Laplace smoothing = add 1 to each count and add the number of values to the denominator.</div>
+<p><b>Play golf</b> (today = Sunny, Hot, Normal, False; 3 Yes, 3 No; outlook has 3 values, temperature 3, humidity 2, windy 2):</p>
+<ul><li>No smoothing: Yes = ½·(2/3)(1/3)(1/3)(3/3) = 0.037; No = ½·(1/3)(2/3)·<b>0</b>·(1/3) = 0 (no "Normal" among No).</li>
+<li>Laplace: Yes = ½·(3/6)(2/6)(2/5)(4/5) = 0.0267; No = ½·(2/6)(3/6)(1/5)(2/5) = 0.0067.</li></ul>
+<div class="ans">Play golf = Yes (normalised P(Yes) = 0.80).</div>
+<p><b>A,B,C data</b> (7 rows; y=0: 3 rows, y=1: 4 rows; input A=0,B=0,C=1):</p>
+<ul><li>No smoothing: y=0: 3/7·(2/3)(1/3)(1/3) = 0.0317; y=1: 4/7·(1/4)(2/4)(2/4) = 0.0357.</li>
+<li>Laplace (binary features, +1 / +2): y=0: 3/7·(3/5)(2/5)(2/5) = 0.0411; y=1: 4/7·(2/6)(3/6)(3/6) = 0.0476.</li></ul>
+<div class="ans">Predicted y = 1 with and without smoothing.</div>
+<p class="note">Counts were read from a scanned table; recheck them against your paper.</p>
+</div></details>
+
+<h2 id="proof">B. Derivations and proofs</h2>
+
+<details><summary>B1. Bayes rule minimises average error · zero-one loss rule · minimum-risk rule <small>S25, S24, S23, F24</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.1–2.3; B §1.5 "Decision Theory".</div>
+<p><b>Bayes minimises error.</b> P(error) = ∫P(error|x)p(x)dx. Choosing the class with the larger posterior gives P(error|x) = min[P(ω1|x), P(ω2|x)], the smallest possible value at every x. Any other rule picks the smaller posterior somewhere and adds error there. Since p(x) ≥ 0, minimising pointwise minimises the integral.</p>
+<p><b>Zero-one loss.</b> λ(α_i|ω_j) = 0 if i = j, else 1. Then R(α_i|x) = Σ_{j≠i}P(ω_j|x) = 1 − P(ω_i|x). Minimum risk = maximum posterior: decide ω_i if P(ω_i|x) &gt; P(ω_j|x) for all j≠i. Risk equals error probability.</p>
+<p><b>Minimum-risk rule, two classes.</b> R(α1|x) = λ11P(ω1|x)+λ12P(ω2|x); R(α2|x) = λ21P(ω1|x)+λ22P(ω2|x). Decide ω1 if R(α1|x) &lt; R(α2|x):</p>
+<div class="f">(λ21−λ11)P(ω1|x) > (λ12−λ22)P(ω2|x)
+⇔ (λ21−λ11)p(x|ω1)P(ω1) > (λ12−λ22)p(x|ω2)P(ω2)      (p(x) cancels)
+⇔ p(x|ω1)/p(x|ω2) > [(λ12−λ22)/(λ21−λ11)]·P(ω2)/P(ω1)     (if λ21 > λ11)</div>
+<p>Role of the loss function in generalised decision theory: it sets the cost of each action/state pair, so unequal costs move the threshold (the fish-packing example).</p>
+</div></details>
+
+<details><summary>B2. Gaussian discriminants: linear form, shared covariance, effect of priors <small>S23, S23i, S24</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.6.2 "Case 2: Σ_i = Σ".</div>
+<p>g_i(x) = ln p(x|ω_i) + ln P(ω_i) = −½(x−μ_i)ᵀΣ⁻¹(x−μ_i) − (d/2)ln2π − ½ln|Σ| + ln P(ω_i). Drop terms equal for all classes and expand; xᵀΣ⁻¹x is also common:</p>
+<div class="f">g_i(x) = w_iᵀx + w_i0,    w_i = Σ⁻¹μ_i,   w_i0 = −½μ_iᵀΣ⁻¹μ_i + ln P(ω_i)
+boundary: wᵀ(x − x0) = 0,   w = Σ⁻¹(μ1−μ2)
+x0 = ½(μ1+μ2) − [ln(P(ω1)/P(ω2)) / ((μ1−μ2)ᵀΣ⁻¹(μ1−μ2))]·(μ1−μ2)</div>
+<p>The boundary is a hyperplane, orthogonal to Σ⁻¹(μ1−μ2) (not to μ1−μ2 unless Σ ∝ I). Equal priors: x0 is the midpoint. If P(ω1) &gt; P(ω2), x0 moves away from μ1 towards μ2, enlarging the region of the more probable class.</p>
+</div></details>
+
+<details><summary>B3. Geometry of a linear discriminant and distance to the hyperplane <small>F24, F23</small></summary><div>
+<div class="bk">Read: B §4.1.1 "Two classes"; D Ch. 5 §5.2.</div>
+<p>g(x) = wᵀx + w0; boundary g(x) = 0. The weight vector w is normal to the hyperplane (for x_a, x_b on it, wᵀ(x_a−x_b) = 0) and points into the positive region; the bias w0 shifts the plane (distance from the origin is |w0|/‖w‖).</p>
+<p><b>Distance by constrained minimisation (F23):</b> minimise ‖x−x_a‖² subject to g(x) = 0. L = ‖x−x_a‖² + λ(wᵀx+w0). ∂L/∂x = 2(x−x_a)+λw = 0 → x = x_a − λw/2. Put into g(x) = 0: g(x_a) − λ‖w‖²/2 = 0 → λ = 2g(x_a)/‖w‖². Then ‖x−x_a‖ = |λ|‖w‖/2 = <b>|g(x_a)|/‖w‖</b>.</p>
+</div></details>
+
+<details><summary>B4. SVM theory: margin, ½‖w‖², Lagrange multipliers, dual, KKT, kernel <small>every paper</small></summary><div>
+<div class="bk">Read: B §7.1 "Maximum Margin Classifiers" with Appendix E; D Ch. 5 §5.11; B Ch. 6 §6.1–6.2 for kernels.</div>
+<p><b>Margin = 2/‖w‖.</b> Rescale (w,b) so the closest points obey y_i(wᵀx_i+b) = 1; this is allowed because (w,b) and (cw,cb) define the same plane. The distance from a point to the plane is |wᵀx+b|/‖w‖ = 1/‖w‖, so the total margin is 2/‖w‖.</p>
+<p><b>Why minimise ½‖w‖² instead of maximising 2/‖w‖:</b> maximising 2/‖w‖ is the same as minimising ‖w‖, which is the same as minimising ‖w‖² (monotonic). The squared form is smooth and convex (quadratic programme with a unique optimum), no square root, and the ½ cancels the 2 when differentiating (∂/∂w = w). Maximising 1/‖w‖ directly is awkward near w → 0.</p>
+<p><b>Lagrange multipliers.</b> Constraint y_i(wᵀx_i+b) − 1 ≥ 0 is attached with λ_i ≥ 0: L_P = ½‖w‖² − Σλ_i[y_i(wᵀx_i+b) − 1]. ∂L/∂w = 0 → w = Σλ_i y_i x_i; ∂L/∂b = 0 → Σλ_i y_i = 0. Substituting:</p>
+<div class="f">L_D = Σλ_i − ½ΣΣ λ_iλ_j y_i y_j (x_i·x_j),   λ_i ≥ 0,   Σλ_i y_i = 0
+decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
+<p><b>KKT:</b> λ_i[y_i(wᵀx_i+b) − 1] = 0. So λ_i &gt; 0 only if y_i(wᵀx_i+b) = 1, i.e. the point lies on the margin (support vector) (S24 Q1b). Points with λ_i = 0 do not affect w. The boundary in terms of multipliers is f(x) = Σ_{SV}λ_i y_i x_i·x + b, which satisfies KKT as above (F23 Q2a).</p>
+<p><b>Why solve the dual:</b> (1) it depends on the data only through dot products x_i·x_j, so a kernel K(x_i,x_j) can replace them (kernel trick); (2) the number of variables equals the number of samples, not the number of features, so it is better when features are very many; (3) simple constraints; only support vectors matter. Strong duality holds (convex problem), so the optima agree.</p>
+<p><b>Kernel trick, K(x,z) = (1+xᵀz)², 2-D:</b> (1+x1z1+x2z2)² = 1 + 2x1z1 + 2x2z2 + x1²z1² + 2x1x2z1z2 + x2²z2² = φ(x)·φ(z) with φ(x) = (1, √2x1, √2x2, x1², √2x1x2, x2²). The kernel gives the 6-D dot product from a 2-D computation, with no explicit φ.</p>
+<p><b>Why w is not computed in kernel SVM (S24):</b> w = Σλ_i y_i φ(x_i) lives in feature space, which can be infinite-dimensional (RBF). Classify with f(x) = sgn(Σλ_i y_i K(x_i,x) + b) instead.</p>
+<p><b>Soft margin (S24 Q3c, S23i):</b> add slack ξ_i ≥ 0 with penalty C: minimise ½‖w‖² + CΣξ_i. The dual is the same as hard margin except 0 ≤ λ_i ≤ C. Points with λ_i = C are inside the margin or misclassified; C → ∞ recovers the hard margin.</p>
+</div></details>
+
+<details><summary>B5. Perceptron convergence theorem <small>S24, S23, F22</small></summary><div>
+<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5.2 "Convergence proof for single-sample correction".</div>
+<p>Replace class-2 samples by −x so a solution satisfies ŵᵀx_n &gt; 0 for all n (‖ŵ‖ = 1, γ = min ŵᵀx_n &gt; 0 exists when separable); R = max‖x_n‖. Each update is w_{k+1} = w_k + x (x misclassified, w_kᵀx ≤ 0), starting at w_0 = 0.</p>
+<ul><li>Lower bound: ŵᵀw_{k+1} = ŵᵀw_k + ŵᵀx ≥ ŵᵀw_k + γ, so ŵᵀw_k ≥ kγ and hence ‖w_k‖ ≥ kγ.</li>
+<li>Upper bound: ‖w_{k+1}‖² = ‖w_k‖² + 2w_kᵀx + ‖x‖² ≤ ‖w_k‖² + R², so ‖w_k‖² ≤ kR².</li>
+<li>Combine: k²γ² ≤ ‖w_k‖² ≤ kR² → <b>k ≤ R²/γ²</b>. The number of updates is finite, so the algorithm terminates at a solution vector.</li></ul>
+</div></details>
+
+<details><summary>B6. MLE derivations <small>F24 Gaussian mean · S23 multivariate Bernoulli</small></summary><div>
+<div class="bk">Read: D Ch. 3 §3.2.1–3.2.4 "The Gaussian case: unknown μ"; B §2.3.4 "Maximum likelihood for the Gaussian".</div>
+<p><b>Gaussian mean, Σ known.</b> ln p(D|μ) = −½Σ_k(x_k−μ)ᵀΣ⁻¹(x_k−μ) + const. ∇_μ = Σ_k Σ⁻¹(x_k−μ) = 0 → Σ_k x_k − nμ = 0 (Σ⁻¹ is invertible):</p>
+<div class="f">μ̂ = (1/n) Σ_k x_k</div>
+<p><b>Multivariate Bernoulli.</b> ln P(D|θ) = Σ_k Σ_i [x_ki ln θ_i + (1−x_ki) ln(1−θ_i)]. ∂/∂θ_i = Σ_k [x_ki/θ_i − (1−x_ki)/(1−θ_i)] = 0 → Σ_k x_ki(1−θ_i) = θ_iΣ_k(1−x_ki) → Σ_k x_ki = nθ_i:</p>
+<div class="f">θ̂_i = (1/n) Σ_k x_ki      i.e. θ̂ = (1/n) Σ_k x_k</div>
+</div></details>
+
+<details><summary>B7. MLE vs MAP vs Bayes · large-n limit <small>S23i, F22</small></summary><div>
+<div class="bk">Read: D Ch. 3 §3.3–3.4 "Bayesian estimation: Gaussian case"; B §2.3.6 and §1.2.5.</div>
+<p><b>MLE:</b> θ is fixed but unknown, θ̂ = argmax p(D|θ). <b>MAP:</b> θ is random with prior p(θ), θ̂ = argmax p(D|θ)p(θ), a point estimate. <b>Full Bayes:</b> keep p(θ|D) and average over it. MLE has no prior, so unseen events get probability 0.</p>
+<div class="f">μ_n = [nσ0²/(nσ0²+σ²)]·x̄_n + [σ²/(nσ0²+σ²)]·μ0</div>
+<p>Divide numerator and denominator by nσ0²: μ_n = x̄_n/(1 + σ²/(nσ0²)) + (σ²/(nσ0²))·μ0/(1 + σ²/(nσ0²)). As n → ∞, σ²/(nσ0²) → 0, so μ_n → x̄_n, the MLE (also σ_n² = σ0²σ²/(nσ0²+σ²) → σ²/n → 0). With enough data the prior is overridden. Same if σ0 → ∞ (vague prior).</p>
+</div></details>
+
+<details><summary>B8. Uncorrelated 2-D Gaussian factorises <small>F24, S24, S23</small></summary><div>
+<div class="bk">Read: D Ch. 2 §2.5 "The normal density"; B §2.3.</div>
+<p>Uncorrelated means Σ = diag(σ1², σ2²), so |Σ| = σ1²σ2² and Σ⁻¹ = diag(1/σ1², 1/σ2²):</p>
+<div class="f">p(x) = 1/(2π√(σ1²σ2²)) · exp{ −½[(x1−μ1)²/σ1² + (x2−μ2)²/σ2²] }
+     = [1/(√(2π)σ1) e^{−(x1−μ1)²/2σ1²}] · [1/(√(2π)σ2) e^{−(x2−μ2)²/2σ2²}]
+     = N(x1; μ1, σ1²) · N(x2; μ2, σ2²)</div>
+<p>The joint is the product of the marginals, so for Gaussians uncorrelated ⇔ independent. (This is also why Σ = σ²I gives circular contours.)</p>
+</div></details>
+
+<details><summary>B9. d-bit parity is not linearly separable <small>F22</small></summary><div>
+<div class="bk">Read: B §4.1.7 (limits of the perceptron); D Ch. 5 §5.1.</div>
+<p>Take d = 2 (XOR): (0,0) and (1,1) → ω2 (even), (1,0) and (0,1) → ω1 (odd). A linear g = w1x1 + w2x2 + w0 would need g(0,0) &lt; 0 → w0 &lt; 0; g(1,0) &gt; 0 → w1 + w0 &gt; 0; g(0,1) &gt; 0 → w2 + w0 &gt; 0; g(1,1) &lt; 0 → w1 + w2 + w0 &lt; 0. Adding the middle two: w1 + w2 + 2w0 &gt; 0, so w1 + w2 + w0 &gt; −w0 &gt; 0, contradicting the last. For d &gt; 1 fix all other inputs at 0: any x that varies only in two coordinates reproduces this XOR sub-problem, so no single hyperplane works.</p>
+</div></details>
+
+<details><summary>B10. PCA: role of eigenvalues and eigenvectors <small>F24, S23, F23</small></summary><div>
+<div class="bk">Read: B §12.1.1 "Maximum variance formulation".</div>
+<p>For centred data with covariance matrix S, the variance of the projection onto a unit vector u is uᵀSu. Maximise subject to uᵀu = 1: L = uᵀSu − λ(uᵀu − 1) → Su = λu and the variance equals λ. So <b>eigenvectors of S are the principal directions</b> and <b>eigenvalues are the variances along them</b>. The eigenvector with the largest eigenvalue is PC1; others are orthogonal because S is symmetric. Keep the top p eigenvectors; the fraction of variance retained is Σ_{top p}λ / Σλ. An eigenvector is a vector with Av = λv (A only rescales it).</p>
+</div></details>
+
+<details><summary>B11. Backpropagation (error propagation layer by layer) <small>F23, S23, S23i</small></summary><div>
+<div class="bk">Read: D Ch. 6 "Multilayer Neural Networks" §6.3 "Backpropagation algorithm". Not covered by the class slides I summarised, so check your lecture notes.</div>
+<p>Three-layer net, input x_i → hidden y_j = f(net_j), net_j = Σ w_ji x_i → output z_k = f(net_k), net_k = Σ w_kj y_j. Error J = ½Σ_k(t_k − z_k)².</p>
+<ul><li>Output layer: ∂J/∂w_kj = (∂J/∂net_k)(∂net_k/∂w_kj) = −δ_k y_j with sensitivity δ_k = (t_k − z_k) f′(net_k). So Δw_kj = η δ_k y_j.</li>
+<li>Hidden layer: ∂J/∂y_j = −Σ_k (t_k − z_k) f′(net_k) w_kj = −Σ_k w_kj δ_k, so δ_j = f′(net_j) Σ_k w_kj δ_k and Δw_ji = η δ_j x_i.</li>
+<li>The error is propagated back: each hidden sensitivity is the weighted sum of the output sensitivities.</li></ul>
+</div></details>
+
+<h2 id="short">C. Short answers and reinforcement learning</h2>
+
+<details><summary>C1. Q-learning pseudo-code, MDP, discounted reward <small>S23, S23i, F22, S25 (DRL)</small></summary><div>
+<div class="bk">Read: SB Ch. 3 "Finite Markov Decision Processes", Ch. 6 §6.5 "Q-learning: off-policy TD control"; Mnih et al. (2015) for DQN.</div>
+<div class="f">initialise Q(s,a) = 0 for all s,a
+for each episode:
+    s ← start state
+    repeat until s is terminal:
+        choose a from s using ε-greedy on Q
+        take a; observe reward r and next state s'
+        Q(s,a) ← Q(s,a) + α [ r + γ·max_a' Q(s',a') − Q(s,a) ]
+        s ← s'</div>
+<ul><li>α: learning rate (how far to move towards the new estimate). r + γ·max Q(s',a'): the TD target (immediate reward plus discounted best future value). Bracket = TD error. γ: discount. ε: exploration probability.</li>
+<li><b>MDP:</b> states, actions, transition probabilities, rewards, discount. <b>RL:</b> the agent learns a policy that maximises expected return by interacting with the environment. <b>Additive discounted reward</b> G_t = Σ γ^k R_{t+k+1}, 0 ≤ γ &lt; 1. Justification: the infinite sum stays finite, near rewards count more than uncertain distant ones, and it makes the Bellman recursion V = r + γV′ work.</li>
+<li><b>DRL vs Q-learning (S25):</b> tabular Q-learning stores one number per (s,a), which fails for large or continuous spaces. Deep RL (e.g. DQN) approximates Q(s,a;θ) with a neural network trained on loss (r + γ max Q_target(s',a') − Q(s,a;θ))², using experience replay and a target network for stability.</li>
+<li><b>Recycling robot (S23 Q1b):</b> states = (battery: high/low) × (can in front: yes/no) × (holding can: yes/no) [plus location: near charger/trash]. Actions: search/navigate, pick up, throw in trash, go to charger, charge, wait. Rewards: +1 for each can thrown into the trash, large negative (e.g. −10) if the battery dies, a small cost per step (e.g. −0.1) and 0 otherwise, with γ &lt; 1. This pushes it to collect many cans while recharging before it is empty.</li></ul>
+</div></details>
+
+<details><summary>C2. Short definitions and comparisons <small>S25, S24, F24, S23</small></summary><div>
+<ul>
+<li><b>Curse of dimensionality:</b> the data needed to cover the feature space grows exponentially with dimension; data become sparse, distances less meaningful, and classifiers overfit (see chapter 1 notes; B §1.4).</li>
+<li><b>Unsupervised learning:</b> no labels; find structure such as clusters (k-means) or low-dimensional projections (PCA).</li>
+<li><b>K-fold cross-validation:</b> split into k folds; train on k−1, test on the remaining one; rotate k times; average the scores (chapter 10).</li>
+<li><b>Random subsampling vs k-fold (S24):</b> random subsampling repeats random train/test splits, so some points may never be tested and others several times; k-fold tests every sample exactly once, so its estimate has lower variance and is generally more robust.</li>
+<li><b>MSE vs MAE:</b> MSE squares errors, so outliers dominate; it is smooth, has a closed form, and is optimal for Gaussian noise (predicts the mean). MAE grows linearly, is robust to outliers, predicts the median, suits Laplace-like noise, but is not differentiable at 0. Choose MSE for clean data and MAE when outliers are present.</li>
+<li><b>Mutually exclusive:</b> cannot happen together, P(A∩B) = 0, P(A∪B) = P(A)+P(B); e.g. a coin showing head or tail. <b>Non-exclusive:</b> can happen together, P(A∪B) = P(A)+P(B)−P(A∩B); e.g. a card that is a heart or a king.</li>
+<li><b>PCA vs LDA (S24):</b> both project linearly (y = Wᵀx). PCA is unsupervised and keeps maximum variance; LDA is supervised and maximises between-class over within-class scatter (at most C−1 dimensions).</li>
+<li><b>Regularisation in logistic regression:</b> add λ‖w‖² (L2) or λ‖w‖₁ to the loss. Large weights are penalised, which reduces overfitting; λ too large underfits; L1 gives sparse weights.</li>
+<li><b>Generative vs discriminative (F23, S23):</b> generative models learn p(x|y)p(y) (Gaussian discriminant analysis, Naive Bayes) and classify by Bayes' rule; discriminative models learn p(y|x) or the boundary directly (logistic regression, SVM). Use Gaussian discriminant analysis for continuous, roughly Gaussian features; Naive Bayes for high-dimensional discrete data (text) with little data. Naive Bayes' strong assumption: features are conditionally independent given the class. Laplace smoothing stops a zero count from making the whole product zero.</li>
+<li><b>Boosting vs bagging (F23, F22):</b> bagging trains classifiers on bootstrap samples in parallel and averages them, which reduces variance. Boosting trains weak classifiers (a bit better than chance) sequentially, each focusing on earlier mistakes, which reduces bias and gives a strong classifier (low training error). AdaBoost: classifier weight α_t = ½ ln((1−ε_t)/ε_t); sample weights multiply by e^{α_t} if misclassified and e^{−α_t} if correct, then renormalise; final H(x) = sgn(Σα_t h_t(x)).</li>
+<li><b>Model complexity, bias and variance (S23):</b> low complexity: high bias, low variance (underfit); high complexity: low bias, high variance (overfit); test error is U-shaped (chapter 1, B §3.2).</li>
+</ul>
+</div></details>
+
+<p class="note" style="margin-top:2rem">Not worked here: the spam-filter and sign-language system-design questions (answer with the design cycle from chapter 1), MSE-vs-MAE in depth, and the Mahalanobis-distance essay (F24; the calculation is in A6, and B2 covers the covariance-weighted boundary). Lagrangian duality is in B4.</p>
+</main>
+<script>
+var d=document.querySelectorAll('details');
+document.getElementById('eo').onclick=function(){d.forEach(function(x){x.open=true})};
+document.getElementById('co').onclick=function(){d.forEach(function(x){x.open=false})};
+</script>
+</body>
+</html>
