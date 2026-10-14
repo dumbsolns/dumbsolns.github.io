@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Soft Computing – Exam Overview</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 48px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+.sub{color:var(--mu);margin:0 0 16px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.2rem;margin:0 0 4px;color:var(--ac)}
+.pg{font-size:12px;color:var(--mu);margin:0 0 8px}
+h3{font-size:.95rem;margin:12px 0 2px}
+ul{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.ref b{display:block;margin-bottom:2px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.9rem}
+th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+.note{font-size:.85rem;color:var(--mu)}
+@media (min-width:700px){main{padding:24px 20px 64px}section{padding:20px 24px}}
+</style>
+</head>
+<body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#intro">Intro</a><a href="#nn">Neural nets</a><a href="#loss">Loss</a><a href="#opt">Optimizers</a><a href="#reg">Generalization</a><a href="#cnn">CNN</a><a href="#rnn">RNN/LSTM</a><a href="#trf">Transformer</a><a href="#nlp">NLP</a><a href="#fuzzy">Fuzzy</a><a href="#fis">Inference</a><a href="#anfis">ANFIS</a><a href="#ec">ACO/EC</a><a href="#hmm">HMM</a></nav></div>
+<main>
+<h1>Soft Computing (CSE 4137/4237) – Exam Overview</h1>
+<p class="sub">Topics grouped logically (the class files were not in order). Book references are the standard texts the slides cite or match; chapter names are from common editions, so numbering may differ in yours.</p>
+
+<section id="intro"><h2>1. Introduction to Soft Computing</h2><p class="pg">Slides 1–40</p>
+<ul>
+<li><b>Computing:</b> <span class="f">y = f(x)</span> – antecedent → algorithm → consequent, under a control action.</li>
+<li><b>Hard computing</b> (term by L. A. Zadeh): precise, unambiguous, formal model, two-valued logic, deterministic, sequential (sorting, numerical solving).</li>
+<li><b>Soft computing</b> (Zadeh): tolerance of imprecision, uncertainty, partial truth and approximation for tractability, robustness and low cost; role model is the <i>human mind</i>.</li>
+<li>Features: no exact model needed, adaptive, may give different answers per run, bio-inspired (GA, ants, swarms, neurons), parallel, handles noisy data.</li>
+<li><b>Components:</b> Fuzzy sets (uncertainty), Neural networks (learning), Probabilistic reasoning (reasoning under uncertainty), Evolutionary computing (search/optimization).</li>
+<li><b>AI vs SC:</b> AI aims at human-level intelligence (reasoning, perception, NLP) and needs programs/exact inputs; SC tolerates imprecision and evolves its own programs.</li>
+<li>Brain vs computer: ~10<sup>11</sup> neurons, parallel, fault tolerant, learns; computer serial, centralized.</li>
+<li><b>Biological neuron:</b> dendrites (input), soma (sums), axon (output). ANN: inputs, weights, bias, summation, activation function.</li>
+<li><b>Fuzzy vs NN:</b> fuzzy = human-like reasoning, simple, no learning; NN = learns from data, complex, black box.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Sivanandam &amp; Deepa, <i>Principles of Soft Computing</i> – “Introduction”; Jang, Sun &amp; Mizutani, <i>Neuro-Fuzzy and Soft Computing</i> – Ch. 1 “Introduction to Neuro-Fuzzy and Soft Computing”; Haykin, <i>Neural Networks and Learning Machines</i> (listed in the slides’ Books slide).</div></section>
+
+<section id="nn"><h2>2. Neural Network Basics &amp; Shallow Networks</h2><p class="pg">Slides ~41–108, 159–202</p>
+<ul>
+<li>AI ⊃ ML ⊃ Deep learning. Supervised learning; structured vs unstructured data. Deep learning took off because of <b>data + compute + algorithms</b>; training is iterative.</li>
+<li><b>Logistic regression:</b> <span class="f">z = wᵀx + b, ŷ = σ(z) = 1/(1+e⁻ᶻ)</span>. Bias shifts the decision boundary.</li>
+<li><b>Loss</b> per example vs <b>cost</b> = average over m examples. Squared error is non-convex for LR, so use cross-entropy: <span class="f">L = −[y log ŷ + (1−y) log(1−ŷ)]</span>.</li>
+<li><b>Gradient descent:</b> <span class="f">w := w − α ∂J/∂w</span>, same for b. The cost is convex, so any init (usually 0) reaches the global optimum.</li>
+<li><b>Computation graph:</b> forward pass computes the cost; backward pass applies the chain rule: <span class="f">dz = a − y, dw = x·dz, db = dz</span>.</li>
+<li><b>Vectorization</b> replaces loops: <span class="f">Z = WX + b, A = σ(Z)</span>; much faster.</li>
+<li><b>Shallow NN:</b> input → hidden → output; <span class="f">z[1]=W[1]x+b[1], a[1]=g(z[1])</span>, then layer 2. Vectorized across examples as columns of X.</li>
+<li><b>Why non-linear activations?</b> Stacked linear layers collapse into one linear function.</li>
+</ul>
+<div class="scroll"><table><tr><th>Activation</th><th>Formula / range</th><th>Notes</th></tr>
+<tr><td>Sigmoid</td><td>1/(1+e⁻ᶻ), (0,1)</td><td>Output layer for binary; saturates, vanishing gradient. g′=a(1−a)</td></tr>
+<tr><td>tanh</td><td>(0,1)→(−1,1)</td><td>Zero-centred, usually better than sigmoid in hidden layers. g′=1−a²</td></tr>
+<tr><td>ReLU</td><td>max(0,z)</td><td>Default for hidden layers; fast, no saturation for z&gt;0</td></tr>
+<tr><td>Leaky ReLU</td><td>max(0.01z, z)</td><td>Avoids “dead” neurons</td></tr>
+<tr><td>Softmax</td><td>eᶻⁱ/Σeᶻʲ</td><td>Multi-class output, probabilities sum to 1</td></tr></table></div>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 6 “Deep Feedforward Networks”; Haykin – “Multilayer Perceptrons”; Jang et al. – Ch. 9 “Supervised Learning Neural Networks”; Sivanandam &amp; Deepa – “Feed Forward Networks” (backpropagation). The slides follow Andrew Ng’s <i>Neural Networks and Deep Learning</i> course.</div></section>
+
+<section id="loss"><h2>3. Cross-Entropy, Softmax &amp; Information</h2><p class="pg">Slides ~128–158</p>
+<ul>
+<li><b>Logits</b> = raw scores; softmax turns them into a probability distribution (exponent keeps values positive and amplifies the largest).</li>
+<li><b>Entropy</b> <span class="f">H(p) = −Σ p log p</span> = average surprise/information. The negative sign makes it positive since log p ≤ 0.</li>
+<li><b>Cross-entropy</b> <span class="f">H(p,q) = −Σ p log q</span>; with a one-hot target it is just −log of the predicted probability of the true class.</li>
+<li><b>Binary</b> CE (sigmoid, 1 output), <b>Categorical</b> CE (one-hot labels), <b>Sparse categorical</b> CE (integer labels). Loss = one sample; cost = whole batch.</li>
+<li>Wordle example: choose the guess that maximizes expected information (entropy) about the hidden word.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 3 “Probability and Information Theory”; Ch. 6 “Deep Feedforward Networks” (cost functions, softmax output units).</div></section>
+
+<section id="opt"><h2>4. Optimization (Gradient Descent Family)</h2><p class="pg">Slides ~72–76, 599–672</p>
+<ul>
+<li><b>Batch GD:</b> exact gradient over all data; slow per step. <b>SGD:</b> one sample, noisy, may be unstable, sensitive to learning rate. <b>Mini-batch:</b> best compromise.</li>
+<li><b>Momentum:</b> <span class="f">update<sub>t</sub> = γ·update<sub>t−1</sub> + η∇w</span>, <span class="f">w = w − update<sub>t</sub></span>; accumulates past gradients, speeds up on gentle slopes, can overshoot.</li>
+<li><b>Nesterov (NAG):</b> first jump along accumulated gradient, then measure the gradient there and correct.</li>
+<li><b>Adam:</b> momentum + adaptive per-parameter rates; defaults β₁=0.9, β₂=0.999, ε=10⁻⁸; often the best default choice.</li>
+<li>Second derivative test: f′=0 &amp; f″&gt;0 → minimum, f″&lt;0 → maximum, f″=0 → inconclusive.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 8 “Optimization for Training Deep Models”; Jang et al. – Ch. 6 “Derivative-Based Optimization”.</div></section>
+
+<section id="reg"><h2>5. Generalization, Evaluation &amp; Regularization</h2><p class="pg">Slides ~559–598, 702–746</p>
+<ul>
+<li>Pattern recognition pipeline (fish example): sensing → segmentation → feature extraction → classification. Too many or correlated features → curse of dimensionality.</li>
+<li><b>Overfitting</b> = great on training data, poor on unseen data; underfitting = too simple. Fix with more data, simpler model or regularization.</li>
+<li><b>Evaluation:</b> train/validation/test split; <b>k-fold cross-validation</b> rotates the validation fold and averages the score.</li>
+<li><b>Data augmentation</b> (flips, crops), <b>early stopping</b> (stop when validation loss rises).</li>
+<li><b>L2 (weight decay):</b> <span class="f">J + (λ/2m)‖w‖²</span> shrinks weights; <b>L1</b> adds |w| and gives sparsity.</li>
+<li><b>Dropout:</b> randomly drop nodes each iteration; reduces co-adaptation, acts like an ensemble. <i>Inverted dropout</i> divides by keep-prob during training so test time needs no scaling. <b>DropConnect</b> drops weights instead of nodes.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 5 “Machine Learning Basics” (capacity, overfitting, cross-validation); Ch. 7 “Regularization for Deep Learning”; Duda, Hart &amp; Stork, <i>Pattern Classification</i> – Ch. 1 “Introduction” (fish-sorting example). Lecture slides credit S. Raschka (STAT 453).</div></section>
+
+<section id="cnn"><h2>6. Convolutional Neural Networks</h2><p class="pg">Slides ~250–342</p>
+<ul>
+<li>Slide a small <b>filter/kernel</b> over the image; dot product gives a <b>feature map</b>. Pipeline: Conv → ReLU → Pooling → … → Fully connected → softmax. The slides’ X/O example shows filters matching local patterns.</li>
+<li><b>Sparse connectivity</b> + <b>parameter sharing</b> → far fewer parameters than dense layers; learns the filters instead of hand-crafting edge detectors.</li>
+<li><b>Pooling</b> (max/avg) shrinks size and adds translation tolerance. Hyperparameters: number/size of filters, stride, padding, pool window.</li>
+<li>Output size: <span class="f">⌊(n + 2p − f)/s⌋ + 1</span>. Conv params: <span class="f">(f×f×C<sub>in</sub> + 1) × C<sub>out</sub></span>.</li>
+<li>Works for any data where nearby values are related (images, spectrograms/sound). <b>Rule of thumb:</b> if shuffling columns doesn’t hurt your data, CNN is useless. Only captures local spatial patterns.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 9 “Convolutional Networks” (the slides cite Goodfellow-et-al-2016 for sparse connectivity).</div></section>
+
+<section id="rnn"><h2>7. RNN, LSTM &amp; GRU</h2><p class="pg">Slides ~343–378, 673–676, 813–843</p>
+<ul>
+<li><b>RNN:</b> same weights reused over time with a hidden state: <span class="f">s<sub>t</sub> = φ(W s<sub>t−1</sub> + U x<sub>t</sub> + b)</span>. Handles sequences (one-to-many, many-to-one, many-to-many); trained with backprop through time. Variants: deep and bidirectional RNNs.</li>
+<li><b>Problem:</b> long-term dependencies; <b>vanishing/exploding gradients</b>.</li>
+<li><b>LSTM:</b> cell state + three gates (sigmoid 0–1): <b>forget</b> (what to erase), <b>input</b> (what to write), <b>output</b> (what to expose). Peephole variant also looks at the cell state.</li>
+<li><b>GRU:</b> simplified; <b>reset</b> and <b>update</b> gates, no separate cell state. Fewer parameters, similar performance.</li>
+<li>Applications: sentiment classification, language modeling, machine translation, chat, speech recognition, image captioning (with attention).</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (LSTM, GRU, long-term dependencies); Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “RNNs and LSTMs”.</div></section>
+
+<section id="trf"><h2>8. Seq2Seq, Attention &amp; Transformer</h2><p class="pg">Slides ~203–248, 845–870</p>
+<ul>
+<li><b>Seq2seq / NMT:</b> encoder compresses the input; decoder generates the output. A single fixed vector is a bottleneck → <b>attention</b> lets the decoder look at all encoder states.</li>
+<li><b>Self-attention:</b> each token makes Query, Key, Value vectors; <span class="f">Attention = softmax(QKᵀ/√d<sub>k</sub>)·V</span>. Outputs are weighted mixes of all tokens (fully parallel, unlike RNNs).</li>
+<li><b>Multi-head attention:</b> several attention heads in parallel, concatenated.</li>
+<li>Other blocks: <b>positional encoding</b> (sin/cos or learned, because attention has no order), <b>residual connections</b> + layer norm, position-wise feed-forward layer, stacked layers.</li>
+<li><b>Decoder:</b> masked self-attention (cannot see future words), <b>cross-attention</b> to the encoder output, then softmax over vocabulary.</li>
+<li>Descendants: GPT-style (decoder-only) language models.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Vaswani et al. (2017) “Attention Is All You Need” (paper); Jurafsky &amp; Martin – “Transformers”; Goodfellow et al. – Ch. 12 “Applications” (NLP, attention). Slides credit Emma Strubell.</div></section>
+
+<section id="nlp"><h2>9. NLP &amp; Word Embeddings</h2><p class="pg">Slides ~379–435, 845–895</p>
+<ul>
+<li><b>Text representations:</b> one-hot (sparse, no similarity), <b>Bag-of-Words</b> (counts, loses order). Vocabulary control: stop-words, <b>stemming</b> (chop suffix, fast, crude) vs <b>lemmatization</b> (dictionary root, accurate).</li>
+<li><b>TF-IDF:</b> <span class="f">TF = count(t,d)/|d|</span>, <span class="f">IDF = log(N/df)</span>, score = TF×IDF; down-weights words common to all documents.</li>
+<li><b>Embeddings:</b> dense low-dimensional vectors; similar words are close; <b>cosine similarity</b>; analogies (man:woman :: king:queen); enable transfer learning. Embedding matrix E × one-hot = column lookup.</li>
+<li><b>Word2Vec:</b> CBOW (context → word) and <b>Skip-gram</b> (word → context). Full softmax over the vocabulary is too slow → <b>hierarchical softmax</b> or <b>negative sampling</b> (pick k=5–20 noise words for small data, 2–5 for large; sample by freq<sup>0.75</sup>).</li>
+<li>Skip-gram uses <span class="f">P(+|w,c) = σ(c·w)</span>, maximizes similarity with true context, minimizes it with negatives, trained by SGD; keeps two matrices (target W, context C), often summed. Weakness: unknown words.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Jurafsky &amp; Martin – “Vector Semantics and Embeddings” (TF-IDF, word2vec, cosine); Goodfellow et al. – Ch. 12 “Applications” (neural language models, word embeddings); Mikolov et al. (2013) word2vec papers.</div></section>
+
+<section id="fuzzy"><h2>10. Fuzzy Sets &amp; Fuzzy Logic</h2><p class="pg">Slides ~22–25, 474–540, 677–701</p>
+<ul>
+<li><b>Fuzzy logic</b> handles vagueness with degrees of truth in [0,1] (“Isa is tall” vs crisp “Isa is 5′10″”). <b>Fuzzy ≠ probability:</b> fuzzy is degree of membership; probability is likelihood of a crisp event.</li>
+<li><b>Membership function</b> <span class="f">μ<sub>A</sub>(x) ∈ [0,1]</span>. Common shapes: <b>triangular, trapezoidal, Gaussian, generalized bell, sigmoidal</b>.</li>
+<li><b>Operations:</b> union = max, intersection = min, complement = 1 − μ.</li>
+<li><b>α-cut:</b> <span class="f">A<sub>α</sub> = {x : μ<sub>A</sub>(x) ≥ α}</span> – a crisp interval <span class="f">[a₁<sup>(α)</sup>, a₂<sup>(α)</sup>]</span>; a fuzzy set is the union of its α-cuts.</li>
+<li><b>Extension principle:</b> extends a crisp function to fuzzy inputs: <span class="f">μ<sub>C</sub>(z) = max over x+y=z of min(μ<sub>A</sub>(x), μ<sub>B</sub>(y))</span>. Used for fuzzy addition (e.g. “about 3” + “about 7” = “about 10”).</li>
+<li><b>Fuzzy relations &amp; composition:</b> max-min composition <span class="f">R₁∘R₂ = max<sub>y</sub> min(μ<sub>R₁</sub>(x,y), μ<sub>R₂</sub>(y,z))</span> (like matrix multiplication with max for sum and min for product); max-average variant averages instead of min.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Ross, <i>Fuzzy Logic with Engineering Applications</i> – Ch. 2 “Classical Sets and Fuzzy Sets”, Ch. 3 “Classical Relations and Fuzzy Relations”, Ch. 4 “Properties of Membership Functions, Fuzzification, and Defuzzification”; Jang et al. – Ch. 2 “Fuzzy Set Theory”; Sivanandam &amp; Deepa – “Fuzzy Relations” and “Fuzzy Arithmetic”.</div></section>
+
+<section id="fis"><h2>11. Fuzzy Inference &amp; Control</h2><p class="pg">Slides ~32, 677–701, 747–812</p>
+<ul>
+<li><b>Fuzzy system:</b> crisp input → <b>fuzzifier</b> → rule base + inference → <b>defuzzifier</b> → crisp output.</li>
+<li><b>Mamdani:</b> <i>IF x₁ is A and x₂ is B THEN y is C</i> (fuzzy consequent). <b>Max-min</b> clips each consequent at the firing strength (min of antecedents); <b>max-product</b> scales it. Aggregate rules with max, then defuzzify (centroid).</li>
+<li><b>Sugeno (TSK):</b> consequent is a function, e.g. <span class="f">z = px + qy + r</span>; firing strength <span class="f">w = min(μ<sub>A</sub>(x), μ<sub>B</sub>(y))</span>; output <span class="f">Σ w·z / Σ w</span>. No defuzzifier needed, efficient.</li>
+<li><b>Design steps (steam-turbine example, temperature &amp; pressure → throttle):</b> identify variables → define fuzzy subsets → build membership functions → rule base → fuzzify and evaluate rules → defuzzify.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Ross – Ch. 5 “Logic and Fuzzy Systems” (Mamdani, defuzzification), Ch. 13 “Fuzzy Control Systems”; Jang et al. – Ch. 3 “Fuzzy Rules and Fuzzy Reasoning” and Ch. 4 “Fuzzy Inference Systems”; Sivanandam &amp; Deepa – “Fuzzy Logic Control Systems”.</div></section>
+
+<section id="anfis"><h2>12. Neuro-Fuzzy Systems &amp; ANFIS</h2><p class="pg">Slides ~109–127, 790–812</p>
+<ul>
+<li>NN learns but is a black box; fuzzy is interpretable but cannot learn → combine them. <b>NFS:</b> a fuzzy controller structured as an NN and trained by backprop or GA.</li>
+<li>Online (pattern) vs batch BP: update after each example vs after a full sweep (epoch).</li>
+<li><b>ANFIS</b> (Jang): adaptive network equivalent to a Sugeno FIS. <b>5 layers:</b>
+<br>L1 fuzzification – adaptive nodes, <span class="f">O = μ<sub>Ai</sub>(x)</span> (premise parameters)
+<br>L2 firing strength – fixed, <span class="f">w<sub>i</sub> = μ<sub>Ai</sub>(x)·μ<sub>Bi</sub>(y)</span> (or min)
+<br>L3 normalization – <span class="f">w̄<sub>i</sub> = w<sub>i</sub>/Σw</span>
+<br>L4 consequent – adaptive, <span class="f">w̄<sub>i</sub>(p<sub>i</sub>x + q<sub>i</sub>y + r<sub>i</sub>)</span>
+<br>L5 sum – <span class="f">f = Σ w̄<sub>i</sub> f<sub>i</sub></span></li>
+<li><b>Hybrid learning:</b> forward pass fixes premise params and solves consequent params by least squares; backward pass updates premise params by gradient descent. A 2-input Sugeno model with 3 MFs each has 9 rules.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Jang, Sun &amp; Mizutani – Ch. 12 “ANFIS: Adaptive Neuro-Fuzzy Inference Systems” (also Ch. 8 “Adaptive Networks”, Ch. 5 “Least-Squares Methods for System Identification”, Ch. 13 “Coactive Neuro-Fuzzy Modeling”).</div></section>
+
+<section id="ec"><h2>13. Evolutionary Computation &amp; Ant Colony Optimization</h2><p class="pg">Slides ~27–29, 436–447, 543–558</p>
+<ul>
+<li><b>Evolutionary computation loop:</b> initialize population → evaluate (fitness) → select → vary (crossover/mutation) → repeat until termination. Genetic algorithm: population = candidate solutions, survival of the fittest.</li>
+<li>Population-based metaheuristics: evolutionary (GA, DE), <b>swarm</b> (PSO, ACO, ABC), bio-inspired (firefly, cuckoo, bat), physics-based (gravitational, harmony search).</li>
+<li><b>ACO:</b> ants lay <b>pheromone</b> and prefer stronger trails, so shorter paths get reinforced (positive feedback); evaporation prevents stagnation.</li>
+<li><b>Transition probability:</b> <span class="f">p<sub>ij</sub> = τ<sub>ij</sub><sup>α</sup>·η<sub>ij</sub><sup>β</sup> / Σ τ<sub>ik</sub><sup>α</sup>·η<sub>ik</sub><sup>β</sup></span>, with η = 1/distance (visibility).</li>
+<li><b>Update:</b> <span class="f">τ ← (1−ρ)τ + Σ Δτ</span>, <span class="f">Δτ = Q/L<sub>k</sub></span>. TSP steps: build tours with roulette-wheel selection using cumulative probabilities → compute tour lengths → update pheromone → iterate.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Dorigo &amp; Stützle, <i>Ant Colony Optimization</i> – Ch. 2 “The ACO Metaheuristic”, Ch. 3 “Ant Colony Optimization Algorithms for the Traveling Salesman Problem”; Sivanandam &amp; Deepa – chapters on “Genetic Algorithm”; Jang et al. – Ch. 7 “Derivative-Free Optimization”. Slides also include a TSP derivation paper (IRJMETS, Dec 2023).</div></section>
+
+<section id="hmm"><h2>14. Hidden Markov Models</h2><p class="pg">Slides ~448–473</p>
+<ul>
+<li><b>Markov property:</b> next state depends only on the current state. Markov chain = states + transition matrix.</li>
+<li><b>HMM:</b> hidden states, observable outputs. Parameters <span class="f">λ = (A, B, π)</span>: transition probs A, emission probs B, initial distribution π.</li>
+<li><b>Three problems:</b>
+<br>1) <b>Evaluation</b> – P(observations | model): <i>forward algorithm</i>
+<br>2) <b>Decoding</b> – best hidden state sequence: <b>Viterbi</b> (dynamic programming, keep max-probability path and back-pointers)
+<br>3) <b>Learning</b> – estimate A, B, π: <i>Baum-Welch (EM)</i></li>
+<li>Applications: speech recognition, POS tagging, bioinformatics, handwriting.</li>
+</ul>
+<div class="ref"><b>📚 Read in</b>Jurafsky &amp; Martin – Appendix “Hidden Markov Models”; Rabiner (1989) “A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition” (paper).</div></section>
+
+<p class="note">Summary built from the class PDF (slides, scanned handwritten notes and whiteboard examples). Handwritten/whiteboard pages (optimizers, Mamdani/Sugeno worked examples, ANFIS) were skimmed by sampling, so double-check worked examples against your own notes. Book chapter names should be verified against your edition.</p>
+</main>
+</body>
+</html>
