@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Convolutional Neural Networks – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#why">Why CNN</a><a href="#xo">X/O walkthrough</a><a href="#layers">Layers</a><a href="#pool">Pooling Q</a><a href="#cnt">Counting params</a><a href="#lab">Calculator</a><a href="#ans">Past papers</a><a href="#thumb">Rule of thumb</a><a href="#norm">Normalization</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Convolutional Neural Networks – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 249–342 (X/O example, hyperparameters, parameter calculation) and 599–614 (kernels, sparse connectivity; Goodfellow-style slides). Tags: <span class="y">F24</span> <span class="y">S24</span> <span class="y">S25</span> <span class="y">F23</span> <span class="y">S23</span> <span class="y">F22</span>. Parameter counting appeared in F23, S23 and F22 (twice).</p>
+
+<section id="why"><h2>1. Why convolutional networks?</h2><p class="pg">PDF pp. 250, 599–614</p>
+<ul><li><b>Images are 2-D arrays of pixels.</b> A dense layer on a 64×64×3 image has 12,288 inputs per neuron, huge parameter counts, no use of the fact that nearby pixels are related, and it must relearn a pattern at every location.</li>
+<li><b>Convolution</b> slides a small filter (kernel) over the image. A hand-crafted kernel such as <span class="f">[[1,1,1],[1,−8,1],[1,1,1]]</span> detects edges (p. 603). A CNN <b>learns</b> the kernels by backpropagation instead of designing them (p. 607).</li>
+<li><b>Sparse connectivity:</b> an output unit depends only on a small patch (e.g. 3×3), not the whole image. Far fewer connections; deeper layers still see larger areas indirectly (p. 611, citing Goodfellow et al. 2016).</li>
+<li><b>Parameter sharing:</b> the same kernel weights are reused at every position, so the number of parameters does not depend on image size and a feature is detected anywhere (translation equivariance).</li>
+<li>A CNN is “a network that uses convolution in place of general matrix multiplication in at least one of its layers”.</li></ul></section>
+
+<section id="xo"><h2>2. The X/O walkthrough (how the slides explain it)</h2><p class="pg">PDF pp. 250–324</p>
+<p>Task: decide whether a 9×9 pixel image (pixels ±1) shows an <b>X</b> or an <b>O</b>, even if the picture is shifted, scaled or rotated. Comparing pixel by pixel fails; CNNs compare <i>local features</i>.</p>
+<ol><li><b>Features/filters:</b> small patches, e.g. three 3×3 filters (a “\” diagonal, a centre cross, a “/” diagonal).</li>
+<li><b>Convolution (filtering):</b> place the filter on a patch, multiply pixel-by-pixel, add, and divide by the number of pixels (9). A perfect match gives 1.00; e.g. 7/9 = 0.77, 5/9 = 0.55, 3/9 = 0.33, 1/9 = 0.11, −1/9 = −0.11. Doing this at every position creates a <b>feature map</b> (9×9 image with a 3×3 filter → 7×7 map). One map per filter.</li>
+<li><b>ReLU:</b> replace negative values with 0, so only evidence <i>for</i> a feature remains.</li>
+<li><b>Pooling:</b> take the maximum in each 2×2 window, stride 2. The 7×7 map shrinks to 4×4 (the slide includes the partial last window; PyTorch’s default floor would give 3×3). It keeps the strongest response and discards exact position.</li>
+<li><b>Deep stacking:</b> repeat Conv → ReLU → Pool; later layers detect larger and more complex shapes.</li>
+<li><b>Fully connected layer:</b> flatten the final maps; every value votes for X or O with a weight, and the class with the strongest combined vote wins (p. 306 shows votes such as 0.9, 0.65, 0.45, 0.87 … for X and 0.23, 0.63, 0.44 … for O).</li>
+<li><b>Learning (p. 317–321):</b> compare with the right answer: for an X image the network outputs X = 0.92 (target 1) and O = 0.51 (target 0), so X: 1 vs 0.92 → error 0.08; O = 0 vs 0.51 → error 0.49; <b>total error 0.57</b>. Backpropagation + gradient descent adjusts both the filter values and the fully connected weights to reduce this error.</li></ol>
+<div class="key"><b>Hyperparameters (“knobs”, p. 324):</b> Convolution: number of features (filters) and size of features. Pooling: window size and stride. Fully connected: number of neurons. (Also stride and padding of the convolution.)</div></section>
+
+<section id="layers"><h2>3. Layer formulas you must know</h2><p class="pg">PDF pp. 336–337</p>
+<div class="sc"><table><tr><th>Item</th><th>Formula</th><th>Notes</th></tr>
+<tr><td>Output size (conv or pool)</td><td><span class="f">⌊(W − F + 2P)/S⌋ + 1</span></td><td>W input size, F kernel/window, P padding, S stride; apply to height and width separately</td></tr>
+<tr><td>Conv parameters</td><td><span class="f">(F_h · F_w · C_in + 1) · C_out</span></td><td>+1 = one bias per filter; C_out = number of filters (slide: ((m·n·d)+1)·k)</td></tr>
+<tr><td>Fully connected</td><td><span class="f">in · out + out</span></td><td>+out only if bias=True (FCwB); “FC(x)” in exams = no bias</td></tr>
+<tr><td>Pooling, ReLU, tanh, dropout, flatten</td><td><b>0</b></td><td>no learnable parameters</td></tr>
+<tr><td>Flatten size</td><td><span class="f">C · H · W</span></td><td>becomes in_features of the first Linear layer</td></tr></table></div>
+<ul><li><b>Padding “same”</b> for stride 1: P = (F−1)/2, so a 5×5 kernel with P=2 keeps the size (28 → 28). “Valid” = no padding shrinks the map by F−1.</li>
+<li><b>Number of output channels</b> = number of filters, whatever the input channels; each filter spans <i>all</i> input channels (hence the C_in factor).</li>
+<li>Max-, min- and average-pooling all follow the same size formula; only the operation differs.</li></ul></section>
+
+<section id="pool"><h2>4. “Pooling always decreases the parameters” – true?</h2><p class="pg"><span class="y">F24 S24 S25 F22</span></p>
+<div class="key"><b>Answer: No, not always.</b> Pooling layers have <b>no parameters</b>. They only shrink the feature maps, so they reduce parameters <i>indirectly</i>: the next fully connected layer gets fewer inputs. If pooling is followed only by conv layers (whose parameter count depends on kernel size and channels, not image size), the total parameters are unchanged.</div>
+<div class="ex"><b>Numbers from the slide model</b> (28×28 input, two conv layers, 32 filters at the end, FC 512): with two 2×2 poolings the flatten size is 32·7·7 = 1,568 and Linear-10 has 1,568·512 + 512 = <b>803,328</b> parameters. Without pooling (stride-1, same padding) the flatten size is 32·28·28 = 25,088 and the same layer has 25,088·512 + 512 = <b>12,845,568</b>, about 16× more.</div>
+<p><b>S25 (“pooling reduces spatial resolution and discards information, so removing it should improve performance”):</b> misunderstanding.</p>
+<ul><li>Pooling keeps the <b>strongest activation</b> in each window, which is the signal that a feature is present; the discarded information is mostly the exact position, which the classification does not need. It makes the representation <b>invariant to small shifts</b> and distortions.</li>
+<li>It enlarges the <b>receptive field</b> quickly: after pooling each later neuron sees a bigger part of the image, so fewer layers are needed.</li>
+<li>Without pooling, stride-1 convolutions keep full resolution: the activations and the first FC layer become huge (slow training, high memory, many parameters), and the model has enough capacity to <b>memorise</b> the training set, hence it <b>overfits</b>. That matches the symptom in the question.</li>
+<li>So removing pooling does not mean “losing less information” in a useful way; it keeps more detail, including noise and exact positions. If down-sampling is unwanted, use stride-2 convolutions or global average pooling instead, but something must reduce the resolution.</li></ul></section>
+
+<section id="cnt"><h2>5. How to count parameters (method)</h2><p class="pg">PDF pp. 333–342</p>
+<ol><li>Write the input as C × H × W.</li>
+<li>Go layer by layer. For conv/pool compute the new H and W with <span class="f">⌊(W−F+2P)/S⌋+1</span> (pool: P=0 and S = window unless stated).</li>
+<li>Conv: parameters <span class="f">(F·F·C_in+1)·C_out</span>; channels become C_out.</li>
+<li>Flatten: <span class="f">C·H·W</span> = in_features of the first linear layer.</li>
+<li>Each linear layer: in·out (+ out if bias). The next layer’s in = previous out.</li>
+<li>Sum all; dropout, ReLU, pooling and flatten add 0.</li></ol>
+<div class="ex"><b>Slide model (p. 338, 28×28 input):</b> Conv2d(1→16, 5×5, p2): (25·1+1)·16 = 416; ReLU/Pool: 16×14×14; Conv2d(16→32): (25·16+1)·32 = 12,832; Pool: 32×7×7 = 1,568; Linear 1568→512: 803,328; Linear 512→128: 65,664; Linear 128→10: 1,290. <b>Total 883,530.</b></div>
+<div class="ex"><b>Slide MLP example (p. 340):</b> input 1024 → FCwB(256): 1024·256+256 = 262,400 → Dropout → FC(128): 256·128 = 32,768 → tanh → Maxpool(3): ⌊(128−3)/3⌋+1 = 42 → FC(3): 42·3 = 126. <b>Total 295,294.</b></div></section>
+
+<section id="lab"><h2>6. Parameter calculator</h2>
+<p>Pick a preset (your exam questions) or write your own layers. Input is <code>C H W</code> (or a single number for a flat vector). Layer lines: <code>conv OUT K S P [nobias]</code>, <code>pool K S P</code>, <code>flatten</code>, <code>fc OUT [nobias]</code>; <code>dropout</code>, <code>relu</code>, <code>tanh</code>, <code>sigmoid</code> are accepted (0 parameters).</p>
+<div id="pre"></div>
+<label>Input shape</label><input class="i" id="iI">
+<label>Layers (one per line)</label><textarea id="iL" rows="9"></textarea>
+<p><button class="b" id="go">Calculate</button></p><div id="out"></div></section>
+
+<section id="ans"><h2>7. Your past-paper answers</h2>
+<div class="sc"><table><tr><th>Exam</th><th>Sizes</th><th>Parameters</th></tr>
+<tr><td>F23, input (867, 897)<br>conv 1→8, 16 filters, pools 2/2</td><td>same-padding keeps 867×897 → pool ⌊(867−2)/2⌋+1 = 433 and ⌊(897−2)/2⌋+1 = 448 → conv keeps → pool 216×224; flatten 16·216·224 = 774,144</td><td>208 + 3,216 + 792,724,480 + 524,288 + 5,120 = <b>793,257,312</b></td></tr>
+<tr><td>S23, input (853, 842)<br>conv 1→6, 6→12; maxpool 2/2, minpool 4/4</td><td>853×842 → 426×421 → conv → minpool 106×105; flatten 12·106·105 = 133,560</td><td>156 + 1,812 + 68,383,232 + 65,664 + 1,024 = <b>68,451,888</b></td></tr>
+<tr><td>F22, input (437, 442)<br>conv 1→4, 4→8; pools 2/2</td><td>→ 218×221 → conv → 109×110; flatten 8·109·110 = 95,920 (as given)</td><td>104 + 808 + 49,111,552 + 65,664 + 1,290 = <b>49,179,418</b></td></tr>
+<tr><td>F22, input (478, 464)<br>Conv(3,2) → Minpool(4) → Conv(5,3) → Maxpool(3) → FCwB(256) → FC(128) → FC(5)</td><td>238×231 → 59×57 → 19×18 → 6×6 (1 channel, no padding); flatten 36</td><td>conv 9 + 25, FCwB 9,472, FC 32,768, FC 640 = <b>42,914</b> (assuming one filter per conv, no conv bias)</td></tr></table></div>
+<div class="trap"><b>Floor everywhere:</b> 867/2 = 433.5 → 433 (not 434), 897/2 = 448.5 → 448. In the 478×464 question the channel count and bias of the Conv layers are not stated: state your assumption (1 channel, 1 filter; +1 per conv if you include bias gives 42,916). The calculator recomputes these in one click.</div></section>
+
+<section id="thumb"><h2>8. Rule of thumb: when to use a CNN</h2><p class="pg">PDF pp. 326–332 · <span class="y">F24 S24 F22</span></p>
+<ul><li>CNNs work on <b>any 2-D (or 3-D) data</b> where things closer together are more closely related than things far apart (p. 326): images, <b>sound as a spectrogram</b> (time steps × frequency bands, p. 328), also text as a position × embedding grid.</li>
+<li><b>Rule of thumb (p. 332):</b> if your data is just as useful after <b>swapping any of your columns with each other</b>, you cannot use a CNN. Tabular data (p. 331: name, id, e-mail, phone columns) fails the test; images fail it too if you shuffle pixels.</li>
+<li><b>Limitation (p. 330):</b> CNNs capture only <b>local spatial patterns</b>. If the data cannot be made to look like an image (no neighbourhood structure), CNNs are less useful.</li></ul></section>
+
+<section id="norm"><h2>9. Normalization in CNNs</h2><p class="pg">PDF pp. 709, 714 · <span class="y">F24 S24 F22</span></p>
+<ul><li><b>Input standardization / normalization (pp. 709, 714):</b> rescale pixels before the network, e.g. divide by 255 to [0,1], then subtract the mean and divide by the standard deviation per channel: <span class="f">x′ = (x − μ)/σ</span>. The slide uses <code>Normalize((0.5,0.5,0.5), (0.5,0.5,0.5))</code> for RGB, which maps [0,1] to [−1,1]. Zero-centred inputs of similar scale make gradient descent converge faster and more stably.</li>
+<li><b>Batch normalization (BatchNorm and variants, p. 709):</b> inside the network, after a conv layer (before ReLU), normalise each channel over the mini-batch: <span class="f">x̂ = (x−μ<sub>B</sub>)/√(σ²<sub>B</sub>+ε)</span>, then <span class="f">y = γx̂ + β</span> with learnable γ, β. It stabilises training, allows larger learning rates and acts as a mild regulariser. Variants: layer, instance, group normalization.</li>
+<li>Normalization layers add parameters only γ and β per channel (2·C).</li></ul></section>
+
+<section id="exam"><h2>10. Exam kit</h2>
+<div class="key"><b>Model answer, pooling question (6 marks)</b><br>False as stated. Pooling has no learnable parameters; it only down-samples feature maps, which indirectly lowers the parameters of later fully connected layers (example: 803,328 vs 12.8 M). If only conv layers follow, parameters are unchanged. Pooling also gives translation invariance and a larger receptive field, so removing it makes the model slower and more prone to overfitting. <b>Rule of thumb:</b> use a CNN when neighbouring values are related; if shuffling columns does not hurt, do not use one.</div>
+<h3>Traps</h3>
+<ul><li>Use floor on every size; compute height and width separately.</li><li>The first Linear layer’s in_features = C·H·W after the last pool.</li><li>Check the bias flag on each layer (FCwB vs FC; bias=False).</li><li>Conv parameters depend on the <b>input channels</b> of that layer, not the image size.</li><li>Min/max/avg pooling: no parameters, same size formula; dropout/ReLU: no parameters.</li></ul>
+<h3>Likely questions</h3>
+<ul><li>Count the parameters of a given architecture and input shape (every year).</li><li>Pooling and parameters; why pooling; what if removed.</li><li>Rule of thumb; limitations; normalization; what kernels/filters are; sparse connectivity and parameter sharing.</li></ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 9 “Convolutional Networks” (convolution operation, motivation: sparse interactions, parameter sharing, equivariance; pooling); Jang, Sun &amp; Mizutani – Ch. 9 “Supervised Learning Neural Networks”; Haykin – “Multilayer Perceptrons” (background); LeCun et al. (1998) “Gradient-Based Learning Applied to Document Recognition”. The slides’ parameter-calculation reference is the Towards Data Science article on parameters in CNNs (p. 342).</div></section>
+</main>
+<script>
+var P=[
+["F23 (867,897)","1 867 897","conv 8 5 1 2\ndropout\nrelu\npool 2 2 0\nconv 16 5 1 2\nrelu\npool 2 2 0\nflatten\nfc 1024\nrelu\nfc 512 nobias\nrelu\nfc 10 nobias"],
+["S23 (853,842)","1 853 842","conv 6 5 1 2\ndropout\nrelu\npool 2 2 0\nconv 12 5 1 2\nrelu\npool 4 4 0\nflatten\nfc 512\nrelu\nfc 128\nrelu\nfc 8 nobias"],
+["F22 (437,442)","1 437 442","conv 4 5 1 2\ndropout\nrelu\npool 2 2 0\nconv 8 5 1 2\nrelu\npool 2 2 0\nflatten\nfc 512\nrelu\nfc 128\nrelu\nfc 10"],
+["F22 (478,464)","1 478 464","conv 1 3 2 0 nobias\npool 4 4 0\nrelu\nconv 1 5 3 0 nobias\npool 3 3 0\nflatten\nfc 256\nrelu\ndropout\nfc 128 nobias\ntanh\nfc 5 nobias"],
+["Slide model (28×28)","1 28 28","conv 16 5 1 2\ndropout\nrelu\npool 2 2 0\nconv 32 5 1 2\ndropout\nrelu\npool 2 2 0\nflatten\nfc 512\nrelu\nfc 128\nrelu\nfc 10"],
+["Slide MLP (1024)","1024","fc 256\ndropout\nfc 128 nobias\ntanh\npool 3 3 0\nfc 3 nobias"],
+["No-pooling variant","1 28 28","conv 16 5 1 2\nrelu\nconv 32 5 1 2\nrelu\nflatten\nfc 512\nrelu\nfc 128\nrelu\nfc 10"]];
+function $(i){return document.getElementById(i)}
+function fm(x){return x.toLocaleString("en-US")}
+function load(k){$("iI").value=P[k][1];$("iL").value=P[k][2];run()}
+function sz(n,k,s,p){return Math.floor((n-k+2*p)/s)+1}
+function run(){
+ var inp=$("iI").value.trim().split(/[\s,]+/).map(Number),lines=$("iL").value.split("\n").map(function(s){return s.trim()}).filter(Boolean),out=$("out"),tot=0,rows=[],C,H,W,N,vec=inp.length==1;
+ if(inp.some(isNaN)||(inp.length!=1&&inp.length!=3)){out.innerHTML='<div class="trap">Input must be "C H W" or a single number.</div>';return}
+ if(vec)N=inp[0];else{C=inp[0];H=inp[1];W=inp[2]}
+ function shape(){return vec?String(N):C+"×"+H+"×"+W}
+ rows.push(["input","",shape(),0]);
+ for(var l=0;l<lines.length;l++){
+  var t=lines[l].toLowerCase().split(/[\s,]+/),op=t[0],pr=0,d="";
+  var nb=t.indexOf("nobias")>=0;
+  if(op=="conv"){
+   if(vec){out.innerHTML='<div class="trap">Line '+(l+1)+': conv needs a C H W input.</div>';return}
+   var o=+t[1],k=+t[2],s=+t[3],p=+t[4];pr=(k*k*C+(nb?0:1))*o;H=sz(H,k,s,p);W=sz(W,k,s,p);C=o;d="conv "+o+", k"+k+" s"+s+" p"+p;
+  }else if(op=="pool"){
+   var k2=+t[1],s2=+t[2],p2=+t[3]||0;if(vec)N=sz(N,k2,s2,p2);else{H=sz(H,k2,s2,p2);W=sz(W,k2,s2,p2)}d="pool k"+k2+" s"+s2;
+  }else if(op=="flatten"){if(!vec){N=C*H*W;vec=true}d="flatten";
+  }else if(op=="fc"){
+   if(!vec){N=C*H*W;vec=true}var o2=+t[1];pr=N*o2+(nb?0:o2);d="fc "+N+"→"+o2+(nb?" (no bias)":"");N=o2;
+  }else if(["dropout","relu","tanh","sigmoid"].indexOf(op)>=0){d=op}
+  else{out.innerHTML='<div class="trap">Unknown layer on line '+(l+1)+': '+lines[l]+'</div>';return}
+  if(isNaN(pr)||(vec?N<1:(H<1||W<1))){out.innerHTML='<div class="trap">Line '+(l+1)+': invalid size, check the numbers.</div>';return}
+  tot+=pr;rows.push([op,d,shape(),pr]);
+ }
+ out.innerHTML='<div class="sc"><table><tr><th>Layer</th><th>Detail</th><th>Output shape</th><th>Parameters</th></tr>'+rows.map(function(r){return'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+fm(r[3])+'</td></tr>'}).join('')+'</table></div><div class="ex"><b>Total parameters: '+fm(tot)+'</b></div>';
+}
+$("pre").innerHTML=P.map(function(p,k){return'<button class="b" onclick="load('+k+')">'+p[0]+'</button>'}).join('');
+$("go").onclick=run;load(0);
+</script></body></html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neural Networks &amp; Logistic Regression – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#nn">Neuron</a><a href="#lr">Logistic reg.</a><a href="#loss">Loss</a><a href="#gd">Gradient descent</a><a href="#bp">Backprop</a><a href="#gen">Exam gradients</a><a href="#lab">Explorer</a><a href="#vec">Vectorized</a><a href="#shallow">Shallow NN</a><a href="#act">Activations</a><a href="#ce">Cross-entropy</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Neural Networks &amp; Logistic Regression – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 41–56 (intro), 58–107 (NN basics), 128–158 (cross-entropy), 159–202 (shallow NN, activations); content credit Andrew Ng. Tags: <span class="y">S25</span> <span class="y">F24</span> <span class="y">S24</span> <span class="y">F23</span> <span class="y">S23</span> <span class="y">S22</span> <span class="y">F22</span> mark where a topic was asked. The “dw₁…db” question appeared in <b>every</b> exam.</p>
+
+<section id="nn"><h2>1. From one neuron to deep learning</h2><p class="pg">PDF pp. 41–56 · <span class="y">F24 Q1a</span></p>
+<ul><li><b>AI ⊃ ML ⊃ Deep learning.</b> A neural network learns a function from inputs x to output y given many labelled examples (supervised learning, “gold labels”).</li>
+<li><b>Single neuron</b> (house price): size x → price y. The fitted function is a ReLU, <span class="f">max(0, ax+b)</span>, because a price cannot be negative. <b>Stacking neurons</b> gives a network: hidden units (family size, walkability, school quality) are <i>learned automatically</i>; you only supply x and y.</li>
+<li><b>Types:</b> standard NN (structured data), CNN (images), RNN (speech, text). <b>Structured data</b> = tables with well-defined features; <b>unstructured</b> = images, audio, text.</li>
+<li><b>Why deep learning took off:</b> huge labelled data (digitisation, mobile, IoT), fast computation (GPUs, distributed), and better algorithms (e.g. sigmoid → ReLU speeds gradient descent). Training is iterative, so faster computation means faster experiments.</li></ul></section>
+
+<section id="lr"><h2>2. Binary classification and logistic regression</h2><p class="pg">PDF pp. 59–67</p>
+<p><b>Setup:</b> an input x ∈ ℝ<sup>n<sub>x</sub></sup> and a label y ∈ {0, 1} (cat/non-cat). A 64×64 RGB image is unrolled into <span class="f">n<sub>x</sub> = 64·64·3 = 12,288</span>. Training set of m examples: <span class="f">X</span> is n<sub>x</sub>×m (one example per column), <span class="f">Y</span> is 1×m.</p>
+<p><b>Model:</b> given x, find <span class="f">ŷ = P(y=1|x)</span>:</p>
+<div class="key"><span class="f">z = wᵀx + b</span> &nbsp;·&nbsp; <span class="f">ŷ = a = σ(z) = 1/(1+e<sup>−z</sup>)</span></div>
+<ul><li>wᵀx+b is linear and unbounded, so the <b>sigmoid</b> squashes it into (0,1) so it can be read as a probability. σ(0)=0.5, σ(z)→1 for large z, →0 for very negative z. Predict 1 if a &gt; 0.5 (i.e. z &gt; 0).</li>
+<li><b>Weights w</b> change the steepness of the sigmoid; the <b>bias b</b> shifts it left or right (decision boundary <span class="f">wᵀx+b=0</span> moves away from the origin). Without b the boundary must pass through x=0 and the model underfits. <span class="y">S22 F22</span></li>
+<li>Parameters: w (n<sub>x</sub>×1) and b (scalar).</li></ul></section>
+
+<section id="loss"><h2>3. Loss and cost: why cross-entropy</h2><p class="pg">PDF pp. 68–71, 129–146 · <span class="y">S23 F23</span></p>
+<ul><li><b>Squared error</b> <span class="f">½(ŷ−y)²</span> (the ½ cancels when differentiating) is fine for linear regression but <b>not for logistic regression</b>: with the sigmoid it makes a <i>non-convex</i> cost with many local minima, so gradient descent can get stuck (p. 70).</li>
+<li><b>Cross-entropy (log) loss:</b> <span class="f">L(ŷ,y) = −[ y·log ŷ + (1−y)·log(1−ŷ) ]</span>. If y=1 the loss is −log ŷ (small when ŷ→1, huge when ŷ→0); if y=0 it is −log(1−ŷ). It is convex in (w, b) and penalises confident wrong answers very heavily.</li>
+<li><b>Loss vs cost (p. 146):</b> the loss is for <i>one</i> example; the <b>cost</b> is the average over the training set: <span class="f">J(w,b) = (1/m) Σ<sub>i=1..m</sub> L(ŷ<sup>(i)</sup>, y<sup>(i)</sup>)</span>.</li></ul>
+<div class="ex">Numbers: y=1, ŷ=0.9 → L = −ln 0.9 = <b>0.105</b>; y=1, ŷ=0.1 → L = −ln 0.1 = <b>2.303</b>; y=0, ŷ=0.1 → L = −ln 0.9 = 0.105.</div></section>
+
+<section id="gd"><h2>4. Gradient descent</h2><p class="pg">PDF pp. 72–79</p>
+<p>Find w, b that minimise J(w,b). Start at a random (or zero) point on the convex surface and repeatedly step downhill:</p>
+<div class="key"><span class="f">w := w − α · ∂J/∂w</span> &nbsp;&nbsp; <span class="f">b := b − α · ∂J/∂b</span> &nbsp; (α = learning rate)</div>
+<ul><li><b>Derivative = slope:</b> if f(a)=3a, shifting a by 0.001 shifts f by 0.003, so the slope is 3 (p. 77). A positive slope means decrease w; a negative slope means increase w.</li>
+<li>Too large α overshoots or diverges; too small α is slow.</li>
+<li><b>Why not brute-force search?</b> With 1 weight and 1000 trial values it is fine; with 2 weights it needs 10⁶ evaluations (~40 s in the slide example) and grows exponentially with every added weight, whereas one gradient step costs about one pass. (pp. 78–79)</li>
+<li>Because J is convex for logistic regression, any initialisation (usually 0) reaches the global minimum.</li></ul></section>
+
+<section id="bp"><h2>5. Computation graph and backpropagation for logistic regression</h2><p class="pg">PDF pp. 81–94 · <span class="y">S23: why a computation graph?</span></p>
+<p>A <b>computation graph</b> splits a function into elementary steps. Example <span class="f">J = 3(a + bc)</span>: u = bc, v = a + u, J = 3v. The <b>forward pass</b> computes the output/cost left to right; the <b>backward pass</b> applies the chain rule right to left to get all derivatives exactly and cheaply. That is why every framework builds a graph for training.</p>
+<p><b>Graph for one example (two features):</b> <span class="f">z = w₁x₁ + w₂x₂ + b → a = σ(z) → L(a,y)</span>. Walk backwards:</p>
+<ol><li><span class="f">da = ∂L/∂a = −y/a + (1−y)/(1−a)</span></li>
+<li><span class="f">dz = ∂L/∂z = da · σ′(z) = da · a(1−a)</span>. Simplify: <span class="f">[−y/a + (1−y)/(1−a)]·a(1−a) = −y(1−a) + (1−y)a = a − y</span> ⇒ <b>dz = a − y</b>.</li>
+<li><span class="f">dw₁ = x₁·dz, dw₂ = x₂·dz, db = dz</span> (since ∂z/∂w<sub>i</sub> = x<sub>i</sub>, ∂z/∂b = 1).</li>
+<li><b>Update:</b> <span class="f">w₁ := w₁ − α·dw₁</span>, <span class="f">w₂ := w₂ − α·dw₂</span>, <span class="f">b := b − α·db</span>.</li></ol>
+<p><b>Over m examples</b> (pp. 95–101): J, dw, db are accumulated over a loop of m examples and divided by m, then one update is applied. Repeating this is gradient descent. The naive version has two loops (over examples and over features); vectorization removes both.</p></section>
+
+<section id="gen"><h2>6. The exam question: dw₁…dw₄ and db with ReLU, tanh, LeakyReLU</h2><p class="pg"><span class="y">S25 F24 F23 S23 F22</span></p>
+<p>The exam network is <span class="f">z = w₁x₁ + … + b → a = g(z) → L(a,y)</span> with L the cross-entropy and g not the sigmoid. Keep the chain rule general:</p>
+<div class="key"><span class="f">dz = da · g′(z)</span> with <span class="f">da = −y/a + (1−y)/(1−a) = (a−y)/(a(1−a))</span>, then <span class="f">dw<sub>i</sub> = x<sub>i</sub>·dz</span>, <span class="f">db = dz</span>.</div>
+<div class="sc"><table><tr><th>g(z)</th><th>g′(z)</th><th>dz</th></tr>
+<tr><td>Sigmoid</td><td>a(1−a)</td><td>a − y</td></tr>
+<tr><td>tanh <span class="y">F23 F22 S24</span></td><td>1 − a²</td><td><span class="f">(a−y)(1−a²)/(a(1−a)) = (a−y)(1+a)/a</span></td></tr>
+<tr><td>ReLU <span class="y">S25 F24 S23</span></td><td>1 if z&gt;0; 0 if z&lt;0 (z=0: take 0 or 1)</td><td>z&gt;0: <span class="f">(a−y)/(a(1−a))</span>; z≤0: <b>0</b> (dead, no learning)</td></tr>
+<tr><td>LeakyReLU <span class="y">F22</span></td><td>1 if z&gt;0; 0.01 if z&lt;0</td><td>z&gt;0: <span class="f">(a−y)/(a(1−a))</span>; z&lt;0: <span class="f">0.01·(a−y)/(a(1−a))</span></td></tr></table></div>
+<div class="ex"><b>Worked ReLU example.</b> x = (1, 2, 0, 3), w = (0.1, 0.05, 0.2, 0.1), b = 0.05, y = 1.
+z = 0.1 + 0.1 + 0 + 0.3 + 0.05 = 0.55 &gt; 0 ⇒ a = ReLU(z) = 0.55. Loss = −ln 0.55 = 0.598.
+da = (0.55−1)/(0.55·0.45) = <b>−1.818</b>; g′ = 1 so dz = −1.818. dw = x·dz = <b>(−1.818, −3.636, 0, −5.455)</b>, db = <b>−1.818</b>. With α=0.1: w₁ = 0.1 + 0.182 = 0.282, b = 0.05 + 0.182 = 0.232.</div>
+<div class="trap"><b>Say these in the answer:</b> (1) the formula is general, plug in the given x, w, b, y if numbers are given; (2) ReLU’s derivative at 0 is undefined, convention 0; (3) cross-entropy assumes a ∈ (0,1), so with ReLU/tanh outputs the formula is used formally (the question defines L as cross-entropy); (4) a dead ReLU (z ≤ 0) gives all-zero gradients; (5) the sigmoid shortcut dz = a − y does <b>not</b> apply to other activations.</div></section>
+
+<section id="lab"><h2>7. Gradient explorer (any exam question)</h2>
+<p>Enter your own x, w, b, y and activation. It shows z, a, the loss, da, dz, every dw<sub>i</sub>, db and one gradient-descent update, so you can check hand calculations.</p>
+<label>x (space separated)</label><input class="i" id="iX" value="1 2 0 3">
+<label>w</label><input class="i" id="iW" value="0.1 0.05 0.2 0.1">
+<label>b</label><input class="i" id="iB" value="0.05">
+<label>y (0 or 1)</label><input class="i" id="iY" value="1">
+<label>Activation</label><select class="i" id="iG"><option value="relu">ReLU</option><option value="tanh">tanh</option><option value="leaky">LeakyReLU (0.01)</option><option value="sig">Sigmoid</option></select>
+<label>Learning rate α</label><input class="i" id="iA" value="0.1">
+<p><button class="b" id="go">Compute</button></p><div id="out"></div></section>
+
+<section id="vec"><h2>8. Vectorized logistic regression</h2><p class="pg">PDF pp. 98–106 · <span class="y">F24 S23 F22</span></p>
+<ul><li><b>Forward:</b> <span class="f">Z = wᵀX + b</span> (1×m; b is a scalar, <i>broadcast</i> to every column), <span class="f">A = σ(Z)</span>.</li>
+<li><b>Cost:</b> <span class="f">J = −(1/m) Σ [ Y log A + (1−Y) log(1−A) ]</span>.</li>
+<li><b>Backward:</b> <span class="f">dZ = A − Y</span> (1×m), <span class="f">dw = (1/m)·X·dZᵀ</span> (n<sub>x</sub>×1), <span class="f">db = (1/m)·Σ dZ</span>.</li>
+<li><b>Update:</b> <span class="f">w := w − α·dw</span>, <span class="f">b := b − α·db</span>. One iteration, no explicit loop.</li></ul>
+<p><b>Why vectorize:</b> removes the two for-loops (over m examples and over features); NumPy/GPU matrix operations use parallel hardware and are orders of magnitude faster; code is shorter and less error-prone. The justification: the columns of X are independent examples, so one matrix product computes all z<sup>(i)</sup> at once.</p></section>
+
+<section id="shallow"><h2>9. Shallow (two-layer) neural network</h2><p class="pg">PDF pp. 160–171 · <span class="y">F24 S23 F23 F22: vectorized 3-4-1 network</span></p>
+<p>A neural network is <b>logistic regression repeated many times</b>: the hidden layer is several LRs on the same input, and the output layer is another LR on their outputs. Superscript [l] = layer, (i) = example, subscript = node. Hidden units are “hidden” because their true values are not observed in the training set.</p>
+<div class="sc"><table><tr><th>Quantity</th><th>Shape (n<sub>x</sub>=3 inputs, 4 hidden, 1 output)</th></tr>
+<tr><td>X</td><td>3 × m</td></tr><tr><td>W<sup>[1]</sup>, b<sup>[1]</sup></td><td>4 × 3, 4 × 1</td></tr><tr><td>Z<sup>[1]</sup>, A<sup>[1]</sup></td><td>4 × m</td></tr><tr><td>W<sup>[2]</sup>, b<sup>[2]</sup></td><td>1 × 4, 1 × 1</td></tr><tr><td>Z<sup>[2]</sup>, A<sup>[2]</sup> = ŷ</td><td>1 × m</td></tr></table></div>
+<div class="key"><b>Forward (all m examples):</b> <span class="f">Z[1] = W[1]X + b[1]</span>, <span class="f">A[1] = g[1](Z[1])</span>, <span class="f">Z[2] = W[2]A[1] + b[2]</span>, <span class="f">A[2] = σ(Z[2])</span>.<br><b>Single example:</b> the same with x (3×1) instead of X.</div>
+<p><b>Justification:</b> stacking the m example vectors as columns of X, and the hidden-unit weights as rows of W<sup>[1]</sup>, makes each entry of Z<sup>[1]</sup> exactly the per-example, per-unit z, so a single matrix product replaces the loop over examples (and the loop over hidden units).</p>
+<p><b>Backward (for completeness):</b> <span class="f">dZ[2] = A[2] − Y</span>; <span class="f">dW[2] = (1/m)dZ[2]A[1]ᵀ</span>; <span class="f">db[2] = (1/m)ΣdZ[2]</span>; <span class="f">dZ[1] = W[2]ᵀdZ[2] ∗ g[1]′(Z[1])</span>; <span class="f">dW[1] = (1/m)dZ[1]Xᵀ</span>; <span class="f">db[1] = (1/m)ΣdZ[1]</span>. Initialise W randomly (small values), not zero, otherwise all hidden units stay identical. Parameters of the 3-4-1 net: 4·3+4 + 1·4+1 = <b>21</b>.</p></section>
+
+<section id="act"><h2>10. Activation functions</h2><p class="pg">PDF pp. 172–200 · <span class="y">S24 F23 F22 S22 S23 F24</span></p>
+<h3>Why non-linear? <span class="y">S24 F23 S23 F22</span></h3>
+<p>With a linear (identity) activation: <span class="f">a[1]=W[1]x+b[1]</span>, <span class="f">a[2]=W[2]a[1]+b[2] = (W[2]W[1])x + (W[2]b[1]+b[2]) = W′x + b′</span>. Any number of layers collapses into one linear function; the network is just linear regression (or, with a sigmoid output, a plain logistic regression), and cannot learn non-linear boundaries. Non-linear g also allows stacking layers and has a derivative for backprop. (Linear g is acceptable only in the output layer of a regression problem.)</p>
+<div class="sc"><table><tr><th>Function</th><th>Formula</th><th>Range</th><th>Derivative</th><th>Notes</th></tr>
+<tr><td>Sigmoid</td><td>1/(1+e⁻ᶻ)</td><td>(0,1)</td><td>a(1−a), max 0.25</td><td>output of binary classifiers; vanishing gradient, not zero-centred, exp is costly</td></tr>
+<tr><td>tanh</td><td>(eᶻ−e⁻ᶻ)/(eᶻ+e⁻ᶻ)</td><td>(−1,1)</td><td>1−a², max 1</td><td>zero-centred, steeper; still saturates</td></tr>
+<tr><td>ReLU</td><td>max(0,z)</td><td>[0,∞)</td><td>0 / 1 (undefined at 0)</td><td>fast, sparse, default for hidden layers; dying ReLU</td></tr>
+<tr><td>Leaky ReLU</td><td>max(0.01z,z)</td><td>(−∞,∞)</td><td>0.01 / 1</td><td>fixes dying ReLU</td></tr>
+<tr><td>Softmax</td><td>eᶻⁱ/Σeᶻʲ</td><td>(0,1), sums to 1</td><td>—</td><td>multi-class output layer</td></tr></table></div>
+<ul><li><b>Sigmoid problem (p. 181):</b> for large |z| the output saturates and the gradient ≈ 0 (maximum slope only 0.25), so deep layers learn extremely slowly (<b>vanishing gradient</b>); outputs are all positive, so updates zig-zag. <b>Does tanh solve it?</b> It is zero-centred and its gradient reaches 1, so it is better, but it also saturates at both ends; the vanishing-gradient problem remains. ReLU/Leaky ReLU, careful initialisation or residual/LSTM structures help.</li>
+<li><b>Derivation of the sigmoid slope:</b> <span class="f">σ(z)=(1+e⁻ᶻ)⁻¹ ⇒ σ′ = e⁻ᶻ/(1+e⁻ᶻ)² = σ(1−σ)</span>. <b>tanh′ = 1−tanh²</b>. <b>“tanh is steeper than sigmoid”</b> <span class="y">S23</span>: at z=0 tanh′=1 vs σ′=0.25, and tanh(z) = 2σ(2z) − 1 (a stretched, shifted sigmoid), so its slope is 4× larger near 0.</li>
+<li><b>ReLU benefits (pp. 183–184):</b> cheap (a comparison), converges quickly, non-saturating for z&gt;0, sparse activation (many hidden units are exactly 0). <b>Dying ReLU:</b> when z&lt;0 for every input, output and gradient are 0, the unit never updates. Fixes: <b>Leaky ReLU</b> (slope 0.01 for z&lt;0, so a gradient always flows), parametric/exponential ReLU, smaller learning rate, good initialisation.</li>
+<li><b>Derivative of ReLU at 0:</b> not differentiable (left slope 0, right slope 1) but z is practically never exactly 0, so use 0 or 1 by convention.</li>
+<li><b>ReLU vs softmax in a CNN</b> <span class="y">F23</span>: ReLU adds non-linearity in hidden/conv layers cheaply; softmax in the output turns scores into class probabilities.</li></ul></section>
+
+<section id="ce"><h2>11. Softmax, entropy and cross-entropy</h2><p class="pg">PDF pp. 129–158 · <span class="y">F23 S23 S24 S22: CE, softmax problems</span></p>
+<ul><li><b>Logits</b> are the raw, un-normalised scores; <b>softmax</b> <span class="f">p<sub>i</sub> = e<sup>z<sub>i</sub></sup>/Σ<sub>j</sub>e<sup>z<sub>j</sub></sup></span> makes them positive and sum to 1, and it exaggerates the largest: softmax([1,2]) = [0.269, 0.731] (blurry image, “maybe a cat”) vs softmax([10,20]) = [0.00005, 0.99995] (crisp).</li>
+<li><b>Information</b> of an event: surprise in bits, <span class="f">I(x) = −log₂ p(x)</span>. <b>Entropy</b> is the average information: <span class="f">H(p) = −Σ p(x) log p(x)</span>. The minus sign makes it positive because log p ≤ 0 for p∈(0,1) (p. 137).</li>
+<li><b>Cross-entropy</b> between true p and predicted q: <span class="f">H(p,q) = −Σ p(x) log q(x)</span>. With a one-hot target it reduces to −log of the predicted probability of the correct class. <b>Example:</b> true [0,1,0], predicted [0.2,0.7,0.1] ⇒ L = −ln 0.7 = <b>0.357</b>; the loss is large if the correct class gets small probability.</li>
+<li><b>Variants (p. 144–145):</b> <i>binary</i> CE (one sigmoid output), <i>categorical</i> CE (one-hot labels), <i>sparse categorical</i> CE (integer labels; same loss, only label format differs).</li>
+<li><b>Problems of softmax classification</b> <span class="y">S24 S22</span>: the denominator sums over all classes, so with a huge vocabulary (e.g. 10,000+ words) every step is expensive; large logits can overflow (subtract the max for numerical stability); outputs are over-confident and force exactly one class. <b>Fixes:</b> hierarchical softmax, negative sampling (see Word2vec), sampled softmax, numerically stable implementation.</li>
+<li><b>Wordle example (pp. 148–157):</b> 5,757 words ⇒ log₂ 5757 = 12.49 bits of uncertainty; each guess should maximise expected information. “fuzzy” gives 2.28 bits, “tares” 6.21 bits on average.</li></ul></section>
+
+<section id="exam"><h2>12. Exam kit</h2>
+<div class="key"><b>“A neural network is a combination of several logistic regressions” (4–8 marks)</b> <span class="y">S24 F23 S22 F24</span><br>Agree. Each neuron computes σ(wᵀx+b), exactly a logistic regression. A hidden layer runs several of them in parallel on the same input; the output layer is another LR on their outputs (the 3-4-1 network is four LRs feeding a fifth). The difference is that hidden units learn useful features, which a single LR cannot, because of the non-linearity.</div>
+<div class="key"><b>“A non-activated network acts as linear regression” (4 marks)</b> <span class="y">S23</span> / <b>“linear activation turns a deep network into one layer”</b> <span class="y">F22</span><br>Show the collapse proof from §10: W[2]W[1] is just one matrix.</div>
+<div class="key"><b>Handwritten digits: LR vs shallow vs deep ANN (10 marks)</b> <span class="y">F24</span><br>LR: simple, fast, convex, but linear boundary, poor on pixels. Shallow ANN: learns non-linear features, a good fit for digit images (MNIST), few parameters. Deep ANN/CNN: best accuracy on large, complex data, but needs more data and compute, overfits, harder to tune and less interpretable. Recommend a shallow/moderate ANN (a CNN for bigger images) with ReLU hidden units and softmax output.</div>
+<h3>Traps</h3>
+<ul><li>Loss (one example) vs cost (average of m).</li><li>dz = a − y is only for sigmoid + cross-entropy; otherwise multiply da by g′(z).</li><li>Never initialise a hidden layer to all zeros.</li><li>Shapes: W[1] is (hidden × inputs); b is broadcast across columns.</li><li>Always state which activation derivative you use and at which z.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>Role of bias; why sigmoid; why cross-entropy not squared error.</li><li>Computation graph; forward vs backward pass.</li><li>Why vectorize; justify the vectorized implementation.</li><li>Sigmoid issues; tanh vs sigmoid; ReLU, dying ReLU; why non-linearity.</li><li>Cross-entropy, binary vs categorical, softmax problems.</li></ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 6 “Deep Feedforward Networks” (§ Gradient-Based Learning, Hidden Units, Back-Propagation), Ch. 3 “Probability and Information Theory” (entropy, KL, cross-entropy); Haykin, <i>Neural Networks and Learning Machines</i> – “Multilayer Perceptrons” (back-propagation); Jang, Sun &amp; Mizutani – Ch. 9 “Supervised Learning Neural Networks”; Sivanandam &amp; Deepa – “Feed Forward Networks” (backpropagation). The lecture slides follow Andrew Ng’s <i>Neural Networks and Deep Learning</i> (Deep Learning Specialization, course 1).</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function nums(s){return s.trim().split(/[\s,]+/).filter(Boolean).map(Number)}
+function f(x){return isFinite(x)?String(Number(x.toPrecision(5))):String(x)}
+function run(){
+ var x=nums($("iX").value),w=nums($("iW").value),b=Number($("iB").value),y=Number($("iY").value),al=Number($("iA").value),g=$("iG").value,out=$("out");
+ if(x.length!=w.length||x.some(isNaN)||w.some(isNaN)||isNaN(b)||isNaN(y)||isNaN(al)){out.innerHTML='<div class="trap">x and w need the same number of numeric entries; b, y and α must be numbers.</div>';return}
+ var z=b,i;for(i=0;i<x.length;i++)z+=w[i]*x[i];
+ var a,gp,name;
+ if(g=="relu"){a=Math.max(0,z);gp=z>0?1:0;name="ReLU"}else if(g=="leaky"){a=z>0?z:0.01*z;gp=z>0?1:0.01;name="LeakyReLU"}else if(g=="tanh"){a=Math.tanh(z);gp=1-a*a;name="tanh"}else{a=1/(1+Math.exp(-z));gp=a*(1-a);name="Sigmoid"}
+ var ok=a>0&&a<1,L=ok?-(y*Math.log(a)+(1-y)*Math.log(1-a)):NaN,da=ok?(a-y)/(a*(1-a)):NaN,dz=gp===0?0:da*gp;
+ var h='<div class="sc"><table><tr><th>z = wᵀx + b</th><th>a = '+name+'(z)</th><th>g′(z)</th><th>Loss</th></tr><tr><td>'+f(z)+'</td><td>'+f(a)+'</td><td>'+f(gp)+'</td><td>'+f(L)+'</td></tr></table></div>';
+ if(!ok)h+='<div class="trap">a = '+f(a)+' is outside (0,1), so cross-entropy is undefined for these numbers; choose inputs with 0 &lt; a &lt; 1 (or use the sigmoid) to get numeric gradients.</div>';
+ else{
+  var dw=x.map(function(v){return v*dz}),db=dz;
+  h+='<div class="sc"><table><tr><th>da</th><th>dz = da·g′</th>'+x.map(function(v,k){return'<th>dw'+(k+1)+'</th>'}).join('')+'<th>db</th></tr><tr><td>'+f(da)+'</td><td>'+f(dz)+'</td>'+dw.map(function(v){return'<td>'+f(v)+'</td>'}).join('')+'<td>'+f(db)+'</td></tr></table></div>';
+  h+='<div class="ex"><b>After one update (α='+f(al)+'):</b> w = ('+w.map(function(v,k){return f(v-al*dw[k])}).join(', ')+'), b = '+f(b-al*db)+(gp===0?'<br>g′ = 0 here (dead ReLU), so nothing changes.':'')+'</div>';
+ }
+ out.innerHTML=h;
+}
+$("go").onclick=run;run();
+</script></body></html>

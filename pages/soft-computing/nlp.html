@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NLP, TF-IDF &amp; Word2vec – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#rep">Representations</a><a href="#bow">BoW</a><a href="#tfidf">TF-IDF</a><a href="#calc">TF-IDF calc</a><a href="#emb">Embeddings</a><a href="#sim">Similarity</a><a href="#lm">Language model</a><a href="#sg">Skip-gram</a><a href="#ns">Neg. sampling</a><a href="#obj">Objective</a><a href="#gen">Pair generator</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>NLP, TF-IDF &amp; Word2vec – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 379–435 (embeddings, BoW, TF-IDF; slides after Andrew Ng and Md. Tanvir Rouf Shawon) and 868–895 (Word2vec, skip-gram with negative sampling; after Jurafsky &amp; Martin). Tags: <span class="y">S25</span> <span class="y">F24</span> <span class="y">S24</span> <span class="y">F23</span> <span class="y">S23</span> <span class="y">S22</span> <span class="y">F22</span>. Skip-gram, TF-IDF and cosine/analogy questions appeared in almost every exam.</p>
+
+<section id="rep"><h2>1. Representing words as numbers</h2><p class="pg">PDF pp. 380–383, 414</p>
+<ul><li>Machines need fixed-length numeric inputs, and text is messy. Vector representations of words enable sentiment analysis, named-entity recognition, machine translation, and RNN/Transformer models.</li>
+<li><b>One-hot vectors:</b> with |V| = 10,000 words each word is a vector of 10,000 numbers with a single 1 (e.g. orange = O<sub>6257</sub>). <b>Problems:</b> (1) every word is treated in isolation; (2) the dot product of any two different one-hot vectors is 0, so there is no notion of similarity; (3) the algorithm cannot generalise across words; (4) very high-dimensional and sparse.</li>
+<li><b>Generalisation example:</b> a language model trained on “I want a glass of orange <i>juice</i>” cannot easily predict “apple <i>juice</i>” because apple and orange look unrelated. We want similar words to have similar vectors.</li></ul></section>
+
+<section id="bow"><h2>2. Bag-of-Words (BoW)</h2><p class="pg">PDF pp. 415–424 · <span class="y">S22 F23 S24: problems of BoW and fixes</span></p>
+<p>BoW describes a document by the words it contains, ignoring order. Steps: (1) design the vocabulary, (2) create a fixed-length vector per document (count or 0/1 per vocabulary word).</p>
+<div class="ex"><b>Slide corpus</b> (4 “documents”): “It was the best of times.” / “it was the worst of times.” / “it is the time of stupidity.” / “it is the age of foolishness.” Vocabulary (lower-case, stemmed): it, was, the, best, of, time, worst, stupidity, is, age, foolishness (<b>11 words</b>, corpus has 24 tokens). Binary vector of document 1 = [1,1,1,1,1,1,0,0,0,0,0]; document 2 = [1,1,1,0,1,1,1,0,0,0,0].</div>
+<h3>Problems of BoW and how to fix them</h3>
+<div class="sc"><table><tr><th>Problem</th><th>Fix</th></tr>
+<tr><td>Vocabulary and vectors become huge and <b>sparse</b> (thousands/millions of positions, mostly 0)</td><td><b>Text cleaning:</b> ignore case and punctuation, drop <b>stop words</b> (a, of…), fix misspellings, <b>stem/lemmatize</b></td></tr>
+<tr><td><b>Word order and context lost</b> (“not good” = “good not”)</td><td><b>n-grams</b>: bigrams like “it was”, “was the”, “the best”; often better than 1-gram BoW (p. 423)</td></tr>
+<tr><td><b>All words weighted equally</b>: frequent words (the, is) dominate and carry little information</td><td><b>TF-IDF</b>: down-weights words common to all documents</td></tr>
+<tr><td>Variants of a word counted separately; no meaning/similarity between words</td><td>Stemming/lemmatization; <b>word embeddings</b></td></tr></table></div>
+<p><b>Stemming vs lemmatization (p. 422):</b> stemming chops suffixes by rule, fast, can give wrong words (“caring” → “car”); lemmatization uses context and dictionaries to return the true base form (“caring” → “care”), more accurate but slower.</p></section>
+
+<section id="tfidf"><h2>3. TF-IDF</h2><p class="pg">PDF pp. 425–434 · <span class="y">S24 F23 S22 F22</span></p>
+<div class="key"><span class="f">TF(t,d) = count of t in d / total words in d</span> &nbsp;·&nbsp; <span class="f">IDF(t) = log(N / df(t))</span> &nbsp;·&nbsp; <span class="f">TF-IDF(t,d) = TF × IDF</span><br>N = number of documents, df = number of documents containing t. <b>The slides use log base 10</b> (log 3 = 0.477, shown as 0.48).</div>
+<ul><li><b>IDF measures how rare a word is across documents.</b> A word in every document (n = N) has IDF = log 1 = 0, so its TF-IDF is 0 (completely penalised); a word in a single document gets the maximum, log N. Hence the importance of IDF: frequent function words (“the”, “is”) no longer dominate, and rare, domain-specific words stand out.</li>
+<li><b>TF-IDF vs BoW (p. 434):</b> BoW only counts occurrences; TF-IDF also tells which words are important and which are not, so it usually performs better in ML models, while BoW vectors are easier to interpret. TF-IDF still ignores word order and meaning.</li></ul>
+<div class="ex"><b>Slide example</b> (3 documents: D1 “It was the best of the time.” (7 words), D2 “it was the worst of Times.” (6), D3 “it is the time of stupidity.” (6)). TF(D3) = 1/6 for each of it, is, the, time, of, stupidity. IDF: it 0, was log(3/2) = 0.18, the 0, best 0.48, of 0, time 0, worst 0.48, is 0.48, stupidity 0.48. <b>TF-IDF(D3):</b> it = the = of = time = 0; is = stupidity = 1/6 × 0.48 = <b>0.08</b>.</div></section>
+
+<section id="calc"><h2>4. TF-IDF calculator (exam passages)</h2>
+<p>Paste a passage. If it has several lines each line is a document; otherwise each sentence is a document (as the exams intend). Pick the target document (the bold-faced sentence). Tokens: lower-case, punctuation ignored, hyphens split words, apostrophes removed (so “AI’s” = “ais”). IDF uses log<sub>10</sub>.</p>
+<div id="pre"></div>
+<label>Text</label><textarea id="iT" rows="6"></textarea>
+<label>Target document number</label><input class="i" id="iN">
+<p><button class="b" id="go">Compute TF-IDF</button></p><div id="out"></div></section>
+
+<section id="emb"><h2>5. Word embeddings</h2><p class="pg">PDF pp. 384–395 · <span class="y">F23 S23 S22 F22: “word embedding as a featurized representation”</span></p>
+<p>A <b>word embedding</b> represents each word by a dense, learned vector of real numbers (e.g. 300 features) instead of a one-hot vector. Each dimension can be thought of as a feature (gender, royal, age, food…).</p>
+<div class="sc"><table><tr><th></th><th>Man</th><th>Woman</th><th>King</th><th>Queen</th><th>Apple</th><th>Orange</th></tr><tr><td>Gender</td><td>−1</td><td>1</td><td>−0.95</td><td>0.97</td><td>0</td><td>0.01</td></tr><tr><td>Royal</td><td>0.01</td><td>0.02</td><td>0.93</td><td>0.95</td><td>−0.01</td><td>0</td></tr><tr><td>Age</td><td>0.03</td><td>0.02</td><td>0.70</td><td>0.69</td><td>0.03</td><td>−0.02</td></tr><tr><td>Food</td><td>0.09</td><td>0.01</td><td>0.02</td><td>0.01</td><td>0.95</td><td>0.97</td></tr></table></div>
+<ul><li><b>Generalisation:</b> apple and orange now share similar features (food ≈ 0.95), so “orange juice” knowledge transfers to “apple juice”. NER example: knowing “Sally Johnson” is a person helps label “Robert Lin” (p. 387).</li>
+<li><b>Dimensionality:</b> 300 dense numbers instead of 10,000 sparse ones (p. 389). Embeddings help most when the labelled training set is small.</li>
+<li><b>Transfer learning (p. 388):</b> (1) learn embeddings on a huge unlabelled corpus (1–100 B words) or download them; (2) transfer them to a task with a smaller labelled set; (3) optionally fine-tune.</li>
+<li><b>Embedding matrix (pp. 393–395):</b> E has size 300 × 10,000. For word j with one-hot O<sub>j</sub>: <span class="f">e<sub>j</sub> = E·O<sub>j</sub></span> (a 300×1 vector, just column j of E; in practice implemented as a table <i>lookup</i>). E is initialised randomly and learned with gradient descent.</li>
+<li><b>Visualisation:</b> t-SNE maps the 300-D vectors to 2-D; similar words cluster (p. 386).</li></ul></section>
+
+<section id="sim"><h2>6. Similarity, analogies and cosine</h2><p class="pg">PDF pp. 390–392 · <span class="y">F23 S22 F22 S25</span></p>
+<ul><li><b>Cosine similarity:</b> <span class="f">cos θ = (u·v) / (‖u‖ ‖v‖)</span>, the angle between the vectors, independent of length. 1 = same direction (very similar), 0 = unrelated (orthogonal), −1 = opposite. <b>Instances/uses:</b> word–word similarity, document–document similarity (TF-IDF vectors), analogy search, query–document matching, and as the similarity measure in Word2vec (dot product after normalisation).</li>
+<li><b>Euclidean distance:</b> <span class="f">‖u−v‖</span>; smaller = more similar. The slides name cosine and Euclidean as the two common similarity functions.</li>
+<li><b>Dot product:</b> unnormalised; larger for longer vectors and used inside Word2vec (<span class="f">sim(w,c) ∝ w·c</span>).</li></ul>
+<div class="ex"><b>Analogy reasoning (F23 table)</b>: man : woman :: king : ? Since <span class="f">e(man) − e(woman) = [−2, −0.01, 0.01, 0.08]</span> and <span class="f">e(king) − e(queen) = [−1.92, −0.02, 0.01, 0.01]</span> are almost equal, find w with <span class="f">e(w) ≈ e(king) − e(man) + e(woman)</span> = [1.05, 0.94, 0.69, −0.06]. Cosine with candidates: <b>queen 0.998</b>, apple −0.03, orange −0.04 (Euclidean distance 0.11 vs 1.86 vs 1.88). Answer: <b>queen</b>. Also cos(apple, orange) = 0.999 (very similar), cos(man, woman) = −0.99 (opposite gender feature).</div>
+<div class="ex"><b>S25 Euclidean question</b> (W rows w₁=(1,2,3), w₂=(2,8,2), w₃=(9,8,9), w₄=(2,3,2)): d₁₄ = √3 = 1.73 (smallest), d₁₃ = √136 = 11.66 (largest). Most similar: w₁ = [1,0,0,0] and w₄ = [0,0,0,1]; most dissimilar: w₁ = [1,0,0,0] and w₃ = [0,0,1,0].</div></section>
+
+<section id="lm"><h2>7. Learning embeddings with a neural language model</h2><p class="pg">PDF pp. 396–400, 423 · <span class="y">S23: build a language model with an NN; n-gram</span></p>
+<ol><li>Take the last 4 words as the context (hyperparameter): “a glass of orange” → target “juice”.</li>
+<li>Look up each context word’s embedding <span class="f">e = E·O</span> (300-D); stack them: input = 4 × 300 = <b>1200-D</b> (a fixed window keeps the input size constant).</li>
+<li>Hidden layer: <span class="f">z = W₁x + b₁, a = g(z)</span>.</li>
+<li>Output: <span class="f">softmax(W₂a + b₂)</span> over the 10,000 words; loss = cross-entropy against the true next word.</li>
+<li>Backpropagate into W₁, b₁, W₂, b₂ <b>and E</b> — the embeddings are learned as a by-product.</li></ol>
+<p><b>Context choices (pp. 399–400):</b> last 4 words (a true language model); 4 words on the left and right; last 1 word; one <i>nearby</i> word. The last (nearby word) idea is the <b>skip-gram</b>: much simpler and works remarkably well when the goal is good embeddings rather than a language model.</p>
+<p><b>n-gram model (p. 423):</b> an N-token sequence of words. It predicts a word from the previous n−1 words by counting: <span class="f">P(w<sub>t</sub> | w<sub>t−1</sub>) = count(w<sub>t−1</sub>w<sub>t</sub>) / count(w<sub>t−1</sub>)</span> for a bigram. Simple but sparse and with short memory. <i>Masked language model (not in the slides):</i> hide a word (“The sun [MASK] behind the mountains”) and predict it from both sides, typically with a Transformer encoder.</p></section>
+
+<section id="sg"><h2>8. Word2vec and skip-gram</h2><p class="pg">PDF pp. 401–407, 870–879 · <span class="y">F24 S25 S24 F23 S23 S22 F22</span></p>
+<ul><li>Word2vec has two models: <b>CBOW</b> (continuous bag of words): predict the middle word from the window of surrounding words; <b>skip-gram</b>: use one word to predict the surrounding words in the window.</li>
+<li><b>Training data (skip-gram):</b> choose a context word c, then a target t within a window (e.g. ±2 or ±10). Sentence “… lemon, a tablespoon of apricot jam, a pinch …” with context <b>apricot</b>, window ±2 gives the pairs (apricot, tablespoon), (apricot, of), (apricot, jam), (apricot, a). This turns unlabelled text into a supervised problem: c → t.</li>
+<li><b>Basic model (pp. 402–403):</b> one-hot of c → embedding <span class="f">e<sub>c</sub> = E·O<sub>c</sub></span> → softmax over the vocabulary: <span class="f">P(t|c) = e<sup>θ<sub>t</sub>ᵀe<sub>c</sub></sup> / Σ<sub>j=1..10000</sub> e<sup>θ<sub>j</sub>ᵀe<sub>c</sub></sup></span>; loss <span class="f">L = −Σ y<sub>i</sub> log ŷ<sub>i</sub></span> with y one-hot at the true target.</li>
+<li><b>Sampling the context (p. 407):</b> sampling uniformly makes “the, of, is, to” dominate and rare words like “orange” rarely appear, so in practice sampling favours rarer words.</li></ul>
+<h3>Problems of softmax classification and their solution <span class="y">S24 S22</span></h3>
+<p>The denominator sums over the whole vocabulary: 10,000 terms for every training example, hopeless for 100 K or 1 M words. <b>Hierarchical softmax</b> (pp. 404–406): put the words at the leaves of a binary tree; a word’s probability is the product of the edge probabilities along its path, so the cost is <b>log₂ |V|</b> (≈20 multiplications for 1 M words) instead of |V|; frequent words are placed near the root. <b>Negative sampling</b> (next section) is the other, simpler fix.</p></section>
+
+<section id="ns"><h2>9. Negative sampling</h2><p class="pg">PDF pp. 408–411, 880–888 · <span class="y">S25 F23 F22: procedure, k, logistic regression</span></p>
+<p><b>Idea:</b> replace the 10,000-way softmax with <b>binary classification</b>: given a pair (c, t), is it a real context–target pair (y=1) or a random one (y=0)?</p>
+<h3>(i) Procedure for generating k negatives</h3>
+<ol><li><b>Positive example:</b> pick a context word c (e.g. <i>orange</i>) and a target t from its window (e.g. <i>juice</i>) → (orange, juice, y=1).</li>
+<li><b>k negative examples:</b> keep c and pick k words at random from the vocabulary as t, labelled y=0: (orange, king, 0), (orange, book, 0), (orange, the, 0), (orange, of, 0). A sampled word may even occur in the same sentence (“of”); it is still labelled 0.</li>
+<li>Each positive gives a data set of 1 positive and k negatives (ratio k : 1).</li></ol>
+<p><b>How to sample negatives (p. 411, p. 883):</b> uniform sampling over the vocabulary ignores word statistics; sampling by raw frequency picks “the, of, and” too often. The authors’ choice raises counts to the power ¾: <span class="f">P<sub>α</sub>(w) = count(w)<sup>α</sup> / Σ<sub>w′</sub> count(w′)<sup>α</sup></span>, α = 0.75. Example (slide): P(a)=0.99, P(b)=0.01 → P<sub>.75</sub>(a) = 0.99<sup>.75</sup>/(0.99<sup>.75</sup>+0.01<sup>.75</sup>) = 0.97, P<sub>.75</sub>(b) = 0.03: rare words get more chance.</p>
+<h3>(ii) Value of k</h3>
+<p><b>k = 5 to 20 for small datasets</b> (2 to 5 for large ones). A small dataset provides few real pairs, so more negatives per positive give the classifier enough signal to learn good separation; with large data a few negatives per positive are enough and cheaper. For the small (orange, juice) dataset a value such as <b>k = 10</b> is sensible.</p>
+<h3>(iii) Logistic regression formulation</h3>
+<p><span class="f">P(y=1 | c, t) = σ(θ<sub>t</sub>ᵀ e<sub>c</sub>) = 1/(1 + e<sup>−θ<sub>t</sub>ᵀe<sub>c</sub></sup>)</span> (slides’ later notation: <span class="f">P(+|w,c) = σ(c·w)</span> and <span class="f">P(−|w,c) = 1 − σ(c·w) = σ(−c·w)</span>). Instead of one 10,000-way softmax, only <b>k+1 binary classifiers</b> are updated per step (p. 410).</p></section>
+
+<section id="obj"><h2>10. Skip-gram objective: derivation and how it optimises the vectors</h2><p class="pg">PDF pp. 877–891 · <span class="y">F24 Q2e (6) · S24 Q5c (7) · F23 S23: skip-gram steps</span></p>
+<ol><li><b>Two matrices:</b> a <b>target</b> matrix W and a <b>context</b> matrix C, one d-dimensional vector per word each; after training use W (or W + C, the vector of word i is W[i] + C[i]).</li>
+<li><b>Probability of one pair:</b> <span class="f">P(+|w,c) = σ(c·w) = 1/(1 + e<sup>−c·w</sup>)</span>. Similarity is the dot product w·c turned into a probability by the sigmoid.</li>
+<li><b>Whole context window</b> (assume independence of the L context words): <span class="f">P(+|w,c<sub>1:L</sub>) = Π<sub>i</sub> σ(c<sub>i</sub>·w)</span>, so <span class="f">log P = Σ<sub>i</sub> log σ(c<sub>i</sub>·w)</span>.</li>
+<li><b>Maximise the likelihood</b> of positives and negatives: for a target w with positive context c<sub>pos</sub> and k noise words c<sub>neg<sub>1..k</sub></sub>: maximise <span class="f">log σ(c<sub>pos</sub>·w) + Σ<sub>i=1..k</sub> log (1 − σ(c<sub>neg<sub>i</sub></sub>·w))</span>. Using 1 − σ(x) = σ(−x), minimise the negative of this:</li></ol>
+<div class="key"><span class="f">L<sub>CE</sub> = − [ log σ(c<sub>pos</sub>·w) + Σ<sub>i=1..k</sub> log σ(−c<sub>neg<sub>i</sub></sub>·w) ]</span></div>
+<p><b>Gradients (slide p. 889–890):</b> <span class="f">∂L/∂c<sub>pos</sub> = [σ(c<sub>pos</sub>·w) − 1]·w</span>, &nbsp; <span class="f">∂L/∂c<sub>neg<sub>i</sub></sub> = σ(c<sub>neg<sub>i</sub></sub>·w)·w</span>, &nbsp; <span class="f">∂L/∂w = [σ(c<sub>pos</sub>·w) − 1]·c<sub>pos</sub> + Σ<sub>i</sub> σ(c<sub>neg<sub>i</sub></sub>·w)·c<sub>neg<sub>i</sub></sub></span>.<br><b>SGD updates:</b> <span class="f">c<sub>pos</sub> := c<sub>pos</sub> − η[σ(c<sub>pos</sub>·w) − 1]w</span>, <span class="f">c<sub>neg</sub> := c<sub>neg</sub> − η σ(c<sub>neg</sub>·w) w</span>, <span class="f">w := w − η( [σ(c<sub>pos</sub>·w) − 1]c<sub>pos</sub> + Σσ(c<sub>neg</sub>·w)c<sub>neg</sub> )</span>.</p>
+<div class="key"><b>How this optimises word representations (6–7 marks):</b> since σ(c<sub>pos</sub>·w) − 1 &lt; 0, the update moves c<sub>pos</sub> <i>towards</i> w and w towards c<sub>pos</sub>, raising their dot product (the words of the same context become similar). For negatives σ(c<sub>neg</sub>·w) &gt; 0, so the update moves c<sub>neg</sub> <i>away</i> from w and w away from c<sub>neg</sub>. Over a corpus, words that occur in similar contexts end up with similar vectors, giving cosine similarity and analogy behaviour (king − man + woman ≈ queen).</div>
+<ul><li><b>Results (p. 893):</b> linear regularities such as vec(king) − vec(man) + vec(woman) ≈ vec(queen) (Mikolov et al. 2014 test).</li>
+<li><b>Limitations of Word2vec (pp. 894–895):</b> cannot handle <b>unknown (out-of-vocabulary) words</b>; one static vector per word regardless of context (no polysemy: bank of a river vs money); cannot say whether “the” in “the cat sat on the mat” is a special context or a stop word. Contextual models (Transformers) address this.</li></ul></section>
+
+<section id="gen"><h2>11. Skip-gram pair generator (for sentence questions)</h2>
+<p>Enter a sentence, a target word, a window and k. It lists the positive pairs (y=1) and k random negatives per positive (y=0), as the F23 (“The sun sets behind the mountains…”) and F22 (“The cat chased a red ball…”) questions ask. Negatives are drawn from the sentence’s other words plus a small dictionary; press again to resample.</p>
+<div id="pre2"></div>
+<label>Sentence</label><input class="i" id="sS">
+<label>Word whose window you want (the context word c in the slides)</label><input class="i" id="sW">
+<label>Window (±)</label><input class="i" id="sN" value="2">
+<label>k (negatives per positive)</label><input class="i" id="sK" value="3">
+<p><button class="b" id="go2">Generate pairs</button></p><div id="out2"></div></section>
+
+<section id="exam"><h2>12. Exam kit</h2>
+<div class="key"><b>“Discuss word embedding. Derive the skip-gram objective and explain how it optimises the representations” (6 marks)</b><br>Embedding = dense learned vectors, similar words close (definition and contrast with one-hot: §1, §5). Derivation: §10 (σ(c·w), product over context, log, negative sampling → L<sub>CE</sub>). Optimisation: positives pulled together, negatives pushed apart by SGD on the two matrices W and C; use W + C.</div>
+<div class="key"><b>“Negative sampling: procedure, value of k, logistic regression” (6 marks)</b><br>§9: positive pair + k random negatives (y=0); k = 5–20 for small datasets; P(y=1|c,t) = σ(θ<sub>t</sub>ᵀe<sub>c</sub>) so only k+1 binary classifiers are trained per step.</div>
+<div class="key"><b>“Importance of IDF in TF-IDF” (3 marks)</b><br>IDF = log(N/df) measures how rare a word is across documents; it gives common words (the, is, of) weight 0 and rare, informative words high weight, so TF-IDF highlights words that characterise a document, unlike raw counts.</div>
+<h3>Traps</h3>
+<ul><li>TF divides by the number of words in <b>that document</b> (the bold sentence), not the corpus; N counts the documents (sentences) in the corpus; state log base 10 as in the slides.</li><li>Treat “capitalise each token” as case-insensitive; ignore punctuation; say how you tokenised hyphenated words and “AI’s”.</li><li>Negative samples are labelled 0 even if they occur in the same sentence.</li><li>Cosine uses vector lengths; a larger dot product does not always mean a larger cosine.</li><li>Analogy: subtract and add the vectors, then choose the nearest word excluding the three input words.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>Problems of BoW and fix; stemming vs lemmatization; why TF-IDF over BoW.</li><li>Why embeddings beat one-hot; embedding matrix E and lookup; transfer learning.</li><li>Cosine similarity and uses; analogy reasoning with an example.</li><li>Softmax problems in Word2vec; hierarchical softmax; negative sampling; CBOW vs skip-gram.</li></ul>
+<div class="ref"><b>📚 Read in</b>Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “Vector Semantics and Embeddings” (TF-IDF, cosine, word2vec skip-gram with negative sampling), “N-gram Language Models”; Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 12 “Applications” (§ Natural Language Processing: neural language models, high-dimensional outputs, hierarchical softmax, word embeddings); Manning, Raghavan &amp; Schütze, <i>Introduction to Information Retrieval</i> – Ch. 6 “Scoring, term weighting and the vector space model” (tf-idf); Mikolov et al. (2013) “Efficient Estimation of Word Representations in Vector Space” and “Distributed Representations of Words and Phrases and their Compositionality”; Bengio et al. (2003) “A Neural Probabilistic Language Model”. Slide sources: Andrew Ng, <i>Sequence Models</i> (course 5) and Jurafsky &amp; Martin.</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function tok(s){return s.toLowerCase().replace(/['’]/g,"").split(/[^a-z0-9]+/).filter(Boolean)}
+function f4(x){return String(Number(x.toPrecision(4)))}
+var T=[
+["Slide (3 docs)","It was the best of the time.\nit was the worst of Times.\nit is the time of stupidity.","3"],
+["S22 football","Although football is a global sport, Europe is famous for playing this sport. Asians, Africans, and Americans also play this game. However, European football is more deluxe. Besides, Brazil and Argentina are arguably the most supported teams in the world. Their styles of aesthetic and inventive play are completely different from fast-pacing European football. This sport is known by different names. For instance, it is commonly known as \"soccer\" in the United States.","5"],
+["F22 ChatGPT","ChatGPT offers unprecedented convenience and accessibility, aiding individuals in various professional, educational, and personal pursuits. Its ability to provide instant information and guidance has the potential to democratize knowledge and bridge information gaps. However, concerns arise regarding privacy, accountability, and the potential for misuse. Safeguarding user data, providing transparency about the AI's capabilities and limitations, and preventing the spread of misinformation are paramount. Striking a balance between harnessing the power of ChatGPT for positive advancements while establishing robust ethical guidelines is essential in order to foster an environment of responsible and beneficial AI utilization.","4"]];
+function loadT(k){$("iT").value=T[k][1];$("iN").value=T[k][2];runT()}
+function runT(){
+ var txt=$("iT").value.trim(),n=Number($("iN").value),docs;
+ if(txt.indexOf("\n")>=0)docs=txt.split("\n").map(function(s){return s.trim()}).filter(Boolean);
+ else docs=txt.split(/(?<=[.!?])\s+/).map(function(s){return s.trim()}).filter(Boolean);
+ var tk=docs.map(tok),N=tk.length,out=$("out");
+ if(!(n>=1&&n<=N)){out.innerHTML='<div class="trap">Target must be between 1 and '+N+' (found '+N+' documents).</div>';return}
+ var d=tk[n-1],seen=[],rows="";
+ d.forEach(function(w){if(seen.indexOf(w)>=0)return;seen.push(w);
+  var c=d.filter(function(x){return x===w}).length,df=tk.filter(function(x){return x.indexOf(w)>=0}).length,tf=c/d.length,idf=Math.log10(N/df);
+  rows+='<tr><td>'+w+'</td><td>'+c+'</td><td>'+c+'/'+d.length+' = '+f4(tf)+'</td><td>'+df+'</td><td>log('+N+'/'+df+') = '+f4(idf)+'</td><td><b>'+f4(tf*idf)+'</b></td></tr>'});
+ out.innerHTML='<p><b>Document '+n+':</b> “'+docs[n-1]+'” ('+d.length+' tokens, N = '+N+' documents)</p><div class="sc"><table><tr><th>Word</th><th>Count</th><th>TF</th><th>df</th><th>IDF (log₁₀)</th><th>TF-IDF</th></tr>'+rows+'</table></div>';
+}
+var G=[["F23 sun sets…","The sun sets behind the mountains, painting the sky orange.","mountains"],["F22 cat chased…","The cat chased a red ball across the grassy yard.","ball"],["Slide apricot","lemon, a tablespoon of apricot jam, a pinch","apricot"]];
+var DICT="aardvark zebra king book of the seven forever electric pizza river guitar coaxial dear kettle violin lantern mirror engine whisper carpet window banana thunder ladder copper marble".split(" ");
+function seed(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+var rs=1;
+function loadG(k){$("sS").value=G[k][1];$("sW").value=G[k][2];runG()}
+function runG(){
+ var words=tok($("sS").value),w=tok($("sW").value)[0],win=Number($("sN").value),k=Number($("sK").value),out=$("out2"),i=words.indexOf(w);
+ if(i<0){out.innerHTML='<div class="trap">Word not found in the sentence.</div>';return}
+ var ctx=[];for(var j=Math.max(0,i-win);j<=Math.min(words.length-1,i+win);j++)if(j!=i)ctx.push(words[j]);
+ var pool=[];words.concat(DICT).forEach(function(x){if(pool.indexOf(x)<0&&ctx.indexOf(x)<0&&x!==w)pool.push(x)});
+ var r=seed(rs++*7919),rows="";
+ ctx.forEach(function(c){rows+='<tr><td>'+w+'</td><td>'+c+'</td><td><b>1</b></td></tr>';
+  for(var q=0;q<k;q++)rows+='<tr><td>'+w+'</td><td>'+pool[Math.floor(r()*pool.length)]+'</td><td>0</td></tr>'});
+ out.innerHTML='<p>Window ±'+win+' around “'+w+'” → positives: <b>'+ctx.join(', ')+'</b>. Each positive gets '+k+' negatives (ratio '+k+' : 1), so '+(ctx.length*(k+1))+' training rows.</p><div class="sc"><table><tr><th>context c</th><th>word t</th><th>y</th></tr>'+rows+'</table></div>';
+}
+$("pre").innerHTML=T.map(function(p,k){return'<button class="b" onclick="loadT('+k+')">'+p[0]+'</button>'}).join('');
+$("pre2").innerHTML=G.map(function(p,k){return'<button class="b" onclick="loadG('+k+')">'+p[0]+'</button>'}).join('');
+$("go").onclick=runT;$("go2").onclick=function(){runG()};loadT(0);loadG(0);
+</script></body></html>
