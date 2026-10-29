@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ant Colony Optimization – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#idea">Idea</a><a href="#model">Model</a><a href="#eq">Equations</a><a href="#algo">Algorithm</a><a href="#rw">Roulette</a><a href="#s25">3-node</a><a href="#f24">4-node</a><a href="#par">Parameters</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Ant Colony Optimization (ACO) – Deep Dive</h1>
+<p class="sub">CSE 4137/4237 · PDF pp. 35–37 (population-based overview), 436–447 (Santosa tutorial, 5-city example), 523–542 (ACO slides), 543–558 (Mandal 2023, asymmetric 4-city derivation). Tags: <span class="y">S25</span> Spring 2025 · <span class="y">F24</span> · <span class="y">F22</span>.</p>
+
+<section id="idea"><h2>1. The idea: ants find shortest paths</h2><p class="pg">PDF pp. 436–437, 523–530</p>
+<p>Real ants wander randomly, and on finding food return to the nest laying <b>pheromone</b>. Other ants prefer stronger trails, so a good path attracts more ants and gets more pheromone: <b>positive feedback</b> (indirect communication through the environment, called <i>stigmergy</i>).</p>
+<ul><li><b>Two-path experiment (tutorial p. 436):</b> the nest and food are linked by a short (10 m) and a long (20 m) path; ants split 50/50 at first. Ants on the short path finish round trips twice as often, so its pheromone density doubles, and soon almost all ants use it.</li>
+<li><b>Evaporation</b> (slide p. 523): pheromone fades, so long paths lose their trail faster and old, early choices do not lock the colony into a poor local optimum. Without evaporation the first paths would stay “excessively attractive”.</li>
+<li>ACO (Dorigo, 1992) copies this to solve discrete optimization problems, first the Travelling Salesman Problem (TSP). Slides also mention network routing and urban transportation, and it adapts to a changing graph in real time.</li></ul>
+<div class="key"><b>ACO in one line:</b> artificial ants build solutions step by step on a graph, choosing edges with probability that grows with pheromone (learned experience) and visibility (heuristic, usually 1/distance); good tours reinforce their edges and evaporation forgets the rest.</div></section>
+
+<section id="model"><h2>2. Model: TSP as a graph</h2><p class="pg">PDF pp. 437, 545</p>
+<ul><li>Each city is a node; each edge (i,j) carries <b>pheromone τ<sub>ij</sub></b> (learned, changes) and <b>visibility η<sub>ij</sub> = 1/d<sub>ij</sub></b> (fixed heuristic: closer is better).</li>
+<li>Each ant keeps a <b>memory (tabu list)</b> of visited cities, so the feasible set M<sub>k</sub> = unvisited cities. The tutorial implements this by setting the visited city’s column of η to 0.</li>
+<li><b>Symmetric TSP:</b> d<sub>ij</sub>=d<sub>ji</sub>. <b>Asymmetric TSP</b> (your exams): d<sub>ij</sub>≠d<sub>ji</sub>, so edges are <i>directed</i> and each has its own τ.</li>
+<li>A tour must visit every city once and <b>return to the start</b>; its length L<sub>k</sub> includes the return edge.</li></ul></section>
+
+<section id="eq"><h2>3. The four equations</h2><p class="pg">PDF pp. 437–438, 545 (Eq. 8.1–8.5; paper Eq. 1–3)</p>
+<ol><li><b>Transition rule</b> (ant k at city i): <span class="f">p<sub>ij</sub><sup>k</sup> = τ<sub>ij</sub><sup>α</sup>·η<sub>ij</sub><sup>β</sup> / Σ<sub>u∈M<sub>k</sub></sub> τ<sub>iu</sub><sup>α</sup>·η<sub>iu</sub><sup>β</sup></span> for j∈M<sub>k</sub>, else 0.</li>
+<li><b>Evaporation</b> (all edges): <span class="f">τ<sub>ij</sub> ← (1−ρ)·τ<sub>ij</sub></span>, ρ∈(0,1] is the evaporation rate.</li>
+<li><b>Deposit</b> (ant k on each edge of its tour): <span class="f">Δτ<sub>ij</sub><sup>k</sup> = Q / L<sub>k</sub></span> if (i,j) is in tour k, else 0. Shorter tour → more pheromone.</li>
+<li><b>Update:</b> <span class="f">τ<sub>ij</sub> ← (1−ρ)τ<sub>ij</sub> + Σ<sub>k=1..m</sub> Δτ<sub>ij</sub><sup>k</sup></span> (Eq. 8.10).</li></ol>
+<div class="trap"><b>Notation warning:</b> slide p. 534 writes <span class="f">τ(t) = ρτ(t−1) + Δτ</span>, where ρ multiplies the old pheromone (persistence). The tutorial and paper (and your exams: ρ=0.5) use <span class="f">(1−ρ)</span>. With ρ=0.5 both give the same number, but write <span class="f">(1−ρ)</span> and say ρ is the evaporation rate.</div>
+<p><b>Elitist variant</b> (tutorial Eq. 8.5, p. 438): only edges of the best global tour get a boost <span class="f">Δτ = c·f<sub>best</sub></span> with f=1/length; larger c → more exploitation. Optional pass over tours (local search/mutation) can follow construction.</p></section>
+
+<section id="algo"><h2>4. The algorithm (pseudo-code and flow)</h2><p class="pg">PDF pp. 438, 535–536, 546</p>
+<ol><li><b>Initialize:</b> τ<sub>ij</sub> = τ₀ (all 1 in the exams), η = 1/d, choose m, α, β, ρ, Q, number of iterations.</li>
+<li><b>Place ants</b> on start nodes (all on city 1, one per city, or as the question states).</li>
+<li><b>Construct tours:</b> each ant repeatedly picks the next unvisited city by Eq. 1 until all are visited, then returns to the start.</li>
+<li><b>Evaluate:</b> compute L<sub>k</sub> for every ant; record the best-so-far tour.</li>
+<li><b>Pheromone update:</b> evaporate every edge, then add Q/L<sub>k</sub> on the edges of each ant’s tour.</li>
+<li><b>Repeat</b> from step 2 until the iteration limit (or no improvement). Output the best tour.</li></ol>
+<p>Complexity: each iteration costs about O(m·n²). Pheromone stores the colony’s memory; the quality of the final route depends on α, β, ρ and the selection rule.</p></section>
+
+<section id="rw"><h2>5. Picking the next city: roulette wheel vs highest probability</h2><p class="pg">PDF pp. 439–443 (roulette), 547–555 (highest probability)</p>
+<p>Two conventions appear in your material. Use the one the question states, otherwise say which you use.</p>
+<ul><li><b>Roulette-wheel (tutorial):</b> compute probabilities, form cumulative sums, draw random r∈[0,1], choose the first city whose cumulative value ≥ r (fitness-proportional selection). Random numbers are usually given in the question.</li>
+<li><b>Highest probability (paper, and how the exam questions are posed):</b> the ant moves to the city with the largest p<sub>ij</sub>. Deterministic, so results are reproducible.</li></ul>
+<div class="ex"><b>Tutorial example</b> (5 cities, 3 ants all at city 1, τ₀=1, α=1, β=2, d row 1 = 10, 12, 11, 14): τη^β = 0.0100, 0.0069, 0.0083, 0.0051 → sum 0.0303 → <b>p = 0.3299, 0.2291, 0.2727, 0.1683</b> for cities 2–5; cumulative 0.3299, 0.5590, 0.8317, 1. Random r = 0.6841 &lt; 0.8317 → <b>city 4</b>. From city 4 (set {2,3,5}): p = 0.2147, 0.5965, 0.1887; cumulative 0.2147, 0.8113, 1; r = 0.4024 → <b>city 3</b>. Continuing gives ant 1: 1-4-3-5-2-1, L = 11+9+14+8+10 = <b>52</b>; ants 2 and 3 give 60 and 60.
+<br>Update: evaporation 1→0.5 on all edges; ant 1 adds 1/52 = 0.0192 → 0.5192 on its edges; ant 2 adds 1/60 = 0.0167 (edge 1-4 gets both: 0.5359). Edges used by more ants get more pheromone. MATLAB run (p. 444): best tour <b>1-4-3-5-2-1, cost 52</b>.</div></section>
+
+<section id="s25"><h2>6. Worked exam: 3 nodes, 1 ant, 1 iteration <span class="y">S25</span></h2>
+<p>Asymmetric costs: A→C 10, A→G 15, C→A 5, C→G 9, G→A 6, G→C 13. α=β=1, ρ=0.5, Q=1, τ=1 on every directed edge (0 on the diagonal). Ant starts at A.</p>
+<ol><li><b>From A</b> (unvisited C, G): τη = 1/10 = 0.1000 and 1/15 = 0.0667; sum 0.1667 → <b>p(C)=0.6, p(G)=0.4</b>. Highest → C (roulette: cumulative 0.6 / 1.0).</li>
+<li><b>From C</b> (only G left): p(G)=1. <b>From G</b> back to A.</li>
+<li><b>Tour A→C→G→A:</b> cost 10 + 9 + 6 = <b>25</b>. (The other tour A→G→C→A costs 15+13+5 = 33.)</li>
+<li><b>Update:</b> evaporate all edges to 0.5; deposit Δτ = Q/L = 1/25 = 0.04 on A→C, C→G, G→A.</li></ol>
+<div class="sc"><table><tr><th>τ after iteration</th><th>→A</th><th>→C</th><th>→G</th></tr><tr><td>A→</td><td>–</td><td><b>0.54</b></td><td>0.50</td></tr><tr><td>C→</td><td>0.50</td><td>–</td><td><b>0.54</b></td></tr><tr><td>G→</td><td><b>0.54</b></td><td>0.50</td><td>–</td></tr></table></div>
+<div class="ex">Best tour <b>A→C→G→A, minimum cost 25</b>. If roulette had picked G first: tour A→G→C→A (33), τ = 0.5 + 1/33 ≈ 0.5303 on A→G, G→C, C→A.</div></section>
+
+<section id="f24"><h2>7. Worked exam: 4 nodes, 2 ants, 2 iterations <span class="y">F24 F22</span></h2><p class="pg">Same style as the paper, PDF pp. 546–556</p>
+<p>Cost matrix (rows from, columns to): A: 0, 10, 15, 20 · C: 5, 0, 9, 10 · G: 6, 13, 0, 12 · T: 9, 8, 9, 0. α=β=1, ρ=0.5, Q=1, m=2 (<b>ant 1 at A, ant 2 at C</b>), τ=1 on all directed edges.</p>
+<h3>Iteration 1 (τ = 1, so p ∝ 1/d)</h3>
+<div class="sc"><table><tr><th>Ant</th><th>Step</th><th>Probabilities</th><th>Choice</th></tr>
+<tr><td>1 (A)</td><td>A→?</td><td>C .1000, G .0667, T .0500 → 0.4615, 0.3077, 0.2308</td><td>C</td></tr>
+<tr><td>1</td><td>C→?</td><td>G 1/9=.1111, T 1/10=.1000 → 0.5263, 0.4737</td><td>G</td></tr>
+<tr><td>1</td><td>G→T→A</td><td>only T left, then return</td><td colspan="1"><b>A-C-G-T-A = 10+9+12+9 = 40</b></td></tr>
+<tr><td>2 (C)</td><td>C→?</td><td>A .2000, G .1111, T .1000 → 0.4865, 0.2703, 0.2432</td><td>A</td></tr>
+<tr><td>2</td><td>A→?</td><td>G .0667, T .0500 → 0.5714, 0.4286</td><td>G</td></tr>
+<tr><td>2</td><td>G→T→C</td><td>only T left, then return</td><td><b>C-A-G-T-C = 5+15+12+8 = 40</b></td></tr></table></div>
+<p><b>Update 1:</b> evaporation → 0.5 on all edges. Ant 1 adds 1/40 = 0.025 on A→C, C→G, G→T, T→A. Ant 2 adds 0.025 on C→A, A→G, G→T, T→C. Edge G→T is used by both: 0.5 + 0.05 = 0.55.</p>
+<div class="sc"><table><tr><th>τ after it. 1</th><th>→A</th><th>→C</th><th>→G</th><th>→T</th></tr><tr><td>A→</td><td>–</td><td>0.525</td><td>0.525</td><td>0.500</td></tr><tr><td>C→</td><td>0.525</td><td>–</td><td>0.525</td><td>0.500</td></tr><tr><td>G→</td><td>0.500</td><td>0.500</td><td>–</td><td>0.550</td></tr><tr><td>T→</td><td>0.525</td><td>0.525</td><td>0.500</td><td>–</td></tr></table></div>
+<h3>Iteration 2 (p ∝ τ/d)</h3>
+<ul><li><b>Ant 1 at A:</b> C 0.525/10=.0525, G 0.525/15=.0350, T 0.5/20=.0250 → sum .1125 → 0.4667, 0.3111, 0.2222 → C. At C: G .525/9=.0583, T .5/10=.0500 → 0.5385, 0.4615 → G; then T; back to A: <b>A-C-G-T-A = 40</b>.</li>
+<li><b>Ant 2 at C:</b> A .525/5=.1050, G .525/9=.0583, T .5/10=.0500 → 0.4922, 0.2734, 0.2344 → A. At A: G .525/15=.0350, T .5/20=.0250 → 0.5833, 0.4167 → G; then T; back to C: <b>C-A-G-T-C = 40</b>.</li></ul>
+<p><b>Update 2:</b> multiply the table above by 0.5, then add 0.025 on the same edges (G→T +0.05):</p>
+<div class="sc"><table><tr><th>τ after it. 2</th><th>→A</th><th>→C</th><th>→G</th><th>→T</th></tr><tr><td>A→</td><td>–</td><td>0.2875</td><td>0.2875</td><td>0.2500</td></tr><tr><td>C→</td><td>0.2875</td><td>–</td><td>0.2875</td><td>0.2500</td></tr><tr><td>G→</td><td>0.2500</td><td>0.2500</td><td>–</td><td>0.3250</td></tr><tr><td>T→</td><td>0.2875</td><td>0.2875</td><td>0.2500</td><td>–</td></tr></table></div>
+<div class="ex"><b>Result:</b> best tour found after two iterations is <b>A→C→G→T→A (or C→A→G→T→C), cost 40</b>.</div>
+<div class="trap"><b>Good insight:</b> the true optimum is <b>A→C→T→G→A = 10+10+9+6 = 35</b> (the paper finds it as “3-1-2-4-3”, starting from G). With only two ants starting at A and C and the highest-probability rule, the colony never tries it, and the high pheromone on G→T keeps reinforcing the 40-cost tours. Roulette selection or an ant starting at G/T could find 35. Mention this in a discussion answer; the numerical answer expected is 40.</div></section>
+
+<section id="par"><h2>8. Parameters, behaviour and comparison</h2><p class="pg">PDF pp. 438, 440, 534, 545</p>
+<div class="sc"><table><tr><th>Parameter</th><th>Role</th><th>Extreme behaviour</th></tr>
+<tr><td>α</td><td>weight of pheromone (learned trail)</td><td>α=0: ignores pheromone, greedy nearest-city search. Large α (&gt;1): rapid stagnation, all ants follow one path</td></tr>
+<tr><td>β</td><td>weight of visibility 1/d (heuristic)</td><td>β=0: pheromone only, usually poor results. Large β: greedy, behaves like nearest neighbour</td></tr>
+<tr><td>ρ</td><td>evaporation rate</td><td>small ρ: old trails persist, slow adaptation; large ρ: forgets fast, more exploration</td></tr>
+<tr><td>Q</td><td>deposit scale (Δτ = Q/L)</td><td>larger Q: stronger reinforcement; Q=1 usually works (p. 438)</td></tr>
+<tr><td>m</td><td>number of ants</td><td>more ants: better coverage, higher cost per iteration</td></tr></table></div>
+<h3>Characteristics (slide p. 540)</h3>
+<p>Positive-feedback mechanism, distributed computation with a population of ants, a global data structure (pheromone) that changes dynamically as ants traverse routes, and probabilistic state transitions. <b>Advantages:</b> can beat simulated annealing and GA on TSP-like graphs, adapts continuously, parallel. <b>Limitations:</b> convergence time is uncertain, can stagnate if α is large or evaporation too low, many parameters to tune.</p>
+<h3>Where it sits in soft computing <span class="y">p. 36</span></h3>
+<p>ACO belongs to <b>swarm-intelligence</b> metaheuristics (with PSO, Artificial Bee Colony), a branch of population-based, bio-inspired optimization alongside evolutionary algorithms (GA, DE). Unlike a GA (selection, crossover, mutation on a population of solutions) ACO builds solutions from a shared pheromone memory. Roulette-wheel selection appears in both.</p></section>
+
+<section id="exam"><h2>9. Exam kit</h2>
+<div class="key"><b>Model answer, “Illustrate the algorithm of ACO with an example” (4 marks)</b> <span class="y">F22</span><br>1) Initialise τ=1, η=1/d. 2) Place ants. 3) Each ant builds a tour using p<sub>ij</sub>=τ<sup>α</sup>η<sup>β</sup>/Σ over unvisited cities. 4) Compute tour lengths. 5) Evaporate τ←(1−ρ)τ and deposit Q/L on each ant’s edges. 6) Repeat; output the best tour. <i>Example:</i> the 3-city case in §6: from A, p(C)=0.6, p(G)=0.4 → tour A-C-G-A of length 25, edges get τ=0.5+0.04=0.54.</div>
+<h3>Template for “simulate k iterations”</h3>
+<ol><li>State parameters and the selection rule you use (highest probability or roulette).</li>
+<li>Write the η matrix (1/d, directed) and the initial τ matrix.</li>
+<li>For each ant and each step: list unvisited cities, compute τη for each, normalize, choose.</li>
+<li>Write each tour with the return edge and its total cost.</li>
+<li>Show evaporation, then each ant’s deposit Q/L, then the full τ matrix.</li>
+<li>Repeat for the next iteration with the new τ. Finish with “best tour = …, cost = …”.</li></ol>
+<h3>Traps</h3>
+<ul><li>Asymmetric matrix: use d(i→j), not d(j→i); each direction has its own τ.</li>
+<li>Do not forget the <b>return edge</b> to the start city in length and deposits.</li>
+<li>Evaporate <b>every</b> edge first, then add deposits; an edge used by two ants gets two deposits.</li>
+<li>Visited cities are excluded from the probability sum (renormalize over the rest).</li>
+<li>When one city remains the probability is 1; no calculation needed.</li>
+<li>Report probabilities to 3–4 decimals and the best tour <i>after</i> all iterations.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>How does ACO mimic real ants? (pheromone, positive feedback, evaporation)</li><li>Why is evaporation needed? (forget poor paths, avoid premature convergence to a local optimum)</li><li>Role of α and β; effect of ρ and Q.</li><li>ACO vs GA; where is roulette-wheel selection used?</li></ul>
+<div class="ref"><b>📚 Read in</b>Dorigo &amp; Stützle, <i>Ant Colony Optimization</i> (MIT Press, 2004) – Ch. 2 “The ACO Metaheuristic”, Ch. 3 “Ant Colony Optimization Algorithms for the Traveling Salesman Problem”; Santosa, “Tutorial on Ant Colony Optimization” (PDF pp. 436–447); Mandal (2023) “A Step-by-Step Mathematical Derivation of ACO for the TSP” (PDF pp. 543–558); Dorigo, Maniezzo &amp; Colorni (1996) “The Ant System”; Dorigo &amp; Gambardella (1997) “Ant Colony System” (both cited on PDF p. 447); Elbeltagi et al. (2005) comparison of five evolutionary algorithms (PDF p. 541).</div></section>
+</main></body></html>

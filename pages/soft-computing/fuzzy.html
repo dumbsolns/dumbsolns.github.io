@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fuzzy Logic – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#why">Why fuzzy</a><a href="#sets">Fuzzy sets</a><a href="#mf">MFs</a><a href="#ops">Operations</a><a href="#alpha">α-cut</a><a href="#ext">Extension</a><a href="#rel">Relations</a><a href="#inf">Inference</a><a href="#def">Defuzz.</a><a href="#ex1">Steam turbine</a><a href="#ex2">Sugeno</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Fuzzy Logic – Deep Dive</h1>
+<p class="sub">CSE 4137/4237 · covers PDF pp. 22–34 (intro), 474–522 (fuzzy arithmetic and relations), 677–701 (fuzzy logic, MFs), 747–785 (Mamdani, Sugeno, controller). Tags: <span class="y">S25</span> Spring 2025 … <span class="y">F22</span> Fall 2022 show where a topic was asked.</p>
+
+<section id="why"><h2>1. Why fuzzy logic?</h2><p class="pg">PDF pp. 22–34, 677–690</p>
+<p>Classical (Boolean) logic answers only <b>true/false</b>. Human concepts such as <i>hot, tall, slow, heavy</i> have no sharp edge: is 5′9″ tall? Fuzzy logic (L. A. Zadeh, 1965) replaces the two truth values with a <b>degree of truth in [0,1]</b>, which is why it models human reasoning and is the “uncertainty / vagueness” part of soft computing.</p>
+<div class="sc"><table><tr><th></th><th>Crisp (Boolean)</th><th>Fuzzy</th></tr>
+<tr><td>Membership</td><td>0 or 1</td><td>any value in [0,1]</td></tr><tr><td>Boundary</td><td>sharp threshold</td><td>gradual transition</td></tr>
+<tr><td>Question</td><td>“Is the room hot?” → Yes/No</td><td>“How hot?” → Very (0.85), Little (0.3)…</td></tr>
+<tr><td>Example</td><td>Isa is 5′10″: TRUE</td><td>Isa is tall: <i>possibly true</i> (0.7)</td></tr></table></div>
+<h3>Fuzzy vs probability <span class="y">p. 689</span></h3>
+<p>Probability measures the <i>chance that a crisp event occurs</i> (70% chance it is hot). Fuzzy membership measures <i>how much a thing belongs to a vague class</i> (it is hot to degree 0.7, no randomness involved). Probabilities over all outcomes sum to 1; memberships need not.</p>
+<h3>Doctor analogy <span class="y">p. 33</span></h3>
+<p>A doctor asks about symptoms, correlates them with diseases with some uncertainty and prescribes medicine fuzzily. Fuzzy systems do the same: vague inputs → rules → graded output.</p>
+<div class="key"><b>Model answer (3 marks):</b> “Fuzzy logic is a multi-valued logic that handles vagueness using degrees of truth between 0 and 1. Example: temperature 30 °C belongs to <i>warm</i> with 0.6 and <i>hot</i> with 0.2. The membership function maps every crisp input to its degree of membership in a fuzzy set and so converts a crisp value into linguistic terms (fuzzification).” <span class="y">S24 F23 S23 F24 S22</span></div>
+</section>
+
+<section id="sets"><h2>2. Fuzzy sets and their vocabulary</h2><p class="pg">PDF pp. 683–688</p>
+<p>A fuzzy set <b>A</b> on universe X is <span class="f">A = {(x, μ<sub>A</sub>(x)) | x∈X}</span>, with <span class="f">μ<sub>A</sub>: X→[0,1]</span>. Two ways to write it:</p>
+<ul><li><b>Discrete:</b> <span class="f">A = 0.1/1 + 0.3/2 + 0.7/3 + 1/4 + …</span>. Read “μ/x”; the + and / are notation, not arithmetic.</li>
+<li><b>Continuous:</b> <span class="f">A = ∫ μ<sub>A</sub>(x)/x</span>, or a formula for μ<sub>A</sub>(x).</li></ul>
+<div class="sc"><table><tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Support</td><td>{x : μ(x) &gt; 0}</td></tr><tr><td>Core</td><td>{x : μ(x) = 1}</td></tr>
+<tr><td>Height</td><td>max μ(x); the set is <b>normal</b> if height = 1</td></tr>
+<tr><td>Crossover point</td><td>x where μ(x) = 0.5</td></tr><tr><td>Fuzzy number</td><td>normal, convex fuzzy set on ℝ with one peak (e.g. “about 4”)</td></tr></table></div>
+<p>A crisp set is the special case where every μ is 0 or 1, so every fuzzy-set rule reduces to classical set theory.</p></section>
+
+<section id="mf"><h2>3. Membership functions (MFs)</h2><p class="pg">PDF pp. 692–701 · Jang Ch. 2 · Ross Ch. 4</p>
+<p>The MF <i>is</i> the fuzzy set: it fixes how gradual the boundary is. Standard shapes (a, b, c, d are parameters):</p>
+<div class="sc"><table><tr><th>Type</th><th>Formula</th></tr>
+<tr><td>Triangular</td><td><span class="f">max(min((x−a)/(b−a), (c−x)/(c−b)), 0)</span></td></tr>
+<tr><td>Trapezoidal</td><td><span class="f">max(min((x−a)/(b−a), 1, (d−x)/(d−c)), 0)</span></td></tr>
+<tr><td>Gaussian</td><td><span class="f">exp(−(x−c)²/(2σ²))</span></td></tr>
+<tr><td>Generalized bell</td><td><span class="f">1 / (1 + |(x−c)/a|<sup>2b</sup>)</span></td></tr>
+<tr><td>Sigmoidal</td><td><span class="f">1 / (1 + e<sup>−a(x−c)</sup>)</span> (open-ended, “large”/“small”)</td></tr></table></div>
+<h3>How to write the equation from a graph <span class="y">S25 F22 S24 F23</span></h3>
+<ol><li>List the corner points where the slope changes (and the value there).</li>
+<li>For each straight piece use the two-point line: rising <span class="f">(x−a)/(b−a)</span>, falling <span class="f">(c−x)/(c−b)</span>; flat parts are constant 1 or 0.</li>
+<li>Write each piece with its x-interval, then <b>check continuity</b>: at every break point the two neighbouring pieces must give the same value.</li></ol>
+<div class="ex"><b>S25 weight graph</b> (read from the figure: corners at 50, 60, 70, 80, 90 kg).
+<svg viewBox="0 0 360 150" role="img" aria-label="Membership functions for Very Slim, Slim, Medium, Heavy"><line class="ax" x1="30" y1="120" x2="350" y2="120"/><line class="ax" x1="30" y1="15" x2="30" y2="120"/>
+<polyline class="c" stroke="#e5484d" points="30,20 90,20 150,120"/><polyline class="c" stroke="#f5a524" points="90,120 150,20 210,120"/><polyline class="c" stroke="#30a46c" points="150,120 210,20 270,120"/><polyline class="c" stroke="#3e63dd" points="210,120 270,20 330,20"/>
+<text x="20" y="24">1</text><text x="20" y="123">0</text><text x="28" y="134">40</text><text x="88" y="134">50</text><text x="148" y="134">60</text><text x="208" y="134">70</text><text x="268" y="134">80</text><text x="328" y="134">90</text><text x="40" y="14">V.Slim</text><text x="130" y="14">Slim</text><text x="190" y="14">Medium</text><text x="290" y="14">Heavy</text></svg>
+<ul><li>Very Slim: <span class="f">1 (x≤50); (60−x)/10 (50&lt;x&lt;60); 0 (x≥60)</span></li>
+<li>Slim: <span class="f">(x−50)/10 (50≤x≤60); (70−x)/10 (60&lt;x≤70); 0 otherwise</span></li>
+<li>Medium: <span class="f">(x−60)/10 (60≤x≤70); (80−x)/10 (70&lt;x≤80); 0 otherwise</span></li>
+<li>Heavy: <span class="f">0 (x≤70); (x−70)/10 (70&lt;x&lt;80); 1 (80≤x≤90)</span></li></ul>
+<p>Check: at x=55 Very Slim = 0.5 and Slim = 0.5, i.e. neighbouring sets cross at 0.5. Every point is covered by at most two sets and the memberships there add to 1.</p></div>
+<div class="ex"><b>F23 “tallness” function</b> (printed pieces on 70–110, 110–130, 130–150, 150–160):
+<ul><li>70–110: <span class="f">2.75 − x/40</span> → 1 at 70, 0 at 110 ✓ (short, falling)</li><li>110–130: <span class="f">(110−x)/(−20) = (x−110)/20</span> → 0 to 1 ✓</li><li>130–150: <span class="f">(x−150)/(−20) = (150−x)/20</span> → 1 to 0 ✓ (average, peak at 130)</li><li>150–160: printed <span class="f">(160−x)/(−10)</span> would give −1 at 150, so the intended piece is <span class="f">(x−150)/10</span> → 0 to 1 (tall)</li></ul>
+Continuity: at 110 both give 0, at 130 both 1, at 150 both 0 ✓. Sketch: falling line, triangle peaking at 130, rising line to 1 at 160.</div>
+<div class="trap"><b>S24 version (90–180 cm):</b> the printed first piece <span class="f">−x/40+1</span> gives −1.25 at 90 and the last piece <span class="f">(x−190)/10</span> is negative on its interval. Run the continuity check: corrected pieces are <span class="f">(130−x)/40</span> (1→0 on 90–130), <span class="f">(x−130)/20</span>, <span class="f">(170−x)/20</span> and <span class="f">(x−170)/10</span>. State the typo and give the corrected, graphed form.</div></section>
+
+<section id="ops"><h2>4. Operations on fuzzy sets</h2><p class="pg">Ross Ch. 2 · Jang Ch. 2</p>
+<ul><li><b>Union:</b> <span class="f">μ<sub>A∪B</sub>(x) = max(μ<sub>A</sub>, μ<sub>B</sub>)</span> · <b>Intersection:</b> <span class="f">min(μ<sub>A</sub>, μ<sub>B</sub>)</span> · <b>Complement:</b> <span class="f">1 − μ<sub>A</sub></span></li>
+<li>Other t-norms/s-norms: algebraic product <span class="f">μ<sub>A</sub>μ<sub>B</sub></span> (AND), algebraic sum <span class="f">a+b−ab</span> (OR). Mamdani rule inference uses min or product.</li>
+<li>Laws that still hold: commutative, associative, distributive, De Morgan, idempotent.</li></ul>
+<div class="trap"><b>Fuzzy ≠ crisp:</b> the law of excluded middle and non-contradiction fail. <span class="f">A ∪ A′ ≠ X</span> and <span class="f">A ∩ A′ ≠ ∅</span>: for μ=0.3, max(0.3,0.7)=0.7 &lt; 1 and min(0.3,0.7)=0.3 &gt; 0.</div>
+<div class="ex">A = {0.2/a, 0.6/b, 1/c}, B = {0.5/a, 0.4/b, 0.9/c}: A∪B = {0.5/a, 0.6/b, 1/c}; A∩B = {0.2/a, 0.4/b, 0.9/c}; A′ = {0.8/a, 0.4/b, 0/c}.</div></section>
+
+<section id="alpha"><h2>5. α-cut (alpha-cut) principle</h2><p class="pg">PDF pp. 491–504</p>
+<p><span class="f">A<sub>α</sub> = {x : μ<sub>A</sub>(x) ≥ α}</span> is a <b>crisp set</b> (an interval for a fuzzy number): <span class="f">A<sub>α</sub> = [a₁<sup>(α)</sup>, a₂<sup>(α)</sup>]</span>. Higher α → narrower interval. <b>Resolution theorem:</b> a fuzzy set is rebuilt from its cuts, <span class="f">μ<sub>A</sub>(x) = max<sub>α</sub> min(α, 1<sub>A_α</sub>(x))</span>.</p>
+<p><b>Fuzzy arithmetic by α-cuts</b> (interval arithmetic at every level): <span class="f">A + B = [a₁<sup>(α)</sup>+b₁<sup>(α)</sup>, a₂<sup>(α)</sup>+b₂<sup>(α)</sup>]</span>. It gives the same answer as the extension principle with less work.</p>
+<div class="ex"><b>F24 numbers</b> A = 0.1/1+0.3/2+0.7/3+1/4+0.7/5+0.3/6+0.1/7, B = 0.2/3+0.4/4+0.8/5+1/6+0.8/7+0.4/8+0.2/9.
+<div class="sc"><table><tr><th>α</th><th>A<sub>α</sub></th><th>B<sub>α</sub></th><th>(A+B)<sub>α</sub></th></tr>
+<tr><td>0.1–0.2</td><td>[1,7]</td><td>[3,9]</td><td>[4,16]</td></tr><tr><td>0.3</td><td>[2,6]</td><td>[4,8]</td><td>[6,14]</td></tr>
+<tr><td>0.4</td><td>[3,5]</td><td>[4,8]</td><td>[7,13]</td></tr><tr><td>0.7</td><td>[3,5]</td><td>[5,7]</td><td>[8,12]</td></tr>
+<tr><td>0.8</td><td>[4,4]</td><td>[5,7]</td><td>[9,11]</td></tr><tr><td>1</td><td>[4,4]</td><td>[6,6]</td><td>[10,10]</td></tr></table></div>
+Read off: z=10 is in the cut at α=1 → μ=1; z=9,11 → 0.8; z=8,12 → 0.7; z=7,13 → 0.4; z=6,14 → 0.3; z=5,15 → 0.2; z=4,16 → 0.1. Same as the extension-principle table below.</div></section>
+
+<section id="ext"><h2>6. Extension principle and fuzzy addition</h2><p class="pg">PDF pp. 474–490 · <span class="y">F24 F22 S23 F23</span></p>
+<p>Extends a crisp function <span class="f">z = f(x,y)</span> to fuzzy inputs: <span class="f">μ<sub>C</sub>(z) = max<sub>x+y=z</sub> min(μ<sub>A</sub>(x), μ<sub>B</sub>(y))</span> for addition (<i>sup–min</i> composition). For multiplication use <i>x·y=z</i> in the same formula.</p>
+<h3>Slide method (3 steps)</h3>
+<ol><li><b>Step 1:</b> draw a grid with the support of A on one side and of B on the other; fill each cell with <span class="f">min(μ<sub>A</sub>(x), μ<sub>B</sub>(y))</span>.</li>
+<li><b>Step 2:</b> group cells on the same anti-diagonal (equal x+y) — they all give the same z.</li>
+<li><b>Step 3:</b> take the <b>max</b> of each diagonal as μ<sub>C</sub>(z).</li></ol>
+<div class="ex"><b>F24 worked result</b> (pairs on each diagonal and their minima; winner in bold):
+<div class="sc"><table><tr><th>z</th><th>pairs (x,y)→min</th><th>μ(z)</th></tr>
+<tr><td>4</td><td>(1,3)→.1</td><td><b>0.1</b></td></tr><tr><td>5</td><td>(1,4)→.1, (2,3)→.2</td><td><b>0.2</b></td></tr>
+<tr><td>6</td><td>(1,5)→.1, (2,4)→.3, (3,3)→.2</td><td><b>0.3</b></td></tr><tr><td>7</td><td>(2,5)→.3, (3,4)→.4, (4,3)→.2</td><td><b>0.4</b></td></tr>
+<tr><td>8</td><td>(2,6)→.3, (3,5)→.7, (4,4)→.4, (5,3)→.2</td><td><b>0.7</b></td></tr><tr><td>9</td><td>(3,6)→.7, (4,5)→.8, (5,4)→.4</td><td><b>0.8</b></td></tr>
+<tr><td>10</td><td>(3,7)→.7, (4,6)→<b>1</b>, (5,5)→.7</td><td><b>1</b></td></tr><tr><td>11</td><td>(3,8)→.4, (4,7)→.8, (5,6)→.7</td><td><b>0.8</b></td></tr>
+<tr><td>12</td><td>(4,8)→.4, (5,7)→.7, (6,6)→.3</td><td><b>0.7</b></td></tr><tr><td>13</td><td>(5,8)→.4, (6,7)→.3</td><td><b>0.4</b></td></tr>
+<tr><td>14</td><td>(5,9)→.2, (6,8)→.3, (7,7)→.1</td><td><b>0.3</b></td></tr><tr><td>15</td><td>(6,9)→.2, (7,8)→.1</td><td><b>0.2</b></td></tr><tr><td>16</td><td>(7,9)→.1</td><td><b>0.1</b></td></tr></table></div>
+<b>C = 0.1/4 + 0.2/5 + 0.3/6 + 0.4/7 + 0.7/8 + 0.8/9 + 1/10 + 0.8/11 + 0.7/12 + 0.4/13 + 0.3/14 + 0.2/15 + 0.1/16</b></div>
+<div class="key"><b>Sanity checks:</b> the peak (μ=1) must sit at the sum of the peaks (4+6=10); the support runs from min+min to max+max (1+3 … 7+9); result is symmetric when both inputs are. For the S23 figure question, first read A and B off the graphs as lists μ/x, then use the same table.</div></section>
+
+<section id="rel"><h2>7. Fuzzy relations and composition</h2><p class="pg">PDF pp. 505–522 · <span class="y">S24 F23 S23 F22</span> · Ross Ch. 3</p>
+<p>A fuzzy relation R on X×Y is a fuzzy set of pairs, written as a matrix of <span class="f">μ<sub>R</sub>(x,y)</span>. The Cartesian product of two fuzzy sets is <span class="f">μ<sub>A×B</sub>(x,y) = min(μ<sub>A</sub>(x), μ<sub>B</sub>(y))</span>. <b>Composition</b> chains R₁ (X×Y) and R₂ (Y×Z) into T (X×Z): like matrix multiplication where “sum of products” becomes “max over y of (some operation)”.</p>
+<div class="sc"><table><tr><th>Type</th><th>μ<sub>R₁∘R₂</sub>(x,z)</th></tr><tr><td>Max-min</td><td><span class="f">max<sub>y</sub> min(μ<sub>R₁</sub>(x,y), μ<sub>R₂</sub>(y,z))</span></td></tr>
+<tr><td>Max-product</td><td><span class="f">max<sub>y</sub> μ<sub>R₁</sub>(x,y)·μ<sub>R₂</sub>(y,z)</span></td></tr>
+<tr><td>Max-average</td><td><span class="f">max<sub>y</sub> ½(μ<sub>R₁</sub>(x,y)+μ<sub>R₂</sub>(y,z))</span> (slide writes it as ½·max of the sums)</td></tr></table></div>
+<div class="ex"><b>Worked example.</b> R₁ = [[0.6, 0.3],[0.2, 0.9]] (rows x₁,x₂; columns y₁,y₂), R₂ = [[1.0, 0.5],[0.3, 0.8]] (rows y₁,y₂; columns z₁,z₂). Take row of R₁ and column of R₂ and combine element-by-element, then max.
+<div class="sc"><table><tr><th>(x,z)</th><th>Max-min</th><th>Max-product</th><th>Max-average</th></tr>
+<tr><td>(x₁,z₁)</td><td>max(min(.6,1), min(.3,.3)) = 0.6</td><td>max(.6, .09) = 0.6</td><td>max(.8, .3) = 0.8</td></tr>
+<tr><td>(x₁,z₂)</td><td>max(.5, .3) = 0.5</td><td>max(.3, .24) = 0.3</td><td>max(.55, .55) = 0.55</td></tr>
+<tr><td>(x₂,z₁)</td><td>max(.2, .3) = 0.3</td><td>max(.2, .27) = 0.27</td><td>max(.6, .6) = 0.6</td></tr>
+<tr><td>(x₂,z₂)</td><td>max(.2, .8) = 0.8</td><td>max(.1, .72) = 0.72</td><td>max(.35, .85) = 0.85</td></tr></table></div>
+Max-min T = [[0.6, 0.5],[0.3, 0.8]]; max-product T = [[0.6, 0.3],[0.27, 0.72]]; max-average T = [[0.8, 0.55],[0.6, 0.85]].</div>
+<div class="trap">Dimensions must match (columns of R₁ = rows of R₂). Show one full row-column calculation for each entry or the marker cannot award method marks. Composition is generally <b>not commutative</b>.</div></section>
+
+<section id="inf"><h2>8. Fuzzy inference systems</h2><p class="pg">PDF pp. 32, 682, 747–785 · Ross Ch. 5 · Jang Ch. 3–4</p>
+<p><b>Pipeline:</b> crisp input → <b>fuzzifier</b> (MFs give degrees) → <b>rule base + inference engine</b> (IF x₁ is A <i>and</i> x₂ is B THEN y is C) → aggregation → <b>defuzzifier</b> → crisp output. In a rule, AND = min (or product), OR = max.</p>
+<h3>Mamdani system (fuzzy consequent)</h3>
+<ol><li>Fuzzify each input with its MFs.</li><li>Firing strength of rule k: <span class="f">α<sub>k</sub> = min(μ<sub>A</sub>(x₁), μ<sub>B</sub>(x₂))</span> (OR → max).</li>
+<li><b>Max-min method:</b> clip each consequent set at α<sub>k</sub> (<span class="f">min(α<sub>k</sub>, μ<sub>C_k</sub>(y))</span>). <b>Max-product method:</b> scale it (<span class="f">α<sub>k</sub>·μ<sub>C_k</sub>(y)</span>) — keeps the shape.</li>
+<li>Aggregate all rules with <b>max</b>, then defuzzify (centroid etc.).</li></ol>
+<h3>Sugeno / TSK system (function consequent)</h3>
+<p>Rule: IF x₁ is A and x₂ is B THEN <span class="f">z = px₁ + qx₂ + r</span> (zero-order: z = constant). Output is a weighted average: <span class="f">y = Σ w<sub>k</sub> z<sub>k</sub> / Σ w<sub>k</sub></span> with <span class="f">w<sub>k</sub> = min(μ<sub>A</sub>(x₁), μ<sub>B</sub>(x₂))</span> (or product). No separate defuzzification step, so it is faster and is the model ANFIS learns.</p>
+<div class="sc"><table><tr><th></th><th>Mamdani</th><th>Sugeno</th></tr><tr><td>Consequent</td><td>fuzzy set</td><td>linear function / constant</td></tr><tr><td>Defuzzification</td><td>needed (centroid …)</td><td>weighted average</td></tr><tr><td>Interpretability</td><td>higher</td><td>lower, more efficient</td></tr><tr><td>Typical use</td><td>expert-built controllers</td><td>adaptive / neuro-fuzzy (ANFIS)</td></tr></table></div></section>
+
+<section id="def"><h2>9. Defuzzification</h2><p class="pg">Ross Ch. 4 · PDF p. 784 (trapezoid centroid)</p>
+<ul><li><b>Centroid (centre of gravity):</b> <span class="f">y* = ∫ μ(y)·y dy / ∫ μ(y) dy</span>, discrete <span class="f">Σ μ(y<sub>i</sub>)y<sub>i</sub> / Σ μ(y<sub>i</sub>)</span>. Most common, uses the whole aggregated shape.</li>
+<li><b>Weighted average (height) method:</b> <span class="f">y* = Σ μ<sub>k</sub> ȳ<sub>k</sub> / Σ μ<sub>k</sub></span>, where ȳ<sub>k</sub> is the centroid of the k-th clipped set. Used in the slides’ example below.</li>
+<li><b>Mean of maxima, first/last of maxima:</b> use only the points where μ is maximal; fast but ignores the rest of the shape.</li>
+<li><b>Trapezoid centroid</b> (slide formula, clipped triangle with top length a, base b, offsets c, d): <span class="f">x̄ = b/2 + (2a+b)(c²−d²) / (6(b²−a²))</span>.</li></ul></section>
+
+<section id="ex1"><h2>10. Worked design: steam-turbine fuzzy controller</h2><p class="pg">PDF pp. 767–785 (Mamdani, 6 design steps)</p>
+<p><b>Task:</b> inputs temperature (°C, 0–40) and pressure (Pa, 0–100); output throttle position (−90…90: N2, N1, Z, P1, P2). Current <b>T = 12 °C, P = 40 Pa</b>.</p>
+<ol><li><b>Variables:</b> inputs T and P, output throttle.</li><li><b>Fuzzy subsets:</b> T ∈ {cool, nominal, warm}, P ∈ {low, ok, strong}, throttle ∈ {N2, N1, Z, P1, P2}.</li>
+<li><b>MFs:</b> <span class="f">μ<sub>cool</sub>=(20−x)/20, μ<sub>nominal</sub>=x/20</span> (0→20), <span class="f">μ<sub>low</sub>=(50−x)/50, μ<sub>ok</sub>=x/50</span> (0→50).</li>
+<li><b>Rule base</b> (rows temperature, columns pressure):
+<div class="sc"><table><tr><th></th><th>Low</th><th>Ok</th><th>Strong</th></tr><tr><td>Cool</td><td>P2</td><td>Z</td><td>N2</td></tr><tr><td>Nominal</td><td>P2</td><td>Z</td><td>N1</td></tr><tr><td>Warm</td><td>P1</td><td>N2</td><td>N1</td></tr></table></div></li>
+<li><b>Fuzzify and evaluate:</b> cool(12) = 8/20 = <b>2/5</b>, nominal(12) = <b>3/5</b>, warm(12) = 0; low(40) = 10/50 = <b>1/5</b>, ok(40) = <b>4/5</b>, strong(40) = 0. Only rules with both inputs &gt; 0 fire:
+<div class="sc"><table><tr><th>Rule</th><th>IF … AND …</th><th>Strength = min</th><th>Throttle</th></tr><tr><td>1</td><td>cool, low</td><td>min(2/5, 1/5) = 1/5</td><td>P2</td></tr><tr><td>2</td><td>cool, ok</td><td>min(2/5, 4/5) = 2/5</td><td>Z</td></tr><tr><td>3</td><td>nominal, low</td><td>min(3/5, 1/5) = 1/5</td><td>P2</td></tr><tr><td>4</td><td>nominal, ok</td><td>min(3/5, 4/5) = 3/5</td><td>Z</td></tr></table></div></li>
+<li><b>Aggregate and defuzzify:</b> same consequent → max: Z is clipped at max(2/5, 3/5) = <b>3/5</b>, P2 at max(1/5, 1/5) = <b>1/5</b>. Centroids: Z → 0; clipped P2 → 67.937 (trapezoid formula).
+<div class="ex"><span class="f">x* = (3/5·0 + 1/5·67.937) / (3/5 + 1/5) = 13.587/0.8 ≈ 16.98 ≈ 17°</span> → open the throttle about 17°.</div></li></ol></section>
+
+<section id="ex2"><h2>11. Worked Sugeno example</h2><p class="pg">PDF pp. 756–766</p>
+<p>Rules: R1 y₁ = −x₁ + x₂ + 1; R2 y₂ = −x₂ + 3; R3 y₃ = −x₁ + 3; R4 y₄ = −x₁ + x₂ + 2 (as printed; see the note below). Antecedents: R1 small–small, R2 small–large, R3 large–small, R4 large–large. Inputs <b>x₁ = 1.5, x₂ = 2.5</b>. From the graphs: x₁ → small 0.3, large 0.8; x₂ → small 0.4, large 0.7.</p>
+<div class="sc"><table><tr><th>Rule</th><th>w = min</th><th>output y<sub>k</sub></th><th>w·y</th></tr><tr><td>1</td><td>min(0.3, 0.4) = 0.3</td><td>−1.5+2.5+1 = 2</td><td>0.6</td></tr><tr><td>2</td><td>min(0.3, 0.7) = 0.3</td><td>−2.5+3 = 0.5</td><td>0.15</td></tr><tr><td>3</td><td>min(0.8, 0.4) = 0.4</td><td>−1.5+3 = 1.5</td><td>0.6</td></tr><tr><td>4</td><td>min(0.8, 0.7) = 0.7</td><td>y₄ = 6 (as the slide uses)</td><td>4.2</td></tr></table></div>
+<div class="ex"><span class="f">y* = Σwy / Σw = (0.6+0.15+0.6+4.2)/(0.3+0.3+0.4+0.7) = 5.55/1.7 ≈ 3.26</span> (matches the slide).</div>
+<div class="trap"><b>Check the slide:</b> the slide’s 3.26 needs y₄ = 6, which equals x₁+x₂+2. If rule 4 is really <span class="f">−x₁+x₂+2</span> then y₄ = 3 and y* = 3.45/1.7 ≈ 2.03. Read rule 4 on PDF p. 760 and use that rule; the method is identical.</div></section>
+
+<section id="exam"><h2>12. Exam kit</h2>
+<h3>Mini-answers</h3>
+<ul><li><b>Crisp vs fuzzy set</b> <span class="y">F22</span>: crisp 0/1, sharp boundary, Boolean; fuzzy [0,1], gradual, handles vagueness (table in §1).</li>
+<li><b>Advantages of a fuzzy system</b> <span class="y">F22</span>: human-like linguistic rules, tolerates imprecise inputs, no exact mathematical model, easy to modify, robust, good for non-linear control. <b>Limitation:</b> no learning, rules/MFs need an expert. <b>Neuro-fuzzy</b> fixes this: an NN tunes MFs and rules (NFS pp. 786–812; ANFIS is the next deep dive).</li>
+<li><b>Role of the MF</b> <span class="y">S24</span>: converts crisp input into a degree of membership; defines the fuzzy set; its shape controls sensitivity; used in fuzzification and (output MFs) defuzzification.</li></ul>
+<h3>Traps checklist</h3>
+<ul><li>Extension principle: <b>min inside, max across a diagonal</b>; peak must land on the sum of peaks.</li>
+<li>Max-average = max of the average, not average of the max.</li>
+<li>Always check continuity of piecewise MFs; mention typos if the printed formula is inconsistent.</li>
+<li>Mamdani: clip (max-min) vs scale (max-product). Sugeno: weighted <i>average</i>, not sum.</li>
+<li>Show intermediate tables; marks go to method.</li></ul>
+<h3>Likely questions</h3>
+<ol><li>Add two fuzzy numbers (extension principle or α-cuts) — every year.</li>
+<li>Max-min / max-product / max-average composition with a small example.</li>
+<li>Write the MF equation for a given graph; sketch a given equation.</li>
+<li>Describe fuzzy logic with an example; role of MF; crisp vs fuzzy.</li>
+<li>Mamdani vs Sugeno; design a small fuzzy controller (steps in §10).</li></ol>
+<div class="ref"><b>📚 Read in</b>Ross, <i>Fuzzy Logic with Engineering Applications</i> – Ch. 2 “Classical Sets and Fuzzy Sets”, Ch. 3 “Classical Relations and Fuzzy Relations”, Ch. 4 “Properties of Membership Functions, Fuzzification, and Defuzzification”, Ch. 5 “Logic and Fuzzy Systems”, Ch. 13 “Fuzzy Control Systems”; Jang, Sun &amp; Mizutani – Ch. 2 “Fuzzy Set Theory”, Ch. 3 “Fuzzy Rules and Fuzzy Reasoning”, Ch. 4 “Fuzzy Inference Systems”; Sivanandam &amp; Deepa – “Fuzzy Relations”, “Membership Features”, “Defuzzification”, “Fuzzy Arithmetic”, “Fuzzy Logic Control Systems”. Papers: Zadeh (1965) “Fuzzy Sets”; Mamdani (1975); Takagi &amp; Sugeno (1985).</div></section>
+</main></body></html>

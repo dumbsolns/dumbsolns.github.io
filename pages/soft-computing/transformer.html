@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transformers &amp; Self-Attention – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#why">Why</a><a href="#sa">Self-attention</a><a href="#num">Numeric</a><a href="#lab">Explorer</a><a href="#mh">Multi-head</a><a href="#enc">Encoder</a><a href="#dec">Decoder</a><a href="#cmp">vs RNN</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Transformers &amp; Self-Attention – Deep Dive</h1>
+<p class="sub">CSE 4137 · PDF pp. 203–248 (seq2seq and Transformer, slides by Emma Strubell after Vaswani et al. 2017) and pp. 844–867 (contextual embeddings, Q/K/V derivation, multi-head). Tags: <span class="y">S25</span> Spring 2025 · <span class="y">F24</span> · <span class="y">S24</span>. The self-attention numeric appeared in S25, F24 and S24.</p>
+
+<section id="why"><h2>1. Why Transformers? From seq2seq to attention</h2><p class="pg">PDF pp. 203–208 · <span class="y">F24: Transformers vs FFN/RNN</span></p>
+<ul><li><b>Seq2seq</b> (pp. 203–208): input and output are both sequences (translation, summarisation). It models <span class="f">p(e|f) = Π<sub>i</sub> p(e<sub>i</sub> | e₁…e<sub>i−1</sub>, f)</span>, a <i>conditional language model</i>: an <b>encoder RNN</b> reads the source, a <b>decoder RNN</b> generates the target conditioned on that encoding. Training is end-to-end by backprop with cross-entropy (sum of −log p of each target word).</li>
+<li><b>Problems of RNN encoders:</b> the whole sentence is squeezed into one vector (bottleneck); information from early words fades (vanishing gradients); processing is <b>sequential</b>, so training cannot be parallelised.</li>
+<li><b>Transformer (Vaswani 2017):</b> drops recurrence. Every word looks at every other word directly through <b>self-attention</b>, and all positions are computed in parallel.</li></ul></section>
+
+<section id="sa"><h2>2. Self-attention built from scratch</h2><p class="pg">PDF pp. 214–221, 845–866 · <span class="y">S25 S24 F24: role of self-attention, Q, K, V</span></p>
+<h3>Step 1 – the problem with static embeddings</h3>
+<p>Word2vec gives “bank” one vector whether it appears in “money bank grows” or “river bank flows” (slide p. 846). We want a <b>contextual embedding</b>: a new vector for each word that depends on its neighbours.</p>
+<h3>Step 2 – weighted sum of the sentence</h3>
+<p>Build the new vector as a weighted sum of all word vectors: <span class="f">e<sub>bank</sub><sup>new</sup> = 0.2·e<sub>money</sub> + 0.7·e<sub>bank</sub> + 0.1·e<sub>grows</sub></span> (p. 849). The weights say how much each word matters to “bank” and sum to 1. Get them from similarity: a <b>dot product</b> <span class="f">e<sub>bank</sub>·e<sub>j</sub></span> for each word j, then <b>softmax</b> to turn scores into probabilities (p. 852). In matrix form, all words at once: <span class="f">softmax(E Eᵀ)·E</span>.</p>
+<h3>Step 3 – add learnable parameters: Q, K, V</h3>
+<p>The plain version has nothing to learn. Give each word three roles, each through its own weight matrix (pp. 858–861):</p>
+<div class="sc"><table><tr><th>Vector</th><th>Computed as</th><th>Role (analogy)</th></tr>
+<tr><td><b>Query</b> q</td><td><span class="f">q = x·W<sup>Q</sup></span></td><td>what this word is looking for (the search)</td></tr>
+<tr><td><b>Key</b> k</td><td><span class="f">k = x·W<sup>K</sup></span></td><td>what this word offers to be matched against (the label)</td></tr>
+<tr><td><b>Value</b> v</td><td><span class="f">v = x·W<sup>V</sup></span></td><td>the content passed on if selected (the content)</td></tr></table></div>
+<p>Attention probability of word i on word j: <span class="f">α<sub>ij</sub> = softmax<sub>j</sub>(q<sub>i</sub>·k<sub>j</sub> / √d<sub>k</sub>)</span>; new embedding <span class="f">z<sub>i</sub> = Σ<sub>j</sub> α<sub>ij</sub>·v<sub>j</sub></span>. Query–key dot products decide <i>where to look</i>; the values decide <i>what is taken</i>.</p>
+<h3>Step 4 – scaling</h3>
+<p>For large d<sub>k</sub> dot products have large variance, which pushes the softmax into saturation (one weight ≈ 1, tiny gradients). Dividing by <span class="f">√d<sub>k</sub></span> keeps the scores in a stable range. (Your exams ask you to divide by 4.)</p>
+<div class="key"><b>Matrix form:</b> <span class="f">Attention(Q,K,V) = softmax( Q Kᵀ / √d<sub>k</sub> ) · V</span>. With input <span class="f">I = X + P</span> (word embeddings + positional encoding): <span class="f">Q=I·W<sup>Q</sup>, K=I·W<sup>K</sup>, V=I·W<sup>V</sup></span>, and the layer output is <span class="f">Z·W<sup>O</sup></span> where Z = Attention(Q,K,V).</div></section>
+
+<section id="num"><h2>3. Worked numeric answers</h2><p class="pg"><span class="y">S25 F24 S24</span></p>
+<p><b>Recipe:</b> (1) I = X + P → (2) Q, K, V → (3) scores QKᵀ, divide by 4 → (4) row-wise softmax → (5) Z = A·V → (6) output = Z·W<sup>O</sup>. Rows are words, so row i of every matrix belongs to word i.</p>
+<div class="ex"><b>S25 / F24</b> W<sup>Q</sup>=[[1,1],[2,2]], W<sup>K</sup>=[[2,1],[2,1]], W<sup>V</sup>=[[1,2],[1,2]], W<sup>O</sup>=[[1,3],[4,5]], X=[[5,2],[3,4]], P=[[3,3],[2,2]].
+<ol><li>I = X+P = <b>[[8,5],[5,6]]</b>.</li>
+<li>Q = I·W<sup>Q</sup> = [[8+10, 8+10],[5+12, 5+12]] = <b>[[18,18],[17,17]]</b>; K = I·W<sup>K</sup> = <b>[[26,13],[22,11]]</b>; V = I·W<sup>V</sup> = <b>[[13,26],[11,22]]</b>.</li>
+<li>QKᵀ = [[18·26+18·13, 18·22+18·11],[17·26+17·13, 17·22+17·11]] = [[702, 594],[663, 561]]; ÷4 = <b>[[175.5, 148.5],[165.75, 140.25]]</b>.</li>
+<li>Softmax per row: the gap is 27 (row 1) and 25.5 (row 2), so e<sup>−27</sup> ≈ 2×10⁻¹² → <b>A ≈ [[1, 0],[1, 0]]</b>.</li>
+<li>Z = A·V ≈ <b>[[13, 26],[13, 26]]</b> (both words attend almost entirely to word 1).</li>
+<li>Output = Z·W<sup>O</sup> = [[13·1+26·4, 13·3+26·5],…] = <b>[[117, 169],[117, 169]]</b>.</li></ol></div>
+<div class="ex"><b>S24</b> W<sup>Q</sup>=[[1,1],[1,1]] (others as above), X=[[3,2],[3,4]], P=[[1,1],[2,2]].
+<ol><li>I = <b>[[4,3],[5,6]]</b>. 2. Q = <b>[[7,7],[11,11]]</b>, K = <b>[[14,7],[22,11]]</b>, V = <b>[[7,14],[11,22]]</b>.</li>
+<li>QKᵀ = [[147, 231],[231, 363]]; ÷4 = <b>[[36.75, 57.75],[57.75, 90.75]]</b>.</li>
+<li>Gaps 21 and 33 favour word 2 → <b>A ≈ [[0, 1],[0, 1]]</b>. 5. Z = <b>[[11,22],[11,22]]</b>.</li>
+<li>Output = [[11+88, 33+110],…] = <b>[[99, 143],[99, 143]]</b>.</li></ol></div>
+<div class="trap">Softmax saturates here because the numbers are large; write A as [[1,0],…] only after showing the exponent gap. If a question uses small numbers, keep 3–4 decimals (e.g. e<sup>0.5</sup>/(e<sup>0.5</sup>+e<sup>0</sup>) = 0.6225). Do <b>not</b> forget to add P before projecting, and divide scores (not V) by the scale.</div></section>
+
+<section id="lab"><h2>4. Self-attention explorer</h2>
+<p>Preloaded with the S25/F24 and S24 questions. Change any matrix, the divisor (a number or <code>sqrt</code> for √d<sub>k</sub>) or switch on the causal mask (decoder style) and compare with your hand work.</p>
+<div id="pre"></div>
+<label>X (word embeddings, one row per word)</label><textarea id="iX" rows="2"></textarea>
+<label>P (positional encoding, same shape)</label><textarea id="iP" rows="2"></textarea>
+<label>W<sup>Q</sup></label><textarea id="iQ" rows="2"></textarea>
+<label>W<sup>K</sup></label><textarea id="iK" rows="2"></textarea>
+<label>W<sup>V</sup></label><textarea id="iV" rows="2"></textarea>
+<label>W<sup>O</sup> (leave empty to skip)</label><textarea id="iO" rows="2"></textarea>
+<label>Divide scores by (number or sqrt)</label><input class="i" id="iD">
+<label><input type="checkbox" id="iM"> Causal mask (word i cannot see later words)</label>
+<p><button class="b" id="go">Compute</button></p><div id="out"></div></section>
+
+<section id="mh"><h2>5. Multi-head attention</h2><p class="pg">PDF pp. 222–226, 867</p>
+<p>One attention pattern may capture only one kind of relation. Use <b>h heads</b> in parallel, each with its own <span class="f">W<sub>i</sub><sup>Q</sup>, W<sub>i</sub><sup>K</sup>, W<sub>i</sub><sup>V</sup></span> of size d<sub>model</sub>×d<sub>k</sub>, where <span class="f">d<sub>k</sub> = d<sub>model</sub>/h</span> (original: 512, h=8, d<sub>k</sub>=64). Then <span class="f">MultiHead = Concat(head₁…head<sub>h</sub>)·W<sup>O</sup></span> with W<sup>O</sup> of size d<sub>model</sub>×d<sub>model</sub> (slide p. 867: joining 8 heads, then a linear projection back to 512).</p>
+<ul><li>Heads can specialise (syntax, coreference such as “who → Strickland”, nearby words).</li><li>Cost stays similar to one big head because each head is smaller. Parameters in the attention sub-layer: 4·d<sub>model</sub>² (without biases).</li><li>Your exam asks for the <b>single-headed</b> layer, i.e. h=1, W<sup>O</sup> is just the final projection.</li></ul></section>
+
+<section id="enc"><h2>6. The encoder block</h2><p class="pg">PDF pp. 210–230, 236–241</p>
+<ol><li><b>Input embedding + positional encoding (p. 227):</b> attention has no notion of order, so a position vector is added to each word embedding. Fixed sinusoidal version (p. 239): <span class="f">PE(pos,2i)=sin(pos/10000<sup>2i/d<sub>model</sub></sup>)</span>, <span class="f">PE(pos,2i+1)=cos(pos/10000<sup>2i/d<sub>model</sub></sup>)</span>. Works for any length, and relative offsets are linear functions of the encodings. Example d<sub>model</sub>=4: PE(0)=[0, 1, 0, 1]; PE(1)=[sin 1, cos 1, sin 0.01, cos 0.01] = [0.841, 0.540, 0.010, 1.000]. Many models use learned position embeddings instead (p. 241).</li>
+<li><b>Multi-head self-attention</b> (§2, §5).</li>
+<li><b>Add &amp; Norm (p. 228):</b> <span class="f">LayerNorm(x + Sublayer(x))</span>. The <b>residual connection</b> improves gradient flow in deep stacks.</li>
+<li><b>Position-wise feed-forward network (p. 229):</b> <span class="f">FFN(x) = max(0, xW₁+b₁)W₂+b₂</span> applied to every position; adds parameters and non-linearity (attention itself is only a weighted average).</li>
+<li><b>Stack N blocks (p. 230).</b> Original N=6; bigger is generally better with enough data.</li></ol></section>
+
+<section id="dec"><h2>7. The decoder, training and tricks</h2><p class="pg">PDF pp. 231–247</p>
+<ul><li><b>Input:</b> the target sentence shifted right (<i>&lt;START&gt; schools opened their</i>), p. 231.</li>
+<li><b>Masked self-attention (pp. 232–233):</b> when predicting word t, the decoder must not see words after t, so scores for future positions are set to −∞ before softmax (their weights become 0). The encoder needs no mask because it may read the whole source sentence.</li>
+<li><b>Cross-attention (p. 234):</b> queries come from the decoder, keys and values from the encoder’s final outputs. This links the target to the source (it replaces the RNN encoder–decoder link).</li>
+<li><b>Output (p. 235):</b> after N decoder blocks, linear layer + softmax over the vocabulary.</li>
+<li><b>Training tricks (pp. 242–245):</b> Adam with β₁=0.9, β₂=0.98, ε=10⁻⁹ and a learning-rate <b>warm-up</b> (rises linearly for 4000 steps, then decays like step<sup>−0.5</sup>): <span class="f">lrate = d<sub>model</sub><sup>−0.5</sup>·min(step<sup>−0.5</sup>, step·warmup<sup>−1.5</sup>)</span>; <b>label smoothing</b>: instead of the one-hot target (0,0,1,0,0) use (0.025, 0.025, 0.9, 0.025, 0.025), which penalises over-confidence.</li>
+<li><b>Descendants (p. 247):</b> GPT (2018) 117 M parameters, GPT-2 (2019) 1.5 B, GPT-3 (2020) 175 B trained on ~300 B tokens; BERT/prompting follow (p. 248).</li></ul>
+<div class="sc"><table><tr><th>Mask for 3 words (1 = visible)</th><th>w₁</th><th>w₂</th><th>w₃</th></tr><tr><td>w₁</td><td>1</td><td>0</td><td>0</td></tr><tr><td>w₂</td><td>1</td><td>1</td><td>0</td></tr><tr><td>w₃</td><td>1</td><td>1</td><td>1</td></tr></table></div></section>
+
+<section id="cmp"><h2>8. Transformer vs RNN / feed-forward network</h2><p class="pg"><span class="y">F24 Q1b (8 marks)</span></p>
+<div class="sc"><table><tr><th></th><th>Feed-forward</th><th>RNN / LSTM</th><th>Transformer</th></tr>
+<tr><td>Sequence order/context</td><td>none (fixed-size input)</td><td>hidden state carries context</td><td>attention over all words + positional encoding</td></tr>
+<tr><td>Long-range dependency</td><td>cannot handle variable length</td><td>fades over many steps (vanishing gradient)</td><td>direct link between any two words (path length 1)</td></tr>
+<tr><td>Parallelism</td><td>yes</td><td>no, step by step</td><td>yes, whole sequence at once</td></tr>
+<tr><td>Contextual meaning</td><td>no</td><td>partly</td><td>yes (e.g. river bank vs money bank)</td></tr>
+<tr><td>Cost</td><td>low</td><td>O(n) steps</td><td>O(n²) attention, needs much data/compute</td></tr></table></div>
+<div class="key"><b>Model answer:</b> Transformers are more effective for NLP, vision and time-series because self-attention connects every position with every other in one step, so long-range dependencies are captured without vanishing gradients; computation is parallel, which allows huge models and datasets; multi-head attention learns several relations at once; and the resulting embeddings are contextual. Feed-forward nets ignore order, RNNs are slow and forget. Costs: quadratic memory in sequence length and large data needs.</div></section>
+
+<section id="exam"><h2>9. Exam kit</h2>
+<div class="key"><b>“Explain the working principle of self-attention; define Q, K, V” (6 marks)</b> <span class="y">S25</span><br>Each word is projected into a query, key and value. The query of word i is compared with the keys of all words (dot product, scaled by √d<sub>k</sub>), softmax turns the scores into attention probabilities, and the contextual embedding of word i is the probability-weighted sum of the value vectors. Query = what I look for, key = what I offer for matching, value = information passed on. The weights W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup> are learned.</div>
+<div class="key"><b>“Describe the role of self-attention” (3 marks)</b> <span class="y">S24</span><br>It lets every token gather information from all other tokens, producing context-dependent representations, capturing long-range dependencies and enabling parallel computation.</div>
+<h3>Traps</h3>
+<ul><li>Add positional encoding <b>before</b> the Q/K/V projections.</li><li>Row-wise softmax (each word’s weights sum to 1), not column-wise.</li><li>Matrix order: <span class="f">I·W</span> (rows are words); transposing K gives QKᵀ.</li><li>Scale the scores by the stated divisor; do not scale V.</li><li>Show intermediate matrices (I, Q, K, V, scores, A, Z, output) for method marks.</li><li>Masked attention is for the decoder; the encoder is unmasked.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>Why scale by √d<sub>k</sub>? Why multiple heads? Why positional encoding?</li><li>Encoder vs decoder; masked vs cross attention.</li><li>Seq2seq with RNN vs Transformer.</li><li>Role of residual connections, layer norm, feed-forward layer.</li></ul>
+<div class="ref"><b>📚 Read in</b>Vaswani et al. (2017) “Attention Is All You Need”; Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “Transformers” (and “Vector Semantics and Embeddings” for the static-embedding background); Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (§ Encoder-Decoder Sequence-to-Sequence Architectures), Ch. 12 “Applications” (§ Natural Language Processing, attention); Bahdanau et al. (2014) “Neural Machine Translation by Jointly Learning to Align and Translate”. Slides: Emma Strubell (PDF pp. 203–248) and the contextual-embedding walkthrough (PDF pp. 844–867).</div></section>
+</main>
+<script>
+var P=[["S25 / F24","5 2\n3 4","3 3\n2 2","1 1\n2 2","2 1\n2 1","1 2\n1 2","1 3\n4 5","4"],["S24","3 2\n3 4","1 1\n2 2","1 1\n1 1","2 1\n2 1","1 2\n1 2","1 3\n4 5","4"]];
+function $(i){return document.getElementById(i)}
+function M(s){var t=s.trim();return t?t.split("\n").map(function(r){return r.trim().split(/[\s,]+/).map(Number)}):null}
+function mul(A,B){return A.map(function(r){return B[0].map(function(_,j){var s=0;for(var k=0;k<B.length;k++)s+=r[k]*B[k][j];return s})})}
+function tr(A){return A[0].map(function(_,j){return A.map(function(r){return r[j]})})}
+function f(x){return String(Number(x.toPrecision(5)))}
+function tb(n,A){return'<p><b>'+n+'</b></p><div class="sc"><table>'+A.map(function(r){return'<tr>'+r.map(function(x){return'<td>'+f(x)+'</td>'}).join('')+'</tr>'}).join('')+'</table></div>'}
+function load(k){var p=P[k];["iX","iP","iQ","iK","iV","iO","iD"].forEach(function(id,i){$(id).value=p[i+1]});run()}
+function run(){
+ var out=$("out"),X=M($("iX").value),Pp=M($("iP").value),WQ=M($("iQ").value),WK=M($("iK").value),WV=M($("iV").value),WO=M($("iO").value),ds=$("iD").value.trim(),h="";
+ try{
+  if(!X||!WQ||!WK||!WV)throw "X, W^Q, W^K and W^V are required.";
+  var I=Pp?X.map(function(r,i){return r.map(function(v,j){return v+Pp[i][j]})}):X;
+  var Q=mul(I,WQ),K=mul(I,WK),V=mul(I,WV),dk=Q[0].length,dv=ds==="sqrt"?Math.sqrt(dk):Number(ds||1);
+  if(!(dv>0))throw "Divisor must be a positive number or sqrt.";
+  var S=mul(Q,tr(K)),Sc=S.map(function(r){return r.map(function(x){return x/dv})}),mask=$("iM").checked,n=Sc.length;
+  var Sm=Sc.map(function(r,i){return r.map(function(x,j){return(mask&&j>i)?-Infinity:x})});
+  var A=Sm.map(function(r){var m=Math.max.apply(null,r),e=r.map(function(x){return Math.exp(x-m)}),s=e.reduce(function(a,b){return a+b},0);return e.map(function(x){return x/s})});
+  var Z=mul(A,V);
+  h+=tb("I = X + P",I)+tb("Q = I·W^Q",Q)+tb("K = I·W^K",K)+tb("V = I·W^V",V)+tb("Scores Q·Kᵀ",S)+tb("Scaled (÷ "+f(dv)+(mask?", masked above diagonal":"")+")",Sc)+tb("Attention A = row-wise softmax",A)+tb("Z = A·V",Z);
+  if(WO)h+='<div class="ex">'+tb("Output = Z·W^O",mul(Z,WO))+'</div>';
+  out.innerHTML=h;
+ }catch(e){out.innerHTML='<div class="trap">Check the matrices: '+(e.message||e)+' (sizes must be compatible)</div>'}
+}
+$("pre").innerHTML=P.map(function(p,k){return'<button class="b" onclick="load('+k+')">'+p[0]+'</button>'}).join('');
+$("go").onclick=run;load(0);
+</script></body></html>
