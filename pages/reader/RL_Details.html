@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reinforcement Learning — Exam Study Guide & Interactive Whiteboard</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            hand: ['Kalam', 'Caveat', 'cursive'],
+          },
+          colors: {
+            board: {
+              surface: '#fbfcfa',
+              border: '#cbd5e1',
+              inkBlue: '#1e3a8a',
+              inkRed: '#b91c1c',
+              inkGreen: '#15803d',
+              inkPurple: '#6d28d9',
+              inkDark: '#1e293b'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Inter, JetBrains Mono, and Kalam (for realistic whiteboard marker feel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- KaTeX for crisp LaTeX Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* Custom Whiteboard & Academic Styling */
+    .whiteboard-frame {
+      background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 12px solid #94a3b8;
+      border-radius: 18px;
+      box-shadow: 
+        inset 0 2px 10px rgba(0, 0, 0, 0.06),
+        0 20px 35px -10px rgba(15, 23, 42, 0.25);
+      position: relative;
+    }
+    .dark .whiteboard-frame {
+      box-shadow: 
+        inset 0 2px 10px rgba(0, 0, 0, 0.08),
+        0 20px 35px -10px rgba(0, 0, 0, 0.65);
+    }
+    .whiteboard-grid {
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    .marker-tray {
+      height: 18px;
+      background: linear-gradient(to bottom, #64748b, #475569);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      margin: -4px auto 0 auto;
+      width: 65%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    .marker-pen {
+      width: 56px;
+      height: 8px;
+      border-radius: 4px;
+      background: #ffffff;
+      position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .marker-pen::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 16px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    .marker-blue::before { background: #1d4ed8; }
+    .marker-red::before { background: #dc2626; }
+    .marker-green::before { background: #15803d; }
+    .marker-black::before { background: #0f172a; }
+
+    /* Highlight animations for Q-table updates */
+    @keyframes pulseHighlight {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .cell-active-update {
+      animation: pulseHighlight 0.6s ease-in-out;
+    }
+
+    /* Print optimizations */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .whiteboard-frame { box-shadow: none !important; border-width: 4px !important; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+          RL
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+            Reinforcement Learning Study Guide
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+            Pattern Recognition &amp; Machine Learning • MDPs, Bellman Equations &amp; Q-Learning
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Section Jump Links -->
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+        <a href="#theory-core" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">1. Core &amp; MDPs</a>
+        <a href="#bellman-section" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">2. Bellman &amp; TD</a>
+        <a href="#whiteboard-section" class="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/70 dark:text-indigo-300 font-semibold transition">3. Visual Whiteboard</a>
+        <a href="#interactive-sandbox" class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 font-semibold transition">4. Live Sandbox</a>
+        <a href="#cheatsheet-section" class="px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition">5. Exam Cheat Sheet</a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Dark/Light Mode">
+          <svg id="sunIcon" class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg id="moonIcon" class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+        <button onclick="window.print()" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          Print / Save PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-14">
+
+    <!-- Hero Banner -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-900 text-white p-6 sm:p-10 shadow-xl">
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-semibold uppercase tracking-wider">
+            Pattern Recognition &amp; Machine Learning Module
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Reinforcement Learning: From MDPs to Q-Learning
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Master sequential decision-making, the Markov property, Bellman optimality equations, and Temporal Difference (TD) control. Includes a complete exam whiteboard walkthrough showing how delayed rewards propagate backward across states.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2 no-print">
+            <a href="#whiteboard-section" class="px-4 py-2.5 rounded-xl bg-white text-slate-900 font-semibold text-sm shadow hover:bg-indigo-50 transition">
+              Jump to Solved Whiteboard Problem
+            </a>
+            <a href="#interactive-sandbox" class="px-4 py-2.5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 border border-indigo-400/40 text-white font-semibold text-sm transition">
+              Launch Interactive Q-Table Stepper
+            </a>
+          </div>
+        </div>
+
+        <!-- SVG Agent-Environment Loop Diagram -->
+        <div class="lg:col-span-5 bg-slate-800/70 backdrop-blur-sm border border-slate-700/80 rounded-2xl p-4 sm:p-5">
+          <p class="text-xs font-semibold uppercase tracking-wider text-indigo-300 text-center mb-2">
+            The Agent–Environment Interaction Loop
+          </p>
+          <svg viewBox="0 0 420 210" class="w-full h-auto">
+            <defs>
+              <marker id="arrowIndigo" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#818cf8" />
+              </marker>
+              <marker id="arrowEmerald" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+              </marker>
+              <marker id="arrowAmber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24" />
+              </marker>
+            </defs>
+
+            <!-- Agent Box -->
+            <rect x="135" y="12" width="150" height="54" rx="12" fill="#312e81" stroke="#818cf8" stroke-width="2"/>
+            <text x="210" y="36" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">AGENT</text>
+            <text x="210" y="53" text-anchor="middle" fill="#c7d2fe" font-size="10">Policy π(a | s) • Q(s, a)</text>
+
+            <!-- Environment Box -->
+            <rect x="135" y="142" width="150" height="54" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+            <text x="210" y="166" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold">ENVIRONMENT</text>
+            <text x="210" y="183" text-anchor="middle" fill="#a7f3d0" font-size="10">Dynamics P(s' | s, a)</text>
+
+            <!-- Right Loop: Action a_t -->
+            <path d="M 285 39 L 365 39 Q 385 39 385 59 L 385 149 Q 385 169 365 169 L 293 169" fill="none" stroke="#818cf8" stroke-width="2.5" marker-end="url(#arrowIndigo)"/>
+            <rect x="318" y="88" width="92" height="32" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+            <text x="364" y="102" text-anchor="middle" fill="#e0e7ff" font-size="11" font-weight="bold">Action a_t</text>
+            <text x="364" y="114" text-anchor="middle" fill="#a5b4fc" font-size="9">Control decision</text>
+
+            <!-- Left Outer Loop: State s_t -->
+            <path d="M 135 176 L 45 176 Q 25 176 25 156 L 25 52 Q 25 32 45 32 L 127 32" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrowEmerald)"/>
+            <rect x="8" y="65" width="95" height="30" rx="6" fill="#022c22" stroke="#10b981" stroke-width="1"/>
+            <text x="55" y="84" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="bold">Next State s_{t+1}</text>
+
+            <!-- Left Inner Loop: Reward r_{t+1} -->
+            <path d="M 135 156 L 85 156 Q 70 156 70 141 L 70 67 Q 70 52 85 52 L 127 52" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrowAmber)"/>
+            <rect x="28" y="106" width="92" height="28" rx="6" fill="#451a03" stroke="#f59e0b" stroke-width="1"/>
+            <text x="74" y="124" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="bold">Reward r_{t+1}</text>
+
+            <!-- Time step divider -->
+            <line x1="5" y1="100" x2="22" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 1: CORE FRAMEWORK & MARKOV DECISION PROCESSES (MDPs)          -->
+    <!-- ===================================================================== -->
+    <section id="theory-core" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Section 01 • Theoretical Foundations</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            Core RL Paradigm &amp; Markov Decision Processes (MDPs)
+          </h2>
+        </div>
+        <span class="text-xs font-mono text-slate-500 dark:text-slate-400">Sutton &amp; Barto Ch. 1 &amp; Ch. 3</span>
+      </div>
+
+      <!-- How RL differs from Supervised & Unsupervised Learning -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">Supervised Learning</span>
+            <span class="text-xs font-mono text-slate-400">(x_i, y_i)</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Learns from an external teacher providing <strong>instant ground-truth labels</strong> $y_i$ for every input $x_i$ (e.g., Bayesian Classification, SVM, Linear Regression).
+          </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300">Unsupervised Learning</span>
+            <span class="text-xs font-mono text-slate-400">{x_i}</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Finds hidden statistical structure or low-dimensional subspaces in <strong>unlabeled data</strong> with no reward signal (e.g., PCA, K-Means Clustering).
+          </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border-2 border-indigo-500/40 dark:border-indigo-500/50 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">Reinforcement Learning</span>
+            <span class="text-xs font-mono text-indigo-500">(s_t, a_t, r_{t+1}, s_{t+1})</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            Learns via <strong>trial-and-error interaction</strong>. Feedback is <em>evaluative</em> (scalar rewards $r_{t+1}$) rather than instructive, and rewards are often <strong>delayed</strong> across many steps.
+          </p>
+        </div>
+      </div>
+
+      <!-- The MDP 5-Tuple & Markov Property -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 cols: The 5-Tuple -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+            The Markov Decision Process (MDP) 5-Tuple: $\langle \mathcal{S}, \mathcal{A}, P, R, \gamma \rangle$
+          </h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            An MDP formally defines the environment for sequential decision-making under uncertainty:
+          </p>
+
+          <div class="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="w-28 shrink-0 font-bold text-indigo-600 dark:text-indigo-400">1. $\mathcal{S}$ (States)</span>
+              <span class="text-slate-700 dark:text-slate-300">The set of all valid states the environment can occupy ($s_t \in \mathcal{S}$).</span>
+            </div>
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="w-28 shrink-0 font-bold text-indigo-600 dark:text-indigo-400">2. $\mathcal{A}$ (Actions)</span>
+              <span class="text-slate-700 dark:text-slate-300">The set of all possible actions executable by the agent ($a_t \in \mathcal{A}(s_t)$).</span>
+            </div>
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="w-28 shrink-0 font-bold text-indigo-600 dark:text-indigo-400">3. $P$ (Dynamics)</span>
+              <span class="text-slate-700 dark:text-slate-300">
+                <strong>State Transition Probability:</strong> $P(s' \mid s, a) = \Pr(S_{t+1} = s' \mid S_t = s, A_t = a)$, where $\sum_{s' \in \mathcal{S}} P(s' \mid s, a) = 1$.
+              </span>
+            </div>
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="w-28 shrink-0 font-bold text-indigo-600 dark:text-indigo-400">4. $R$ (Reward)</span>
+              <span class="text-slate-700 dark:text-slate-300">
+                <strong>Reward Function:</strong> $R(s, a, s') = \mathbb{E}[R_{t+1} \mid S_t = s, A_t = a, S_{t+1} = s']$ (scalar feedback signal).
+              </span>
+            </div>
+            <div class="py-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <span class="w-28 shrink-0 font-bold text-indigo-600 dark:text-indigo-400">5. $\gamma$ (Discount)</span>
+              <span class="text-slate-700 dark:text-slate-300">
+                <strong>Discount Factor:</strong> $\gamma \in [0, 1]$, determining the present value of future rewards.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 cols: Markov Property & Return -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- Markov Property Box -->
+          <div class="bg-indigo-50/70 dark:bg-indigo-950/30 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 p-5 space-y-3">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
+              The Markov Property (Memorylessness)
+            </h4>
+            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              A state $S_t$ has the <strong>Markov Property</strong> if the future state and reward depend <em>purely on the current state and action</em>, independent of all prior history:
+            </p>
+            <div class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-indigo-100 dark:border-indigo-900/50 overflow-x-auto text-xs sm:text-sm">
+              $$P(S_{t+1} = s' \mid S_t, A_t, S_{t-1}, \dots, S_0) = P(S_{t+1} = s' \mid S_t, A_t)$$
+            </div>
+            <p class="text-xs italic text-indigo-700 dark:text-indigo-300">
+              "The present state captures all relevant information from history."
+            </p>
+          </div>
+
+          <!-- Return & Discounting Box -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
+            <h4 class="text-base font-bold text-slate-900 dark:text-white">
+              Cumulative Discounted Return ($G_t$)
+            </h4>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              The agent seeks to maximize expected return $G_t$ from step $t$:
+            </p>
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl overflow-x-auto text-xs sm:text-sm">
+              $$G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}$$
+              $$\text{Recursive form: } G_t = R_{t+1} + \gamma G_{t+1}$$
+            </div>
+            <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
+              <li>• <strong>Why $\gamma \in [0, 1)$?</strong> Guarantees convergence of the infinite sum to a finite value ($\le \frac{R_{\max}}{1-\gamma}$) in continuing/cyclic tasks and models future uncertainty.</li>
+              <li>• <strong>$\gamma = 0$ (Myopic):</strong> Agent only maximizes immediate reward $R_{t+1}$.</li>
+              <li>• <strong>$\gamma \to 1$ (Far-sighted):</strong> Agent weighs distant future rewards heavily.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 2: VALUE FUNCTIONS, BELLMAN EQUATIONS & TD LEARNING           -->
+    <!-- ===================================================================== -->
+    <section id="bellman-section" class="space-y-8 scroll-mt-20">
+      <div class="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Section 02 • Value Functions &amp; Control</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            Bellman Equations, Q-Learning &amp; SARSA
+          </h2>
+        </div>
+        <span class="text-xs font-mono text-slate-500 dark:text-slate-400">Sutton &amp; Barto Ch. 3, Ch. 4 &amp; Ch. 6</span>
+      </div>
+
+      <!-- Value Functions & Bellman Equations Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- State-Value & Action-Value Expectation -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              1. Bellman Expectation Equations (For Policy $\pi$)
+            </h3>
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Policy Evaluation</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            A <strong>policy $\pi(a \mid s)$</strong> defines the probability of selecting action $a$ in state $s$.
+          </p>
+
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70">
+              <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
+                State-Value Function $V^\pi(s)$
+              </p>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mb-2">
+                Expected return starting from state $s$ and following policy $\pi$ thereafter:
+              </p>
+              <div class="overflow-x-auto text-sm">
+                $$V^\pi(s) = \mathbb{E}_\pi[G_t \mid S_t = s] = \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma V^\pi(s') \right]$$
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70">
+              <p class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
+                Action-Value Function (Q-Function) $Q^\pi(s, a)$
+              </p>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mb-2">
+                Expected return starting from state $s$, taking action $a$, and following policy $\pi$ thereafter:
+              </p>
+              <div class="overflow-x-auto text-sm">
+                $$Q^\pi(s, a) = \mathbb{E}_\pi[G_t \mid S_t = s, A_t = a] = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma \sum_{a' \in \mathcal{A}} \pi(a' \mid s') Q^\pi(s', a') \right]$$
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bellman Optimality Equations -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              2. Bellman Optimality Equations (Optimal Policy $\pi^*$)
+            </h3>
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Optimal Control</span>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            The optimal policy $\pi^*$ achieves the maximum possible expected return from every state:
+          </p>
+
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/60">
+              <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
+                Optimal State-Value $V^*(s) = \max_\pi V^\pi(s)$
+              </p>
+              <div class="overflow-x-auto text-sm">
+                $$V^*(s) = \max_{a \in \mathcal{A}} Q^*(s, a) = \max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma V^*(s') \right]$$
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/60">
+              <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
+                Optimal Action-Value $Q^*(s, a) = \max_\pi Q^\pi(s, a)$
+              </p>
+              <div class="overflow-x-auto text-sm">
+                $$Q^*(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma \max_{a' \in \mathcal{A}} Q^*(s', a') \right]$$
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 text-white text-xs sm:text-sm flex items-center justify-between">
+              <span><strong>Optimal Policy Extraction:</strong> Pick action with highest $Q^*(s,a)$:</span>
+              <span class="font-mono text-emerald-300">$$\pi^*(s) = \arg\max_{a \in \mathcal{A}} Q^*(s, a)$$</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model-Based vs Model-Free & Q-Learning vs SARSA -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Model-Based vs Model-Free -->
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+            Model-Based vs. Model-Free RL
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-l-4 border-blue-500">
+              <p class="font-bold text-slate-900 dark:text-white">Model-Based (Dynamic Programming)</p>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                <strong>Assumes $P(s'\mid s,a)$ and $R(s,a,s')$ are fully known.</strong> Computes values iteratively over all states without sampling:
+              </p>
+              <p class="text-xs font-mono text-blue-700 dark:text-blue-300 mt-2">
+                Value Iteration: $V_{k+1}(s) \leftarrow \max_a \sum_{s'} P(s'\mid s,a)[R + \gamma V_k(s')]$
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border-l-4 border-indigo-600">
+              <p class="font-bold text-slate-900 dark:text-white">Model-Free (Temporal Difference / TD Learning)</p>
+              <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                <strong>Environment dynamics $P$ and $R$ are unknown.</strong> The agent learns directly from sampled transitions $(s_t, a_t, r_{t+1}, s_{t+1})$ by <em>bootstrapping</em> (updating an estimate using another estimate).
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70">
+              <p class="font-bold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">
+                Exploration vs. Exploitation ($\epsilon$-Greedy Policy)
+              </p>
+              <p class="text-xs text-slate-700 dark:text-slate-300 mt-1">
+                With probability $\epsilon \in [0, 1]$, choose a <strong>random action</strong> (explore); with probability $1 - \epsilon$, choose the <strong>greedy action</strong> $\arg\max_a Q(s_t, a)$ (exploit).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q-Learning vs SARSA Comparison -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Q-Learning (Off-Policy) vs. SARSA (On-Policy)
+            </h3>
+            <span class="text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300 font-semibold">High-Yield Exam Topic</span>
+          </div>
+
+          <!-- Q-Learning Master Box -->
+          <div class="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border-2 border-indigo-500/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Q-Learning (Off-Policy TD Control — Watkins, 1989)</span>
+              <span class="text-xs font-mono bg-indigo-200/70 dark:bg-indigo-900 px-2 py-0.5 rounded text-indigo-900 dark:text-indigo-200">Uses max_a' Q(s', a')</span>
+            </div>
+            <div class="overflow-x-auto text-sm bg-white dark:bg-slate-900 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800">
+              $$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \Big[ \underbrace{r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a')}_{\text{TD Target}} - \underbrace{Q(s_t, a_t)}_{\text{Old Estimate}} \Big]$$
+            </div>
+            <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              • <strong>TD Error ($\delta_t$):</strong> $\delta_t = r_{t+1} + \gamma \max_{a'} Q(s_{t+1}, a') - Q(s_t, a_t)$.<br/>
+              • <strong>Why Off-Policy?</strong> Even if the agent explores randomly using an $\epsilon$-greedy behavior policy, the update rule evaluates the <em>greedy maximum</em> $\max_{a'} Q(s_{t+1}, a')$ at the next state, directly approximating $Q^*(s,a)$.
+            </p>
+          </div>
+
+          <!-- SARSA Box -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">SARSA (On-Policy TD Control — State-Action-Reward-State-Action)</span>
+              <span class="text-xs font-mono bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200">Uses actual Q(s', a')</span>
+            </div>
+            <div class="overflow-x-auto text-sm bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              $$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \Big[ r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t) \Big]$$
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              • <strong>Why On-Policy?</strong> Updates $Q(s_t, a_t)$ using the <em>actual action $a_{t+1}$</em> chosen by the current policy in state $s_{t+1}$ rather than the $\max$ operator.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 3: VISUAL WHITEBOARD — SOLVED 3-STEP Q-LEARNING PROBLEM       -->
+    <!-- ===================================================================== -->
+    <section id="whiteboard-section" class="space-y-6 scroll-mt-20">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Section 03 • Classroom Lecture Board</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            Visual Whiteboard: Solved 3-Step Q-Value Calculation
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Step-by-step arithmetic showing how the $+10$ terminal goal reward propagates backward from $S_4 \to S_3 \to S_2$.
+          </p>
+        </div>
+
+        <!-- Font Style Toggle for Whiteboard -->
+        <div class="flex items-center gap-2 no-print self-start sm:self-end">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Board Typography:</span>
+          <button id="fontToggleBtn" onclick="toggleBoardFont()" class="px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 shadow-sm hover:bg-slate-100 transition">
+            Switch to Handwritten Marker Font
+          </button>
+        </div>
+      </div>
+
+      <!-- Realistic Classroom Whiteboard Container -->
+      <div class="whiteboard-frame whiteboard-grid p-5 sm:p-8 text-slate-900">
+        <div id="whiteboardContent" class="space-y-6">
+
+          <!-- Whiteboard Header -->
+          <div class="border-b-2 border-slate-400 pb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-xl sm:text-2xl font-extrabold text-board-inkDark underline decoration-board-inkBlue decoration-2 underline-offset-4">
+                Exam Problem: 3-Step Tabular Q-Learning &amp; Backward Value Propagation
+              </h3>
+              <p class="text-sm sm:text-base font-medium text-slate-700 mt-1">
+                <strong>Given:</strong> 1D Linear Grid-World $\mathcal{S} = \{S_1, S_2, S_3, S_4\text{ (Goal)}\}$, Actions $\mathcal{A} = \{\text{Left } (L), \text{Right } (R)\}$, Initial $Q_0(s,a) = 0$.
+              </p>
+              <p class="text-sm sm:text-base font-semibold text-board-inkBlue">
+                Hyperparameters: Learning Rate $\alpha = 0.5$, Discount Factor $\gamma = 0.9$, Step Reward $r_{\text{step}} = -1$, Goal Entry Reward $r_{\text{goal}} = +10$.
+              </p>
+            </div>
+
+            <!-- Master Formula Box on Board -->
+            <div class="bg-amber-50/95 border-2 border-red-600 rounded-xl px-4 py-2.5 shadow-sm shrink-0">
+              <p class="text-xs font-bold uppercase tracking-wider text-red-700">Master Q-Learning Update Rule:</p>
+              <div class="text-sm sm:text-base font-bold text-slate-900 mt-0.5">
+                $$Q(s,a) \leftarrow Q(s,a) + \alpha \big[ r + \gamma \max_{a'} Q(s',a') - Q(s,a) \big]$$
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Row: SVG Grid-World Diagram + Initial Q-Table -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-white/80 rounded-2xl p-4 border border-slate-300">
+            <!-- SVG Linear Grid-World Diagram -->
+            <div class="lg:col-span-8">
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                1. State-Space Diagram &amp; Reward Structure (1D Corridor)
+              </p>
+              <svg viewBox="0 0 680 155" class="w-full h-auto">
+                <defs>
+                  <marker id="wbArrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#1d4ed8" />
+                  </marker>
+                  <marker id="wbArrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#15803d" />
+                  </marker>
+                  <marker id="wbArrowRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#b91c1c" />
+                  </marker>
+                </defs>
+
+                <!-- S1 Box -->
+                <rect x="20" y="38" width="120" height="76" rx="12" fill="#eff6ff" stroke="#1e40af" stroke-width="2.5"/>
+                <text x="80" y="68" text-anchor="middle" fill="#1e3a8a" font-size="18" font-weight="bold">S₁ (Start)</text>
+                <text x="80" y="90" text-anchor="middle" fill="#475569" font-size="11">Q₀ = [0, 0]</text>
+
+                <!-- S2 Box -->
+                <rect x="195" y="38" width="120" height="76" rx="12" fill="#f8fafc" stroke="#334155" stroke-width="2.5"/>
+                <text x="255" y="68" text-anchor="middle" fill="#0f172a" font-size="18" font-weight="bold">S₂</text>
+                <text x="255" y="90" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">Step 1 &amp; 3 Start</text>
+
+                <!-- S3 Box -->
+                <rect x="370" y="38" width="120" height="76" rx="12" fill="#f8fafc" stroke="#334155" stroke-width="2.5"/>
+                <text x="430" y="68" text-anchor="middle" fill="#0f172a" font-size="18" font-weight="bold">S₃</text>
+                <text x="430" y="90" text-anchor="middle" fill="#15803d" font-size="11" font-weight="bold">Step 2 Start</text>
+
+                <!-- S4 Terminal Goal Box -->
+                <rect x="545" y="34" width="120" height="84" rx="12" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+                <text x="605" y="64" text-anchor="middle" fill="#14532d" font-size="18" font-weight="bold">S₄ (GOAL)</text>
+                <text x="605" y="84" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">Terminal (+10)</text>
+                <text x="605" y="102" text-anchor="middle" fill="#166534" font-size="10">max Q(S₄, a') = 0</text>
+
+                <!-- Transition Arrows -->
+                <!-- S1 -> S2 -->
+                <path d="M 142 66 L 190 66" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="4 2" marker-end="url(#wbArrowBlue)"/>
+                <text x="166" y="57" text-anchor="middle" fill="#475569" font-size="11" font-weight="bold">R (r = -1)</text>
+
+                <!-- S2 -> S3 (Step 1 & Step 3) -->
+                <path d="M 317 62 L 365 62" fill="none" stroke="#1d4ed8" stroke-width="3" marker-end="url(#wbArrowBlue)"/>
+                <text x="341" y="50" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="bold">Step 1: R (r = -1)</text>
+                <path d="M 317 90 L 365 90" fill="none" stroke="#b91c1c" stroke-width="2.5" marker-end="url(#wbArrowRed)"/>
+                <text x="341" y="108" text-anchor="middle" fill="#b91c1c" font-size="11" font-weight="bold">Step 3: Revisit R</text>
+
+                <!-- S3 -> S4 (Step 2) -->
+                <path d="M 492 74 L 540 74" fill="none" stroke="#15803d" stroke-width="3" marker-end="url(#wbArrowGreen)"/>
+                <text x="516" y="60" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">Step 2: R</text>
+                <text x="516" y="95" text-anchor="middle" fill="#15803d" font-size="12" font-weight="bold">(r = +10)</text>
+
+                <!-- Backward Value Propagation Curved Arrow -->
+                <path d="M 550 28 Q 430 2 305 28" fill="none" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#wbArrowRed)"/>
+                <text x="430" y="15" text-anchor="middle" fill="#b91c1c" font-size="11" font-weight="bold">Reward Back-Propagation: S₄ (+10) ➔ Q(S₃,R)=5.0 ➔ Q(S₂,R)=1.5</text>
+              </svg>
+            </div>
+
+            <!-- Initial vs Final Q-Table Summary on Board -->
+            <div class="lg:col-span-4 space-y-2">
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-600">
+                2. Q-Table Evolution ($Q_0 \to Q_3$)
+              </p>
+              <table class="w-full text-xs sm:text-sm border-collapse border border-slate-400 bg-white">
+                <thead>
+                  <tr class="bg-slate-200 text-slate-800">
+                    <th class="border border-slate-400 px-2 py-1.5 text-left">State</th>
+                    <th class="border border-slate-400 px-2 py-1.5 text-center">Left ($L$)</th>
+                    <th class="border border-slate-400 px-2 py-1.5 text-center">Right ($R$) Initial</th>
+                    <th class="border border-slate-400 px-2 py-1.5 text-center text-red-700 font-bold">Right ($R$) Final</th>
+                  </tr>
+                </thead>
+                <tbody class="font-mono">
+                  <tr>
+                    <td class="border border-slate-400 px-2 py-1 font-bold">$S_1$</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center text-slate-400">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center font-bold text-slate-700">-0.50*</td>
+                  </tr>
+                  <tr class="bg-red-50/70">
+                    <td class="border border-slate-400 px-2 py-1 font-bold">$S_2$</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center text-blue-700">0.00 → -0.50</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center font-extrabold text-red-700">+1.50</td>
+                  </tr>
+                  <tr class="bg-emerald-50/70">
+                    <td class="border border-slate-400 px-2 py-1 font-bold">$S_3$</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center text-slate-400">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center font-extrabold text-emerald-700">+5.00</td>
+                  </tr>
+                  <tr class="bg-slate-100">
+                    <td class="border border-slate-400 px-2 py-1 font-bold">$S_4$ (Goal)</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                    <td class="border border-slate-400 px-2 py-1 text-center">0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="text-[11px] text-slate-600 leading-tight">
+                *Note: In Episode 2, stepping $S_1 \xrightarrow{R} S_2$ first yields $Q(S_1,R) = -0.50$, and then stepping $S_2 \xrightarrow{R} S_3$ updates $Q(S_2,R)$ to $\mathbf{+1.50}$.
+              </p>
+            </div>
+          </div>
+
+          <!-- Three Columns for the 3-Step Calculation -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+
+            <!-- STEP 1 COLUMN (BLUE MARKER) -->
+            <div class="bg-white/90 rounded-2xl p-5 border-2 border-blue-700/40 shadow-sm space-y-3 relative">
+              <div class="flex items-center justify-between border-b border-blue-200 pb-2">
+                <span class="font-extrabold text-base sm:text-lg text-board-inkBlue">
+                  Step 1 (Episode 1, $t=0$)
+                </span>
+                <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-mono text-xs font-bold">
+                  S₂ —(Right)→ S₃
+                </span>
+              </div>
+
+              <div class="text-sm space-y-2 text-slate-800">
+                <p><strong>1. Observed Transition:</strong></p>
+                <ul class="list-disc list-inside text-xs sm:text-sm space-y-0.5 pl-1">
+                  <li>Current State-Action: $(s_t, a_t) = (S_2, \text{Right})$</li>
+                  <li>Next State: $s_{t+1} = S_3$, Immediate Reward: $r = -1$</li>
+                  <li>Current Estimate: $Q_{\text{old}}(S_2, R) = 0.0$</li>
+                </ul>
+
+                <p class="pt-1"><strong>2. Max Future Value at $S_3$:</strong></p>
+                <div class="bg-blue-50/70 p-2.5 rounded-lg border border-blue-200 text-xs sm:text-sm">
+                  $$\max_{a'} Q(S_3, a') = \max\big(Q(S_3, L), Q(S_3, R)\big)$$
+                  $$= \max(0.0, 0.0) = 0.0$$
+                </div>
+
+                <p class="pt-1"><strong>3. Compute TD Target &amp; TD Error:</strong></p>
+                <div class="bg-blue-50/70 p-2.5 rounded-lg border border-blue-200 text-xs sm:text-sm">
+                  $$\text{TD Target} = r + \gamma \max_{a'} Q(S_3, a')$$
+                  $$= -1 + (0.9)(0.0) = -1.0$$
+                  $$\delta_1 = \text{TD Target} - Q_{\text{old}}(S_2, R) = -1.0 - 0.0 = -1.0$$
+                </div>
+
+                <p class="pt-1"><strong>4. Plug into Update Rule:</strong></p>
+                <div class="bg-blue-100/80 p-3 rounded-xl border-2 border-blue-600 text-xs sm:text-sm font-bold text-board-inkBlue">
+                  $$Q_{\text{new}}(S_2, R) = 0.0 + 0.5 \big[ -1 + 0.9(0.0) - 0.0 \big]$$
+                  $$Q_{\text{new}}(S_2, R) = 0.0 + 0.5(-1.0) = \mathbf{-0.50}$$
+                </div>
+                <p class="text-xs italic text-slate-600">
+                  Insight: Because $S_3$ hasn't discovered the goal yet, $Q(S_2, R)$ drops to $-0.50$ due to the step penalty $r = -1$.
+                </p>
+              </div>
+            </div>
+
+            <!-- STEP 2 COLUMN (GREEN MARKER) -->
+            <div class="bg-white/90 rounded-2xl p-5 border-2 border-emerald-700/40 shadow-sm space-y-3 relative">
+              <div class="flex items-center justify-between border-b border-emerald-200 pb-2">
+                <span class="font-extrabold text-base sm:text-lg text-board-inkGreen">
+                  Step 2 (Episode 1, $t=1$)
+                </span>
+                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-mono text-xs font-bold">
+                  S₃ —(Right)→ S₄ (Goal)
+                </span>
+              </div>
+
+              <div class="text-sm space-y-2 text-slate-800">
+                <p><strong>1. Observed Transition:</strong></p>
+                <ul class="list-disc list-inside text-xs sm:text-sm space-y-0.5 pl-1">
+                  <li>Current State-Action: $(s_t, a_t) = (S_3, \text{Right})$</li>
+                  <li>Next State: $s_{t+1} = S_4 \text{ (Terminal)}$, Reward: $r = +10$</li>
+                  <li>Current Estimate: $Q_{\text{old}}(S_3, R) = 0.0$</li>
+                </ul>
+
+                <p class="pt-1"><strong>2. Max Future Value at Terminal $S_4$:</strong></p>
+                <div class="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200 text-xs sm:text-sm">
+                  $$\max_{a'} Q(S_4, a') = 0.0 \quad \text{(Terminal State Rule)}$$
+                </div>
+
+                <p class="pt-1"><strong>3. Compute TD Target &amp; TD Error:</strong></p>
+                <div class="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-200 text-xs sm:text-sm">
+                  $$\text{TD Target} = r + \gamma \max_{a'} Q(S_4, a')$$
+                  $$= +10 + (0.9)(0.0) = +10.0$$
+                  $$\delta_2 = 10.0 - 0.0 = +10.0$$
+                </div>
+
+                <p class="pt-1"><strong>4. Plug into Update Rule:</strong></p>
+                <div class="bg-emerald-100/80 p-3 rounded-xl border-2 border-emerald-600 text-xs sm:text-sm font-bold text-board-inkGreen">
+                  $$Q_{\text{new}}(S_3, R) = 0.0 + 0.5 \big[ 10 + 0.9(0.0) - 0.0 \big]$$
+                  $$Q_{\text{new}}(S_3, R) = 0.0 + 0.5(10.0) = \mathbf{+5.00}$$
+                </div>
+                <p class="text-xs italic text-slate-600">
+                  Insight: Episode 1 terminates at $S_4$! State $S_3$ now stores a positive value ($+5.00$) reflecting proximity to the goal.
+                </p>
+              </div>
+            </div>
+
+            <!-- STEP 3 COLUMN (RED MARKER - VALUE PROPAGATION) -->
+            <div class="bg-white/90 rounded-2xl p-5 border-2 border-red-700/40 shadow-sm space-y-3 relative">
+              <div class="flex items-center justify-between border-b border-red-200 pb-2">
+                <span class="font-extrabold text-base sm:text-lg text-board-inkRed">
+                  Step 3 (Episode 2 Propagation)
+                </span>
+                <span class="px-2 py-0.5 rounded bg-red-100 text-red-900 font-mono text-xs font-bold">
+                  S₁→S₂ &amp; Revisit S₂→S₃
+                </span>
+              </div>
+
+              <div class="text-sm space-y-2 text-slate-800">
+                <p class="text-xs sm:text-sm">
+                  <strong>Part 3A ($S_1 \xrightarrow{R} S_2, r=-1$):</strong> Since $\max_{a'} Q(S_2, a') = \max(0, -0.5) = 0$, $Q(S_1, R)$ updates to:
+                  $$Q(S_1, R) = 0 + 0.5[-1 + 0.9(0) - 0] = \mathbf{-0.50}$$
+                </p>
+
+                <p class="pt-1"><strong>Part 3B (Revisiting $S_2 \xrightarrow{R} S_3, r=-1$):</strong></p>
+                <ul class="list-disc list-inside text-xs sm:text-sm space-y-0.5 pl-1">
+                  <li>Previous Stored Value: $Q_{\text{old}}(S_2, R) = -0.50$</li>
+                  <li><strong>Lookahead at $S_3$ Now Sees $+5.00$:</strong></li>
+                </ul>
+                <div class="bg-red-50/70 p-2 rounded-lg border border-red-200 text-xs sm:text-sm">
+                  $$\max_{a'} Q(S_3, a') = \max(0.0, \mathbf{5.00}) = \mathbf{5.00}$$
+                </div>
+
+                <p class="pt-0.5"><strong>Compute New TD Target &amp; TD Error:</strong></p>
+                <div class="bg-red-50/70 p-2 rounded-lg border border-red-200 text-xs sm:text-sm">
+                  $$\text{TD Target} = -1 + (0.9)(5.00) = -1 + 4.50 = \mathbf{+3.50}$$
+                  $$\delta_3 = 3.50 - (-0.50) = \mathbf{+4.00}$$
+                </div>
+
+                <p class="pt-0.5"><strong>Plug into Update Rule:</strong></p>
+                <div class="bg-red-100/80 p-2.5 rounded-xl border-2 border-red-600 text-xs sm:text-sm font-bold text-board-inkRed">
+                  $$Q_{\text{new}}(S_2, R) = -0.50 + 0.5 \big[ -1 + 0.9(5.0) - (-0.50) \big]$$
+                  $$Q_{\text{new}}(S_2, R) = -0.50 + 0.5(4.00) = \mathbf{+1.50}$$
+                </div>
+                <p class="text-xs font-semibold text-red-800">
+                  Key Takeaway: The $+10$ reward at $S_4$ has now propagated backward two steps into $Q(S_2, R) = +1.50$!
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- Realistic Marker Tray under Whiteboard -->
+      <div class="marker-tray no-print">
+        <div class="marker-pen marker-blue" title="Blue Dry-Erase Marker"></div>
+        <div class="marker-pen marker-green" title="Green Dry-Erase Marker"></div>
+        <div class="marker-pen marker-red" title="Red Dry-Erase Marker"></div>
+        <div class="marker-pen marker-black" title="Black Dry-Erase Marker"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 4: INTERACTIVE Q-TABLE STEPPER & LIVE SANDBOX                 -->
+    <!-- ===================================================================== -->
+    <section id="interactive-sandbox" class="space-y-6 scroll-mt-20 no-print">
+      <div class="border-b border-slate-200 dark:border-slate-800 pb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Section 04 • Interactive Calculator &amp; Stepper</span>
+          <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            Interactive Q-Table Stepper &amp; Parameter Sandbox
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Step through the trajectory or adjust $\alpha$ and $\gamma$ sliders to see how every Q-value, TD Target, and TD Error changes in real time.
+          </p>
+        </div>
+
+        <!-- Scenario Preset Switcher -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Scenario Preset:</span>
+          <button id="presetBtn1" onclick="selectScenario('corridor')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition">
+            Preset 1: 1D Corridor Propagation (Initial Q=0)
+          </button>
+          <button id="presetBtn2" onclick="selectScenario('grid2x2')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 transition">
+            Preset 2: 2×2 Grid-World (Pre-initialized Q)
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Sandbox Card -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-lg space-y-8">
+
+        <!-- Top Controls: Stepper Buttons + Hyperparameter Sliders -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center bg-slate-50 dark:bg-slate-800/50 p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80">
+
+          <!-- Step Navigation Buttons -->
+          <div class="lg:col-span-7 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Select Calculation Step
+              </span>
+              <span id="stepStatusBadge" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
+                Step 1 of 4
+              </span>
+            </div>
+
+            <div id="stepButtonsContainer" class="flex flex-wrap gap-2">
+              <!-- Populated dynamically by JS -->
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <button onclick="prevStep()" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                ← Previous Step
+              </button>
+              <button onclick="nextStep()" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition">
+                Next Step →
+              </button>
+              <button onclick="resetSliders()" class="ml-auto px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition">
+                Reset Default α, γ
+              </button>
+            </div>
+          </div>
+
+          <!-- Hyperparameter Sliders (Alpha & Gamma) -->
+          <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 pt-4 lg:pt-0 lg:pl-6">
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-semibold">
+                <label for="alphaSlider" class="text-slate-700 dark:text-slate-200">Learning Rate ($\alpha$):</label>
+                <span id="alphaValDisplay" class="font-mono font-bold text-indigo-600 dark:text-indigo-400">0.50</span>
+              </div>
+              <input id="alphaSlider" type="range" min="0.1" max="1.0" step="0.05" value="0.5" oninput="onSliderChange()" class="w-full accent-indigo-600 cursor-pointer" />
+              <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                <span>0.1 (Slow)</span>
+                <span>0.5</span>
+                <span>1.0 (Replace)</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-semibold">
+                <label for="gammaSlider" class="text-slate-700 dark:text-slate-200">Discount Factor ($\gamma$):</label>
+                <span id="gammaValDisplay" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">0.90</span>
+              </div>
+              <input id="gammaSlider" type="range" min="0.0" max="1.0" step="0.05" value="0.9" oninput="onSliderChange()" class="w-full accent-emerald-600 cursor-pointer" />
+              <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                <span>0.0 (Myopic)</span>
+                <span>0.5</span>
+                <span>1.0 (Far)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Row: Live State Visualizer + Live Q-Table -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          <!-- Left 7 Cols: Visual State Transition & Live Arithmetic Substitution -->
+          <div class="lg:col-span-7 space-y-5">
+            <!-- Visual Map of States -->
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Active Transition Map
+                </span>
+                <span id="transitionCaption" class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400">
+                  S₂ —(Right)→ S₃
+                </span>
+              </div>
+              <div id="visualGridContainer" class="grid grid-cols-4 gap-3">
+                <!-- Populated dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- Live Arithmetic Breakdown Box -->
+            <div class="p-5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border-2 border-indigo-500/30 space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 id="calcStepTitle" class="text-base font-bold text-slate-900 dark:text-white">
+                  Step 1 Arithmetic Breakdown
+                </h4>
+                <span id="calcRewardBadge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/60 dark:text-amber-200">
+                  Reward r = -1
+                </span>
+              </div>
+
+              <p id="calcStepExplanation" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                <!-- Populated dynamically -->
+              </p>
+
+              <!-- 4 Metric Pills -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">Old Value $Q_{\text{old}}(s,a)$</div>
+                  <div id="metricOldQ" class="text-base font-mono font-bold text-slate-800 dark:text-slate-100 mt-0.5">0.00</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">Next $\max_{a'} Q(s',a')$</div>
+                  <div id="metricMaxNextQ" class="text-base font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">0.00</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">TD Target ($r + \gamma \max Q$)</div>
+                  <div id="metricTDTarget" class="text-base font-mono font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">-1.00</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400">TD Error ($\delta_t$)</div>
+                  <div id="metricTDError" class="text-base font-mono font-bold text-amber-600 dark:text-amber-400 mt-0.5">-1.00</div>
+                </div>
+              </div>
+
+              <!-- Live Equation Substitution Display -->
+              <div id="liveFormulaBox" class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/80 font-mono text-xs sm:text-sm space-y-1.5 overflow-x-auto">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 5 Cols: Live Q-Table & Greedy Policy Table -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Live Q-Table $Q(s, a)$ &amp; Greedy Policy
+              </h4>
+              <span class="text-xs text-slate-400">Highlighted cell = updated</span>
+            </div>
+
+            <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <table class="w-full text-sm border-collapse bg-white dark:bg-slate-900">
+                <thead>
+                  <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs uppercase">
+                    <th class="py-3 px-3 text-left border-b border-slate-200 dark:border-slate-700">State</th>
+                    <th id="actionColHeader0" class="py-3 px-3 text-center border-b border-slate-200 dark:border-slate-700">Left ($L$)</th>
+                    <th id="actionColHeader1" class="py-3 px-3 text-center border-b border-slate-200 dark:border-slate-700">Right ($R$)</th>
+                    <th class="py-3 px-3 text-center border-b border-slate-200 dark:border-slate-700">Greedy $\pi^*(s)$</th>
+                  </tr>
+                </thead>
+                <tbody id="liveQTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
+                  <!-- Populated dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Legend for Table Highlights -->
+            <div class="flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400 pt-1">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-indigo-500/20 border border-indigo-500"></span>
+                <span>Updated $Q(s_t, a_t)$</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded bg-emerald-500/20 border border-emerald-500"></span>
+                <span>Next State $\max_{a'} Q(s_{t+1}, a')$</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SECTION 5: EXAM CHEAT-SHEET & TEXTBOOK REFERENCES                     -->
+    <!-- ===================================================================== -->
+    <section id="cheatsheet-section" class="space-y-6 scroll-mt-20">
+      <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Section 05 • Quick Exam Revision</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+          Exam Cheat-Sheet, Common Pitfalls &amp; Textbook References
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Common Exam Pitfalls -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            4 Classic Exam Traps to Avoid
+          </h3>
+          <ul class="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+            <li>
+              <strong>1. Forgetting $\max_{a'} Q(S_{\text{terminal}}, a') = 0$:</strong> When an agent transitions into a terminal goal or hazard state, there are no subsequent actions. Always set the future value term of a terminal state to $0$.
+            </li>
+            <li>
+              <strong>2. Mixing up $s_t$ and $s_{t+1}$ in the $\max$ operator:</strong> When updating $Q(s_t, a_t)$, the lookahead term $\gamma \max_{a'} Q(s_{t+1}, a')$ inspects the row of the <em>next state</em> $s_{t+1}$, never the current state $s_t$.
+            </li>
+            <li>
+              <strong>3. Confusing Reward $r_{t+1}$ with Value $V(s)$:</strong> $r_{t+1}$ is the immediate short-term scalar feedback from a single step; $V(s)$ and $Q(s,a)$ measure the <em>long-term cumulative discounted return</em> from that point onward.
+            </li>
+            <li>
+              <strong>4. Why Q-Learning needs multiple episodes:</strong> Because TD learning bootstraps one step at a time ($s_t \to s_{t+1}$), a terminal reward at $S_4$ only updates $S_3$ on the first visit, $S_2$ on the second visit, and $S_1$ on the third visit.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Textbook & Syllabus Pointers -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            Course Textbooks &amp; Reading Pointers
+          </h3>
+          <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+              <p class="font-bold text-slate-900 dark:text-white">Sutton &amp; Barto — <em>Reinforcement Learning: An Introduction</em> (2nd Ed.)</p>
+              <p class="text-xs mt-1">
+                • <strong>Chapter 3 (Finite MDPs):</strong> Agent-environment loop, discounted return $G_t$, and Bellman equations.<br/>
+                • <strong>Chapter 6, Sec. 6.4 &amp; 6.5:</strong> SARSA (On-Policy TD) and Q-Learning (Off-Policy TD Control).
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+              <p class="font-bold text-slate-900 dark:text-white">Russell &amp; Norvig — <em>Artificial Intelligence: A Modern Approach</em></p>
+              <p class="text-xs mt-1">
+                • <strong>Chapter 17:</strong> Markov Decision Processes, Value Iteration, and Policy Iteration.<br/>
+                • <strong>Chapter 21:</strong> Passive &amp; Active Reinforcement Learning, Temporal Difference updates.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+              <p class="font-bold text-slate-900 dark:text-white">Duda, Hart &amp; Stork — <em>Pattern Classification</em> / Course Slides</p>
+              <p class="text-xs mt-1">
+                • Connects sequential decision theory and dynamic programming with statistical pattern recognition and reward-based learning.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 no-print">
+    Pattern Recognition &amp; Machine Learning Study Suite • Standalone HTML + KaTeX Interactive Whiteboard
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT: KA-TEX RENDERING, THEME, & INTERACTIVE Q-LEARNING ENGINE  -->
+  <!-- ===================================================================== -->
+  <script>
+    // 1. Theme Toggle
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    // 2. Whiteboard Font Toggle (Switch between clean Sans and Handwritten Kalam)
+    let isHandwritten = false;
+    function toggleBoardFont() {
+      const wb = document.getElementById('whiteboardContent');
+      const btn = document.getElementById('fontToggleBtn');
+      isHandwritten = !isHandwritten;
+      if (isHandwritten) {
+        wb.classList.add('font-hand');
+        btn.textContent = 'Switch to Crisp Exam Font';
+      } else {
+        wb.classList.remove('font-hand');
+        btn.textContent = 'Switch to Handwritten Marker Font';
+      }
+    }
+
+    // 3. Interactive Sandbox State & Scenarios
+    let currentScenario = 'corridor';
+    let currentStepIndex = 1;
+
+    const scenarios = {
+      corridor: {
+        name: '1D Corridor Propagation (Initial Q=0)',
+        defaultAlpha: 0.5,
+        defaultGamma: 0.9,
+        states: ['S₁ (Start)', 'S₂', 'S₃', 'S₄ (Goal)'],
+        shortStates: ['S₁', 'S₂', 'S₃', 'S₄'],
+        actions: ['Left (L)', 'Right (R)'],
+        shortActions: ['L', 'R'],
+        initialQ: [
+          [0.0, 0.0],
+          [0.0, 0.0],
+          [0.0, 0.0],
+          [0.0, 0.0]
+        ],
+        steps: [
+          {
+            label: 'Step 0: Initial Q₀',
+            s: null,
+            a: null,
+            r: 0,
+            sNext: null,
+            title: 'Initial State (Before Any Transitions)',
+            explanation: 'All Q-values in the table are initialized to 0.00. The agent has no prior knowledge of where the +10 goal or -1 step penalties are located.'
+          },
+          {
+            label: 'Step 1: S₂ → S₃ (r = -1)',
+            s: 1,
+            a: 1,
+            r: -1,
+            sNext: 2,
+            title: 'Episode 1, Step 1: Transition S₂ —(Right)→ S₃',
+            explanation: 'The agent moves Right from S₂ to S₃ and incurs a step cost of r = -1. Because S₃ still has Q(S₃, L) = 0 and Q(S₃, R) = 0, the lookahead max Q(S₃, a\') is 0, so Q(S₂, Right) becomes negative.'
+          },
+          {
+            label: 'Step 2: S₃ → S₄ Goal (r = +10)',
+            s: 2,
+            a: 1,
+            r: 10,
+            sNext: 3,
+            title: 'Episode 1, Step 2: Transition S₃ —(Right)→ S₄ (Goal)',
+            explanation: 'The agent moves Right from S₃ into the terminal Goal state S₄ and receives r = +10! Since S₄ is terminal, max Q(S₄, a\') = 0. Q(S₃, Right) jumps from 0.00 to a positive value.'
+          },
+          {
+            label: 'Step 3A: Ep.2 S₁ → S₂ (r = -1)',
+            s: 0,
+            a: 1,
+            r: -1,
+            sNext: 1,
+            title: 'Episode 2, Step 3A: Transition S₁ —(Right)→ S₂',
+            explanation: 'Starting Episode 2 at S₁, the agent moves Right to S₂ (r = -1). At S₂, Q(S₂, Left) = 0.00 and Q(S₂, Right) is negative (-0.50), so max Q(S₂, a\') = 0.00.'
+          },
+          {
+            label: 'Step 3B: Revisit S₂ → S₃ (Propagate!)',
+            s: 1,
+            a: 1,
+            r: -1,
+            sNext: 2,
+            title: 'Episode 2, Step 3B: Revisiting S₂ —(Right)→ S₃ (Reward Propagates Backward!)',
+            explanation: 'Now when the agent moves Right from S₂ to S₃, the lookahead max Q(S₃, a\') sees the positive Q(S₃, Right) learned in Step 2! The +10 goal reward propagates backward into Q(S₂, Right).'
+          }
+        ]
+      },
+      grid2x2: {
+        name: '2×2 Grid-World Exam Problem',
+        defaultAlpha: 0.5,
+        defaultGamma: 0.8,
+        states: ['S₁ (Start)', 'S₂ (Hazard)', 'S₃ (Bonus)', 'S₄ (Terminal)'],
+        shortStates: ['S₁', 'S₂', 'S₃', 'S₄'],
+        actions: ['Right (R)', 'Down (D)'],
+        shortActions: ['R', 'D'],
+        initialQ: [
+          [1.0, 2.0],
+          [0.0, 4.0],
+          [5.0, 1.0],
+          [0.0, 0.0]
+        ],
+        steps: [
+          {
+            label: 'Step 0: Initial Table',
+            s: null,
+            a: null,
+            r: 0,
+            sNext: null,
+            title: 'Initial Pre-Trained Q-Table',
+            explanation: 'This scenario starts with a partially trained Q-table from earlier episodes (α = 0.50, γ = 0.80).'
+          },
+          {
+            label: 'Step 1: (S₁, R) → S₂ (r = -2)',
+            s: 0,
+            a: 0,
+            r: -2,
+            sNext: 1,
+            title: 'Step 1: From S₁ take Right (R) → Land in S₂ (r = -2)',
+            explanation: 'Moving Right from S₁ to S₂ yields r = -2. Looking ahead at S₂, max Q(S₂, a\') = max(0.0, 4.0) = 4.0.'
+          },
+          {
+            label: 'Step 2: (S₂, D) → S₃ (r = +2)',
+            s: 1,
+            a: 1,
+            r: 2,
+            sNext: 2,
+            title: 'Step 2: From S₂ take Down (D) → Land in S₃ (r = +2)',
+            explanation: 'Moving Down from S₂ to S₃ yields r = +2. Looking ahead at S₃, max Q(S₃, a\') = max(5.0, 1.0) = 5.0.'
+          },
+          {
+            label: 'Step 3: (S₃, R) → S₄ (r = +10)',
+            s: 2,
+            a: 0,
+            r: 10,
+            sNext: 3,
+            title: 'Step 3: From S₃ take Right (R) → Land in Terminal S₄ (r = +10)',
+            explanation: 'Moving Right from S₃ reaches the terminal goal S₄ with r = +10. Because S₄ is terminal, max Q(S₄, a\') = 0.'
+          }
+        ]
+      }
+    };
+
+    function selectScenario(key) {
+      currentScenario = key;
+      const scen = scenarios[key];
+      document.getElementById('alphaSlider').value = scen.defaultAlpha;
+      document.getElementById('gammaSlider').value = scen.defaultGamma;
+      currentStepIndex = 1;
+
+      // Update preset button styles
+      const btn1 = document.getElementById('presetBtn1');
+      const btn2 = document.getElementById('presetBtn2');
+      if (key === 'corridor') {
+        btn1.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition';
+        btn2.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 transition';
+      } else {
+        btn2.className = 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition';
+        btn1.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 transition';
+      }
+
+      updateSandbox();
+    }
+
+    function resetSliders() {
+      const scen = scenarios[currentScenario];
+      document.getElementById('alphaSlider').value = scen.defaultAlpha;
+      document.getElementById('gammaSlider').value = scen.defaultGamma;
+      updateSandbox();
+    }
+
+    function onSliderChange() {
+      updateSandbox();
+    }
+
+    function setStep(idx) {
+      currentStepIndex = idx;
+      updateSandbox();
+    }
+
+    function prevStep() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        updateSandbox();
+      }
+    }
+
+    function nextStep() {
+      const scen = scenarios[currentScenario];
+      if (currentStepIndex < scen.steps.length - 1) {
+        currentStepIndex++;
+        updateSandbox();
+      }
+    }
+
+    function updateSandbox() {
+      const scen = scenarios[currentScenario];
+      const alpha = parseFloat(document.getElementById('alphaSlider').value);
+      const gamma = parseFloat(document.getElementById('gammaSlider').value);
+
+      document.getElementById('alphaValDisplay').textContent = alpha.toFixed(2);
+      document.getElementById('gammaValDisplay').textContent = gamma.toFixed(2);
+
+      // Update column headers
+      document.getElementById('actionColHeader0').textContent = scen.actions[0];
+      document.getElementById('actionColHeader1').textContent = scen.actions[1];
+
+      // Render Stepper Buttons
+      const btnContainer = document.getElementById('stepButtonsContainer');
+      btnContainer.innerHTML = '';
+      scen.steps.forEach((st, idx) => {
+        const btn = document.createElement('button');
+        const active = idx === currentStepIndex;
+        btn.className = active
+          ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm transition'
+          : 'px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition';
+        btn.textContent = st.label;
+        btn.onclick = () => setStep(idx);
+        btnContainer.appendChild(btn);
+      });
+
+      document.getElementById('stepStatusBadge').textContent = `Step ${currentStepIndex} of ${scen.steps.length - 1}`;
+
+      // Simulate Q-table up to currentStepIndex
+      const Q = scen.initialQ.map(row => [...row]);
+      let lastCalc = {
+        oldQ: 0,
+        maxNextQ: 0,
+        tdTarget: 0,
+        tdError: 0,
+        newQ: 0,
+        s: null,
+        a: null,
+        r: 0,
+        sNext: null
+      };
+
+      for (let i = 1; i <= currentStepIndex; i++) {
+        const stepObj = scen.steps[i];
+        const s = stepObj.s;
+        const a = stepObj.a;
+        const r = stepObj.r;
+        const sNext = stepObj.sNext;
+
+        const oldQ = Q[s][a];
+        const maxNextQ = (sNext === 3) ? 0.0 : Math.max(Q[sNext][0], Q[sNext][1]);
+        const tdTarget = r + gamma * maxNextQ;
+        const tdError = tdTarget - oldQ;
+        const newQ = oldQ + alpha * tdError;
+
+        Q[s][a] = newQ;
+
+        if (i === currentStepIndex) {
+          lastCalc = { oldQ, maxNextQ, tdTarget, tdError, newQ, s, a, r, sNext };
+        }
+      }
+
+      const activeStep = scen.steps[currentStepIndex];
+
+      // Update Visual State Grid
+      const gridContainer = document.getElementById('visualGridContainer');
+      gridContainer.innerHTML = '';
+      scen.states.forEach((stName, idx) => {
+        const isCurrentS = lastCalc.s === idx;
+        const isNextS = lastCalc.sNext === idx;
+        let cardClass = 'p-3 rounded-xl border text-center transition-all ';
+        if (isCurrentS) {
+          cardClass += 'bg-indigo-600 text-white border-indigo-700 shadow-md scale-[1.03]';
+        } else if (isNextS) {
+          cardClass += 'bg-emerald-500/20 dark:bg-emerald-950/60 border-2 border-emerald-500 text-emerald-900 dark:text-emerald-200';
+        } else {
+          cardClass += 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
+        }
+
+        const badgeHTML = isCurrentS
+          ? `<span class="inline-block text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-white/20 text-white mb-1">Current s_t</span>`
+          : isNextS
+          ? `<span class="inline-block text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white mb-1">Next s_{t+1}</span>`
+          : `<span class="inline-block text-[10px] uppercase font-mono text-slate-400 mb-1">State ${idx + 1}</span>`;
+
+        gridContainer.innerHTML += `
+          <div class="${cardClass}">
+            ${badgeHTML}
+            <div class="font-bold text-xs sm:text-sm">${stName}</div>
+            <div class="text-[11px] font-mono mt-1 opacity-85">
+              [${Q[idx][0].toFixed(2)}, ${Q[idx][1].toFixed(2)}]
+            </div>
+          </div>
+        `;
+      });
+
+      // Update Arithmetic Breakdown Panel
+      document.getElementById('calcStepTitle').textContent = activeStep.title;
+      document.getElementById('calcStepExplanation').textContent = activeStep.explanation;
+
+      const formulaBox = document.getElementById('liveFormulaBox');
+      const rewardBadge = document.getElementById('calcRewardBadge');
+      const transCaption = document.getElementById('transitionCaption');
+
+      if (currentStepIndex === 0) {
+        transCaption.textContent = 'Initial State (No transition yet)';
+        rewardBadge.textContent = 'Initial Q₀';
+        document.getElementById('metricOldQ').textContent = '—';
+        document.getElementById('metricMaxNextQ').textContent = '—';
+        document.getElementById('metricTDTarget').textContent = '—';
+        document.getElementById('metricTDError').textContent = '—';
+        formulaBox.innerHTML = `
+          <div class="text-slate-500 dark:text-slate-400">
+            Click <strong>"Next Step →"</strong> or select <strong>Step 1</strong> above to execute the first Q-learning update.
+          </div>
+        `;
+      } else {
+        const sLabel = scen.shortStates[lastCalc.s];
+        const aLabel = scen.shortActions[lastCalc.a];
+        const sNextLabel = scen.shortStates[lastCalc.sNext];
+
+        transCaption.textContent = `(${sLabel}, ${aLabel}) → ${sNextLabel}`;
+        rewardBadge.textContent = `Reward r = ${lastCalc.r >= 0 ? '+' + lastCalc.r : lastCalc.r}`;
+
+        document.getElementById('metricOldQ').textContent = lastCalc.oldQ.toFixed(2);
+        document.getElementById('metricMaxNextQ').textContent = lastCalc.maxNextQ.toFixed(2);
+        document.getElementById('metricTDTarget').textContent = lastCalc.tdTarget.toFixed(2);
+        document.getElementById('metricTDError').textContent = (lastCalc.tdError >= 0 ? '+' : '') + lastCalc.tdError.toFixed(2);
+
+        formulaBox.innerHTML = `
+          <div class="text-slate-500 dark:text-slate-400 text-xs">
+            Formula: Q(${sLabel}, ${aLabel}) ← Q(${sLabel}, ${aLabel}) + α · [ r + γ · max Q(${sNextLabel}, a') − Q(${sLabel}, ${aLabel}) ]
+          </div>
+          <div class="text-slate-800 dark:text-slate-200">
+            Q<sub>new</sub>(${sLabel}, ${aLabel}) = ${lastCalc.oldQ.toFixed(2)} + ${alpha.toFixed(2)} × [ ${lastCalc.r} + (${gamma.toFixed(2)} × ${lastCalc.maxNextQ.toFixed(2)}) − (${lastCalc.oldQ.toFixed(2)}) ]
+          </div>
+          <div class="font-bold text-indigo-600 dark:text-indigo-400 text-sm pt-0.5">
+            Q<sub>new</sub>(${sLabel}, ${aLabel}) = ${lastCalc.oldQ.toFixed(2)} + ${alpha.toFixed(2)} × (${lastCalc.tdError.toFixed(2)}) = <span class="underline decoration-2">${lastCalc.newQ.toFixed(2)}</span>
+          </div>
+        `;
+      }
+
+      // Render Live Q-Table Rows
+      const tbody = document.getElementById('liveQTableBody');
+      tbody.innerHTML = '';
+      Q.forEach((row, sIdx) => {
+        const isTerminal = sIdx === 3;
+        let greedyPolicy = '— (Goal)';
+        if (!isTerminal) {
+          if (Math.abs(row[0] - row[1]) < 1e-6) {
+            greedyPolicy = 'Tie (L / R)';
+          } else if (row[0] > row[1]) {
+            greedyPolicy = scen.actions[0];
+          } else {
+            greedyPolicy = scen.actions[1];
+          }
+        }
+
+        const cell0Updated = (currentStepIndex > 0 && lastCalc.s === sIdx && lastCalc.a === 0);
+        const cell1Updated = (currentStepIndex > 0 && lastCalc.s === sIdx && lastCalc.a === 1);
+        const isNextRow = (currentStepIndex > 0 && lastCalc.sNext === sIdx);
+
+        const c0Class = cell0Updated
+          ? 'py-3 px-3 text-center font-extrabold bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-2 border-indigo-500 cell-active-update'
+          : isNextRow
+          ? 'py-3 px-3 text-center bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+          : 'py-3 px-3 text-center text-slate-700 dark:text-slate-300';
+
+        const c1Class = cell1Updated
+          ? 'py-3 px-3 text-center font-extrabold bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-2 border-indigo-500 cell-active-update'
+          : isNextRow
+          ? 'py-3 px-3 text-center bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+          : 'py-3 px-3 text-center text-slate-700 dark:text-slate-300';
+
+        tbody.innerHTML += `
+          <tr class="${isNextRow ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''}">
+            <td class="py-3 px-3 font-sans font-semibold text-slate-900 dark:text-white">
+              ${scen.states[sIdx]}
+            </td>
+            <td class="${c0Class}">${row[0].toFixed(2)}</td>
+            <td class="${c1Class}">${row[1].toFixed(2)}</td>
+            <td class="py-3 px-3 text-center font-sans text-xs font-bold text-slate-600 dark:text-slate-300">
+              ${greedyPolicy}
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Initialize KaTeX and Interactive Sandbox on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+      updateSandbox();
+    });
+  </script>
+</body>
+</html>
