@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fuzzy Logic – Deep Dive</title>
+<title>Fuzzy Logic &amp; Neuro-Fuzzy (ANFIS) – Deep Dive</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
@@ -26,12 +26,16 @@ code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;backgr
 .sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
 svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
 @media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
 </style></head><body>
 <div class="top"><a class="back" href="/">← Back</a>
-<nav class="nav"><a href="#why">Why fuzzy</a><a href="#sets">Fuzzy sets</a><a href="#mf">MFs</a><a href="#ops">Operations</a><a href="#alpha">α-cut</a><a href="#ext">Extension</a><a href="#rel">Relations</a><a href="#inf">Inference</a><a href="#def">Defuzz.</a><a href="#ex1">Steam turbine</a><a href="#ex2">Sugeno</a><a href="#exam">Exam kit</a></nav></div>
+<nav class="nav"><a href="#why">Why fuzzy</a><a href="#sets">Fuzzy sets</a><a href="#mf">MFs</a><a href="#ops">Operations</a><a href="#alpha">α-cut</a><a href="#ext">Extension</a><a href="#rel">Relations</a><a href="#inf">Inference</a><a href="#def">Defuzz.</a><a href="#ex1">Steam turbine</a><a href="#ex2">Sugeno</a><a href="#exam1">Exam A</a><a href="#why2">Neuro-fuzzy</a><a href="#nfs">NFS</a><a href="#anfis">ANFIS</a><a href="#lab2">Explorer</a><a href="#exam2">Exam B</a></nav></div>
 <main>
-<h1>Fuzzy Logic – Deep Dive</h1>
-<p class="sub">CSE 4137/4237 · covers PDF pp. 22–34 (intro), 474–522 (fuzzy arithmetic and relations), 677–701 (fuzzy logic, MFs), 747–785 (Mamdani, Sugeno, controller). Tags: <span class="y">S25</span> Spring 2025 … <span class="y">F22</span> Fall 2022 show where a topic was asked.</p>
+<h1>Fuzzy Logic &amp; Neuro-Fuzzy (ANFIS) – Deep Dive</h1>
+<p class="sub">CSE 4137/4237 · <b>Part A – Fuzzy logic</b> (sections 1–12): PDF pp. 22–34, 474–522, 677–701, 747–785. <b>Part B – Neuro-fuzzy</b> (sections 13–20): PDF pp. 110–127 (ANFIS) and 786–812 (neuro-fuzzy system, worked example). Tags: <span class="y">S25</span> Spring 2025 … <span class="y">F22</span> Fall 2022 show where a topic was asked.</p>
 
 <section id="why"><h2>1. Why fuzzy logic?</h2><p class="pg">PDF pp. 22–34, 677–690</p>
 <p>Classical (Boolean) logic answers only <b>true/false</b>. Human concepts such as <i>hot, tall, slow, heavy</i> have no sharp edge: is 5′9″ tall? Fuzzy logic (L. A. Zadeh, 1965) replaces the two truth values with a <b>degree of truth in [0,1]</b>, which is why it models human reasoning and is the “uncertainty / vagueness” part of soft computing.</p>
@@ -163,10 +167,10 @@ Max-min T = [[0.6, 0.5],[0.3, 0.8]]; max-product T = [[0.6, 0.3],[0.27, 0.72]]; 
 <div class="ex"><span class="f">y* = Σwy / Σw = (0.6+0.15+0.6+4.2)/(0.3+0.3+0.4+0.7) = 5.55/1.7 ≈ 3.26</span> (matches the slide).</div>
 <div class="trap"><b>Check the slide:</b> the slide’s 3.26 needs y₄ = 6, which equals x₁+x₂+2. If rule 4 is really <span class="f">−x₁+x₂+2</span> then y₄ = 3 and y* = 3.45/1.7 ≈ 2.03. Read rule 4 on PDF p. 760 and use that rule; the method is identical.</div></section>
 
-<section id="exam"><h2>12. Exam kit</h2>
+<section id="exam1"><h2>12. Exam kit – fuzzy logic</h2>
 <h3>Mini-answers</h3>
 <ul><li><b>Crisp vs fuzzy set</b> <span class="y">F22</span>: crisp 0/1, sharp boundary, Boolean; fuzzy [0,1], gradual, handles vagueness (table in §1).</li>
-<li><b>Advantages of a fuzzy system</b> <span class="y">F22</span>: human-like linguistic rules, tolerates imprecise inputs, no exact mathematical model, easy to modify, robust, good for non-linear control. <b>Limitation:</b> no learning, rules/MFs need an expert. <b>Neuro-fuzzy</b> fixes this: an NN tunes MFs and rules (NFS pp. 786–812; ANFIS is the next deep dive).</li>
+<li><b>Advantages of a fuzzy system</b> <span class="y">F22</span>: human-like linguistic rules, tolerates imprecise inputs, no exact mathematical model, easy to modify, robust, good for non-linear control. <b>Limitation:</b> no learning, rules/MFs need an expert. <b>Neuro-fuzzy</b> fixes this: an NN tunes MFs and rules (Part B below: NFS and ANFIS).</li>
 <li><b>Role of the MF</b> <span class="y">S24</span>: converts crisp input into a degree of membership; defines the fuzzy set; its shape controls sensitivity; used in fuzzification and (output MFs) defuzzification.</li></ul>
 <h3>Traps checklist</h3>
 <ul><li>Extension principle: <b>min inside, max across a diagonal</b>; peak must land on the sum of peaks.</li>
@@ -181,4 +185,125 @@ Max-min T = [[0.6, 0.5],[0.3, 0.8]]; max-product T = [[0.6, 0.3],[0.27, 0.72]]; 
 <li>Describe fuzzy logic with an example; role of MF; crisp vs fuzzy.</li>
 <li>Mamdani vs Sugeno; design a small fuzzy controller (steps in §10).</li></ol>
 <div class="ref"><b>📚 Read in</b>Ross, <i>Fuzzy Logic with Engineering Applications</i> – Ch. 2 “Classical Sets and Fuzzy Sets”, Ch. 3 “Classical Relations and Fuzzy Relations”, Ch. 4 “Properties of Membership Functions, Fuzzification, and Defuzzification”, Ch. 5 “Logic and Fuzzy Systems”, Ch. 13 “Fuzzy Control Systems”; Jang, Sun &amp; Mizutani – Ch. 2 “Fuzzy Set Theory”, Ch. 3 “Fuzzy Rules and Fuzzy Reasoning”, Ch. 4 “Fuzzy Inference Systems”; Sivanandam &amp; Deepa – “Fuzzy Relations”, “Membership Features”, “Defuzzification”, “Fuzzy Arithmetic”, “Fuzzy Logic Control Systems”. Papers: Zadeh (1965) “Fuzzy Sets”; Mamdani (1975); Takagi &amp; Sugeno (1985).</div></section>
-</main></body></html>
+
+<div style="margin:22px 0 6px;padding:10px 14px;border-radius:12px;background:var(--ac2);font-weight:700;font-size:1.05rem">Part B · Neuro-fuzzy systems and ANFIS</div>
+
+<section id="why2"><h2>13. Why combine neural networks and fuzzy logic?</h2><p class="pg">PDF pp. 110, 113–114, 786 · <span class="y">S25 F23 F22</span></p>
+<div class="sc"><table><tr><th></th><th>Neural network</th><th>Fuzzy system</th></tr>
+<tr><td>Strength</td><td>learns from data and feedback; adapts</td><td>easy to comprehend: linguistic terms and if-then rules</td></tr>
+<tr><td>Weakness</td><td>“black box”: hard to see what each neuron or weight means</td><td>no learning algorithm; MFs and rules must come from an expert or be identified by other techniques</td></tr></table></div>
+<p>The two are <b>complementary technologies</b>, so it is natural to marry them: the network supplies learning, the fuzzy part supplies interpretability and the use of prior knowledge (p. 113).</p>
+<h3>Three categories of neuro-fuzzy system (p. 114)</h3>
+<ol><li>A fuzzy rule-based model constructed with a <b>supervised NN learning</b> technique (e.g. backprop);</li><li>one constructed with <b>reinforcement-based learning</b>;</li><li>one that uses an NN to <b>construct the fuzzy partition</b> of the input space (find the MFs/rules).</li></ol>
+<p>Two common ways of combining (p. 786): (1) the <b>Neuro-Fuzzy System (NFS)</b>: a fuzzy logic controller represented by the structure of an NN and trained by backprop or a GA; (2) ANFIS, a class of adaptive networks functionally equivalent to a fuzzy inference system (p. 115), covering both Sugeno and Tsukamoto models.</p></section>
+
+<section id="bp2"><h2>14. Online (pattern) vs batch backpropagation</h2><p class="pg">PDF pp. 111–112</p>
+<ul><li><b>Online / pattern mode:</b> weights are adjusted after <i>each</i> input-output pair. Slide example: 500 training pairs → each weight is adjusted 500 times per sweep; after 1000 sweeps, 500 × 1000 = 500,000 adjustments (the slide prints 50,000; the arithmetic gives 500,000).</li>
+<li><b>Batch mode (off-line):</b> weights are adjusted <i>once</i> per sweep, after the whole training set has been processed, using the error of the entire set → each weight adjusted 1000 times after 1000 sweeps.</li>
+<li>Online is faster per update and noisier; batch gives a smoother, exact-gradient update.</li></ul></section>
+
+<section id="nfs"><h2>15. Neuro-fuzzy system (NFS) based on the Mamdani approach</h2><p class="pg">PDF pp. 786–812 · <span class="y">F22: how a neuro-fuzzy system can be built</span></p>
+<p>A fuzzy logic controller (FLC) is drawn as a 5-layer feed-forward network. The weights are not arbitrary: they encode the <b>membership-function parameters</b>, and training by backpropagation (or a GA) tunes them.</p>
+<div class="sc"><table><tr><th>Layer</th><th>Function</th><th>Operation</th></tr>
+<tr><td>1 · Input</td><td>linear transfer function</td><td>outputs equal the inputs</td></tr>
+<tr><td>2 · Fuzzification</td><td>MF of each linguistic term</td><td>μ<sub>term</sub>(input)</td></tr>
+<tr><td>3 · AND</td><td>logical AND of antecedents</td><td>min of the input memberships (rule firing strength)</td></tr>
+<tr><td>4 · Fuzzy inference</td><td>consequent (clipped output set) of each fired rule</td><td>min(strength, output MF)</td></tr>
+<tr><td>5 · Defuzzification</td><td>center of sums</td><td><span class="f">O = Σ A<sub>i</sub>f<sub>i</sub> / Σ A<sub>i</sub></span> (A<sub>i</sub> = area, f<sub>i</sub> = centroid of the i-th clipped set)</td></tr></table></div>
+<h3>Worked example from the slides (pp. 796–812)</h3>
+<p><b>Setup:</b> two inputs I₁ (terms Near NR, Far FR, Very Far VFR) and I₂ (Small SM, Medium M, Large LR), one output O (Low LW, High H, Very High VH). All MFs are triangles; the <b>base-width parameters</b> of the triangles are the weights (v for inputs, w for the output). Starting values: <b>I₁ = 1.6, I₂ = 18.0, target O = 9.0</b>. Rule base (rows I₁, columns I₂): NR → LW, LW, LW · FR → H, H, VH · VFR → VH, VH, VH.</p>
+<p><b>Weights:</b> normalised weights [v₁₁ v₂₄ w₁₁] = [0.3, 0.6, 0.4] are mapped into the allowed ranges 0.5 ≤ b₁ ≤ 1.5, 5 ≤ b₂ ≤ 15, 2 ≤ b₃ ≤ 8 by <span class="f">b = n·(max − min) + min</span>: <b>b₁ = 0.3·1 + 0.5 = 0.8</b>, <b>b₂ = 0.6·10 + 5 = 11.0</b>, <b>b₃ = 0.4·6 + 2 = 4.4</b>. This places the triangle peaks at NR 1.0, FR 1.8, VFR 2.6 (I₁); SM 10, M 21, LR 32 (I₂); LW 5.0, H 9.4, VH 13.8 (O).</p>
+<ol><li><b>Layer 1:</b> outputs 1.6 and 18.0.</li>
+<li><b>Layer 2 (fuzzification):</b> I₁ = 1.6 lies between NR and FR: μ<sub>NR</sub> = (1.8−1.6)/0.8 = <b>0.25</b>, μ<sub>FR</sub> = (1.6−1.0)/0.8 = <b>0.75</b>. I₂ = 18: μ<sub>SM</sub> = (21−18)/11 = <b>0.272727</b>, μ<sub>M</sub> = (18−10)/11 = <b>0.727272</b>.</li>
+<li><b>Layer 3 (AND = min):</b> of the 3×3 = 9 combinations only four are non-zero: NR∧SM = min(0.25, 0.2727) = <b>0.25</b>; NR∧M = <b>0.25</b>; FR∧SM = min(0.75, 0.2727) = <b>0.272727</b>; FR∧M = min(0.75, 0.7273) = <b>0.727272</b>.</li>
+<li><b>Layer 4 (inference):</b> rules fired: (NR, SM) → LW at 0.25; (NR, M) → LW at 0.25; (FR, SM) → H at 0.272727; (FR, M) → H at 0.727272. Each output triangle is clipped at its strength.</li>
+<li><b>Layer 5 (center of sums):</b> areas and centroids of the clipped sets: A₁ = 0.9625, f₁ = 6.466667 (LW @0.25); A₂ = 0.9625, f₂ = 6.466667; A₃ = 2.072724, f₃ = 9.4 (H @0.2727); A₄ = 4.072722, f₄ = 9.4.
+<div class="ex"><span class="f">O = (0.9625·6.4667 + 0.9625·6.4667 + 2.0727·9.4 + 4.0727·9.4) / (0.9625 + 0.9625 + 2.0727 + 4.0727) = 70.215/8.0704 = 8.7003</span>. Target 9.0, deviation d = 9.0 − 8.700328 = <b>0.299672</b>. Backpropagation uses this error to change the base-width weights, re-shaping the MFs until the output matches.</div></li></ol>
+<div class="trap">Do not confuse with ANFIS: this NFS is <b>Mamdani-type</b> (fuzzy consequents, defuzzification by center of sums, MF widths as weights), whereas ANFIS is <b>Sugeno-type</b> (linear consequents, weighted average).</div></section>
+
+<section id="anfis"><h2>16. ANFIS: adaptive neuro-fuzzy inference system</h2><p class="pg">PDF pp. 115–127 · <span class="y">S25 F24: five layers, which layers learn</span></p>
+<p>ANFIS (Jang, 1993) is an adaptive network that is <b>functionally equivalent to a fuzzy inference system</b>; the slides show the Sugeno and the Tsukamoto versions. Take two inputs x, y, one output f and a two-rule first-order Sugeno model (p. 118):</p>
+<ul><li><b>Rule 1:</b> IF x is A₁ AND y is B₁ THEN <span class="f">f₁ = p₁x + q₁y + r₁</span></li><li><b>Rule 2:</b> IF x is A₂ AND y is B₂ THEN <span class="f">f₂ = p₂x + q₂y + r₂</span></li></ul>
+<p>Overall output: <span class="f">f = (w₁f₁ + w₂f₂)/(w₁ + w₂) = w̄₁f₁ + w̄₂f₂</span> (p. 116).</p>
+<svg viewBox="0 0 580 235" role="img" aria-label="ANFIS five-layer architecture"><g font-size="10">
+<text x="105" y="12">Layer 1</text><text x="205" y="12">Layer 2</text><text x="295" y="12">Layer 3</text><text x="385" y="12">Layer 4</text><text x="485" y="12">Layer 5</text>
+<g stroke="var(--mu)" stroke-width="1" fill="none"><path d="M30 70 L100 40 M30 70 L100 90 M30 175 L100 150 M30 175 L100 200 M128 40 L200 88 M128 150 L200 98 M128 90 L200 138 M128 200 L200 148 M222 93 L292 93 M222 93 L292 143 M222 143 L292 93 M222 143 L292 143 M314 93 L380 93 M314 143 L380 143 M408 93 L478 118 M408 143 L478 118 M500 118 L555 118"/><path stroke-dasharray="3 3" d="M30 70 L380 85 M30 175 L380 150"/></g>
+<g fill="var(--ac2)" stroke="var(--ac)" stroke-width="1.5"><rect x="100" y="28" width="28" height="24"/><rect x="100" y="78" width="28" height="24"/><rect x="100" y="138" width="28" height="24"/><rect x="100" y="188" width="28" height="24"/><rect x="380" y="78" width="28" height="30"/><rect x="380" y="128" width="28" height="30"/></g>
+<g fill="var(--card)" stroke="var(--mu)" stroke-width="1.5"><circle cx="210" cy="93" r="12"/><circle cx="210" cy="143" r="12"/><circle cx="303" cy="93" r="12"/><circle cx="303" cy="143" r="12"/><circle cx="490" cy="118" r="12"/></g>
+<text x="20" y="74">x</text><text x="20" y="179">y</text><text x="109" y="44">A₁</text><text x="109" y="94">A₂</text><text x="109" y="154">B₁</text><text x="109" y="204">B₂</text><text x="206" y="97">Π</text><text x="206" y="147">Π</text><text x="299" y="97">N</text><text x="299" y="147">N</text><text x="337" y="87">w̄₁</text><text x="337" y="137">w̄₂</text><text x="381" y="97">f₁</text><text x="381" y="147">f₂</text><text x="486" y="122">Σ</text><text x="558" y="122">f</text><text x="170" y="86">w₁</text><text x="170" y="136">w₂</text>
+<text x="100" y="228" fill="var(--ac)">adaptive (premise)</text><text x="370" y="228" fill="var(--ac)">adaptive (consequent)</text></g></svg>
+<div class="sc"><table><tr><th>Layer</th><th>Node type</th><th>Output</th><th>Role · parameters</th></tr>
+<tr><td><b>1</b> Fuzzification (pp. 119–120)</td><td><b>adaptive</b> (square)</td><td><span class="f">O<sub>1,i</sub> = μ<sub>A<sub>i</sub></sub>(x)</span> (i=1,2); <span class="f">μ<sub>B<sub>i−2</sub></sub>(y)</span> (i=3,4)</td><td>membership grade of the input in a fuzzy set; MF can be triangular, trapezoidal, Gaussian or generalised bell. Its parameters are the <b>premise (antecedent) parameters</b></td></tr>
+<tr><td><b>2</b> Rule / firing strength (p. 121)</td><td>fixed (Π)</td><td><span class="f">O<sub>2,i</sub> = w<sub>i</sub> = μ<sub>A<sub>i</sub></sub>(x) · μ<sub>B<sub>i</sub></sub>(y)</span> (the slide writes min; both are AND operators)</td><td>each node is one rule; output = firing strength</td></tr>
+<tr><td><b>3</b> Normalisation (p. 122)</td><td>fixed (N)</td><td><span class="f">O<sub>3,i</sub> = w̄<sub>i</sub> = w<sub>i</sub> / (w₁ + w₂)</span></td><td>ratio of the i-th rule’s strength to the sum of all strengths</td></tr>
+<tr><td><b>4</b> Consequent (p. 123)</td><td><b>adaptive</b> (square)</td><td><span class="f">O<sub>4,i</sub> = w̄<sub>i</sub> f<sub>i</sub> = w̄<sub>i</sub>(p<sub>i</sub>x + q<sub>i</sub>y + r<sub>i</sub>)</span></td><td><b>consequent parameters</b> {p<sub>i</sub>, q<sub>i</sub>, r<sub>i</sub>}</td></tr>
+<tr><td><b>5</b> Output (p. 124)</td><td>fixed (Σ)</td><td><span class="f">O<sub>5,1</sub> = Σ<sub>i</sub> w̄<sub>i</sub> f<sub>i</sub></span></td><td>overall output as the sum of all incoming signals</td></tr></table></div>
+<ul><li><b>Alternate form (p. 125):</b> normalisation done at the very last layer: <span class="f">f = Σ w<sub>i</sub>f<sub>i</sub> / Σ w<sub>i</sub></span>.</li>
+<li><b>Tsukamoto model (p. 126):</b> consequent MFs are monotonic; each rule’s crisp output z<sub>i</sub> comes from its firing strength through the inverse MF; the output is <span class="f">Σ w<sub>i</sub>z<sub>i</sub> / Σ w<sub>i</sub></span>.</li>
+<li><b>2 inputs, 9 rules (p. 127):</b> three MFs on each input with <b>grid partition</b> → 3×3 = 9 rules, each region of the input square has its own consequent. With n inputs and m MFs each there are mⁿ rules (rule explosion for many inputs).</li></ul></section>
+
+<section id="lab2"><h2>17. ANFIS worked example and explorer</h2>
+<div class="ex"><b>By hand (membership grades given).</b> x = 2, y = 3: μ<sub>A₁</sub> = 0.6, μ<sub>A₂</sub> = 0.4, μ<sub>B₁</sub> = 0.5, μ<sub>B₂</sub> = 0.8; f₁ = x + y + 1, f₂ = 2x − y + 2. Then f₁ = 6, f₂ = 3.
+<br><b>Product AND:</b> w₁ = 0.6·0.5 = 0.30, w₂ = 0.4·0.8 = 0.32; w̄₁ = 0.30/0.62 = 0.4839, w̄₂ = 0.5161; f = 0.4839·6 + 0.5161·3 = <b>4.4516</b>.
+<br><b>Min AND (slide):</b> w₁ = min(0.6, 0.5) = 0.5, w₂ = min(0.4, 0.8) = 0.4; w̄₁ = 0.5556, w̄₂ = 0.4444; f = 0.5556·6 + 0.4444·3 = <b>4.6667</b>.</div>
+<p>Explorer: Gaussian MFs <span class="f">μ(x) = exp(−(x−c)²/(2σ²))</span> (parameters c, σ per MF), two rules as above. Change anything and watch every layer.</p>
+<label>x and y</label><input class="i" id="aX" value="2 3">
+<label>A₁, A₂ (c σ per line)</label><textarea id="aA" rows="2">1 1.5
+4 1.5</textarea>
+<label>B₁, B₂ (c σ per line)</label><textarea id="aB" rows="2">2 2
+6 2</textarea>
+<label>Consequents: p q r for rule 1 and rule 2 (one per line)</label><textarea id="aF" rows="2">1 1 1
+2 -1 2</textarea>
+<label>AND operator</label><select class="i" id="aO"><option value="prod">product</option><option value="min">min (slide)</option></select>
+<p><button class="b" id="aGo">Compute ANFIS output</button></p><div id="aOut"></div></section>
+
+<section id="hyb"><h2>18. Learning in ANFIS: parameters and hybrid learning</h2><p class="pg">Extension from Jang et al. Ch. 12 (the slides stop at the architecture)</p>
+<ul><li><b>Two parameter sets:</b> premise parameters (layer 1: MF shape such as c, σ or a, b, c) and consequent parameters (layer 4: p<sub>i</sub>, q<sub>i</sub>, r<sub>i</sub>).</li>
+<li><b>Hybrid learning rule:</b> with premise parameters fixed, the output is <i>linear</i> in the consequent parameters: <span class="f">f = Σ (w̄<sub>i</sub>x)p<sub>i</sub> + (w̄<sub>i</sub>y)q<sub>i</sub> + w̄<sub>i</sub>r<sub>i</sub></span>. <b>Forward pass:</b> propagate the data up to layer 4 and solve for the consequent parameters by <b>least-squares estimation</b>. <b>Backward pass:</b> propagate the error back and update the premise parameters by <b>gradient descent</b> (backpropagation). This converges faster than pure gradient descent because the search space is reduced.</li>
+<li><b>Parameter count (bell MFs, 3 parameters each):</b> 2 inputs × 2 MFs × 3 + 2 rules × 3 = 18; for the 9-rule grid: 2 × 3 × 3 + 9 × 3 = 18 + 27 = <b>45</b> (Gaussian MFs: 2 parameters each).</li></ul></section>
+
+<section id="cmp2"><h2>19. Comparison tables</h2>
+<div class="sc"><table><tr><th></th><th>Pure ANN</th><th>Pure fuzzy system</th><th>Neuro-fuzzy (ANFIS / NFS)</th></tr>
+<tr><td>Learning</td><td>yes, from data</td><td>no, expert-tuned</td><td>yes (hybrid learning / backprop / GA)</td></tr>
+<tr><td>Interpretability</td><td>black box</td><td>linguistic rules</td><td>rules remain readable</td></tr>
+<tr><td>Prior knowledge</td><td>hard to insert</td><td>easy (rules)</td><td>easy (initial rules/MFs)</td></tr>
+<tr><td>Data needed</td><td>much</td><td>little/none</td><td>moderate</td></tr>
+<tr><td>Weakness</td><td>local minima, opaque</td><td>manual tuning, static</td><td>rule explosion (grid), training cost</td></tr></table></div>
+<div class="sc"><table><tr><th></th><th>NFS (Mamdani-based)</th><th>ANFIS (Sugeno-based)</th></tr>
+<tr><td>Layers</td><td>input, fuzzification, AND, inference, defuzzification</td><td>fuzzification, firing strength, normalisation, consequent, sum</td></tr>
+<tr><td>Consequent</td><td>fuzzy set (triangle)</td><td>linear function p x + q y + r</td></tr>
+<tr><td>Output</td><td>center of sums</td><td>weighted sum of normalised strengths</td></tr>
+<tr><td>Trainable parameters</td><td>MF base widths (the weights)</td><td>premise MF parameters + consequent p, q, r</td></tr>
+<tr><td>Learning</td><td>backprop / GA</td><td>hybrid: least squares + gradient descent</td></tr></table></div></section>
+
+<section id="exam2"><h2>20. Exam kit – neuro-fuzzy</h2>
+<div class="key"><b>“Why is ANFIS more effective than a pure ANN or a pure FIS? Which layers learn and which reason?” (6 marks)</b> <span class="y">S25</span><br>A pure ANN needs a lot of data, cannot use prior knowledge and is a black box; a pure FIS cannot learn, its membership functions and rules must be tuned by an expert. ANFIS gives the network structure of a Sugeno FIS, so parameters are tuned from data while the rules stay interpretable, with faster convergence by hybrid learning. <b>Learning:</b> layer 1 (premise MF parameters, adaptive) and layer 4 (consequent parameters p, q, r, adaptive). <b>Rule-based reasoning:</b> layer 1 fuzzifies the inputs, layer 2 applies the AND operator (firing strength), layer 3 normalises, layer 5 aggregates; layers 2, 3 and 5 are fixed nodes with no parameters.</div>
+<div class="key"><b>“With a diagram explain the five layers and indicate what each computes” (6 marks)</b> <span class="y">F24</span><br>Draw the figure of §16 and write one line per layer: L1 μ<sub>A<sub>i</sub></sub>(x), L2 w<sub>i</sub> = μ<sub>A<sub>i</sub></sub>(x)·μ<sub>B<sub>i</sub></sub>(y), L3 w̄<sub>i</sub> = w<sub>i</sub>/Σw, L4 w̄<sub>i</sub>(p<sub>i</sub>x+q<sub>i</sub>y+r<sub>i</sub>), L5 Σw̄<sub>i</sub>f<sub>i</sub>; mark L1 and L4 as adaptive.</div>
+<div class="key"><b>“Advantages of neuro-fuzzy systems” (3 marks)</b> <span class="y">F23</span><br>Combine learning ability of NNs with the transparency and linguistic rules of fuzzy logic; handle imprecise/uncertain data; allow prior expert knowledge as initial rules; reduce manual tuning of MFs; faster training with hybrid learning; good for non-linear modelling and control.</div>
+<div class="key"><b>“Advantages of a fuzzy system; how can a neuro-fuzzy system be built?” (6 marks)</b> <span class="y">F22</span><br>Advantages as in §12. Building: (1) define inputs/outputs and linguistic terms with initial MFs/rule base (expert or grid partition); (2) map the fuzzy system onto a layered network (five layers: input, fuzzification, AND, inference, defuzzification, or ANFIS); (3) let the weights represent MF parameters/consequents; (4) train by backpropagation or a GA (hybrid learning for ANFIS) using input-output data; (5) check the deviation (e.g. 9.0 − 8.70 = 0.30 in the slide example) and tune. Three categories: supervised-NN, reinforcement-based, NN-built fuzzy partition (p. 114).</div>
+<h3>Traps</h3>
+<ul><li>ANFIS adaptive layers: <b>1 and 4</b> (square nodes); fixed: 2, 3, 5 (circle nodes).</li><li>Premise = antecedent (layer 1); consequent = layer 4.</li><li>Layer 3 divides by the <b>sum of all</b> firing strengths.</li><li>Distinguish NFS (Mamdani, center of sums) from ANFIS (Sugeno, weighted sum).</li></ul>
+<div class="ref"><b>📚 Read in (Part B)</b>Jang, Sun &amp; Mizutani, <i>Neuro-Fuzzy and Soft Computing</i> – Ch. 12 “ANFIS: Adaptive Neuro-Fuzzy Inference Systems”, Ch. 8 “Adaptive Networks”, Ch. 5 “Least-Squares Methods for System Identification”, Ch. 13 “Coactive Neuro-Fuzzy Modeling”; Jang (1993) “ANFIS: Adaptive-Network-Based Fuzzy Inference System”, <i>IEEE Trans. SMC</i> 23(3); Sivanandam &amp; Deepa, <i>Principles of Soft Computing</i> – “Hybrid Soft Computing Techniques” (neuro-fuzzy, ANFIS).</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function g(x,c,s){return Math.exp(-((x-c)*(x-c))/(2*s*s))}
+function n(s){return s.trim().split(/[\s,]+/).map(Number)}
+function f4(x){return String(Number(x.toPrecision(4)))}
+function runA(){
+ var xy=n($("aX").value),A=$("aA").value.trim().split("\n").map(n),B=$("aB").value.trim().split("\n").map(n),F=$("aF").value.trim().split("\n").map(n),op=$("aO").value,out=$("aOut");
+ try{
+  var x=xy[0],y=xy[1];
+  if(xy.length<2||A.length<2||B.length<2||F.length<2||[].concat(xy,A[0],A[1],B[0],B[1],F[0],F[1]).some(isNaN)||A[0][1]<=0||A[1][1]<=0||B[0][1]<=0||B[1][1]<=0)throw 1;
+  var mA=[g(x,A[0][0],A[0][1]),g(x,A[1][0],A[1][1])],mB=[g(y,B[0][0],B[0][1]),g(y,B[1][0],B[1][1])];
+  var w=[0,1].map(function(i){return op=="min"?Math.min(mA[i],mB[i]):mA[i]*mB[i]}),s=w[0]+w[1],wb=w.map(function(v){return v/s});
+  var fi=[0,1].map(function(i){return F[i][0]*x+F[i][1]*y+F[i][2]}),o4=[0,1].map(function(i){return wb[i]*fi[i]}),fo=o4[0]+o4[1];
+  function row(a,b,c){return"<tr><td>"+a+"</td><td>"+b+"</td><td>"+c+"</td></tr>"}
+  out.innerHTML='<div class="sc"><table><tr><th>Layer</th><th>Node</th><th>Output</th></tr>'+
+   row("1","μA₁(x), μA₂(x)",f4(mA[0])+", "+f4(mA[1]))+row("1","μB₁(y), μB₂(y)",f4(mB[0])+", "+f4(mB[1]))+
+   row("2","w₁, w₂ ("+(op=="min"?"min":"product")+")",f4(w[0])+", "+f4(w[1]))+row("3","w̄₁, w̄₂ = w/Σw",f4(wb[0])+", "+f4(wb[1]))+
+   row("4","f₁, f₂ (rule outputs)",f4(fi[0])+", "+f4(fi[1]))+row("4","w̄₁f₁, w̄₂f₂",f4(o4[0])+", "+f4(o4[1]))+row("5","f = Σ w̄ᵢfᵢ","<b>"+f4(fo)+"</b>")+'</table></div>';
+ }catch(e){out.innerHTML='<div class="trap">Enter x y, two lines "c σ" for A and for B (σ &gt; 0) and two lines "p q r".</div>'}
+}
+$("aGo").onclick=runA;runA();
+</script></body></html>
