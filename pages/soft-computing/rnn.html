@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RNN, LSTM &amp; GRU – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+input[type=range]{width:100%}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#why">Why RNN</a><a href="#rnn">Vanilla RNN</a><a href="#deep">Deep/Bidirectional</a><a href="#vg">Vanishing gradient</a><a href="#lstm">LSTM</a><a href="#fix">LSTM fixes it</a><a href="#peep">Peephole</a><a href="#gru">GRU</a><a href="#lab">Calculators</a><a href="#app">Applications</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>RNN, LSTM &amp; GRU – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 343–378 (RNN, LSTM, GRU after Hung-yi Lee), 647–676 (vanilla RNN and GRU equations, handwritten notes), 813–843 (RNN/LSTM deck, after colah and cs231n). Tags: <span class="y">S25</span> <span class="y">F24</span> <span class="y">S24</span> <span class="y">F23</span> <span class="y">S23</span> <span class="y">S22</span> <span class="y">F22</span>. Some RNN/LSTM question appeared in every exam.</p>
+
+<section id="why"><h2>1. Why recurrent networks?</h2><p class="pg">PDF pp. 344–346, 366, 814–823</p>
+<ul><li>A fully connected network needs a fixed number of inputs x₁…x<sub>n</sub>. For text or speech n is large and growing, so the network would become too large. Humans also do not restart thinking every second: we understand each word from the previous words.</li>
+<li><b>RNN idea:</b> feed the inputs one at a time and <b>re-use the same weights</b> at each step, passing a hidden state (memory) forward: <span class="f">h′, y = f(h, x)</span> (h and h′ have the same dimension). However long the sequence, there is only one function f. It is “another compression of the fully connected network”.</li>
+<li><b>Feed-forward vs recurrent (p. 366):</b> a feed-forward network has input only at the first layer and <b>different parameters in each layer</b> (<span class="f">a<sub>t</sub> = σ(W<sub>t</sub>a<sub>t−1</sub> + b<sub>t</sub>)</span>, t = layer); a recurrent network has an input <b>at every time step</b> and <b>shares parameters</b> across time (<span class="f">a<sub>t</sub> = σ(W<sub>h</sub>a<sub>t−1</sub> + W<sub>i</sub>x<sub>t</sub> + b)</span>, t = time step).</li></ul></section>
+
+<section id="rnn"><h2>2. The vanilla (naive) RNN</h2><p class="pg">PDF pp. 350–351, 651–662, 817–830</p>
+<div class="key"><span class="f">s<sub>t</sub> = φ( W·s<sub>t−1</sub> + U·x<sub>t</sub> + b )</span> &nbsp;·&nbsp; <span class="f">y<sub>t</sub> = softmax( V·s<sub>t</sub> )</span><br>The slides’ “naive RNN” (p. 350): <span class="f">h′ = σ(W<sub>h</sub>h + W<sub>i</sub>x)</span>, <span class="f">y = softmax(W<sub>o</sub>h′)</span> (bias ignored). Equivalent forms: <span class="f">s<sub>t</sub> = φ(W[s<sub>t−1</sub>, x<sub>t</sub>])</span> with the weight matrices concatenated (p. 659). φ is usually tanh.</div>
+<ul><li>The state is a single “hidden” vector; the <b>same W, U, V are used at every step</b> (p. 823). Shapes (p. 651): s is n×1, W is n×n, U is n×m, x is m×1.</li>
+<li><b>Training (p. 825):</b> unfold the network over time and treat it as one big feed-forward network; compute gradients by ordinary backpropagation (<b>backpropagation through time, BPTT</b>) and update the shared weights with the sum of the gradients from every step.</li>
+<li><b>Input/output configurations (pp. 817–821):</b> one-to-one (plain network); <b>one-to-many</b> (image → sequence of words, captioning); <b>many-to-one</b> (sequence of words → sentiment); <b>many-to-many</b> (sequence → sequence, machine translation; also frame-level video classification).</li>
+<li><b>Sentiment classification (pp. 826–828):</b> convert words to embeddings, feed them one by one; only the <b>last</b> output matters: a sigmoid there gives positive/negative, and the cost is computed from the last step and the label.</li>
+<li><b>Language modelling (p. 830):</b> the output at each step is a softmax over the vocabulary predicting the next word.</li></ul></section>
+
+<section id="deep"><h2>3. Deep and bidirectional RNNs</h2><p class="pg">PDF pp. 347–349 · <span class="y">S23: differences between deep and bidirectional RNNs (3 marks)</span></p>
+<div class="sc"><table><tr><th></th><th>Deep RNN (p. 347)</th><th>Bidirectional RNN (p. 348)</th></tr>
+<tr><td>Structure</td><td>several RNN layers <b>stacked</b>: <span class="f">h′, y = f₁(h, x)</span>, <span class="f">g′, z = f₂(g, y)</span>; the outputs of layer 1 are the inputs of layer 2</td><td>two RNNs in <b>opposite directions</b>: forward <span class="f">y, h = f₁(x, h)</span> and backward <span class="f">z, g = f₂(g, x)</span>; combined by <span class="f">p = f₃(y, z)</span></td></tr>
+<tr><td>Direction of time</td><td>one direction (past → future)</td><td>both: each output sees the past and the future of the sequence</td></tr>
+<tr><td>Purpose</td><td>more depth, more abstract features, more capacity</td><td>full context around each position (needs the whole sequence available)</td></tr>
+<tr><td>Typical use</td><td>speech/translation with many layers</td><td>tagging, NER, speech recognition (not for real-time prediction)</td></tr></table></div>
+<p><b>Pyramid RNN (p. 349):</b> reduces the number of time steps (each higher layer combines consecutive outputs of the layer below) to speed up training significantly; used in “Listen, Attend and Spell” speech recognition.</p></section>
+
+<section id="vg"><h2>4. Problems of the naive RNN: forgetting and vanishing/exploding gradients</h2><p class="pg">PDF pp. 352, 831–835 · <span class="y">F22 S25 S24</span></p>
+<ul><li><b>Short memory:</b> on a time series the naive RNN tends to forget old information (p. 352). “The clouds are in the <i>sky</i>”: little context needed. “I grew up in France… I speak fluent <i>French</i>”: the clue is far away. In theory an RNN can learn such long-term dependencies, in practice it cannot (pp. 831–833).</li>
+<li><b>Why:</b> backpropagation through time multiplies the gradient by the same matrix (and the activation derivative) at every step: <span class="f">∂L/∂s<sub>k</sub> = ∂L/∂s<sub>T</sub> · Π<sub>t=k+1..T</sub> (Wᵀ·diag φ′(·))</span>. “In the same way a product of k real numbers can shrink to zero or explode to infinity, so can a product of matrices” (p. 834).</li>
+<li><b>Vanishing:</b> if the effective factor per step is below 1 (small W, tanh′ ≤ 1) the gradient shrinks exponentially: 0.5²⁰ ≈ 10⁻⁶, so early inputs hardly affect learning. <b>Exploding:</b> factor above 1: 1.5²⁰ ≈ 3,300, unstable updates.</li>
+<li><b>Other flaws:</b> sequential computation (cannot parallelise over time), one state vector bottleneck.</li></ul>
+<div class="key"><b>Remedies (F22 “flaws of RNN and a solution”, 4 marks):</b> flaws: forgetting of distant information and vanishing/exploding gradients. Solutions: <b>LSTM or GRU</b> (gated memory path, slides p. 835 “LSTMs do not have this problem”), <b>gradient clipping</b> for exploding gradients, truncated BPTT, careful initialisation; later, attention/Transformers.</div></section>
+
+<section id="lstm"><h2>5. LSTM: structure and gates</h2><p class="pg">PDF pp. 353–363, 836–842 · <span class="y">F24 S22: structure and roles of the gates</span></p>
+<p>The LSTM (Hochreiter &amp; Schmidhuber, 1997) is a special RNN. A plain RNN repeating module has a single tanh layer; the LSTM module has <b>four interacting layers</b> and a separate <b>cell state</b> C<sub>t</sub> that runs along the top “conveyor belt”: it is changed only slowly, by minor linear interactions, so information can flow along it unchanged (p. 354, 839). <b>Gates</b> are sigmoid layers (output 0 to 1) multiplied point-wise: 0 = let nothing through, 1 = let everything through.</p>
+<div class="sc"><table><tr><th>Gate / step</th><th>Equation (colah form, pp. 840–842)</th><th>Role</th></tr>
+<tr><td><b>Forget gate</b> f<sub>t</sub> (green, “controls forget”)</td><td><span class="f">f<sub>t</sub> = σ(W<sub>f</sub>·[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>f</sub>)</span></td><td>decides what part of the old cell state C<sub>t−1</sub> to keep (1) or erase (0)</td></tr>
+<tr><td><b>Input gate</b> i<sub>t</sub> and candidate C̃<sub>t</sub></td><td><span class="f">i<sub>t</sub> = σ(W<sub>i</sub>·[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>i</sub>)</span>, <span class="f">C̃<sub>t</sub> = tanh(W<sub>C</sub>·[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>C</sub>)</span></td><td>input gate decides which components to update; the tanh layer proposes the new content</td></tr>
+<tr><td><b>Cell update</b></td><td><span class="f">C<sub>t</sub> = f<sub>t</sub> ∗ C<sub>t−1</sub> + i<sub>t</sub> ∗ C̃<sub>t</sub></span></td><td>forget old, add new (element-wise)</td></tr>
+<tr><td><b>Output gate</b> o<sub>t</sub></td><td><span class="f">o<sub>t</sub> = σ(W<sub>o</sub>·[h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>o</sub>)</span>, <span class="f">h<sub>t</sub> = o<sub>t</sub> ∗ tanh(C<sub>t</sub>)</span></td><td>decides what part of the cell state is exposed as the hidden output</td></tr></table></div>
+<p><b>Lecture notation (Hung-yi Lee, pp. 360–362):</b> four matrix computations from the same input [x<sub>t</sub>, h<sub>t−1</sub>]: <span class="f">z = tanh(W[x,h])</span> (update information), <span class="f">z<sup>i</sup> = σ(W<sup>i</sup>[x,h])</span> (input gate), <span class="f">z<sup>f</sup> = σ(W<sup>f</sup>[x,h])</span> (forget gate), <span class="f">z<sup>o</sup> = σ(W<sup>o</sup>[x,h])</span> (output gate). Then <span class="f">c<sup>t</sup> = z<sup>f</sup> ⊙ c<sup>t−1</sup> + z<sup>i</sup> ⊙ z</span>, <span class="f">h<sup>t</sup> = z<sup>o</sup> ⊙ tanh(c<sup>t</sup>)</span>, <span class="f">y<sup>t</sup> = σ(W′h<sup>t</sup>)</span>. These four computations are done concurrently as one big matrix product.</p>
+<ul><li><b>Naive RNN vs LSTM (p. 359):</b> in the RNN h changes fast (h<sub>t</sub> and h<sub>t−1</sub> can be very different), whereas in the LSTM the memory c changes slowly (c<sub>t</sub> = c<sub>t−1</sub> plus something) while h changes fast.</li>
+<li><b>Why sigmoid and tanh (pp. 354–355):</b> sigmoid gives a 0–1 “switch” for the three gates; tanh (bounded, differentiable, monotonic, with a second derivative that persists over a long range) keeps the vanishing-gradient problem under control; ReLU can replace tanh as an alternative, but know the trade-offs.</li></ul>
+<div class="ex"><b>One LSTM step with numbers (scalar):</b> x = 1, h<sub>t−1</sub> = 0.5, C<sub>t−1</sub> = 2; f: weights (1, 1, 0) → f = σ(1.5) = 0.8176; i: (0.5, 0.5, 0) → σ(0.75) = 0.6792; candidate (1, 1, 0) → tanh(1.5) = 0.9051; o: (1, 1, 0) → σ(1.5) = 0.8176.
+C<sub>t</sub> = 0.8176·2 + 0.6792·0.9051 = <b>2.2499</b>; h<sub>t</sub> = 0.8176·tanh(2.2499) = <b>0.7996</b>.</div></section>
+
+<section id="fix"><h2>6. How the LSTM solves the vanishing-gradient problem</h2><p class="pg">PDF pp. 354–355, 835 · <span class="y">S24 Q4c (7 marks): “using appropriate equations”</span></p>
+<ol><li><b>RNN:</b> <span class="f">s<sub>t</sub> = φ(Ws<sub>t−1</sub> + Ux<sub>t</sub> + b)</span> so <span class="f">∂s<sub>t</sub>/∂s<sub>t−1</sub> = diag(φ′)·W</span> and over k steps the gradient is a product of k such matrices, which vanishes (norm &lt; 1) or explodes (norm &gt; 1).</li>
+<li><b>LSTM cell state is updated additively:</b> <span class="f">C<sub>t</sub> = f<sub>t</sub> ∗ C<sub>t−1</sub> + i<sub>t</sub> ∗ C̃<sub>t</sub></span>. Hence along the cell path <span class="f">∂C<sub>t</sub>/∂C<sub>t−1</sub> = f<sub>t</sub></span> (element-wise, plus gate-dependence terms that are small), and over k steps <span class="f">∂C<sub>t</sub>/∂C<sub>t−k</sub> ≈ Π<sub>j</sub> f<sub>t−j+1</sub></span>.</li>
+<li>If the forget gate is close to 1 the product stays near 1: the gradient flows back <b>almost unchanged</b> (a “highway”, like a residual connection), and the network can learn to keep f≈1 where long memory is needed and f≈0 where it should reset. There is no repeated multiplication by the same W along this path.</li>
+<li>Gates are learned from data, so the network chooses what to remember; the input gate protects the cell from irrelevant inputs and the output gate protects the rest of the network from irrelevant memory.</li></ol>
+<div class="ex"><b>Numbers:</b> after 20 steps a plain RNN factor 0.5 gives 0.5²⁰ ≈ 9.5×10⁻⁷, an LSTM forget gate 0.95 gives 0.95²⁰ ≈ <b>0.36</b>; after 50 steps 0.99⁵⁰ ≈ 0.61 vs 0.9⁵⁰ ≈ 0.005. (Use the calculator below.)</div></section>
+
+<section id="peep"><h2>7. Peephole LSTM</h2><p class="pg">PDF pp. 358, 361 · <span class="y">F23: differences between LSTM and peephole LSTM (4 marks)</span></p>
+<p>In the standard LSTM the gates see only <b>[h<sub>t−1</sub>, x<sub>t</sub>]</b>, so the gates cannot look at the cell state they control. The <b>peephole</b> variant (Gers &amp; Schmidhuber) lets the gates “peep into the memory” by also feeding the cell state:</p>
+<div class="key"><span class="f">f<sub>t</sub> = σ(W<sub>f</sub>·[<b>C<sub>t−1</sub></b>, h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>f</sub>)</span> · <span class="f">i<sub>t</sub> = σ(W<sub>i</sub>·[<b>C<sub>t−1</sub></b>, h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>i</sub>)</span> · <span class="f">o<sub>t</sub> = σ(W<sub>o</sub>·[<b>C<sub>t</sub></b>, h<sub>t−1</sub>, x<sub>t</sub>] + b<sub>o</sub>)</span><br>The forget and input gates use the <i>old</i> cell state C<sub>t−1</sub>; the output gate uses the <i>new</i> cell state C<sub>t</sub>. The peephole connections are diagonal (each gate unit sees only its own cell component), p. 361.</div>
+<div class="sc"><table><tr><th></th><th>Standard LSTM</th><th>Peephole LSTM</th></tr><tr><td>Gate inputs</td><td>h<sub>t−1</sub>, x<sub>t</sub></td><td>C<sub>t−1</sub> (or C<sub>t</sub> for output gate), h<sub>t−1</sub>, x<sub>t</sub></td></tr><tr><td>Knowledge of memory</td><td>only through h<sub>t−1</sub> (filtered by the output gate)</td><td>direct access to the cell state</td></tr><tr><td>Parameters</td><td>fewer</td><td>extra peephole weights</td></tr><tr><td>Benefit</td><td>simpler, standard</td><td>better at precise timing/counting tasks; gates can react to what is stored</td></tr></table></div></section>
+
+<section id="gru"><h2>8. GRU: gated recurrent unit</h2><p class="pg">PDF pp. 364–365, 663–673 (equations) · <span class="y">S22 F22: RNN/LSTM comparisons</span></p>
+<p>The GRU (Cho et al., 2014) is “more compression” of the LSTM: it <b>combines the forget and input gates into a single update gate</b> and <b>merges the cell state and hidden state</b> (no separate cell layer), so it is simpler than the LSTM (p. 364). The h<sub>t</sub> values passed along either retain much old information or are jump-started with new information (p. 365).</p>
+<div class="key"><b>Equations (p. 673):</b> <span class="f">z<sub>t</sub> = σ(W<sub>z</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])</span> (update gate) · <span class="f">r<sub>t</sub> = σ(W<sub>r</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])</span> (reset gate) · <span class="f">h̃<sub>t</sub> = tanh(W·[r<sub>t</sub> ∗ h<sub>t−1</sub>, x<sub>t</sub>])</span> (candidate) · <span class="f">h<sub>t</sub> = (1 − z<sub>t</sub>) ∗ h<sub>t−1</sub> + z<sub>t</sub> ∗ h̃<sub>t</sub></span></div>
+<ul><li><b>Reset gate r<sub>t</sub>:</b> how much of the previous state is read when forming the candidate (r = 0 ignores the past).</li>
+<li><b>Update gate z<sub>t</sub>:</b> how much of the state is replaced by the candidate; it is both forget and write gate: (1 − z) keeps the old state, z writes the new one.</li>
+<li><b>Other convention (pp. 663–671):</b> <span class="f">r<sub>t</sub> = σ(W<sub>r</sub>s<sub>t−1</sub> + U<sub>r</sub>x<sub>t</sub> + b<sub>r</sub>)</span>, <span class="f">z<sub>t</sub> = σ(W<sub>z</sub>s<sub>t−1</sub> + U<sub>z</sub>x<sub>t</sub> + b<sub>z</sub>)</span>, <span class="f">s̃<sub>t</sub> = φ(W(r<sub>t</sub>∘s<sub>t−1</sub>) + Ux<sub>t</sub> + b)</span>, <span class="f">s<sub>t</sub> = z<sub>t</sub>∘s<sub>t−1</sub> + (1 − z<sub>t</sub>)∘s̃<sub>t</sub></span> (z is the “forget” gate here, so z = 0 replaces all memory with the candidate, p. 671). The roles of z and 1−z are swapped between the two slide sets; write the convention you use.</li></ul>
+<div class="sc"><table><tr><th></th><th>Vanilla RNN</th><th>GRU</th><th>LSTM</th></tr><tr><td>States</td><td>h</td><td>h</td><td>h and cell C</td></tr><tr><td>Gates</td><td>none</td><td>2 (reset, update)</td><td>3 (forget, input, output)</td></tr><tr><td>Weight blocks</td><td>1</td><td>3</td><td>4</td></tr><tr><td>Parameters (n<sub>x</sub>=3, n<sub>h</sub>=4)</td><td>4·(3+4)+4 = 32</td><td>3×32 = 96</td><td>4×32 = 128</td></tr><tr><td>Long-term memory</td><td>poor</td><td>good</td><td>good</td></tr><tr><td>Speed</td><td>fastest</td><td>faster than LSTM</td><td>slowest of the three</td></tr></table></div>
+<p>Parameter count per gate = n<sub>h</sub>(n<sub>x</sub>+n<sub>h</sub>) + n<sub>h</sub> (weights for [x, h] plus bias). In practice GRUs and LSTMs perform similarly; the slides’ summary: “common to use LSTM or GRU; the memory path makes them stably learn long-distance interactions” (p. 843).</p></section>
+
+<section id="lab"><h2>9. Calculators</h2>
+<h3>(a) One-step cell calculator (scalar state)</h3>
+<p>Choose the cell, set the weights as <code>wx wh b</code> per gate (the gate’s pre-activation is wx·x + wh·h + b), and see every gate and the new state.</p>
+<div id="pre"></div>
+<label>Cell</label><select class="i" id="cT"><option value="lstm">LSTM</option><option value="gru">GRU</option><option value="rnn">Vanilla RNN (tanh)</option></select>
+<label>x, previous h, previous c (LSTM only)</label><input class="i" id="cX" value="1 0.5 2">
+<label id="cLab">Weights: f, i, g (candidate), o</label><textarea id="cW" rows="4"></textarea>
+<p><button class="b" id="cGo">Compute step</button></p><div id="cOut"></div>
+<h3>(b) Gradient survival over T steps</h3>
+<p>The gradient reaching a step k places back is multiplied by one factor per step. Compare a plain RNN factor with an LSTM forget gate.</p>
+<label>RNN factor per step (|W·φ′|)</label><input class="i" id="gR" value="0.5">
+<label>LSTM forget gate value</label><input class="i" id="gL" value="0.95">
+<p><button class="b" id="gGo">Compare</button></p><div id="gOut"></div></section>
+
+<section id="app"><h2>10. Applications and attention</h2><p class="pg">PDF pp. 367–378 · <span class="y">S25 mentions: sentiment analysis</span></p>
+<ul><li><b>Neural machine translation (p. 368):</b> an encoder LSTM reads the source sentence; a decoder LSTM produces the target (sequence-to-sequence).</li><li><b>Chat model (pp. 369–370):</b> seq2seq conversation, with context kept over turns (hierarchical encoder-decoder, Serban et al. 2015).</li><li><b>Speech recognition (p. 371):</b> Baidu’s Deep Speech uses RNNs. Others: sentiment classification, language modelling, video classification, image captioning (pp. 817–830).</li>
+<li><b>Attention (pp. 372–377):</b> for image captioning a CNN gives a vector per image region; the LSTM state z₀ is matched with each region to produce weights (e.g. 0.7, 0.1, 0.1, 0.1, 0, 0), the weighted sum is fed to the LSTM to emit word 1, the new state z₁ gives new weights (0, 0.8, 0.2, …) for word 2, and so on (“Show, Attend and Tell”, Xu et al. 2015). Attention removes the single-vector bottleneck; Transformers (see the Transformer page) build on it.</li></ul></section>
+
+<section id="exam"><h2>11. Exam kit</h2>
+<div class="key"><b>“RNN forgets earlier time steps: why, and how do the forget and input gates of an LSTM help? Which sentence is encoded worse?” (8 marks)</b> <span class="y">S25</span><br>Why: the same weights are multiplied at every step in BPTT, gradients vanish over long gaps (§4). LSTM: forget gate f<sub>t</sub> keeps old memory (C<sub>t</sub> = f<sub>t</sub>∗C<sub>t−1</sub> + i<sub>t</sub>∗C̃<sub>t</sub>), input gate decides what new information is written (§5–6). The sentence with the long relative clause between “author” and “lives” (Sentence 1) is encoded less accurately because the subject must survive about 15 steps; Sentence 2 has a 1–2 word gap.</div>
+<div class="key"><b>“Basic structure of an LSTM; roles of the gates” (6 marks)</b> <span class="y">F24 S22</span><br>Draw the cell with the cell-state line C<sub>t−1</sub>→C<sub>t</sub>, three sigmoid gates (forget, input, output) and the tanh candidate; write the four equations of §5 and one line per gate (what to erase, what to write, what to expose).</div>
+<div class="key"><b>“How does LSTM resolve the vanishing gradient of RNN? Use equations” (7 marks)</b> <span class="y">S24</span><br>§6: RNN gradient is a product of W and φ′ factors over k steps; LSTM’s additive update gives ∂C<sub>t</sub>/∂C<sub>t−1</sub> = f<sub>t</sub> ≈ 1, so the gradient survives; gates learn when to remember or forget.</div>
+<div class="key"><b>“Differences between LSTM and Peephole LSTM” (4 marks)</b> <span class="y">F23</span> → §7. <b>“Differences between deep and bidirectional RNNs” (3 marks)</b> <span class="y">S23</span> → §3. <b>“Structural aspect that distinguishes RNN from LSTM” (4 marks)</b> <span class="y">S23</span>: the LSTM has a cell state with additive updates and three gates, the RNN only a single tanh layer on h. <b>“Differences between RNN and LSTM; basic structure of LSTM” (6 marks)</b> <span class="y">S22</span> → §5 and the table in §8.</div>
+<h3>Traps</h3>
+<ul><li>The cell state C and hidden state h are different; GRU merges them.</li><li>Gates use sigmoid (0–1); candidate and output squashing use tanh.</li><li>LSTM has 3 gates, GRU 2; peephole adds the cell state to the gate inputs, it does not add a gate.</li><li>The update is element-wise (∗ or ⊙), not a matrix product.</li><li>State which GRU convention you use (z versus 1 − z).</li><li>LSTM mitigates vanishing gradients; exploding gradients still need clipping.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>Why RNN over a feed-forward network; what is shared across time; BPTT.</li><li>Many-to-one vs many-to-many examples; sentiment classification set-up.</li><li>Why sigmoid in gates and tanh for the cell candidate; GRU vs LSTM.</li></ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (§ Unfolding Computational Graphs, Recurrent Neural Networks, Bidirectional RNNs, Encoder-Decoder Sequence-to-Sequence Architectures, Deep Recurrent Networks, The Challenge of Long-Term Dependencies, The Long Short-Term Memory and Other Gated RNNs, Optimization for Long-Term Dependencies); Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “RNNs and LSTMs”; Hochreiter &amp; Schmidhuber (1997) “Long Short-Term Memory”; Gers &amp; Schmidhuber (2000) peephole connections; Cho et al. (2014) GRU; Bengio et al. (1994) “Learning long-term dependencies with gradient descent is difficult”; Olah, “Understanding LSTM Networks” (colah.github.io, the source of the slides’ figures); Xu et al. (2015) “Show, Attend and Tell”.</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function sg(z){return 1/(1+Math.exp(-z))}
+function f4(x){return String(Number(x.toPrecision(4)))}
+var C={
+ lstm:{lab:"Weights (wx wh b) per line: f, i, g (candidate), o",x:"1 0.5 2",w:"1 1 0\n0.5 0.5 0\n1 1 0\n1 1 0"},
+ gru:{lab:"Weights (wx wh b) per line: z (update), r (reset), candidate",x:"1 0.5",w:"1 1 0\n1 1 -1\n1 1 0"},
+ rnn:{lab:"Weights (wx wh b): one line",x:"1 0.5",w:"1 1 0"}};
+function setCell(){var t=$("cT").value;$("cLab").textContent=C[t].lab;$("cX").value=C[t].x;$("cW").value=C[t].w;cell()}
+function nm(s){return s.trim().split(/[\s,]+/).map(Number)}
+function cell(){
+ var t=$("cT").value,xs=nm($("cX").value),W=$("cW").value.trim().split("\n").map(function(l){return nm(l.indexOf(":")>=0?l.split(":")[1]:l)}),out=$("cOut");
+ var need=t=="lstm"?4:t=="gru"?3:1;
+ if(W.length<need||W.slice(0,need).some(function(r){return r.length<3||r.some(isNaN)})||xs.some(isNaN)||xs.length<2){out.innerHTML='<div class="trap">Need x and previous h on the first line and '+need+' weight line(s) of "wx wh b".</div>';return}
+ var x=xs[0],h=xs[1],c=xs.length>2?xs[2]:0;function pre(r,hh){return r[0]*x+r[1]*(hh===undefined?h:hh)+r[2]}
+ function row(a,b){return"<tr><td>"+a+"</td><td>"+b+"</td></tr>"}var o="";
+ if(t=="lstm"){var f=sg(pre(W[0])),i=sg(pre(W[1])),g=Math.tanh(pre(W[2])),og=sg(pre(W[3])),cn=f*c+i*g,hn=og*Math.tanh(cn);
+  o=row("f (forget)",f4(f))+row("i (input)",f4(i))+row("C̃ (candidate)",f4(g))+row("o (output)",f4(og))+row("C<sub>t</sub> = f·C<sub>t−1</sub> + i·C̃","<b>"+f4(cn)+"</b>")+row("h<sub>t</sub> = o·tanh(C<sub>t</sub>)","<b>"+f4(hn)+"</b>")}
+ else if(t=="gru"){var z=sg(pre(W[0])),r=sg(pre(W[1])),hc=Math.tanh(pre(W[2],r*h)),hn2=(1-z)*h+z*hc;
+  o=row("z (update)",f4(z))+row("r (reset)",f4(r))+row("h̃ = tanh(…r·h…)",f4(hc))+row("h<sub>t</sub> = (1−z)·h<sub>t−1</sub> + z·h̃","<b>"+f4(hn2)+"</b>")}
+ else{o=row("h<sub>t</sub> = tanh(wx·x + wh·h + b)","<b>"+f4(Math.tanh(pre(W[0])))+"</b>")}
+ out.innerHTML='<div class="sc"><table><tr><th>Quantity</th><th>Value</th></tr>'+o+'</table></div>';
+}
+function grad(){
+ var a=Number($("gR").value),f=Number($("gL").value),rows="",out=$("gOut");
+ if(isNaN(a)||isNaN(f)){out.innerHTML='<div class="trap">Enter numbers.</div>';return}
+ [1,5,10,20,50,100].forEach(function(T){rows+="<tr><td>"+T+"</td><td>"+Number(Math.pow(a,T).toPrecision(3)).toExponential(2)+"</td><td>"+Number(Math.pow(f,T).toPrecision(3)).toExponential(2)+"</td></tr>"});
+ out.innerHTML='<div class="sc"><table><tr><th>Steps T</th><th>RNN: '+a+'<sup>T</sup></th><th>LSTM cell path: '+f+'<sup>T</sup></th></tr>'+rows+'</table></div><div class="ex">'+(a<1?"RNN factor below 1: the gradient vanishes exponentially. ":a>1?"RNN factor above 1: the gradient explodes. ":"")+(f>=0.9?"A forget gate near 1 keeps the gradient alive over long spans.":"")+'</div>';
+}
+$("cT").onchange=setCell;$("cGo").onclick=cell;$("gGo").onclick=grad;setCell();grad();
+</script></body></html>

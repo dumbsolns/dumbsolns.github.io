@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Optimizers (SGD, Momentum, RMSProp, Adam) – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+input[type=range]{width:100%}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#gd">Gradient descent</a><a href="#sgd">SGD</a><a href="#mom">Momentum</a><a href="#nag">Nesterov</a><a href="#ada">AdaGrad</a><a href="#rms">RMSProp</a><a href="#adam">Adam</a><a href="#cmp">Compare</a><a href="#lab">Race track</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Optimizers: SGD, Momentum, Nesterov, AdaGrad, RMSProp, Adam – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 72–79 and 638–648 (gradient descent basics), 615–637 (SGD problems, momentum, Nesterov, adaptive learning rates, Adam; slides after Mitesh Khapra’s CS7015). Tags: <span class="y">S25</span> <span class="y">F24</span> <span class="y">S24</span> <span class="y">S23</span> <span class="y">F22</span>. An optimizer question appeared in every exam.</p>
+
+<section id="gd"><h2>1. Why optimizers? Gradient descent recap</h2><p class="pg">PDF pp. 72–79, 638–648 · <span class="y">F22: importance of an optimizer / of gradient descent</span></p>
+<ul><li>Training a network means finding the parameters that <b>minimise the cost</b> J(w, b). Brute-force search is hopeless (2 weights × 1000 values = 10⁶ evaluations, growing exponentially with every weight), so we follow the gradient.</li>
+<li><b>Gradient descent:</b> <span class="f">w := w − α·∂J/∂w</span>, <span class="f">b := b − α·∂J/∂b</span> (α = learning rate, p. 643). The slope (derivative) tells which way is uphill: positive slope → decrease w, negative → increase w (p. 642). For logistic regression J is convex, so any start reaches the global optimum (p. 640).</li>
+<li><b>Derivative intuition (pp. 644–646):</b> slope of the tangent line; for f(a) = 3a the slope is 3; for f(x) = x² the derivative is 2x. For several parameters we use <b>partial derivatives</b> (p. 648).</li>
+<li><b>Deep networks are non-convex:</b> a function has a <b>global minimum</b>, <b>local minima/maxima</b> (p. 639). <b>Second-derivative test (p. 647):</b> at f′(c) = 0, f″(c) &gt; 0 → local minimum; f″(c) &lt; 0 → local maximum; f″(c) = 0 → inconclusive (saddle/flat).</li>
+<li><b>Gradient size matters (pp. 616–617):</b> since the update is proportional to the gradient, steps are large on steep parts and tiny on gentle slopes, so progress slows down on plateaus.</li></ul>
+<div class="key"><b>Importance of an optimizer (3 marks, F22):</b> the optimizer is the algorithm that updates the weights using the gradients of the loss. Its choice decides how fast training converges, whether it escapes poor local minima/plateaus, and how stable and accurate the final model is. Plain GD is slow and sensitive to the learning rate; momentum and adaptive optimizers (RMSProp, Adam) fix this.</div></section>
+
+<section id="sgd"><h2>2. Batch, stochastic and mini-batch gradient descent</h2><p class="pg">PDF pp. 95–101, 618–619</p>
+<ul><li><b>Batch GD:</b> gradient over all m examples per update: exact but slow for large data. <b>SGD:</b> one random example per update: cheap but noisy. <b>Mini-batch:</b> a few dozen to a few hundred examples: the usual compromise (vectorised, smoother than SGD).</li>
+<li><b>Problems with SGD (pp. 618–619):</b> <b>noisy updates</b> and frequent fluctuations of the loss; <b>slow convergence</b>; <b>sensitive to the learning rate</b> (too high diverges, too low is slow); may get stuck in local minima or saddle regions; less efficient than batch GD on small datasets; needs extra techniques (momentum, learning-rate decay, adaptive optimizers); overfits noisy patterns without regularization.</li>
+<li><b>The ravine problem (p. 618):</b> if the loss changes quickly in one direction and slowly in another (elongated contours), plain gradient descent makes <i>very slow progress along the shallow dimension and jitters along the steep dimension</i>. Momentum and adaptive learning rates were invented for this.</li></ul></section>
+
+<section id="mom"><h2>3. Momentum</h2><p class="pg">PDF pp. 620–625 · <span class="y">F24: “examine SGD and how momentum improves it” (6 marks)</span></p>
+<p><b>Intuition (p. 622):</b> if I am repeatedly asked to move in the same direction I should gain confidence and take bigger steps, like a ball gaining speed rolling down a slope. So use the <b>history of updates</b> in addition to the current gradient.</p>
+<div class="key"><span class="f">update<sub>t</sub> = γ·update<sub>t−1</sub> + η·∇w<sub>t</sub></span> &nbsp;·&nbsp; <span class="f">w<sub>t+1</sub> = w<sub>t</sub> − update<sub>t</sub></span> &nbsp; (γ ≈ 0.9, update₀ = 0)</div>
+<p>Unrolling (p. 623): <span class="f">update<sub>t</sub> = γ<sup>t−1</sup>η∇w₁ + γ<sup>t−2</sup>η∇w₂ + … + η∇w<sub>t</sub></span>: an exponentially weighted sum of all past gradients, recent ones weighing most.</p>
+<div class="ex"><b>Why it helps (numbers, η = 0.1, γ = 0.9).</b> <i>Consistent gradient g = 1 each step:</i> updates 0.1, 0.19, 0.271, 0.344, … → η/(1−γ) = <b>1.0</b>, i.e. up to 10× faster than plain SGD (0.1 per step) on a gentle but steady slope. <i>Oscillating gradient +1, −1, +1, −1:</i> updates 0.1, −0.01, 0.091, −0.018, … → <b>the zig-zag cancels</b> (steps shrink from 0.1 to ~0.01–0.09), so the jitter along the steep direction is damped while the steady direction accelerates.</div>
+<ul><li><b>Observations (pp. 624–625):</b> momentum carries the update through gentle regions (large steps because history accumulates); but it can <b>overshoot</b>: it oscillates in and out of the minimum valley, with many U-turns before converging. Even so it converges much faster than vanilla GD: slide example, after 100 iterations momentum reaches error 0.00001 while vanilla GD is still at 0.36.</li></ul></section>
+
+<section id="nag"><h2>4. Nesterov accelerated gradient (NAG)</h2><p class="pg">PDF pp. 626–630</p>
+<p><b>Intuition (“look before you leap”):</b> we are going to move by at least γ·update<sub>t−1</sub> anyway, so compute the gradient at that partially updated (look-ahead) point instead of at the current point.</p>
+<div class="key"><span class="f">w<sub>look-ahead</sub> = w<sub>t</sub> − γ·update<sub>t−1</sub></span><br><span class="f">update<sub>t</sub> = γ·update<sub>t−1</sub> + η·∇w<sub>look-ahead</sub></span><br><span class="f">w<sub>t+1</sub> = w<sub>t</sub> − update<sub>t</sub></span></div>
+<ul><li><b>Picture (p. 629):</b> first make a big jump in the direction of the previous accumulated gradient (brown), then measure the gradient where you end up and make a correction (red); the sum is the accumulated update (green). Standard momentum (blue) takes the gradient at the start, so it overshoots further.</li>
+<li><b>Observation (p. 630):</b> looking ahead lets NAG correct its course quicker than momentum, so oscillations are smaller and the chance of escaping the minimum valley is smaller.</li></ul></section>
+
+<section id="ada"><h2>5. AdaGrad</h2><p class="pg">PDF pp. 631–632 · <span class="y">S24 F22: RMSProp vs AdaGrad</span></p>
+<p><b>Idea:</b> adapt the learning rate <i>per parameter</i>: decay it in proportion to the parameter’s update history (more updates ⇒ more decay). Parameters of rare/sparse features keep large steps; frequently updated ones get small steps.</p>
+<div class="key"><span class="f">v<sub>t</sub> = v<sub>t−1</sub> + (∇w<sub>t</sub>)²</span> &nbsp;·&nbsp; <span class="f">w<sub>t+1</sub> = w<sub>t</sub> − η/√(v<sub>t</sub> + ε) · ∇w<sub>t</sub></span> &nbsp; (and the same for b)</div>
+<p><b>Weakness (p. 633):</b> v only <b>grows</b> (it is a cumulative sum), so the effective learning rate decays very aggressively; after a while even the useful parameters get tiny updates and learning stalls before convergence.</p></section>
+
+<section id="rms"><h2>6. RMSProp</h2><p class="pg">PDF p. 633</p>
+<p><b>Idea:</b> to avoid AdaGrad’s rapid growth of the denominator, <b>decay the denominator</b>: keep an exponentially weighted moving average of the squared gradients instead of the full sum.</p>
+<div class="key"><span class="f">v<sub>t</sub> = β·v<sub>t−1</sub> + (1−β)·(∇w<sub>t</sub>)²</span> &nbsp;·&nbsp; <span class="f">w<sub>t+1</sub> = w<sub>t</sub> − η/√(v<sub>t</sub> + ε) · ∇w<sub>t</sub></span> &nbsp; (β ≈ 0.9)</div>
+<div class="sc"><table><tr><th></th><th>AdaGrad</th><th>RMSProp</th></tr><tr><td>Accumulator</td><td>sum of all past squared gradients (grows without bound)</td><td>exponential moving average (bounded, forgets old gradients)</td></tr><tr><td>Effective learning rate</td><td>decays monotonically → can reach ≈ 0</td><td>stays usable; adapts to recent gradient size</td></tr><tr><td>Extra hyperparameter</td><td>none (η)</td><td>decay rate β</td></tr><tr><td>Good for</td><td>convex problems, sparse features</td><td>non-convex deep networks, RNNs</td></tr></table></div></section>
+
+<section id="adam"><h2>7. Adam (adaptive moment estimation)</h2><p class="pg">PDF pp. 634–635 · <span class="y">S25 S23 F22: write the algorithm</span></p>
+<p><b>Idea (p. 634):</b> do everything RMSProp does to solve the decay problem of AdaGrad, <b>plus</b> use a cumulative history of the gradients (momentum). Defaults β₁ = 0.9, β₂ = 0.999, ε = 10⁻⁸.</p>
+<div class="key"><span class="f">m<sub>t</sub> = β₁·m<sub>t−1</sub> + (1−β₁)·∇w<sub>t</sub></span> (velocity / first moment: history of gradients)<br><span class="f">v<sub>t</sub> = β₂·v<sub>t−1</sub> + (1−β₂)·(∇w<sub>t</sub>)²</span> (gradient accumulation / second moment)<br><span class="f">m̂<sub>t</sub> = m<sub>t</sub>/(1−β₁<sup>t</sup>)</span>, &nbsp; <span class="f">v̂<sub>t</sub> = v<sub>t</sub>/(1−β₂<sup>t</sup>)</span> (bias correction)<br><span class="f">w<sub>t+1</sub> = w<sub>t</sub> − η/√(v̂<sub>t</sub> + ε) · m̂<sub>t</sub></span> &nbsp;(many texts write √v̂<sub>t</sub> + ε; numerically almost identical)</div>
+<ul><li><b>Bias correction:</b> m₀ = v₀ = 0, so the first estimates are biased towards zero (especially v with β₂ = 0.999). Dividing by (1 − βᵗ) removes this; the correction fades as t grows.</li>
+<li><b>Step-size property:</b> the step is about η·m̂/√v̂, so its size is roughly η whatever the gradient scale.</li></ul>
+<div class="ex"><b>First Adam step, g = 2, η = 0.001:</b> m₁ = 0.1·2 = 0.2; v₁ = 0.001·4 = 0.004; m̂₁ = 0.2/0.1 = 2; v̂₁ = 0.004/0.001 = 4; step = 0.001·2/√4 = <b>0.001</b> (= η). Without bias correction the step would be 0.001·0.2/√0.004 = 0.0032.</div>
+<p><b>Which to use in practice (p. 635):</b> Adam is more or less the default choice now (η = 0.001 or 0.0001 works well for sequence tasks); SGD with momentum (classical or Nesterov) with a simple annealing schedule also works well and is often reported as best; recent work shows Adam may fail to converge in some cases.</p></section>
+
+<section id="cmp"><h2>8. Comparison</h2>
+<div class="sc"><table><tr><th>Optimizer</th><th>Extra state</th><th>Update</th><th>Strength</th><th>Weakness</th></tr>
+<tr><td>SGD</td><td>none</td><td>w −= η g</td><td>simple, cheap</td><td>noisy, slow in ravines, needs tuning of η</td></tr>
+<tr><td>Momentum</td><td>velocity u</td><td>u = γu + ηg; w −= u</td><td>speeds up steady directions, damps zig-zag</td><td>overshoots, oscillates</td></tr>
+<tr><td>NAG</td><td>velocity u</td><td>gradient at look-ahead w − γu</td><td>corrects earlier, smaller oscillations</td><td>still one global η</td></tr>
+<tr><td>AdaGrad</td><td>Σ g²</td><td>w −= η g/√(v+ε)</td><td>per-parameter rates, sparse data</td><td>rate decays to 0</td></tr>
+<tr><td>RMSProp</td><td>EMA of g²</td><td>w −= η g/√(v+ε), v = βv+(1−β)g²</td><td>fixes AdaGrad decay</td><td>no momentum, no bias correction</td></tr>
+<tr><td>Adam</td><td>m and v</td><td>w −= η m̂/√(v̂+ε)</td><td>momentum + RMSProp + bias correction; robust default</td><td>may not converge in some cases; can generalise slightly worse than tuned SGD</td></tr></table></div></section>
+
+<section id="lab"><h2>9. Race track: compare optimizers on an elongated valley</h2>
+<p>The loss is f(w, b) = ½(w² + 25b²), a ravine that is 5× steeper in b than in w (like the slide’s “problems with SGD”). All start at (−4, 1). Each optimizer runs for N steps with its own learning rate. Pick one to see its path on the contour plot, and read the final losses of all of them.</p>
+<label>Learning rates: SGD, Momentum, NAG, AdaGrad, RMSProp, Adam</label><input class="i" id="oL" value="0.03 0.03 0.03 0.5 0.05 0.1">
+<label>γ (momentum), β (RMSProp), β₁, β₂ (Adam)</label><input class="i" id="oB" value="0.9 0.9 0.9 0.999">
+<label>Steps N</label><input class="i" id="oN" value="60">
+<label>Show path of</label><select class="i" id="oS"><option value="0">SGD</option><option value="1" selected>Momentum</option><option value="2">Nesterov (NAG)</option><option value="3">AdaGrad</option><option value="4">RMSProp</option><option value="5">Adam</option></select>
+<p><button class="b" id="oGo">Run</button></p>
+<svg id="oSvg" viewBox="0 0 360 200" role="img" aria-label="Optimizer path on contour plot"></svg>
+<div id="oOut"></div></section>
+
+<section id="exam"><h2>10. Exam kit</h2>
+<div class="key"><b>“Examine SGD and explain how momentum improves it” (6 marks)</b> <span class="y">F24</span><br>SGD updates with one (or a mini-batch of) example(s): w := w − η∇w. It is cheap but noisy, zig-zags across steep directions and crawls along gentle ones (ravine problem), and is sensitive to η. Momentum adds a velocity: update<sub>t</sub> = γ·update<sub>t−1</sub> + η∇w<sub>t</sub>, w<sub>t+1</sub> = w<sub>t</sub> − update<sub>t</sub>, an exponential average of past gradients. Consistent gradient directions accumulate (faster, up to η/(1−γ)), oscillating ones cancel (smoother), and it helps cross plateaus and shallow local minima. Cost: overshoot/oscillation (NAG reduces this).</div>
+<div class="key"><b>“Which SGD variant with adaptive learning rate uses interim updates? Write the gradient accumulation and velocity update steps” (6 marks)</b> <span class="y">S25</span><br><b>Adam</b>: velocity (first moment) m<sub>t</sub> = β₁m<sub>t−1</sub> + (1−β₁)g<sub>t</sub>; gradient accumulation (second moment) v<sub>t</sub> = β₂v<sub>t−1</sub> + (1−β₂)g<sub>t</sub>²; bias-corrected interim estimates m̂<sub>t</sub> = m<sub>t</sub>/(1−β₁ᵗ), v̂<sub>t</sub> = v<sub>t</sub>/(1−β₂ᵗ); update w = w − η m̂<sub>t</sub>/√(v̂<sub>t</sub> + ε). (If “interim” means Nesterov’s look-ahead point w − γ·update<sub>t−1</sub>, note that NAG is not adaptive; the adaptive variant that has both velocity and accumulation is Adam.)</div>
+<div class="key"><b>“RMSProp vs AdaGrad” (4–7 marks)</b> <span class="y">S24 F22</span> → §5–6 equations and table. <b>“RMSProp vs Adam” (7 marks)</b> <span class="y">S23</span>: RMSProp = EMA of squared gradients only (v), update η g/√(v+ε); Adam adds the first-moment (momentum) m, and bias-corrects both m and v, update η m̂/√(v̂+ε). <b>“Importance of gradient descent; write Adam” (6 marks)</b> <span class="y">F22</span> → §1 and §7.</div>
+<h3>Traps</h3>
+<ul><li>AdaGrad accumulates a <b>sum</b>; RMSProp/Adam use <b>(1−β)</b>-weighted averages.</li><li>Adam bias correction divides by (1 − βᵗ) with t the step number (β₁ᵗ, β₂ᵗ are powers).</li><li>NAG evaluates the gradient at w − γ·update<sub>t−1</sub>, not at w<sub>t</sub>.</li><li>All updates subtract (w := w − …); momentum’s “update” already includes η.</li><li>RMSProp and AdaGrad have no momentum term; Adam = RMSProp + momentum + bias correction.</li></ul>
+<h3>Likely short questions</h3>
+<ul><li>SGD vs batch vs mini-batch; drawbacks of SGD; role of the learning rate.</li><li>Local vs global minimum; second-derivative test.</li><li>Why Adam is a popular default; limitations of AdaGrad.</li></ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 8 “Optimization for Training Deep Models” (§ Challenges in Neural Network Optimization, Basic Algorithms: SGD, Momentum, Nesterov Momentum; § Algorithms with Adaptive Learning Rates: AdaGrad, RMSProp, Adam); Jang, Sun &amp; Mizutani – Ch. 6 “Derivative-Based Optimization” (gradient descent, steepest descent); Kingma &amp; Ba (2015) “Adam: A Method for Stochastic Optimization”; Duchi, Hazan &amp; Singer (2011) AdaGrad, JMLR; Hinton, “RMSProp”, Coursera <i>Neural Networks for ML</i> lecture 6e; Sutskever et al. (2013) on momentum and Nesterov; Ruder (2016) “An overview of gradient descent optimization algorithms”.</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function nm(s){return s.trim().split(/[\s,]+/).map(Number)}
+function f(x,y){return 0.5*(x*x+25*y*y)}
+function gr(x,y){return [x,25*y]}
+var NAMES=["SGD","Momentum","NAG","AdaGrad","RMSProp","Adam"];
+function run1(k,lr,g,b,b1,b2,N){
+ var p=[-4,1],u=[0,0],v=[0,0],m=[0,0],eps=1e-8,path=[p.slice()],t,i;
+ for(t=1;t<=N;t++){
+  var q=p.slice();
+  if(k==2)q=[p[0]-g*u[0],p[1]-g*u[1]];
+  var G=gr(q[0],q[1]);
+  for(i=0;i<2;i++){
+   if(k==0)p[i]-=lr*G[i];
+   else if(k==1||k==2){u[i]=g*u[i]+lr*G[i];p[i]-=u[i]}
+   else if(k==3){v[i]+=G[i]*G[i];p[i]-=lr*G[i]/Math.sqrt(v[i]+eps)}
+   else if(k==4){v[i]=b*v[i]+(1-b)*G[i]*G[i];p[i]-=lr*G[i]/Math.sqrt(v[i]+eps)}
+   else{m[i]=b1*m[i]+(1-b1)*G[i];v[i]=b2*v[i]+(1-b2)*G[i]*G[i];var mh=m[i]/(1-Math.pow(b1,t)),vh=v[i]/(1-Math.pow(b2,t));p[i]-=lr*mh/(Math.sqrt(vh)+eps)}
+  }
+  path.push(p.slice());
+ }
+ return path;
+}
+function race(){
+ var L=nm($("oL").value),B=nm($("oB").value),N=Math.max(1,Math.min(500,Math.round(Number($("oN").value)))),sel=Number($("oS").value),out=$("oOut");
+ if(L.length<6||B.length<4||L.concat(B).some(isNaN)||isNaN(N)){out.innerHTML='<div class="trap">Enter 6 learning rates, 4 beta values and N.</div>';return}
+ var rows="",paths=[],k;
+ for(k=0;k<6;k++){var P=run1(k,L[k],B[0],B[1],B[2],B[3],N),e=P[P.length-1],fl=f(e[0],e[1]);paths.push(P);
+  rows+="<tr"+(k==sel?' style="background:var(--ac2)"':'')+"><td>"+NAMES[k]+"</td><td>"+L[k]+"</td><td>"+(isFinite(fl)?fl.toExponential(2):"diverged")+"</td><td>("+e[0].toFixed(3)+", "+e[1].toFixed(3)+")</td></tr>"}
+ out.innerHTML='<div class="sc"><table><tr><th>Optimizer</th><th>η</th><th>Loss after '+N+' steps</th><th>Final (w, b)</th></tr>'+rows+'</table></div>';
+ var X=function(x){return 180+x*32},Y=function(y){return 100-y*60},s="",lv=[0.2,1,3,6,10],i2;
+ lv.forEach(function(Lv){var pts="";for(i2=0;i2<=60;i2++){var th=2*Math.PI*i2/60;pts+=X(Math.sqrt(2*Lv)*Math.cos(th))+","+Y(Math.sqrt(2*Lv/25)*Math.sin(th))+" "}s+='<polyline points="'+pts+'" fill="none" stroke="var(--bd)" stroke-width="1"/>'});
+ var P2=paths[sel],pp="";P2.forEach(function(q){pp+=Math.max(-10,Math.min(370,X(q[0])))+","+Math.max(-10,Math.min(210,Y(q[1])))+" "});
+ s+='<line x1="20" y1="100" x2="340" y2="100" stroke="var(--mu)"/><line x1="180" y1="10" x2="180" y2="190" stroke="var(--mu)"/><polyline points="'+pp+'" fill="none" stroke="#e5484d" stroke-width="1.6"/><circle cx="'+X(-4)+'" cy="'+Y(1)+'" r="4" fill="var(--ac)"/><circle cx="180" cy="100" r="3" fill="#30a46c"/><text x="22" y="14" fill="var(--mu)" style="font-size:10px">'+NAMES[sel]+' path · blue = start (−4, 1) · green = minimum (0, 0)</text>';
+ $("oSvg").innerHTML=s;
+}
+$("oGo").onclick=race;$("oS").onchange=race;race();
+</script></body></html>

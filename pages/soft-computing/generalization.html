@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Generalization, Overfitting &amp; Regularization – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+input[type=range]{width:100%}
+</style></head><body>
+<div class="top"><a class="back" href="/">← Back</a>
+<nav class="nav"><a href="#gen">Generalization</a><a href="#fish">Fish example</a><a href="#fit">Under/overfit</a><a href="#lab">Fitting lab</a><a href="#bv">Bias-variance</a><a href="#eval">Evaluation</a><a href="#cv">Cross-validation</a><a href="#reg">Regularization</a><a href="#l2">L1/L2</a><a href="#do">Dropout</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Generalization, Overfitting &amp; Regularization – Deep Dive</h1>
+<p class="sub">CSE 4237 · PDF pp. 559–598 (pattern recognition example, overfitting, bias-variance, model evaluation, cross-validation) and pp. 702–746 (Raschka STAT 453, Lecture 10: regularization methods). Tags: <span class="y">S25</span> <span class="y">S24</span> and the 2022–23 papers (bias, overfitting, cross-validation, L2, dropout, early stopping).</p>
+
+<section id="gen"><h2>1. What is generalization?</h2><p class="pg">PDF pp. 571–576, 582</p>
+<p>The purpose of machine learning is <b>not</b> to learn the given data as exactly as possible, but to <b>predict unknown data</b> as accurately as possible from what was learned (p. 575). The ability to do well on unseen data is <b>generalization</b>.</p>
+<ul><li><b>Polynomial curve fitting example (pp. 571–576):</b> ten points are fitted by polynomials of order M = 0, 1, 3, 9. As the order (model complexity) increases, the curve fits the training points more exactly; at M = 9 the training error is <b>zero</b> (the curve goes through every point), yet the curve oscillates wildly between points and predicts new data badly. “Least training error” therefore does <i>not</i> mean “best model”.</li>
+<li><b>Training vs test error (p. 582):</b> training error keeps falling with M and reaches 0 at M = 9, while the test error falls, stays flat, then <b>jumps up</b> for large M.</li></ul></section>
+
+<section id="fish"><h2>2. Pattern-recognition example: sorting fish</h2><p class="pg">PDF pp. 559–570 (after Duda, Hart &amp; Stork)</p>
+<ul><li><b>Pipeline:</b> capture image → isolate fish → take measurements (features) → make the decision. Sensing problems: lighting, position of fish on the belt, camera noise.</li>
+<li><b>One feature (pp. 560–563):</b> use length with a threshold l*. Sea bass are longer on average, but the histograms overlap, so no threshold gives perfect decisions. Try <b>lightness</b> instead: better separation, still not perfect.</li>
+<li><b>Cost of errors (p. 564):</b> misclassifying salmon as sea bass and the reverse have different costs (customers object loudly to sea bass in salmon cans), so the threshold should reflect cost, not only accuracy.</li>
+<li><b>Two features (pp. 565–566):</b> lightness x₁ and width x₂ give a feature vector x = (x₁, x₂) and a <b>decision boundary</b> in the feature plane.</li>
+<li><b>More features always better? No (p. 567, 570):</b> avoid unreliable features; correlated features add nothing (redundant); there are measurement costs and noise; too many features lead to the <b>curse of dimensionality</b> (data becomes sparse, models overfit).</li>
+<li><b>Boundaries (pp. 568–569):</b> a very complex boundary classifies every training fish correctly but “how can we predict how well we generalise to unknown samples?”; a smoother boundary may make a few training errors but generalises better. This is the <b>tradeoff between complexity of decision rules and performance on unknown samples</b>.</li></ul></section>
+
+<section id="fit"><h2>3. Underfitting vs overfitting</h2><p class="pg">PDF pp. 577–580 · <span class="y">S25 F22 S22</span></p>
+<div class="sc"><table><tr><th></th><th>Underfitting</th><th>Good fit</th><th>Overfitting</th></tr>
+<tr><td>Regression example (housing price vs size)</td><td>straight line θ₀+θ₁x</td><td>θ₀+θ₁x+θ₂x²</td><td>degree-10 polynomial, wiggly</td></tr>
+<tr><td>Classification (logistic regression)</td><td>linear boundary</td><td>smooth curved boundary</td><td>boundary twisting around single points</td></tr>
+<tr><td>Bias / variance</td><td><b>high bias</b>, low variance</td><td>balanced</td><td>low bias, <b>high variance</b></td></tr>
+<tr><td>Training error</td><td>high</td><td>low</td><td>very low (≈ 0)</td></tr>
+<tr><td>Test error</td><td>high</td><td>low</td><td>high</td></tr></table></div>
+<ul><li><b>Underfitting</b> (p. 577): the model makes a strong assumption (e.g. price varies linearly with size), so it cannot fit even the training data (poor fit, high bias).</li>
+<li><b>Overfitting:</b> the hypothesis space is too large; with too little data the model fits noise and has ~0 training error but poor performance on new data (high variance).</li>
+<li><b>Complexity curve (p. 579):</b> as model complexity rises, training error always falls; test error is <b>U-shaped</b>: high bias on the left (underfitting), high variance on the right (overfitting), with a “good model complexity” at the minimum of the test curve.</li>
+<li><b>What makes overfitting more likely:</b> (1) not enough training examples (small dataset); (2) too many features; (3) a model/hypothesis function that is too complex for the problem.</li>
+<li><b>Addressing overfitting (p. 580):</b> (1) <b>hyperparameter tuning</b>: compute the generalization error of models of different complexity and keep the best; (2) <b>reduce the number of features</b>; (3) <b>ensemble methods</b> (e.g. random forest for decision trees); (4) <b>regularization</b>: keep all features but reduce the magnitude of the parameters θ<sub>j</sub> (works well with many features that each contribute a little).</li></ul></section>
+
+<section id="lab"><h2>4. Fitting lab: see underfitting, overfitting and regularization</h2>
+<p>Ten noisy training points from y = sin(2πx) + noise (dots) are fitted with a polynomial of order M by least squares; the 50 test points are never used for fitting. Drag <b>M</b> and the L2 strength <b>λ</b> and compare training and test error. This reproduces the slides’ M = 0, 1, 3, 9 figures.</p>
+<label id="lM">Order M = 3</label><input type="range" id="sM" min="0" max="9" value="3">
+<label id="lL">L2 strength λ = 0</label><input type="range" id="sL" min="0" max="8" value="0">
+<svg id="plot" viewBox="0 0 360 200" role="img" aria-label="Polynomial fit"></svg>
+<div id="tbl"></div></section>
+
+<section id="bv"><h2>5. Bias and variance</h2><p class="pg">PDF pp. 583–587 · <span class="y">S25 S24 F22</span></p>
+<ul><li><b>Bias</b> = the difference between the model’s average prediction and the true value we try to predict. A model that is too simple fails to capture the patterns in the data (a fundamental limitation): <b>high bias = underfitting</b>. Low-complexity models tend to have high bias.</li>
+<li><b>Variance</b> = how much the predictions change if a different training dataset is used. A model that is too flexible fits small fluctuations, memorises rather than learns general patterns: <b>high variance = overfitting</b>. High-complexity models tend to have high variance.</li>
+<li><b>Bullseye picture (p. 586):</b> the target is the true function, the darts are models learned from different datasets. <i>High bias</i> = darts far from the centre; <i>high variance</i> = darts scattered. Four combinations: low/low (ideal), high bias/low variance, low bias/high variance, high/high. (Same idea as accuracy vs precision on p. 587.)</li>
+<li><b>Tradeoff:</b> increasing complexity lowers bias but raises variance; the goal is the complexity that minimises total test error. In formula (standard result, beyond the slides): <span class="f">Expected error = Bias² + Variance + irreducible noise</span>.</li></ul>
+<div class="sc"><table><tr><th>Training error</th><th>Validation/test error</th><th>Diagnosis</th><th>Remedy</th></tr>
+<tr><td>high</td><td>high (≈ training)</td><td>high bias, underfitting</td><td>bigger/more complex model, more features, train longer, less regularization</td></tr>
+<tr><td>low</td><td>much higher</td><td>high variance, overfitting</td><td>more data, augmentation, regularization (L2, dropout), early stopping, fewer features</td></tr>
+<tr><td>low</td><td>low</td><td>good generalization</td><td>done</td></tr></table></div>
+<div class="ex"><b>S25 case:</b> a deep ANN reaches 98% training but 62% test accuracy, a gap of 36 points. Training error is tiny (2%), test error is large (38%): <b>low bias, high variance</b>, i.e. overfitting. A deep ANN has huge capacity relative to the data, so it memorises training examples.</div></section>
+
+<section id="eval"><h2>6. Model evaluation: training, validation and test sets</h2><p class="pg">PDF pp. 581, 588–591, 716</p>
+<ul><li>Different models (or hyperparameter values) must be compared. Divide the data into a <b>training set</b> and a <b>test set</b> that do not overlap and are as independent as possible; build several models on the training set, evaluate each on the test set, choose the model with the best test performance (pp. 588–589).</li>
+<li><b>Test set size:</b> about 20–30% of the data (slide: “50~30%”). <b>Advantage:</b> simple and easy. <b>Disadvantage:</b> the test data is not used for building the model (waste of data), and because the split is random the result can differ a lot from split to split (split 1 gives bad performance, split 2 good, p. 591).</li>
+<li><b>Three-way split (p. 716):</b> training set (fit the weights), <b>validation set</b> (tune hyperparameters, choose the model, decide when to stop), <b>test set</b> used <b>only once at the end</b> for an unbiased estimate of generalization performance. If you tune on the test set, your estimate is optimistic.</li></ul></section>
+
+<section id="cv"><h2>7. Cross-validation</h2><p class="pg">PDF pp. 592–598 · <span class="y">S24: bias-variance and the role of cross-validation</span></p>
+<ol><li>Split the data into <b>k folds</b> of equal size that do not overlap.</li>
+<li>Repeat k times: use k−1 folds as the training set and the remaining fold as the test (validation) set (a different fold each time).</li>
+<li>Compute the performance on each held-out fold and take the <b>average</b>; choose the model/hyperparameters with the best average performance, then retrain on all data.</li></ol>
+<p><b>4-fold example (pp. 593–597):</b> Set I trains on folds 1, 2, 3 and tests on fold 4; Set II trains on 4, 1, 2 and tests on 3; Set III trains on 3, 4, 1 and tests on 2; Set IV trains on 2, 3, 4 and tests on 1. Model 1, 2, …, n are each scored on the four test folds, then the model with the best <b>average</b> of the 4 results is chosen.</p>
+<ul><li><b>Advantages (p. 598):</b> less dependent on how the data is split; every data point is in a test set exactly once and in a training set k−1 times; the variance of the estimate is reduced as k increases.</li><li><b>Disadvantage:</b> time: k trainings instead of one.</li><li><b>Role for soft-computing models:</b> small datasets make a single split unreliable; CV gives a stable estimate of generalization for comparing fuzzy/neural models and tuning hyperparameters (number of rules, hidden units, λ, learning rate) without touching the final test set.</li></ul>
+<div class="ex"><b>Numbers:</b> accuracies over 4 folds — Model A: 0.82, 0.78, 0.80, 0.84 → mean <b>0.81</b>; Model B: 0.88, 0.70, 0.90, 0.72 → mean <b>0.80</b> but with a much larger spread. A single lucky split (folds 1 and 3) would favour B; the average (and the spread) shows A is as good and more stable.</div>
+<p><b>Calculator:</b> one line per model: <code>name: score score …</code></p>
+<textarea id="cvT" rows="3">Model A: 0.82 0.78 0.80 0.84
+Model B: 0.88 0.70 0.90 0.72
+Model C: 0.75 0.76 0.74 0.77</textarea>
+<p><button class="b" id="cvGo">Compare</button></p><div id="cvOut"></div></section>
+
+<section id="reg"><h2>8. Regularization: the big picture</h2><p class="pg">PDF pp. 703–715</p>
+<p><b>Goal:</b> reduce overfitting, usually by reducing model capacity and/or reducing the variance of the predictions. <b>Regularization</b> in deep learning means <b>adding information or changing the objective function</b> to prevent overfitting (p. 704). Common techniques for deep networks (p. 705): <b>early stopping</b>, <b>L1/L2 norm penalties</b>, <b>dropout</b>.</p>
+<p>Improving generalization (p. 709) is wider: collecting more data, data augmentation, label smoothing, leveraging unlabeled or related data (semi-/self-supervised, transfer learning), weight initialization, activation functions, architecture (residual layers), input standardization, knowledge distillation.</p>
+<ul><li><b>More data (p. 711):</b> often the best way to reduce overfitting. The learning curves of softmax classifiers on MNIST show the gap between training and test error shrinking as the training set grows (with a small set the model picks up noise).</li>
+<li><b>Data augmentation (pp. 712–714):</b> create new training examples by random label-preserving transformations (flip, crop, rotate, colour jitter) with TorchVision; remember to normalise (e.g. mean and std (0.5, 0.5, 0.5) for RGB).</li>
+<li><b>Early stopping (pp. 716–717):</b> split into training/validation/test; watch the training/validation gap during training and stop at the “right” epoch where the validation accuracy is best (before the gap grows). The slides note it is not very common anymore.</li></ul></section>
+
+<section id="l2"><h2>9. L1 and L2 regularization (norm penalties)</h2><p class="pg">PDF pp. 719–726 · <span class="y">S25 S24: L2</span></p>
+<ul><li>L2 = <b>Ridge regression / Tikhonov</b>; L1 = <b>LASSO</b>. Both are “weight shrinkage” or a “penalty against complexity”.</li>
+<li><b>L2 cost for a linear model:</b> <span class="f">Cost = (1/n) Σ L(y⁽ⁱ⁾, ŷ⁽ⁱ⁾) + (λ/n) Σ<sub>j</sub> w<sub>j</sub>²</span>. For a multilayer network: <span class="f">(1/n)Σ L + (λ/n) Σ<sub>l</sub> ‖w<sup>(l)</sup>‖<sub>F</sub>²</span> (Frobenius norm of each layer’s weight matrix; biases are not penalised) (p. 723).</li>
+<li><b>L1:</b> <span class="f">Cost = (1/n)ΣL + (λ/n) Σ|w<sub>j</sub>|</span>.</li></ul>
+<div class="key"><b>Gradient and update (weight decay), p. 724:</b> <span class="f">∂Cost/∂w = ∂L/∂w + (2λ/n)·w</span>, so <span class="f">w := w − η·∂L/∂w − (2ηλ/n)·w = (1 − 2ηλ/n)·w − η·∂L/∂w</span>. Each step first <b>shrinks</b> the weights by the factor (1 − 2ηλ/n), then applies the usual gradient step. In PyTorch: <code>weight_decay=LAMBDA</code> in the optimizer (p. 726) or add the sum of squared weights to the loss (p. 725).</div>
+<div class="ex">w = 2.0, η = 0.1, λ = 0.5, n = 10 ⇒ 2ηλ/n = 0.01; with zero data gradient the new w = 2.0·0.99 = <b>1.98</b>; repeated, weights decay towards 0 unless the data gradient pushes back.</div>
+<ul><li><b>Geometric interpretation (p. 721):</b> minimise the loss subject to a penalty region: the L2 region is a circle/sphere, so the solution is a small-norm vector with all weights shrunk but non-zero; the L1 region is a diamond with corners on the axes, so the solution often lands on a corner, making some weights <b>exactly zero</b> (sparse, built-in feature selection).</li>
+<li><b>Effect on the decision boundary (p. 722):</b> a larger λ gives a smoother, simpler boundary (less variance, more bias); λ too large underfits, λ = 0 is no regularization.</li>
+<li>λ is a hyperparameter chosen with a validation set or cross-validation.</li></ul></section>
+
+<section id="do"><h2>10. Dropout</h2><p class="pg">PDF pp. 727–746 · <span class="y">S25 F24 (dropout), S24</span></p>
+<ul><li><b>Main idea (p. 729–731):</b> during training, each hidden node is <b>dropped</b> (its activation set to 0) with probability p. Practical implementation by <b>Bernoulli sampling</b>: draw v ~ Uniform[0,1] for each unit; mask <span class="f">m<sub>i</sub> = 0 if v<sub>i</sub> &lt; p else 1</span>, and multiply the activations by the mask. A new random sub-network is used for every mini-batch.</li>
+<li><b>Co-adaptation interpretation (p. 733):</b> the network cannot rely on particular connections or units, so it must use many connections; the weights become more spread out (smaller, similar to the effect of L2).</li>
+<li><b>Ensemble interpretation (pp. 735–737):</b> each mini-batch trains a “different model”; with h hidden units there are M = 2<sup>h</sup> possible sub-networks, trained with <b>weight sharing</b> (itself a regularizer). At test time averaging all models is too expensive; instead use the full network with predictions scaled by a factor (1 − p), which approximates the geometric mean of the ensemble.</li>
+<li><b>Inverted dropout (p. 739):</b> frameworks apply the scaling during <b>training</b> instead: divide the surviving activations by (1 − p), so inference needs no change and is cheaper when the model is used a lot.</li>
+<li><b>Practical tips (p. 741–743):</b> in PyTorch call <code>model.train()</code> for training and <code>model.eval()</code> for inference (dropout must be off at test time). Do not use dropout if the model does not overfit; if it does not, increase capacity until it overfits and then add dropout, which lets you use a larger network.</li>
+<li><b>DropConnect (pp. 744–745):</b> drops individual <b>weights</b> rather than whole nodes, a generalization of dropout with more possibilities; less popular and works less well in practice.</li></ul>
+<div class="ex"><b>Numbers:</b> activations a = [0.8, 0.2, 0.5, 0.9], p = 0.5, random draws v = [0.7, 0.3, 0.9, 0.1] ⇒ mask [1, 0, 1, 0] ⇒ [0.8, 0, 0.5, 0]. Inverted dropout divides by 1 − p = 0.5 ⇒ <b>[1.6, 0, 1.0, 0]</b>; the expected value of each activation is unchanged. At inference: no mask, no scaling.</div></section>
+
+<section id="exam"><h2>11. Exam kit</h2>
+<div class="key"><b>“98% train, 62% test: analyse with bias-variance and compare L2, dropout and early stopping; which first?” (6 marks)</b> <span class="y">S25</span><br><b>Cause:</b> low bias but high variance: the deep ANN has far more capacity than the data supports and memorised the training set (overfitting; gap 36 points). <b>L2:</b> adds (λ/n)Σ‖w‖² so weights shrink, smoother function, lower variance; needs λ tuning; cheap. <b>Dropout:</b> random nodes dropped each mini-batch, prevents co-adaptation, acts like an ensemble of 2<sup>h</sup> sub-networks; strong for deep nets; slower convergence. <b>Early stopping:</b> stop when validation accuracy stops improving; essentially free, needs a validation set, limits training rather than changing the model. <b>First:</b> early stopping (and more data/augmentation if cheap), because it needs no change to the architecture or loss and costs nothing; then add L2 as a baseline and dropout if the gap persists. (Justify your choice.)</div>
+<div class="key"><b>“What is the bias-variance tradeoff? Role of cross-validation in evaluating soft-computing models” (3 marks)</b> <span class="y">S24</span><br>Bias = error from overly simple assumptions (underfitting); variance = sensitivity to the training set (overfitting). Increasing complexity lowers bias and raises variance, so we seek the complexity with minimum test error. k-fold cross-validation rotates the held-out fold, averages the k scores, gives a reliable estimate of generalization and lets us choose models and hyperparameters without wasting data or depending on one lucky split.</div>
+<h3>Traps</h3>
+<ul><li>Training error always falls as complexity rises; only the <b>test</b> error is U-shaped.</li><li>Never tune on the test set; it is used once at the end.</li><li>Biases are not regularized; L2 shrinks weights, L1 produces exact zeros.</li><li>Dropout is only active during training; inverted dropout divides by (1 − p).</li><li>Early stopping needs a validation set, not the test set.</li><li>Regularization increases bias slightly to reduce variance a lot.</li></ul>
+<h3>Likely questions</h3>
+<ul><li>Explain overfitting/underfitting with a diagram; list ways to reduce overfitting.</li><li>Bias, variance, tradeoff; k-fold cross-validation with an example.</li><li>L2 cost and update rule; L1 vs L2; dropout (training vs inference), early stopping, data augmentation.</li></ul>
+<div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 5 “Machine Learning Basics” (§ Capacity, Overfitting and Underfitting; § Hyperparameters and Validation Sets, k-fold cross-validation; § Estimators, Bias and Variance), Ch. 7 “Regularization for Deep Learning” (§ Parameter Norm Penalties, Dataset Augmentation, Early Stopping, Dropout); Duda, Hart &amp; Stork, <i>Pattern Classification</i> – Ch. 1 “Introduction” (fish-sorting example, generalization); Bishop, <i>Pattern Recognition and Machine Learning</i> – § 1.1 Polynomial Curve Fitting, § 3.2 The Bias-Variance Decomposition; Hastie, Tibshirani &amp; Friedman, <i>Elements of Statistical Learning</i> – Ch. 7 “Model Assessment and Selection”; Srivastava et al. (2014) “Dropout: A Simple Way to Prevent Neural Networks from Overfitting”, JMLR 15; Wan et al. (2013) DropConnect. Lecture slides: Raschka STAT 453, Lecture 10 (PDF pp. 702–746).</div></section>
+</main>
+<script>
+function $(i){return document.getElementById(i)}
+function rnd(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+var R=rnd(7);function gauss(){var u=R()||1e-9,v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+var tr=[],te=[],i;
+for(i=0;i<10;i++){var x=(i+0.5)/10;tr.push([x,Math.sin(2*Math.PI*x)+0.25*gauss()])}
+for(i=0;i<50;i++){var x2=(i+0.5)/50;te.push([x2,Math.sin(2*Math.PI*x2)+0.25*gauss()])}
+function feat(x,M){var z=(x-0.5)*2,r=[],k;for(k=0;k<=M;k++)r.push(Math.pow(z,k));return r}
+function solve(A,b){var n=b.length,i,j,k;for(i=0;i<n;i++){var p=i;for(j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;var t=A[i];A[i]=A[p];A[p]=t;t=b[i];b[i]=b[p];b[p]=t;for(j=i+1;j<n;j++){var f=A[j][i]/A[i][i];for(k=i;k<n;k++)A[j][k]-=f*A[i][k];b[j]-=f*b[i]}}
+ var w=new Array(n);for(i=n-1;i>=0;i--){var s=b[i];for(j=i+1;j<n;j++)s-=A[i][j]*w[j];w[i]=s/A[i][i]}return w}
+function fit(M,lam){var X=tr.map(function(p){return feat(p[0],M)}),y=tr.map(function(p){return p[1]}),n=M+1,A=[],b=[],i,j,k;
+ for(i=0;i<n;i++){A.push([]);var s=0;for(k=0;k<X.length;k++)s+=X[k][i]*y[k];b.push(s);for(j=0;j<n;j++){var t=0;for(k=0;k<X.length;k++)t+=X[k][i]*X[k][j];A[i].push(t+(i==j&&i>0?lam:0)+(i==j?1e-9:0))}}
+ return solve(A,b)}
+function pred(w,x){var f=feat(x,w.length-1),s=0;for(var i=0;i<w.length;i++)s+=w[i]*f[i];return s}
+function rmse(w,D){var s=0;D.forEach(function(p){var e=pred(w,p[0])-p[1];s+=e*e});return Math.sqrt(s/D.length)}
+function lamv(v){return v==0?0:Math.pow(10,v-7)*1}
+function draw(){
+ var M=+$("sM").value,lv=+$("sL").value,lam=lamv(lv);$("lM").textContent="Order M = "+M;$("lL").textContent="L2 strength λ = "+(lam===0?"0":lam.toExponential(0));
+ var w=fit(M,lam),X=function(x){return 20+x*320},Y=function(y){return 100-Math.max(-2,Math.min(2,y))*42},pts="",k;
+ for(k=0;k<=100;k++){var x=k/100;pts+=X(x)+","+Y(pred(w,x))+" "}
+ var g=tr.map(function(p){return'<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="3.5" fill="var(--ac)"/>'}).join("");
+ var ideal="";for(k=0;k<=100;k++){var xx=k/100;ideal+=X(xx)+","+Y(Math.sin(2*Math.PI*xx))+" "}
+ $("plot").innerHTML='<line x1="20" y1="100" x2="340" y2="100" stroke="var(--mu)"/><polyline points="'+ideal+'" fill="none" stroke="var(--mu)" stroke-dasharray="3 3"/><polyline points="'+pts+'" fill="none" stroke="#e5484d" stroke-width="2"/>'+g+'<text x="22" y="14" fill="var(--mu)" style="font-size:10px">dots = training data · dashed = true sin · red = fit</text>';
+ var rows="",m;for(m=0;m<=9;m++){var ww=fit(m,lam);rows+='<tr'+(m==M?' style="background:var(--ac2)"':'')+'><td>'+m+'</td><td>'+rmse(ww,tr).toFixed(3)+'</td><td>'+rmse(ww,te).toFixed(3)+'</td></tr>'}
+ $("tbl").innerHTML='<div class="sc"><table><tr><th>Order M</th><th>Training RMSE</th><th>Test RMSE</th></tr>'+rows+'</table></div>';
+}
+$("sM").oninput=draw;$("sL").oninput=draw;draw();
+function cv(){
+ var lines=$("cvT").value.trim().split("\n"),rows="",best=null,bm=-1;
+ lines.forEach(function(l){var p=l.split(":");if(p.length<2)return;var v=p[1].trim().split(/[\s,]+/).map(Number).filter(function(x){return !isNaN(x)});if(!v.length)return;
+  var m=v.reduce(function(a,b){return a+b},0)/v.length,sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m)},0)/v.length);
+  rows+='<tr><td>'+p[0]+'</td><td>'+v.join(", ")+'</td><td><b>'+m.toFixed(4)+'</b></td><td>'+sd.toFixed(4)+'</td></tr>';if(m>bm){bm=m;best=p[0]}});
+ $("cvOut").innerHTML='<div class="sc"><table><tr><th>Model</th><th>Fold scores</th><th>Mean</th><th>Std (spread)</th></tr>'+rows+'</table></div><div class="ex">Best by average score: <b>'+best+'</b> ('+bm.toFixed(4)+'). Prefer a model with a high mean <i>and</i> a small spread.</div>';
+}
+$("cvGo").onclick=cv;cv();
+</script></body></html>
