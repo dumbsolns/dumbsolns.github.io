@@ -30,8 +30,9 @@ button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7p
 textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
 label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
 select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
 </style></head><body>
-<div class="top"><a class="back" href="/">← Back</a>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
 <nav class="nav"><a href="#why">Why fuzzy</a><a href="#sets">Fuzzy sets</a><a href="#mf">MFs</a><a href="#ops">Operations</a><a href="#alpha">α-cut</a><a href="#ext">Extension</a><a href="#rel">Relations</a><a href="#inf">Inference</a><a href="#def">Defuzz.</a><a href="#ex1">Steam turbine</a><a href="#ex2">Sugeno</a><a href="#exam1">Exam A</a><a href="#why2">Neuro-fuzzy</a><a href="#nfs">NFS</a><a href="#anfis">ANFIS</a><a href="#lab2">Explorer</a><a href="#exam2">Exam B</a></nav></div>
 <main>
 <h1>Fuzzy Logic &amp; Neuro-Fuzzy (ANFIS) – Deep Dive</h1>
@@ -284,7 +285,7 @@ Max-min T = [[0.6, 0.5],[0.3, 0.8]]; max-product T = [[0.6, 0.3],[0.27, 0.72]]; 
 <h3>Traps</h3>
 <ul><li>ANFIS adaptive layers: <b>1 and 4</b> (square nodes); fixed: 2, 3, 5 (circle nodes).</li><li>Premise = antecedent (layer 1); consequent = layer 4.</li><li>Layer 3 divides by the <b>sum of all</b> firing strengths.</li><li>Distinguish NFS (Mamdani, center of sums) from ANFIS (Sugeno, weighted sum).</li></ul>
 <div class="ref"><b>📚 Read in (Part B)</b>Jang, Sun &amp; Mizutani, <i>Neuro-Fuzzy and Soft Computing</i> – Ch. 12 “ANFIS: Adaptive Neuro-Fuzzy Inference Systems”, Ch. 8 “Adaptive Networks”, Ch. 5 “Least-Squares Methods for System Identification”, Ch. 13 “Coactive Neuro-Fuzzy Modeling”; Jang (1993) “ANFIS: Adaptive-Network-Based Fuzzy Inference System”, <i>IEEE Trans. SMC</i> 23(3); Sivanandam &amp; Deepa, <i>Principles of Soft Computing</i> – “Hybrid Soft Computing Techniques” (neuro-fuzzy, ANFIS).</div></section>
-</main>
+<nav class="pnav" aria-label="Topic navigation"><a href="nlp.html">← NLP</a><a href="../soft-computing-summary.html#library">All topics</a><a href="aco.html">ACO →</a></nav><div class="rel">Related: <a href="nn.html">Neural nets</a><a href="intro.html">Intro</a></div></main>
 <script>
 function $(i){return document.getElementById(i)}
 function g(x,c,s){return Math.exp(-((x-c)*(x-c))/(2*s*s))}

@@ -32,16 +32,24 @@ table{border-collapse:collapse;width:100%;min-width:420px;font-size:.9rem}
 th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
 .note{font-size:.85rem;color:var(--mu)}
 @media (min-width:700px){main{padding:24px 20px 64px}section{padding:20px 24px}}
+.dd{margin:2px 0 8px}.dd a{display:inline-block;margin:2px 6px 4px 0;padding:6px 12px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:13px}
+.lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}.lib a{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;background:var(--bg)}.lib a:hover,.lib a:focus{border-color:var(--ac)}.lib b{color:var(--ac)}.lib span{font-size:.85rem}.lib small{color:var(--mu)}
+details{border:1px solid var(--bd);border-radius:10px;padding:6px 12px;margin:8px 0;background:var(--bg)}summary{cursor:pointer;font-weight:600}details a{color:var(--ac)}
 </style>
 </head>
 <body>
 <div class="top"><a class="back" href="/">← Back</a>
-<nav class="nav"><a href="#intro">Intro</a><a href="#nn">Neural nets</a><a href="#loss">Loss</a><a href="#opt">Optimizers</a><a href="#reg">Generalization</a><a href="#cnn">CNN</a><a href="#rnn">RNN/LSTM</a><a href="#trf">Transformer</a><a href="#nlp">NLP</a><a href="#fuzzy">Fuzzy</a><a href="#fis">Inference</a><a href="#anfis">ANFIS</a><a href="#ec">ACO/EC</a><a href="#hmm">HMM</a></nav></div>
+<nav class="nav"><a href="#library">Deep dives</a><a href="#intro">Intro</a><a href="#nn">Neural nets</a><a href="#loss">Loss</a><a href="#opt">Optimizers</a><a href="#reg">Generalization</a><a href="#cnn">CNN</a><a href="#rnn">RNN/LSTM</a><a href="#trf">Transformer</a><a href="#nlp">NLP</a><a href="#fuzzy">Fuzzy</a><a href="#fis">Inference</a><a href="#anfis">ANFIS</a><a href="#ec">ACO/EC</a><a href="#hmm">HMM</a></nav></div>
 <main>
 <h1>Soft Computing (CSE 4137/4237) – Exam Overview</h1>
 <p class="sub">Topics grouped logically (the class files were not in order). Book references are the standard texts the slides cite or match; chapter names are from common editions, so numbering may differ in yours.</p>
 
-<section id="intro"><h2>1. Introduction to Soft Computing</h2><p class="pg">Slides 1–40</p>
+<section id="library"><h2>Deep-dive library</h2><p class="pg">11 full-page topics · each has worked examples, model answers, traps and (mostly) an interactive calculator</p>
+<p>This page is the quick overview. Open a deep dive when you need the derivations, step-by-step exam solutions or a calculator to check your own working. Every deep dive has a <b>← Summary</b> button, Prev/Next links and related-topic links.</p>
+<div class="lib"><a href="soft-computing/intro.html"><b>Introduction to Soft Computing</b><span>Hard vs soft computing, AI vs soft computing, components, first look at ANN, fuzzy logic and EC, self-test.</span><small>PDF 1–40</small></a><a href="soft-computing/nn.html"><b>Neural Networks & Logistic Regression</b><span>LR, cross-entropy, backprop dw/db for ReLU, tanh and leaky ReLU, vectorization, shallow nets, activations, softmax. Gradient explorer.</span><small>PDF 41–202</small></a><a href="soft-computing/optimizers.html"><b>Optimizers</b><span>SGD, momentum, Nesterov, AdaGrad, RMSProp, Adam. Race-track simulator.</span><small>PDF 615–648</small></a><a href="soft-computing/generalization.html"><b>Generalization & Regularization</b><span>Bias-variance, overfitting, k-fold CV, L1/L2, dropout, early stopping. Polynomial fitting lab.</span><small>PDF 559–598, 702–746</small></a><a href="soft-computing/cnn.html"><b>Convolutional Neural Networks</b><span>Convolution, pooling, output sizes, parameter counting, the pooling question. Parameter calculator.</span><small>PDF 249–342, 599–614</small></a><a href="soft-computing/rnn.html"><b>RNN, LSTM & GRU</b><span>BPTT, vanishing gradients, LSTM gates, peephole, GRU. Cell and gradient calculators.</span><small>PDF 343–378, 650–676, 813–843</small></a><a href="soft-computing/transformer.html"><b>Transformers & Self-Attention</b><span>Q/K/V, scaled dot product, multi-head, encoder/decoder, positional encoding. Self-attention explorer.</span><small>PDF 203–248, 844–867</small></a><a href="soft-computing/nlp.html"><b>NLP, TF-IDF & Word2vec</b><span>BoW, TF-IDF calculator, embeddings, cosine, skip-gram, negative sampling. Pair generator.</span><small>PDF 379–435, 868–895</small></a><a href="soft-computing/fuzzy.html"><b>Fuzzy Logic & Neuro-Fuzzy (ANFIS)</b><span>MFs, extension principle, α-cuts, composition, Mamdani/Sugeno, NFS, ANFIS explorer.</span><small>PDF 22–34, 109–127, 474–522, 677–812</small></a><a href="soft-computing/aco.html"><b>Ant Colony Optimization</b><span>Pheromone model, 3-node and 4-node TSP simulations, parameters.</span><small>PDF 436–447, 523–558</small></a><a href="soft-computing/hmm.html"><b>HMM & Viterbi</b><span>Markov chains, three HMM problems, Viterbi explorer with every exam problem.</span><small>PDF 448–473</small></a></div>
+<details><summary>Suggested study order</summary><ol><li><a href="soft-computing/intro.html">Introduction</a></li><li><a href="soft-computing/nn.html">Neural Networks & Logistic Regression</a></li><li><a href="soft-computing/optimizers.html">Optimizers</a></li><li><a href="soft-computing/generalization.html">Generalization & Regularization</a></li><li><a href="soft-computing/cnn.html">CNN</a></li><li><a href="soft-computing/rnn.html">RNN, LSTM & GRU</a></li><li><a href="soft-computing/transformer.html">Transformers</a></li><li><a href="soft-computing/nlp.html">NLP & Word2vec</a></li><li><a href="soft-computing/fuzzy.html">Fuzzy & Neuro-Fuzzy</a></li><li><a href="soft-computing/aco.html">Ant Colony Optimization</a></li><li><a href="soft-computing/hmm.html">HMM & Viterbi</a></li></ol><p class="note">Order follows this summary: foundations first (intro, neural nets, training), then CNN, sequence models, language, then fuzzy, ant colony and HMM. Highest repeat-frequency in past papers: HMM/Viterbi, logistic-regression gradients, CNN parameter counting, TF-IDF and skip-gram, fuzzy extension principle and composition, RNN/LSTM, optimizers.</p></details></section>
+
+<section id="intro"><h2>1. Introduction to Soft Computing</h2><p class="pg">Slides 1–40</p><p class="dd"><a href="soft-computing/intro.html">📖 Deep dive: Introduction →</a></p>
 <ul>
 <li><b>Computing:</b> <span class="f">y = f(x)</span> – antecedent → algorithm → consequent, under a control action.</li>
 <li><b>Hard computing</b> (term by L. A. Zadeh): precise, unambiguous, formal model, two-valued logic, deterministic, sequential (sorting, numerical solving).</li>
@@ -55,7 +63,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Sivanandam &amp; Deepa, <i>Principles of Soft Computing</i> – “Introduction”; Jang, Sun &amp; Mizutani, <i>Neuro-Fuzzy and Soft Computing</i> – Ch. 1 “Introduction to Neuro-Fuzzy and Soft Computing”; Haykin, <i>Neural Networks and Learning Machines</i> (listed in the slides’ Books slide).</div></section>
 
-<section id="nn"><h2>2. Neural Network Basics &amp; Shallow Networks</h2><p class="pg">Slides ~41–108, 159–202</p>
+<section id="nn"><h2>2. Neural Network Basics &amp; Shallow Networks</h2><p class="pg">Slides ~41–108, 159–202</p><p class="dd"><a href="soft-computing/nn.html">📖 Deep dive: Neural Networks & Logistic Regression →</a></p>
 <ul>
 <li>AI ⊃ ML ⊃ Deep learning. Supervised learning; structured vs unstructured data. Deep learning took off because of <b>data + compute + algorithms</b>; training is iterative.</li>
 <li><b>Logistic regression:</b> <span class="f">z = wᵀx + b, ŷ = σ(z) = 1/(1+e⁻ᶻ)</span>. Bias shifts the decision boundary.</li>
@@ -74,7 +82,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 <tr><td>Softmax</td><td>eᶻⁱ/Σeᶻʲ</td><td>Multi-class output, probabilities sum to 1</td></tr></table></div>
 <div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 6 “Deep Feedforward Networks”; Haykin – “Multilayer Perceptrons”; Jang et al. – Ch. 9 “Supervised Learning Neural Networks”; Sivanandam &amp; Deepa – “Feed Forward Networks” (backpropagation). The slides follow Andrew Ng’s <i>Neural Networks and Deep Learning</i> course.</div></section>
 
-<section id="loss"><h2>3. Cross-Entropy, Softmax &amp; Information</h2><p class="pg">Slides ~128–158</p>
+<section id="loss"><h2>3. Cross-Entropy, Softmax &amp; Information</h2><p class="pg">Slides ~128–158</p><p class="dd"><a href="soft-computing/nn.html#ce">📖 Deep dive: Cross-entropy &amp; softmax section →</a></p>
 <ul>
 <li><b>Logits</b> = raw scores; softmax turns them into a probability distribution (exponent keeps values positive and amplifies the largest).</li>
 <li><b>Entropy</b> <span class="f">H(p) = −Σ p log p</span> = average surprise/information. The negative sign makes it positive since log p ≤ 0.</li>
@@ -84,7 +92,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 3 “Probability and Information Theory”; Ch. 6 “Deep Feedforward Networks” (cost functions, softmax output units).</div></section>
 
-<section id="opt"><h2>4. Optimization (Gradient Descent Family)</h2><p class="pg">Slides ~72–76, 599–672</p>
+<section id="opt"><h2>4. Optimization (Gradient Descent Family)</h2><p class="pg">Slides ~72–76, 599–672</p><p class="dd"><a href="soft-computing/optimizers.html">📖 Deep dive: Optimizers →</a></p>
 <ul>
 <li><b>Batch GD:</b> exact gradient over all data; slow per step. <b>SGD:</b> one sample, noisy, may be unstable, sensitive to learning rate. <b>Mini-batch:</b> best compromise.</li>
 <li><b>Momentum:</b> <span class="f">update<sub>t</sub> = γ·update<sub>t−1</sub> + η∇w</span>, <span class="f">w = w − update<sub>t</sub></span>; accumulates past gradients, speeds up on gentle slopes, can overshoot.</li>
@@ -94,7 +102,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 8 “Optimization for Training Deep Models”; Jang et al. – Ch. 6 “Derivative-Based Optimization”.</div></section>
 
-<section id="reg"><h2>5. Generalization, Evaluation &amp; Regularization</h2><p class="pg">Slides ~559–598, 702–746</p>
+<section id="reg"><h2>5. Generalization, Evaluation &amp; Regularization</h2><p class="pg">Slides ~559–598, 702–746</p><p class="dd"><a href="soft-computing/generalization.html">📖 Deep dive: Generalization &amp; Regularization →</a></p>
 <ul>
 <li>Pattern recognition pipeline (fish example): sensing → segmentation → feature extraction → classification. Too many or correlated features → curse of dimensionality.</li>
 <li><b>Overfitting</b> = great on training data, poor on unseen data; underfitting = too simple. Fix with more data, simpler model or regularization.</li>
@@ -105,7 +113,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 5 “Machine Learning Basics” (capacity, overfitting, cross-validation); Ch. 7 “Regularization for Deep Learning”; Duda, Hart &amp; Stork, <i>Pattern Classification</i> – Ch. 1 “Introduction” (fish-sorting example). Lecture slides credit S. Raschka (STAT 453).</div></section>
 
-<section id="cnn"><h2>6. Convolutional Neural Networks</h2><p class="pg">Slides ~250–342</p>
+<section id="cnn"><h2>6. Convolutional Neural Networks</h2><p class="pg">Slides ~250–342</p><p class="dd"><a href="soft-computing/cnn.html">📖 Deep dive: CNN →</a></p>
 <ul>
 <li>Slide a small <b>filter/kernel</b> over the image; dot product gives a <b>feature map</b>. Pipeline: Conv → ReLU → Pooling → … → Fully connected → softmax. The slides’ X/O example shows filters matching local patterns.</li>
 <li><b>Sparse connectivity</b> + <b>parameter sharing</b> → far fewer parameters than dense layers; learns the filters instead of hand-crafting edge detectors.</li>
@@ -115,7 +123,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 9 “Convolutional Networks” (the slides cite Goodfellow-et-al-2016 for sparse connectivity).</div></section>
 
-<section id="rnn"><h2>7. RNN, LSTM &amp; GRU</h2><p class="pg">Slides ~343–378, 673–676, 813–843</p>
+<section id="rnn"><h2>7. RNN, LSTM &amp; GRU</h2><p class="pg">Slides ~343–378, 673–676, 813–843</p><p class="dd"><a href="soft-computing/rnn.html">📖 Deep dive: RNN, LSTM &amp; GRU →</a></p>
 <ul>
 <li><b>RNN:</b> same weights reused over time with a hidden state: <span class="f">s<sub>t</sub> = φ(W s<sub>t−1</sub> + U x<sub>t</sub> + b)</span>. Handles sequences (one-to-many, many-to-one, many-to-many); trained with backprop through time. Variants: deep and bidirectional RNNs.</li>
 <li><b>Problem:</b> long-term dependencies; <b>vanishing/exploding gradients</b>.</li>
@@ -125,7 +133,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow et al. – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (LSTM, GRU, long-term dependencies); Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “RNNs and LSTMs”.</div></section>
 
-<section id="trf"><h2>8. Seq2Seq, Attention &amp; Transformer</h2><p class="pg">Slides ~203–248, 845–870</p>
+<section id="trf"><h2>8. Seq2Seq, Attention &amp; Transformer</h2><p class="pg">Slides ~203–248, 845–870</p><p class="dd"><a href="soft-computing/transformer.html">📖 Deep dive: Transformers &amp; Self-Attention →</a></p>
 <ul>
 <li><b>Seq2seq / NMT:</b> encoder compresses the input; decoder generates the output. A single fixed vector is a bottleneck → <b>attention</b> lets the decoder look at all encoder states.</li>
 <li><b>Self-attention:</b> each token makes Query, Key, Value vectors; <span class="f">Attention = softmax(QKᵀ/√d<sub>k</sub>)·V</span>. Outputs are weighted mixes of all tokens (fully parallel, unlike RNNs).</li>
@@ -136,7 +144,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Vaswani et al. (2017) “Attention Is All You Need” (paper); Jurafsky &amp; Martin – “Transformers”; Goodfellow et al. – Ch. 12 “Applications” (NLP, attention). Slides credit Emma Strubell.</div></section>
 
-<section id="nlp"><h2>9. NLP &amp; Word Embeddings</h2><p class="pg">Slides ~379–435, 845–895</p>
+<section id="nlp"><h2>9. NLP &amp; Word Embeddings</h2><p class="pg">Slides ~379–435, 845–895</p><p class="dd"><a href="soft-computing/nlp.html">📖 Deep dive: NLP, TF-IDF &amp; Word2vec →</a></p>
 <ul>
 <li><b>Text representations:</b> one-hot (sparse, no similarity), <b>Bag-of-Words</b> (counts, loses order). Vocabulary control: stop-words, <b>stemming</b> (chop suffix, fast, crude) vs <b>lemmatization</b> (dictionary root, accurate).</li>
 <li><b>TF-IDF:</b> <span class="f">TF = count(t,d)/|d|</span>, <span class="f">IDF = log(N/df)</span>, score = TF×IDF; down-weights words common to all documents.</li>
@@ -146,7 +154,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Jurafsky &amp; Martin – “Vector Semantics and Embeddings” (TF-IDF, word2vec, cosine); Goodfellow et al. – Ch. 12 “Applications” (neural language models, word embeddings); Mikolov et al. (2013) word2vec papers.</div></section>
 
-<section id="fuzzy"><h2>10. Fuzzy Sets &amp; Fuzzy Logic</h2><p class="pg">Slides ~22–25, 474–540, 677–701</p>
+<section id="fuzzy"><h2>10. Fuzzy Sets &amp; Fuzzy Logic</h2><p class="pg">Slides ~22–25, 474–540, 677–701</p><p class="dd"><a href="soft-computing/fuzzy.html">📖 Deep dive: Fuzzy Logic →</a></p>
 <ul>
 <li><b>Fuzzy logic</b> handles vagueness with degrees of truth in [0,1] (“Isa is tall” vs crisp “Isa is 5′10″”). <b>Fuzzy ≠ probability:</b> fuzzy is degree of membership; probability is likelihood of a crisp event.</li>
 <li><b>Membership function</b> <span class="f">μ<sub>A</sub>(x) ∈ [0,1]</span>. Common shapes: <b>triangular, trapezoidal, Gaussian, generalized bell, sigmoidal</b>.</li>
@@ -157,7 +165,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Ross, <i>Fuzzy Logic with Engineering Applications</i> – Ch. 2 “Classical Sets and Fuzzy Sets”, Ch. 3 “Classical Relations and Fuzzy Relations”, Ch. 4 “Properties of Membership Functions, Fuzzification, and Defuzzification”; Jang et al. – Ch. 2 “Fuzzy Set Theory”; Sivanandam &amp; Deepa – “Fuzzy Relations” and “Fuzzy Arithmetic”.</div></section>
 
-<section id="fis"><h2>11. Fuzzy Inference &amp; Control</h2><p class="pg">Slides ~32, 677–701, 747–812</p>
+<section id="fis"><h2>11. Fuzzy Inference &amp; Control</h2><p class="pg">Slides ~32, 677–701, 747–812</p><p class="dd"><a href="soft-computing/fuzzy.html#inf">📖 Deep dive: Fuzzy inference &amp; control →</a></p>
 <ul>
 <li><b>Fuzzy system:</b> crisp input → <b>fuzzifier</b> → rule base + inference → <b>defuzzifier</b> → crisp output.</li>
 <li><b>Mamdani:</b> <i>IF x₁ is A and x₂ is B THEN y is C</i> (fuzzy consequent). <b>Max-min</b> clips each consequent at the firing strength (min of antecedents); <b>max-product</b> scales it. Aggregate rules with max, then defuzzify (centroid).</li>
@@ -166,7 +174,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Ross – Ch. 5 “Logic and Fuzzy Systems” (Mamdani, defuzzification), Ch. 13 “Fuzzy Control Systems”; Jang et al. – Ch. 3 “Fuzzy Rules and Fuzzy Reasoning” and Ch. 4 “Fuzzy Inference Systems”; Sivanandam &amp; Deepa – “Fuzzy Logic Control Systems”.</div></section>
 
-<section id="anfis"><h2>12. Neuro-Fuzzy Systems &amp; ANFIS</h2><p class="pg">Slides ~109–127, 790–812</p>
+<section id="anfis"><h2>12. Neuro-Fuzzy Systems &amp; ANFIS</h2><p class="pg">Slides ~109–127, 790–812</p><p class="dd"><a href="soft-computing/fuzzy.html#anfis">📖 Deep dive: Neuro-fuzzy &amp; ANFIS →</a></p>
 <ul>
 <li>NN learns but is a black box; fuzzy is interpretable but cannot learn → combine them. <b>NFS:</b> a fuzzy controller structured as an NN and trained by backprop or GA.</li>
 <li>Online (pattern) vs batch BP: update after each example vs after a full sweep (epoch).</li>
@@ -180,7 +188,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Jang, Sun &amp; Mizutani – Ch. 12 “ANFIS: Adaptive Neuro-Fuzzy Inference Systems” (also Ch. 8 “Adaptive Networks”, Ch. 5 “Least-Squares Methods for System Identification”, Ch. 13 “Coactive Neuro-Fuzzy Modeling”).</div></section>
 
-<section id="ec"><h2>13. Evolutionary Computation &amp; Ant Colony Optimization</h2><p class="pg">Slides ~27–29, 436–447, 543–558</p>
+<section id="ec"><h2>13. Evolutionary Computation &amp; Ant Colony Optimization</h2><p class="pg">Slides ~27–29, 436–447, 543–558</p><p class="dd"><a href="soft-computing/aco.html">📖 Deep dive: Ant Colony Optimization →</a></p>
 <ul>
 <li><b>Evolutionary computation loop:</b> initialize population → evaluate (fitness) → select → vary (crossover/mutation) → repeat until termination. Genetic algorithm: population = candidate solutions, survival of the fittest.</li>
 <li>Population-based metaheuristics: evolutionary (GA, DE), <b>swarm</b> (PSO, ACO, ABC), bio-inspired (firefly, cuckoo, bat), physics-based (gravitational, harmony search).</li>
@@ -190,7 +198,7 @@ th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:
 </ul>
 <div class="ref"><b>📚 Read in</b>Dorigo &amp; Stützle, <i>Ant Colony Optimization</i> – Ch. 2 “The ACO Metaheuristic”, Ch. 3 “Ant Colony Optimization Algorithms for the Traveling Salesman Problem”; Sivanandam &amp; Deepa – chapters on “Genetic Algorithm”; Jang et al. – Ch. 7 “Derivative-Free Optimization”. Slides also include a TSP derivation paper (IRJMETS, Dec 2023).</div></section>
 
-<section id="hmm"><h2>14. Hidden Markov Models</h2><p class="pg">Slides ~448–473</p>
+<section id="hmm"><h2>14. Hidden Markov Models</h2><p class="pg">Slides ~448–473</p><p class="dd"><a href="soft-computing/hmm.html">📖 Deep dive: HMM &amp; Viterbi →</a></p>
 <ul>
 <li><b>Markov property:</b> next state depends only on the current state. Markov chain = states + transition matrix.</li>
 <li><b>HMM:</b> hidden states, observable outputs. Parameters <span class="f">λ = (A, B, π)</span>: transition probs A, emission probs B, initial distribution π.</li>

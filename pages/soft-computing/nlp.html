@@ -30,8 +30,9 @@ button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7p
 textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
 label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
 select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
 </style></head><body>
-<div class="top"><a class="back" href="/">← Back</a>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
 <nav class="nav"><a href="#rep">Representations</a><a href="#bow">BoW</a><a href="#tfidf">TF-IDF</a><a href="#calc">TF-IDF calc</a><a href="#emb">Embeddings</a><a href="#sim">Similarity</a><a href="#lm">Language model</a><a href="#sg">Skip-gram</a><a href="#ns">Neg. sampling</a><a href="#obj">Objective</a><a href="#gen">Pair generator</a><a href="#exam">Exam kit</a></nav></div>
 <main>
 <h1>NLP, TF-IDF &amp; Word2vec – Deep Dive</h1>
@@ -140,7 +141,7 @@ select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(
 <h3>Likely short questions</h3>
 <ul><li>Problems of BoW and fix; stemming vs lemmatization; why TF-IDF over BoW.</li><li>Why embeddings beat one-hot; embedding matrix E and lookup; transfer learning.</li><li>Cosine similarity and uses; analogy reasoning with an example.</li><li>Softmax problems in Word2vec; hierarchical softmax; negative sampling; CBOW vs skip-gram.</li></ul>
 <div class="ref"><b>📚 Read in</b>Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “Vector Semantics and Embeddings” (TF-IDF, cosine, word2vec skip-gram with negative sampling), “N-gram Language Models”; Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 12 “Applications” (§ Natural Language Processing: neural language models, high-dimensional outputs, hierarchical softmax, word embeddings); Manning, Raghavan &amp; Schütze, <i>Introduction to Information Retrieval</i> – Ch. 6 “Scoring, term weighting and the vector space model” (tf-idf); Mikolov et al. (2013) “Efficient Estimation of Word Representations in Vector Space” and “Distributed Representations of Words and Phrases and their Compositionality”; Bengio et al. (2003) “A Neural Probabilistic Language Model”. Slide sources: Andrew Ng, <i>Sequence Models</i> (course 5) and Jurafsky &amp; Martin.</div></section>
-</main>
+<nav class="pnav" aria-label="Topic navigation"><a href="transformer.html">← Transformer</a><a href="../soft-computing-summary.html#library">All topics</a><a href="fuzzy.html">Fuzzy →</a></nav><div class="rel">Related: <a href="transformer.html">Transformer</a><a href="rnn.html">RNN/LSTM</a></div></main>
 <script>
 function $(i){return document.getElementById(i)}
 function tok(s){return s.toLowerCase().replace(/['’]/g,"").split(/[^a-z0-9]+/).filter(Boolean)}

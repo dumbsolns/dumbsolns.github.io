@@ -29,8 +29,9 @@ svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg tex
 button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
 textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
 label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
 </style></head><body>
-<div class="top"><a class="back" href="/">← Back</a>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
 <nav class="nav"><a href="#why">Why</a><a href="#sa">Self-attention</a><a href="#num">Numeric</a><a href="#lab">Explorer</a><a href="#mh">Multi-head</a><a href="#enc">Encoder</a><a href="#dec">Decoder</a><a href="#cmp">vs RNN</a><a href="#exam">Exam kit</a></nav></div>
 <main>
 <h1>Transformers &amp; Self-Attention – Deep Dive</h1>
@@ -123,7 +124,7 @@ label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{backg
 <h3>Likely short questions</h3>
 <ul><li>Why scale by √d<sub>k</sub>? Why multiple heads? Why positional encoding?</li><li>Encoder vs decoder; masked vs cross attention.</li><li>Seq2seq with RNN vs Transformer.</li><li>Role of residual connections, layer norm, feed-forward layer.</li></ul>
 <div class="ref"><b>📚 Read in</b>Vaswani et al. (2017) “Attention Is All You Need”; Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “Transformers” (and “Vector Semantics and Embeddings” for the static-embedding background); Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (§ Encoder-Decoder Sequence-to-Sequence Architectures), Ch. 12 “Applications” (§ Natural Language Processing, attention); Bahdanau et al. (2014) “Neural Machine Translation by Jointly Learning to Align and Translate”. Slides: Emma Strubell (PDF pp. 203–248) and the contextual-embedding walkthrough (PDF pp. 844–867).</div></section>
-</main>
+<nav class="pnav" aria-label="Topic navigation"><a href="rnn.html">← RNN/LSTM</a><a href="../soft-computing-summary.html#library">All topics</a><a href="nlp.html">NLP →</a></nav><div class="rel">Related: <a href="rnn.html">RNN/LSTM</a><a href="nlp.html">NLP</a></div></main>
 <script>
 var P=[["S25 / F24","5 2\n3 4","3 3\n2 2","1 1\n2 2","2 1\n2 1","1 2\n1 2","1 3\n4 5","4"],["S24","3 2\n3 4","1 1\n2 2","1 1\n1 1","2 1\n2 1","1 2\n1 2","1 3\n4 5","4"]];
 function $(i){return document.getElementById(i)}

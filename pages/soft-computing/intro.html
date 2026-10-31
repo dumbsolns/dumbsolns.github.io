@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Introduction to Soft Computing – Deep Dive</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mu:#5b6478;--ac:#4b3fd6;--ac2:#e8e6ff;--bd:#dfe3ee;--ref:#fff7e0;--refb:#f0d98a;--ok:#e6f7ee;--bad:#fdeaea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--tx:#e8eaf2;--mu:#9aa3b8;--ac:#9d95ff;--ac2:#2a2850;--bd:#2c3244;--ref:#2b2616;--refb:#6b5a22;--ok:#16301f;--bad:#3a1d1d}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:8px;align-items:center;padding:8px 12px}
+.back{flex:none;text-decoration:none;color:#fff;background:var(--ac);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.nav{display:flex;gap:6px;overflow-x:auto}.nav a{flex:none;text-decoration:none;color:var(--ac);background:var(--ac2);padding:5px 10px;border-radius:999px;font-size:13px;white-space:nowrap}
+main{max-width:860px;margin:0 auto;padding:16px 14px 56px}
+h1{font-size:1.7rem;line-height:1.2;margin:.3em 0 .2em}.sub{color:var(--mu);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:14px 0}
+h2{font-size:1.25rem;margin:0 0 6px;color:var(--ac)}h3{font-size:1rem;margin:14px 0 2px}
+p{margin:6px 0}ul,ol{margin:4px 0;padding-left:20px}li{margin:3px 0}
+code,.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.87em;background:var(--ac2);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+.ex{background:var(--ok);border-radius:10px;padding:8px 12px;margin:8px 0}
+.trap{background:var(--bad);border-radius:10px;padding:8px 12px;margin:8px 0}
+.key{background:var(--ac2);border-radius:10px;padding:8px 12px;margin:8px 0}
+.ref{background:var(--ref);border:1px solid var(--refb);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+.pg{font-size:12px;color:var(--mu)}.y{font-size:11px;color:var(--mu);background:var(--ac2);padding:1px 6px;border-radius:6px;white-space:nowrap}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:430px;font-size:.88rem}th,td{border:1px solid var(--bd);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--ac2)}
+svg{width:100%;height:auto;max-width:520px;display:block;margin:6px auto}svg text{fill:var(--tx);font-size:10px}svg .ax{stroke:var(--mu);stroke-width:1}svg .c{fill:none;stroke-width:2}
+@media(min-width:700px){main{padding:24px 20px 72px}section{padding:20px 26px}}
+button.b{background:var(--ac);color:#fff;border:0;border-radius:999px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;margin:2px}
+textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:6px}
+label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
+select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
+input[type=range]{width:100%}
+details{border:1px solid var(--bd);border-radius:10px;padding:6px 12px;margin:8px 0;background:var(--bg)}summary{cursor:pointer;font-weight:600}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
+</style></head><body>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
+<nav class="nav"><a href="#comp">Computing</a><a href="#hard">Hard</a><a href="#soft">Soft</a><a href="#cmp">Hard vs Soft</a><a href="#ai">AI vs SC</a><a href="#tree">Components</a><a href="#ann">Neural nets</a><a href="#fl">Fuzzy</a><a href="#ec">Evolutionary</a><a href="#map">Course map</a><a href="#test">Self-test</a><a href="#exam">Exam kit</a></nav></div>
+<main>
+<h1>Introduction to Soft Computing – Deep Dive</h1>
+<p class="sub">CSE 4137/4237 · PDF pp. 1–40 (“Introduction to Soft Computing”). This is the big picture for the whole course: what soft computing is, how it differs from hard computing and AI, and a first look at its four components (fuzzy logic, neural networks, probabilistic reasoning, evolutionary computation). Tag: <span class="y">S24</span> Spring 2024 asked for the key principles of soft computing and how they differ from conventional computing.</p>
+
+<section id="comp"><h2>1. The concept of computation</h2><p class="pg">PDF pp. 2–4</p>
+<ul><li>Computing is a mapping: an <b>antecedent</b> (input) goes into a computing unit and produces a <b>consequent</b> (output), steered by a <b>control action</b>: <span class="f">y = f(x)</span>. Here f is a mapping function, also called a <b>formal method or algorithm</b> that solves a problem (p. 3).</li>
+<li>Computing is the process or act of calculation, any activity that uses computers to manage, process and communicate information, covering both hardware and software. It is a critical, integral component of modern industrial technology. Main disciplines: computer engineering, software engineering, computer science, information systems and information technology (p. 4).</li></ul></section>
+
+<section id="brain"><h2>2. Brain vs computer: the motivation</h2><p class="pg">PDF p. 5</p>
+<div class="sc"><table><tr><th></th><th>Brain</th><th>Computer</th></tr>
+<tr><td>Processing elements</td><td>~10¹⁰ neurons</td><td>~10⁸ transistors</td></tr><tr><td>Element size</td><td>10⁻⁶ m</td><td>10⁻⁶ m</td></tr><tr><td>Energy use</td><td>30 W</td><td>30 W (CPU)</td></tr><tr><td>Processing speed</td><td>~10² Hz</td><td>~10¹² Hz</td></tr>
+<tr><td>Style of computation</td><td><b>parallel, distributed</b></td><td>serial, centralised</td></tr><tr><td>Energetic efficiency</td><td>10⁻¹⁶ J/op/s</td><td>10⁻⁶ J/op/s</td></tr><tr><td>Fault tolerant</td><td><b>yes</b></td><td>no</td></tr><tr><td>Learns</td><td><b>yes</b></td><td>a little</td></tr></table></div>
+<p>(Values as printed on the slide.) The brain is slow per element but massively parallel, fault tolerant, energy efficient and able to learn, and it handles vague, noisy information; soft computing tries to copy these abilities. <i>Note:</i> slide p. 6 (“hard skills vs soft skills”) is only a human-skills picture, not hard vs soft computing.</p></section>
+
+<section id="hard"><h2>3. Hard (conventional) computing</h2><p class="pg">PDF pp. 7–8, 16</p>
+<ul><li>The term <b>hard computing</b> was introduced by L. A. Zadeh in 1996. A computing is hard if (p. 7): (1) a <b>precise result is guaranteed</b>; (2) the control action is <b>unambiguous</b>; (3) the control action is <b>formally defined</b> (a mathematical model or algorithm).</li>
+<li><b>Examples (p. 8):</b> solving numerical problems (roots of polynomials, integration), searching and sorting, computational geometry (shortest tour in a graph, closest pair of points).</li>
+<li><b>Premises and guiding principles (p. 16):</b> <b>precision, certainty and rigor</b>. It needs a precisely stated analytical model and often a lot of computation time; many analytical models are valid only for ideal cases, but <b>real-world problems exist in a non-ideal environment</b>. Many contemporary problems (handwriting, speech, object and image recognition, mobile-robot coordination, forecasting, combinatorial problems) do not lend themselves to precise solutions.</li></ul></section>
+
+<section id="soft"><h2>4. Soft computing</h2><p class="pg">PDF pp. 9–15</p>
+<div class="key"><b>Zadeh’s definition (p. 9):</b> “Soft computing is a collection of methodologies that aim to exploit the <b>tolerance for imprecision and uncertainty</b> to achieve <b>tractability, robustness and low solution cost</b>. Its principal constituents are <b>fuzzy logic, neurocomputing and probabilistic reasoning</b>. The role model for soft computing is the <b>human mind</b>.”</div>
+<h3>Characteristics (pp. 10–12)</h3>
+<ul><li>Does <b>not require</b> any mathematical modelling of the problem; may <b>not yield the precise solution</b>.</li>
+<li>Algorithms are <b>adaptive</b>: they adjust to changes in a dynamic environment.</li>
+<li>Uses biologically inspired methodologies: genetics, evolution, ant behaviour, particle swarming, the human nervous system.</li>
+<li>Tolerant of partial truth, uncertainty, imprecision and approximation; may give different solutions to the same input from time to time (p. 12). Sometimes called <b>computational intelligence</b>; it solves problems that are unsolvable or too time-consuming for current hardware (p. 11).</li></ul>
+<h3>Four key facts (p. 13)</h3>
+<div class="sc"><table><tr><th>Fact</th><th>Meaning</th></tr><tr><td><b>Tolerance of imprecision</b></td><td>the result obtained is not precise</td></tr><tr><td><b>Uncertainty</b></td><td>the algorithm may give different results every time for the same problem</td></tr><tr><td><b>Robustness</b></td><td>can tackle any kind of input noise</td></tr><tr><td><b>Low solution cost</b></td><td>makes it feasible to solve problems that would be computationally very expensive with hard computing</td></tr></table></div>
+<h3>Advantages (p. 14)</h3>
+<ul><li>No wide-ranging mathematical formulation of the problem needed; the need for explicit domain knowledge is reduced.</li><li>Handles multiple variables simultaneously; global optimisation strategies avoid local minima; generally cost effective, adaptive and scalable; reduces dependence on expensive traditional simulation packages (through hybridisation).</li></ul>
+<h3>Applications (p. 15)</h3>
+<p>Image processing, data compression, fuzzy-logic control, automotive systems and manufacturing, neuro-fuzzy systems, decision-support systems, system control, prediction, and many more.</p></section>
+
+<section id="cmp"><h2>5. Hard computing vs soft computing</h2><p class="pg">PDF pp. 17–18 · <span class="y">S24 Q1b (4 marks)</span> · slide question 1</p>
+<div class="sc"><table><tr><th></th><th>Hard computing</th><th>Soft computing</th></tr>
+<tr><td>Model</td><td>needs a <b>precisely stated analytical model</b></td><td>based on uncertainty; tolerant of imprecision and partial truth; no exact model needed</td></tr>
+<tr><td>Logic</td><td><b>two-valued</b>/binary logic, crisp, numerical software</td><td><b>multi-valued</b> (fuzzy) logic, incorporates randomness</td></tr>
+<tr><td>Programs</td><td>programs must be written</td><td>can <b>evolve their own programs</b></td></tr>
+<tr><td>Results</td><td>precise, exact</td><td>approximate (imprecision)</td></tr>
+<tr><td>Nature</td><td>deterministic, “settled”</td><td>stochastic</td></tr>
+<tr><td>Computation</td><td>sequential; more computation time</td><td>can be parallel; less computation time</td></tr>
+<tr><td>Data</td><td>exact data</td><td>ambiguous and noisy data</td></tr>
+<tr><td>Based on</td><td>precision, certainty, rigor</td><td>approximation and dispositional (human-like) reasoning</td></tr></table></div>
+<div class="key"><b>Model answer, key principles of soft computing (S24, 4 marks):</b> soft computing exploits <b>tolerance for imprecision, uncertainty, partial truth and approximation</b> to obtain tractable, robust and low-cost solutions, with the human mind as a model. Principles: no exact mathematical model, adaptivity and learning, bio-inspired methods (neural nets, GA, swarms), multi-valued logic and randomness, parallel processing, acceptance of approximate answers. Conventional (hard) computing instead demands precision, certainty and rigor: a formal model, binary logic, exact data, deterministic sequential algorithms and exact results, and it struggles with noisy or ill-defined real-world problems.</div></section>
+
+<section id="ai"><h2>6. AI vs soft computing</h2><p class="pg">PDF pp. 19, 21–22</p>
+<ul><li><b>AI</b> manages more comprehensive issues of automating a system, using fields such as image processing, cognitive science, neural systems and machine learning; it enables machines to think and do errands as people generally do. Branches shown: cognitive computing, computer vision, machine learning, neural networks, deep learning, natural language processing (p. 19).</li></ul>
+<div class="sc"><table><tr><th></th><th>Artificial intelligence</th><th>Soft computing</th></tr>
+<tr><td>Definition</td><td>the art and science of developing intelligent machines; finds missing pieces between the interesting real-world problems</td><td>aims to exploit tolerance for uncertainty, imprecision and partial truth; techniques inspired by human reasoning</td></tr>
+<tr><td>Branches</td><td>reasoning, perception, natural language processing</td><td>fuzzy systems, evolutionary computation, artificial neural computing</td></tr>
+<tr><td>Applications</td><td>countless, e.g. healthcare and medical data analysis</td><td>science and engineering: data mining, electronics, automotive etc.</td></tr>
+<tr><td>Goal</td><td>stimulate human-level intelligence in machines</td><td>accommodation with the pervasive imprecision of the real world</td></tr>
+<tr><td>Programs</td><td>programs must be written; require exact input samples</td><td>need not write all programs; can evolve their own; deal with ambiguous and noisy data</td></tr></table></div></section>
+
+<section id="tree"><h2>7. Components and taxonomy of soft computing</h2><p class="pg">PDF pp. 20, 38</p>
+<div class="sc"><table><tr><th>Component</th><th>Main strength</th></tr><tr><td><b>Fuzzy set theory / fuzzy logic</b></td><td>handling <b>uncertainty</b> and vagueness</td></tr><tr><td><b>Neural networks</b></td><td><b>learning and adaptation</b></td></tr><tr><td><b>Probabilistic reasoning</b> (e.g. HMM)</td><td><b>reasoning in uncertainty</b></td></tr><tr><td><b>Evolutionary computing</b></td><td><b>adaptive search and optimisation</b></td></tr></table></div>
+<p><b>Taxonomy (p. 20):</b> soft computing splits into <b>approximate reasoning</b> (probabilistic models; multi-valued and fuzzy logics) and <b>functional approximation / randomized search</b> (neural networks; evolutionary algorithms). Soft computing is a computing model evolved to resolve non-linear issues involving unsure, imprecise and approximate solutions, wherever human-like intelligence is needed. The components are <b>complementary</b>, not competing, which is why they are combined in <b>hybrids</b> (e.g. neuro-fuzzy systems such as ANFIS, or GA-tuned networks).</p></section>
+
+<section id="ann"><h2>8. First look: artificial neural networks</h2><p class="pg">PDF pp. 23–28 · slide questions 4 and 6</p>
+<ul><li>A <b>neural network</b> is a network of artificial neurons, inspired by the biological network of neurons, that uses mathematical models as information-processing units to discover patterns in data too complex for humans to notice. The human brain has millions of neurons; information passes from one neuron to another, and a neural network works similarly and can perform computations faster (p. 23).</li>
+<li><b>Biological neuron (p. 24):</b> dendrites receive signals from neighbouring neurons; the soma accumulates the received signals; the axon transmits the signal from the soma to the axon terminals; axon terminals propagate the stimulus to neighbouring neurons.</li></ul>
+<div class="sc"><table><tr><th>Biological neuron</th><th>Artificial neuron (p. 25, 27)</th></tr><tr><td>Dendrites: the input structure</td><td>incoming connections receive the inputs (x with synaptic weights and a bias)</td></tr><tr><td>Soma: calculation process</td><td>summing junction and <b>activation function</b>, which makes a non-linear decision</td></tr><tr><td>Axon: a channel for the output</td><td>output connection delivers the activation signal</td></tr></table></div>
+<ul><li><b>Process of NN application (p. 26):</b> <b>Stage 1 training:</b> training data (input and output sets with adequate coverage) goes through the learning process, producing <i>knowledge</i> in the form of a set of optimised synaptic weights and biases; the network output is compared with the target, and the error signal drives the learning algorithm that modifies the weights. <b>Stage 2 validation:</b> unseen data from the same range as the training data is used to predict the output.</li>
+<li><b>Types of ANN (p. 28):</b> feed-forward, radial basis function, multilayer perceptron, convolutional, modular, recurrent, sequence-to-sequence networks.</li></ul></section>
+
+<section id="fl"><h2>9. First look: fuzzy logic</h2><p class="pg">PDF pp. 29–34 · slide questions 3 and 7</p>
+<ul><li>“Fuzzy” means not clear, distinct or precise; blurred. Fuzzy logic is a reasoning method similar to human reasoning: it understands the vagueness of a solution and gives it a <b>degree of vagueness</b> practical for human decisions, widely used in AI reasoning (p. 29).</li>
+<li><b>Boolean vs fuzzy (pp. 29–31):</b> “Is it hot water?” Boolean: Yes/No. Fuzzy: very much (0.9), little (0.25), very less (0.1). “Is Ram honest?” Boolean: True (1) / False (0); fuzzy: extremely honest, very honest 0.80, sometimes honest 0.30, extremely dishonest 0. “Isa is 5′10″” is TRUE, but “Isa is tall” is only <i>possibly</i> true. Speed example: slow (0) vs fast (1) in traditional logic; slowest 0–0.25, slow 0.25–0.5, fast 0.5–0.75, fastest 0.75–1 in fuzzy logic.</li>
+<li><b>Process (p. 32):</b> crisp input → <b>fuzzifier</b> → fuzzy input set → <b>inference (intelligence)</b> using the <b>rules</b> → fuzzy output set → <b>defuzzifier</b> → crisp output.</li>
+<li><b>Doctor analogy (p. 33):</b> the doctor asks about suffering, finds the symptoms, correlates them with diseases with uncertainty and prescribes tests and medicines “fuzzily”: exactly how fuzzy logic works.</li></ul>
+<div class="sc"><table><tr><th></th><th>Fuzzy logic</th><th>Neural network</th></tr><tr><td>Based on</td><td>reasoning that resembles human decision making; deals with vague and imprecise information</td><td>a system inspired by the brain’s biological neurons; performs computing tasks faster</td></tr><tr><td>Helps with</td><td>pattern recognition and classification</td><td>prediction, recognition and classification</td></tr><tr><td>Complexity</td><td>simpler than a neural network</td><td>more complex than fuzzy logic</td></tr></table></div></section>
+
+<section id="ec"><h2>10. First look: evolutionary computation</h2><p class="pg">PDF pp. 35–37 · slide question 5</p>
+<ul><li><b>Evolutionary computation</b> is a family of optimisation algorithms inspired by biological evolution (e.g. the genetic algorithm), the survival of creatures, particle swarm intelligence, ant colony optimisation, artificial bee colony, or other biological processes (p. 35).</li>
+<li><b>Loop (p. 35):</b> initialisation → evaluation → selection → variation (crossover, mutation) → back to evaluation, until termination.</li>
+<li><b>“How does the world select the best?” (p. 37):</b> start with a random population, reproduce the next generation, rank the population and select the superior individuals. A <b>genetic algorithm</b> mimics this: a population is a set of candidate solutions, and selecting superior individuals is exploring for the optimal solution.</li>
+<li><b>Population-based metaheuristics (p. 36):</b> <i>evolutionary algorithms</i> (genetic algorithm, differential evolution, biogeography-based optimisation, evolution strategies); <i>swarm intelligence</i> (particle swarm, ant colony, artificial bee colony …); <i>bio-inspired</i> (firefly, cuckoo search, bat algorithm, bacterial foraging); <i>physics-based</i> (gravitational search, black hole, charged system search …).</li></ul></section>
+
+<section id="map"><h2>11. Course map: where each topic lives</h2>
+<div class="sc"><table><tr><th>Topic</th><th>PDF pages</th><th>Component</th></tr>
+<tr><td>Fuzzy logic: sets, MFs, extension principle, relations, inference, controllers</td><td>22–34 (intro), 474–522, 677–701, 747–785</td><td>fuzzy</td></tr>
+<tr><td>Neuro-fuzzy and ANFIS</td><td>109–127, 786–812</td><td>hybrid</td></tr>
+<tr><td>Neural networks: logistic regression, backpropagation, shallow nets, activations, cross-entropy</td><td>41–202</td><td>neural</td></tr>
+<tr><td>Generalization, overfitting, regularization</td><td>559–598, 702–746</td><td>neural</td></tr>
+<tr><td>Optimizers</td><td>615–648</td><td>neural</td></tr>
+<tr><td>CNN</td><td>249–342, 599–614</td><td>neural</td></tr>
+<tr><td>RNN, LSTM, GRU</td><td>343–378, 650–676, 813–843</td><td>neural</td></tr>
+<tr><td>NLP, TF-IDF, word2vec</td><td>379–435, 868–895</td><td>neural / NLP</td></tr>
+<tr><td>Seq2seq, Transformer</td><td>203–248, 844–867</td><td>neural</td></tr>
+<tr><td>Hidden Markov models, Viterbi</td><td>448–473</td><td>probabilistic</td></tr>
+<tr><td>Ant colony optimization</td><td>436–447, 523–558</td><td>evolutionary / swarm</td></tr>
+<tr><td>Evolutionary computation overview (GA only briefly)</td><td>35–37</td><td>evolutionary</td></tr></table></div></section>
+
+<section id="test"><h2>12. Self-test (the slide’s question list, p. 40)</h2>
+<details><summary>1. Differentiate between soft computing and hard computing.</summary>Hard: precise model, two-valued logic, deterministic, sequential, exact data and results. Soft: tolerant of imprecision/uncertainty, multi-valued logic and randomness, can evolve programs, parallel, approximate results on noisy data (table in §5).</details>
+<details><summary>2. How are ANN, fuzzy logic and evolutionary optimisation applied in engineering? Outline the three techniques.</summary><b>ANN</b>: learns input-output mappings from data (training → weights); used for image/speech recognition, forecasting, medical diagnosis, control. <b>Fuzzy logic</b>: linguistic rules with membership functions (fuzzifier → rules → defuzzifier); used in controllers such as the class steam-turbine example, washing machines, automotive systems, decision support. <b>Evolutionary optimisation</b>: population of candidate solutions improved by selection, crossover/mutation (or swarm/ant methods); used for scheduling, routing (TSP), design and parameter tuning. They are often hybridised (neuro-fuzzy, GA-tuned networks).</details>
+<details><summary>3. What is fuzzy logic?</summary>A multi-valued logic modelling vague concepts by degrees of truth in [0, 1], resembling human reasoning (§9).</details>
+<details><summary>4. What is an artificial neural network?</summary>A network of artificial neurons (weighted inputs, summing junction, activation function) inspired by the brain that learns patterns from data by adjusting weights (§8).</details>
+<details><summary>5. What is evolutionary computation / optimisation?</summary>A family of bio-inspired population-based optimisation algorithms: initialise, evaluate, select, vary, repeat (§10).</details>
+<details><summary>6. Biological vs artificial neuron.</summary>Dendrites → inputs (incoming connections); soma → summation and activation function; axon → output connection (table in §8).</details>
+<details><summary>7. Boolean vs fuzzy logic.</summary>Boolean: true/false (0/1), sharp boundary. Fuzzy: any degree in [0, 1], gradual boundary, handles vagueness (e.g. “tall”).</details>
+<details><summary>8. AI vs soft computing?</summary>AI aims at human-level intelligence and typically needs explicit programs and exact input; soft computing accepts imprecision, evolves its own programs and copes with ambiguous, noisy data (§6).</details></section>
+
+<section id="exam"><h2>13. Exam kit</h2>
+<h3>Likely questions</h3>
+<ul><li>Hard vs soft computing (table) and the principles of soft computing (S24, 4 marks).</li><li>Components of soft computing and the role of each; hybrids.</li><li>Fuzzy logic vs Boolean logic; biological vs artificial neuron; AI vs soft computing.</li></ul>
+<h3>Traps</h3>
+<ul><li>Zadeh’s principal constituents: fuzzy logic, neurocomputing and probabilistic reasoning (evolutionary computing appears in the component slide).</li><li>Soft computing is <b>not</b> sloppy: it trades exactness for tractability, robustness and low cost.</li><li>Soft computing gives approximate, possibly different results each run; hard computing gives guaranteed precise ones.</li><li>Fuzzy logic is about <b>vagueness</b>, not randomness; probabilistic reasoning is the component that deals with randomness/uncertainty of events.</li></ul>
+<div class="ref"><b>📚 Read in</b>Sivanandam &amp; Deepa, <i>Principles of Soft Computing</i> – “Introduction” (soft computing, AI vs soft computing, neural networks, fuzzy logic, genetic algorithms, hybrid systems); Jang, Sun &amp; Mizutani, <i>Neuro-Fuzzy and Soft Computing</i> – Ch. 1 “Introduction to Neuro-Fuzzy and Soft Computing”; Ross, <i>Fuzzy Logic with Engineering Applications</i> – Ch. 1 “Introduction”; Haykin, <i>Neural Networks and Learning Machines</i> – “Introduction” (biological neuron, brain vs computer); Zadeh (1994) “Fuzzy Logic, Neural Networks, and Soft Computing”, <i>Communications of the ACM</i> 37(3); Zadeh (1965) “Fuzzy Sets”. The four books above are the ones listed on the slide “Books” (PDF p. 39).</div></section>
+<nav class="pnav" aria-label="Topic navigation"><span></span><a href="../soft-computing-summary.html#library">All topics</a><a href="nn.html">Neural nets →</a></nav><div class="rel">Related: <a href="fuzzy.html">Fuzzy</a><a href="nn.html">Neural nets</a><a href="aco.html">ACO</a><a href="hmm.html">HMM</a></div></main></body></html>

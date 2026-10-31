@@ -31,8 +31,9 @@ textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;backgro
 label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
 select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
 input[type=range]{width:100%}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
 </style></head><body>
-<div class="top"><a class="back" href="/">← Back</a>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
 <nav class="nav"><a href="#gd">Gradient descent</a><a href="#sgd">SGD</a><a href="#mom">Momentum</a><a href="#nag">Nesterov</a><a href="#ada">AdaGrad</a><a href="#rms">RMSProp</a><a href="#adam">Adam</a><a href="#cmp">Compare</a><a href="#lab">Race track</a><a href="#exam">Exam kit</a></nav></div>
 <main>
 <h1>Optimizers: SGD, Momentum, Nesterov, AdaGrad, RMSProp, Adam – Deep Dive</h1>
@@ -110,7 +111,7 @@ input[type=range]{width:100%}
 <h3>Likely short questions</h3>
 <ul><li>SGD vs batch vs mini-batch; drawbacks of SGD; role of the learning rate.</li><li>Local vs global minimum; second-derivative test.</li><li>Why Adam is a popular default; limitations of AdaGrad.</li></ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 8 “Optimization for Training Deep Models” (§ Challenges in Neural Network Optimization, Basic Algorithms: SGD, Momentum, Nesterov Momentum; § Algorithms with Adaptive Learning Rates: AdaGrad, RMSProp, Adam); Jang, Sun &amp; Mizutani – Ch. 6 “Derivative-Based Optimization” (gradient descent, steepest descent); Kingma &amp; Ba (2015) “Adam: A Method for Stochastic Optimization”; Duchi, Hazan &amp; Singer (2011) AdaGrad, JMLR; Hinton, “RMSProp”, Coursera <i>Neural Networks for ML</i> lecture 6e; Sutskever et al. (2013) on momentum and Nesterov; Ruder (2016) “An overview of gradient descent optimization algorithms”.</div></section>
-</main>
+<nav class="pnav" aria-label="Topic navigation"><a href="nn.html">← Neural nets</a><a href="../soft-computing-summary.html#library">All topics</a><a href="generalization.html">Generalization →</a></nav><div class="rel">Related: <a href="nn.html">Neural nets</a><a href="generalization.html">Generalization</a></div></main>
 <script>
 function $(i){return document.getElementById(i)}
 function nm(s){return s.trim().split(/[\s,]+/).map(Number)}

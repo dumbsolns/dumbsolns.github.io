@@ -31,8 +31,9 @@ textarea,input.i{width:100%;border:1px solid var(--bd);border-radius:8px;backgro
 label{font-size:12px;color:var(--mu);display:block;margin-top:6px}td.h,b.h{background:var(--ok)}
 select.i{width:100%;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);padding:6px;font-size:14px}
 input[type=range]{width:100%}
+.pnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin:22px 0 8px}.pnav a,.rel a{text-decoration:none;color:var(--ac);background:var(--ac2);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}.pnav span{padding:8px 14px;color:var(--mu);font-size:14px}.rel{margin:6px 0 24px;font-size:14px;color:var(--mu);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.rel a{padding:5px 10px;font-size:13px}
 </style></head><body>
-<div class="top"><a class="back" href="/">← Back</a>
+<div class="top"><a class="back" href="../soft-computing-summary.html">← Summary</a>
 <nav class="nav"><a href="#why">Why RNN</a><a href="#rnn">Vanilla RNN</a><a href="#deep">Deep/Bidirectional</a><a href="#vg">Vanishing gradient</a><a href="#lstm">LSTM</a><a href="#fix">LSTM fixes it</a><a href="#peep">Peephole</a><a href="#gru">GRU</a><a href="#lab">Calculators</a><a href="#app">Applications</a><a href="#exam">Exam kit</a></nav></div>
 <main>
 <h1>RNN, LSTM &amp; GRU – Deep Dive</h1>
@@ -128,7 +129,7 @@ C<sub>t</sub> = 0.8176·2 + 0.6792·0.9051 = <b>2.2499</b>; h<sub>t</sub> = 0.81
 <h3>Likely short questions</h3>
 <ul><li>Why RNN over a feed-forward network; what is shared across time; BPTT.</li><li>Many-to-one vs many-to-many examples; sentiment classification set-up.</li><li>Why sigmoid in gates and tanh for the cell candidate; GRU vs LSTM.</li></ul>
 <div class="ref"><b>📚 Read in</b>Goodfellow, Bengio &amp; Courville, <i>Deep Learning</i> – Ch. 10 “Sequence Modeling: Recurrent and Recursive Nets” (§ Unfolding Computational Graphs, Recurrent Neural Networks, Bidirectional RNNs, Encoder-Decoder Sequence-to-Sequence Architectures, Deep Recurrent Networks, The Challenge of Long-Term Dependencies, The Long Short-Term Memory and Other Gated RNNs, Optimization for Long-Term Dependencies); Jurafsky &amp; Martin, <i>Speech and Language Processing</i> – “RNNs and LSTMs”; Hochreiter &amp; Schmidhuber (1997) “Long Short-Term Memory”; Gers &amp; Schmidhuber (2000) peephole connections; Cho et al. (2014) GRU; Bengio et al. (1994) “Learning long-term dependencies with gradient descent is difficult”; Olah, “Understanding LSTM Networks” (colah.github.io, the source of the slides’ figures); Xu et al. (2015) “Show, Attend and Tell”.</div></section>
-</main>
+<nav class="pnav" aria-label="Topic navigation"><a href="cnn.html">← CNN</a><a href="../soft-computing-summary.html#library">All topics</a><a href="transformer.html">Transformer →</a></nav><div class="rel">Related: <a href="transformer.html">Transformer</a><a href="nlp.html">NLP</a></div></main>
 <script>
 function $(i){return document.getElementById(i)}
 function sg(z){return 1/(1+Math.exp(-z))}
