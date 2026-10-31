@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSE 4141 Solved Past Papers</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2421;--muted:#55605b;--line:#d9ded8;--accent:#1f6f5c;--soft:#e1f0eb;--warn:#fff4d6;--warn-ink:#5c4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}}
+:root[data-theme="dark"]{--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,summary,.btn,nav a{font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.btn{font-weight:600;font-size:14px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.btn:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+main{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.75rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;color:var(--accent);margin:26px 0 4px}
+.lead{color:var(--muted);margin:0 0 12px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);background:var(--soft);border-radius:999px;padding:8px 14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"\2212"}
+.in{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.in p{margin:.6em 0}
+ul,ol{padding-left:1.15em;margin:.5em 0}li{margin:.25em 0}
+.tag{font:.8rem "Trebuchet MS",system-ui,sans-serif;color:var(--accent);margin:.6em 0 0}
+.ref{font-size:.82rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin:.8em 0 0;font-style:italic}
+.f{font:.86rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:6px;padding:8px 10px;margin:.5em 0;overflow-x:auto;white-space:pre}
+.tip{background:var(--warn);color:var(--warn-ink);border-radius:8px;padding:8px 10px;margin:.7em 0;font-size:.92rem}
+.ans{font-weight:700;color:var(--accent)}
+.tw{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;min-width:100%;font-size:.88rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="btn" href="/" aria-label="Back to home page">&larr; Back</a>
+  <span class="sp"></span>
+  <button class="btn" id="all" type="button">Expand all</button>
+</div>
+<main>
+<h1>CSE 4141 Solved Past Papers</h1>
+<p class="lead">Worked answers for the three papers you uploaded: <b>S25</b> = Spring 2025 final, <b>F24</b> = Fall 2024 final, <b>S24</b> = Spring 2024 final. Questions that repeat across papers are solved once, with the paper tags shown. Methods follow your class notes and Han, Kamber &amp; Pei, <em>Data Mining: Concepts and Techniques</em>, 3rd ed.</p>
+<div class="tip">Several scans are blurry (F24 especially). Where I could not read cube or table numbers, I say so and show the method instead. Please check my reading of any number against your paper.</div>
+<nav aria-label="Sections"><a href="#calc">A. Calculations</a><a href="#theory">B. Theory</a><a href="#freq">Repeat pattern</a></nav>
+
+<h2 id="freq">What repeats (study priority)</h2>
+<div class="tw"><table>
+<tr><th>Topic</th><th>S25</th><th>F24</th><th>S24</th></tr>
+<tr><td>DWT</td><td>1c</td><td>3g</td><td>1d</td></tr>
+<tr><td>Closed / maximal itemsets</td><td>1b</td><td>1d</td><td>1e</td></tr>
+<tr><td>Rules from a frequent itemset</td><td>1d</td><td>1e</td><td>1f</td></tr>
+<tr><td>Apriori</td><td>3c</td><td>3e</td><td>3d</td></tr>
+<tr><td>Schema choice and design</td><td>3a</td><td>3d</td><td>3a</td></tr>
+<tr><td>OLAP operations on a cube</td><td>3d</td><td>3b</td><td>3c</td></tr>
+<tr><td>Number of cuboids / lattice</td><td>3e, 3f</td><td>-</td><td>3b, 3g</td></tr>
+<tr><td>Ordinal dissimilarity</td><td>1f</td><td>1a</td><td>-</td></tr>
+<tr><td>Sampling methods</td><td>1e</td><td>1g</td><td>-</td></tr>
+<tr><td>Why a separate DW / DW vs DB</td><td>2b</td><td>2c</td><td>2a</td></tr>
+<tr><td>MOLAP vs ROLAP</td><td>2c</td><td>-</td><td>2c</td></tr>
+<tr><td>Recommended approach / three-tier</td><td>3b</td><td>3a</td><td>3f</td></tr>
+<tr><td>Bitmap index</td><td>3g</td><td>3c</td><td>-</td></tr>
+</table></div>
+
+<h2 id="calc">A. Calculation questions</h2>
+
+<details><summary>A1. Chi-square test of independence (S25 1a)</summary><div class="in">
+<p>H₀: animal type and vaccination status are independent. Expected eᵢⱼ = row total × column total / n, with n = 470.</p>
+<div class="tw"><table>
+<tr><th>Cell</th><th>Observed o</th><th>Expected e</th><th>(o−e)²/e</th></tr>
+<tr><td>Dog, vaccinated</td><td>60</td><td>200×170/470 = 72.34</td><td>2.105</td></tr>
+<tr><td>Dog, not</td><td>140</td><td>200×300/470 = 127.66</td><td>1.193</td></tr>
+<tr><td>Cat, vaccinated</td><td>110</td><td>270×170/470 = 97.66</td><td>1.559</td></tr>
+<tr><td>Cat, not</td><td>160</td><td>270×300/470 = 172.34</td><td>0.884</td></tr>
+</table></div>
+<p>χ² = 2.105 + 1.193 + 1.559 + 0.884 = <b>5.741</b>. Degrees of freedom = (2−1)(2−1) = 1. From Appendix A, the critical value at 0.05 with d = 1 is 3.841.</p>
+<p class="ans">5.741 &gt; 3.841, so reject H₀: animal type and vaccination status are not independent (they are correlated).</p>
+<p>Check: at 0.01 the critical value is 6.635, and 5.741 &lt; 6.635, so the evidence is significant at 5% but not at 1%.</p>
+<p class="ref">Han et al., Ch. 3 “Data Preprocessing”, §3.3.2 “Redundancy and Correlation Analysis” (χ² correlation test). Notes: 22/07/26.</p></div></details>
+
+<details><summary>A2. Dissimilarity matrix for an ordinal attribute (S25 1f, F24 1a)</summary><div class="in">
+<p>Steps: (1) map states to ranks r; (2) normalize zᵢ = (r − 1)/(M − 1), where M = number of states; (3) d(i,j) = |zᵢ − zⱼ|.</p>
+<p><b>S25 1f, Service Level</b> (Low &lt; Medium &lt; High, M = 3): High → 1, Medium → 0.5, Low → 0. Objects: 1 = High (1), 2 = Medium (0.5), 3 = Low (0), 4 = High (1).</p>
+<div class="f">     1    2    3    4
+1    0
+2   0.5   0
+3   1.0  0.5   0
+4   0    0.5  1.0   0</div>
+<p><b>F24 1a, Grade</b> (fair &lt; good &lt; excellent, M = 3): fair → 0, good → 0.5, excellent → 1. Objects: 1 = fair (0), 2 = good (0.5), 3 = excellent (1), 4 = good (0.5).</p>
+<div class="f">     1    2    3    4
+1    0
+2   0.5   0
+3   1.0  0.5   0
+4   0.5   0   0.5   0</div>
+<p>The matrix is symmetric with zeros on the diagonal, so only the lower triangle is shown.</p>
+<p class="ref">Han et al., Ch. 2 “Getting to Know Your Data”, §2.4.1 “Data Matrix versus Dissimilarity Matrix”, §2.4.5 “Proximity Measures for Ordinal Attributes”. Notes: 09/07/26, 15/07/26.</p></div></details>
+
+<details><summary>A3. IQR outliers and boxplot (S25 1g, S24 1a)</summary><div class="in">
+<p>Method (median of halves): sort, find the median Q2, then Q1 = median of the lower half and Q3 = median of the upper half. IQR = Q3 − Q1. Outliers lie below Q1 − 1.5·IQR or above Q3 + 1.5·IQR.</p>
+<p><b>S25 1g</b>: −95, −40, 2, 5, 7, 9, 12, 15, 18, 120, 255, 590 (N = 12).</p>
+<div class="f">Q2 = (9+12)/2 = 10.5
+Q1 = median(−95,−40,2,5,7,9)    = (2+5)/2   = 3.5
+Q3 = median(12,15,18,120,255,590) = (18+120)/2 = 69
+IQR = 69 − 3.5 = 65.5      1.5×IQR = 98.25
+Lower fence = 3.5 − 98.25 = −94.75
+Upper fence = 69 + 98.25 = 167.25</div>
+<p class="ans">Outliers: −95 (below −94.75), 255 and 590 (above 167.25). Not outliers: −40 and 120.</p>
+<p><b>S24 1a</b>: −110, −50, 0, 3, 6, 8, 10, 14, 16, 115, 268, 607 (N = 12).</p>
+<div class="f">Q2 = (8+10)/2 = 9
+Q1 = (0+3)/2   = 1.5
+Q3 = (16+115)/2 = 65.5
+IQR = 64     1.5×IQR = 96
+Fences: 1.5 − 96 = −94.5   and   65.5 + 96 = 161.5</div>
+<p>(i) Quartiles: Q1 = 1.5, median = 9, Q3 = 65.5. (ii) Smallest and largest non-outlier observations (whisker ends): −50 and 115. (iii) Outliers: −110, 268, 607.</p>
+<div class="f">outliers:  o(−110)                            o(268)  o(607)
+whiskers:        |-----[ 1.5 | 9 | 65.5 ]-----|
+                 −50                          115
+(five numbers: −50, 1.5, 9, 65.5, 115)</div>
+<div class="tip">Different textbooks interpolate quartile positions differently. Use the median-of-halves method from your notes and state it in the answer.</div>
+<p class="ref">Han et al., Ch. 2, §2.2.2 “Measuring the Dispersion of Data: Range, Quartiles, Variance, Standard Deviation, and Interquartile Range”, §2.2.3 “Graphic Displays of Basic Statistical Descriptions of Data” (boxplots). Notes: 08/07/26.</p></div></details>
+
+<details><summary>A4. Binary contingency table and proximity (S24 1b)</summary><div class="in">
+<p>Object 1 = (1,1,1,0,1), Object 2 = (1,0,1,0,0). Count the attribute positions: q = both 1 (attributes 1, 3) = 2; r = object 1 has 1, object 2 has 0 (attributes 2, 5) = 2; s = object 1 has 0, object 2 has 1 = 0; t = both 0 (attribute 4) = 1.</p>
+<div class="tw"><table>
+<tr><th></th><th>Obj 2 = 1</th><th>Obj 2 = 0</th><th>Sum</th></tr>
+<tr><td>Obj 1 = 1</td><td>q = 2</td><td>r = 2</td><td>4</td></tr>
+<tr><td>Obj 1 = 0</td><td>s = 0</td><td>t = 1</td><td>1</td></tr>
+<tr><td>Sum</td><td>2</td><td>3</td><td>5</td></tr>
+</table></div>
+<p>Symmetric binary: d(1,2) = (r + s)/(q + r + s + t) = (2 + 0)/5 = <span class="ans">0.4</span>.</p>
+<p>For comparison, if the attributes were asymmetric (0-0 ignored): d = (r + s)/(q + r + s) = 2/4 = 0.5.</p>
+<p class="ref">Han et al., Ch. 2, §2.4.3 “Proximity Measures for Binary Attributes”. Notes: 09/07/26.</p></div></details>
+
+<details><summary>A5. Covariance matrix and eigenvalues (F24 1b)</summary><div class="in">
+<p>Quiz = [6, 14, 16, 20], Assignment = [5, 10, 15, 20]. Means: x̄ = 14, ȳ = 12.5.</p>
+<div class="f">dev(Quiz)   = −8, 0, 2, 6        Σdev² = 104
+dev(Assign) = −7.5, −2.5, 2.5, 7.5   Σdev² = 125
+Σ dev·dev = 60 + 0 + 5 + 45 = 110
+s_x = √(104/3) = 5.888   s_y = √(125/3) = 6.455</div>
+<p><b>Preprocessing (z-score):</b> z = (x − x̄)/s. Quiz z = −1.359, 0, 0.340, 1.019. Assignment z = −1.162, −0.387, 0.387, 1.162.</p>
+<p><b>Covariance matrix of the normalized data</b> (this is the correlation matrix): Cov(zx, zy) = Σ zx·zy/(n−1) = 110/√(104×125) = 0.965.</p>
+<div class="f">C = [ 1      0.965 ]
+    [ 0.965  1     ]</div>
+<p><b>Eigenvalues:</b> |C − λI| = 0 gives (1−λ)² − 0.965² = 0, so λ = 1 ± 0.965.</p>
+<p class="ans">λ₁ = 1.965 (PC1), λ₂ = 0.035 (PC2).</p>
+<p>Eigenvectors: for λ₁, (1/√2)[1, 1]; for λ₂, (1/√2)[1, −1]. PC1 explains 1.965/2 = 98.2% of the variance, so one component almost replaces both attributes.</p>
+<p>Check without normalizing: raw C = [[34.67, 36.67],[36.67, 41.67]], with λ ≈ 75.0 and 1.33.</p>
+<p class="ref">Han et al., Ch. 3, §3.4.3 “Principal Components Analysis”, §3.3.2 (covariance); Zaki &amp; Meira, <em>Data Mining and Analysis</em>, Ch. 7 “Dimensionality Reduction”. Notes: 27/07/26, 29/07/26.</p></div></details>
+
+<details><summary>A6. Discrete Wavelet Transform (S25 1c, F24 3g, S24 1d)</summary><div class="in">
+<p>Method from class: (1) length must be 2ⁿ, so pad with 0s; (2) for each adjacent pair take the <b>average</b> (low-frequency part) and the <b>half-difference</b> (a − b)/2 (high-frequency detail); (3) repeat on the averages until one value remains; (4) output = [final average, details from the coarsest level to the finest].</p>
+<p>All three series have 6 values, so pad with two zeros to reach 8.</p>
+<div class="f">S25 1c   X = 14,12,10,8,4,6,0,0
+Avg₁  = 13, 9, 5, 0         Diff₁ = 1, 1, −1, 0
+Avg₂  = 11, 2.5             Diff₂ = 2, 2.5
+Avg₃  = 6.75                Diff₃ = 4.25
+Result: [6.75, 4.25, 2, 2.5, 1, 1, −1, 0]</div>
+<div class="f">F24 3g   B = 14,9,7,5,3,1,0,0
+Avg₁  = 11.5, 6, 2, 0       Diff₁ = 2.5, 1, 1, 0
+Avg₂  = 8.75, 1             Diff₂ = 2.75, 1
+Avg₃  = 4.875               Diff₃ = 3.875
+Result: [4.875, 3.875, 2.75, 1, 2.5, 1, 1, 0]</div>
+<div class="f">S24 1d   X = 12,10,8,6,2,4,0,0
+Avg₁  = 11, 7, 3, 0         Diff₁ = 1, 1, −1, 0
+Avg₂  = 9, 1.5              Diff₂ = 2, 1.5
+Avg₃  = 5.25                Diff₃ = 3.75
+Result: [5.25, 3.75, 2, 1.5, 1, 1, −1, 0]</div>
+<p><b>Low-frequency components</b> are the averages: the coarse value (6.75, 4.875, 5.25) plus the intermediate averages at each level. Keeping only these (dropping small details) gives lossy compression; the full vector reconstructs the data exactly. Check S25: 6.75 + 4.25 = 11 and 6.75 − 4.25 = 2.5, matching Avg₂.</p>
+<div class="tip">The book’s Haar version scales by 1/√2 instead of 1/2. Use the average and half-difference form your instructor taught.</div>
+<p class="ref">Han et al., Ch. 3, §3.4.2 “Wavelet Transforms”. Notes: 06/08/26 (DWT Math).</p></div></details>
+
+<details><summary>A7. Closed and maximal frequent itemsets (S25 1b, F24 1d, S24 1e)</summary><div class="in">
+<p>Rules: an itemset is <b>closed</b> if it is frequent and no proper superset has the same support count. It is <b>maximal</b> if it is frequent and no proper superset is frequent. Every maximal itemset is closed.</p>
+<div class="tw"><table>
+<tr><th>Paper (min_sup)</th><th>Itemsets</th><th>Closed</th><th>Maximal</th></tr>
+<tr><td>S25 1b (3)</td><td>{Router, Printer, Scanner, Keyboard}:3; {Router, Keyboard}:5; {Printer, Scanner, Keyboard}:3</td><td>{R,P,S,K}:3 and {R,K}:5</td><td>{R,P,S,K}:3</td></tr>
+<tr><td>F24 1d (2)</td><td>{pen, notebook, eraser, ruler}:4; {pen, notebook, eraser}:4; {pen, notebook}:5</td><td>{pen,notebook,eraser,ruler}:4 and {pen,notebook}:5</td><td>{pen,notebook,eraser,ruler}:4</td></tr>
+<tr><td>S24 1e (2)</td><td>{PC, PlayStation, Xbox, Mouse}:2; {PC, Mouse}:3; {PlayStation, Xbox, Mouse}:2</td><td>{PC,PS,Xbox,Mouse}:2 and {PC,Mouse}:3</td><td>{PC,PS,Xbox,Mouse}:2</td></tr>
+</table></div>
+<p><b>Why:</b> in S25, {P,S,K}:3 has the superset {R,P,S,K}:3 with equal support, so it is not closed. {R,K}:5 is closed because its superset has support 3, not 5, but it is not maximal because that superset is frequent. F24 and S24 follow the same pattern.</p>
+<p><b>F24 1d, which to store with limited storage?</b> Maximal itemsets are the smallest set (1 itemset), but they lose the support counts of the subsets. Closed itemsets (2 itemsets) are lossless: the support of any frequent subset equals the largest support among its closed supersets (e.g. {pen, notebook, eraser} = 4). Choose maximal if only the frequent patterns matter and storage is the priority; choose closed if you need exact supports to generate rules.</p>
+<p class="ref">Han et al., Ch. 6 “Mining Frequent Patterns, Associations, and Correlations: Basic Concepts and Methods”, §6.1.2 “Frequent Itemsets, Closed Itemsets, and Association Rules”; Zaki &amp; Meira, Ch. 9 “Summarizing Itemsets”. Notes: 17/09/26.</p></div></details>
+
+<details><summary>A8. Association rules from a frequent itemset (S25 1d, F24 1e, S24 1f)</summary><div class="in">
+<p>All three questions have the same structure. Let the frequent 3-itemset be {X, Y, Z}. confidence(S ⇒ rest) = count(X∪Y∪Z)/count(S).</p>
+<div class="tw"><table>
+<tr><th>Paper</th><th>Itemset {X,Y,Z}</th><th>count(XYZ)</th><th>Single counts</th><th>Pair counts</th><th>min_conf</th></tr>
+<tr><td>S25 1d</td><td>{Pen, Marker, Ruler}</td><td>2 (T220, T550)</td><td>Pen 4, Marker 3, Ruler 2</td><td>each pair 2</td><td>50%</td></tr>
+<tr><td>F24 1e</td><td>{A, C, E}</td><td>2 (T200, T500)</td><td>A 4, C 3, E 2</td><td>each pair 2</td><td>40%</td></tr>
+<tr><td>S24 1f</td><td>{I1, I3, I5}</td><td>2 (T200, T500)</td><td>I1 4, I3 3, I5 2</td><td>each pair 2</td><td>40%</td></tr>
+</table></div>
+<p>Support of the itemset = 2/5 = 40%. Six rules from the three subsets and their complements:</p>
+<div class="tw"><table>
+<tr><th>Rule (X, Y, Z in the order above)</th><th>Confidence</th><th>Strong?</th></tr>
+<tr><td>X ⇒ Y, Z</td><td>2/4 = 50%</td><td>S25 yes (50% ≥ 50%); F24, S24 yes</td></tr>
+<tr><td>Y ⇒ X, Z</td><td>2/3 = 66.7%</td><td>yes</td></tr>
+<tr><td>Z ⇒ X, Y</td><td>2/2 = 100%</td><td>yes</td></tr>
+<tr><td>X, Y ⇒ Z</td><td>2/2 = 100%</td><td>yes</td></tr>
+<tr><td>X, Z ⇒ Y</td><td>2/2 = 100%</td><td>yes</td></tr>
+<tr><td>Y, Z ⇒ X</td><td>2/2 = 100%</td><td>yes</td></tr>
+</table></div>
+<p class="ans">All 6 rules pass in every paper.</p>
+<p>Example, S25 1d: Pen ⇒ Marker, Ruler (50%); Marker ⇒ Pen, Ruler (66.7%); Ruler ⇒ Pen, Marker (100%); Pen, Marker ⇒ Ruler (100%); Pen, Ruler ⇒ Marker (100%); Marker, Ruler ⇒ Pen (100%).</p>
+<div class="tip">F24 1e was blurry. I read the database as 100 {A,B}, 200 {A,C,D,E}, 300 {B,C}, 400 {A}, 500 {A,C,E}. If yours differs, recompute the counts with the same method.</div>
+<p class="ref">Han et al., Ch. 6, §6.1.2 (support and confidence), §6.2.2 “Generating Association Rules from Frequent Itemsets”. Notes: 24/09/26.</p></div></details>
+
+<details><summary>A9. Apriori (S25 3c, F24 3e, S24 3d)</summary><div class="in">
+<p>Scan for C₁, prune to L₁, join Lₖ₋₁ with itself to form Cₖ, prune candidates with an infrequent subset, scan, repeat until Lₖ is empty.</p>
+<p><b>S25 3c</b> (min_sup 3): T10 {Milk,Bread,Rice}, T20 {Bread,Egg,Sugar}, T30 {Milk,Bread,Egg,Sugar}, T40 {Bread,Sugar}, T50 {Milk,Egg,Sugar}.</p>
+<div class="f">C1: Milk 3, Bread 4, Rice 1, Egg 3, Sugar 4      L1: Milk, Bread, Egg, Sugar
+C2: MB 2, ME 2, MS 2, BE 2, BS 3, ES 3              L2: {Bread,Sugar}:3  {Egg,Sugar}:3
+C3: {Bread,Egg,Sugar} pruned, because {Bread,Egg} is infrequent. L3 = empty</div>
+<p class="ans">Frequent itemsets: Milk, Bread, Egg, Sugar, {Bread,Sugar}, {Egg,Sugar}.</p>
+<p><b>F24 3e</b> (min_sup 3): T1 {Milk,Bread,Butter}, T2 {Bread,Cheese}, T3 {Bread,Jam}, T4 {Milk,Bread,Cheese}, T5 {Milk,Jam}, T6 {Bread,Jam}, T7 {Milk,Jam}, T8 {Milk,Bread,Jam,Butter}, T9 {Milk,Bread,Jam}.</p>
+<div class="f">C1: Milk 6, Bread 7, Butter 2, Cheese 2, Jam 6   L1: Milk, Bread, Jam
+C2: MB 4, MJ 4, BJ 4                                L2: all three pairs
+C3: {Milk,Bread,Jam} = 2 (T8, T9) &lt; 3             L3 = empty</div>
+<p class="ans">L1 = {Milk, Bread, Jam}; L2 = {MB, MJ, BJ}; L3 is empty.</p>
+<p><b>S24 3d</b> (min_sup 2): T1 ACD, T2 BCE, T3 ABCE, T4 BE, T5 ACE.</p>
+<div class="f">C1: A 3, B 3, C 4, D 1, E 4         L1: A, B, C, E
+C2: AB 1, AC 3, AE 2, BC 2, BE 3, CE 3   L2: AC, AE, BC, BE, CE
+C3: join gives ACE and BCE (all 2-subsets in L2)
+    ACE = 2 (T3, T5)   BCE = 2 (T2, T3)  L3: ACE:2, BCE:2
+C4: ACE and BCE share no 2-item prefix, so C4 is empty. Stop.</div>
+<p class="ans">Frequent: A, B, C, E; AC, AE, BC, BE, CE; ACE, BCE.</p>
+<p class="ref">Han et al., Ch. 6, §6.2.1 “Apriori Algorithm: Finding Frequent Itemsets by Confined Candidate Generation”; Tan et al., <em>Introduction to Data Mining</em>, chapter “Association Analysis: Basic Concepts and Algorithms”. Notes: 23/09/26.</p></div></details>
+
+<details><summary>A10. Number of cuboids (S25 3e, S24 3g)</summary><div class="in">
+<p>Total cuboids T = Π (Lᵢ + 1), where Lᵢ is the number of levels of dimension i (not counting the virtual top level “all”). The <b>+1</b> is the “all” level: each dimension can also be left out entirely, which is a valid grouping. Without hierarchies, every Lᵢ = 1 and T = 2ⁿ.</p>
+<div class="f">S25 3e: Date (week &lt; month &lt; quarter &lt; year) L = 4
+        Store (branch &lt; city &lt; region)        L = 3
+        T = (4+1)(3+1) = 5 × 4 = 20
+S24 3g: Product (brand &lt; category &lt; department) L = 3
+        Region (city &lt; state &lt; country)         L = 3
+        T = (3+1)(3+1) = 16</div>
+<p class="ans">S25 3e: 20 cuboids. S24 3g: 16 cuboids.</p>
+<p class="ref">Han et al., Ch. 4 “Data Warehousing and Online Analytical Processing”, §4.4.1 “Efficient Data Cube Computation: An Overview” (number of cuboids). Notes: 14/09/26.</p></div></details>
+
+<details><summary>A11. Lattice of cuboids, apex and base (S25 3f, S24 3b)</summary><div class="in">
+<p>Both datasets have three dimensions: Time, Location, Item. With no hierarchies, there are 2³ = 8 cuboids.</p>
+<div class="f">0-D (apex):   all
+1-D:          time    location    item
+2-D:          (time,location)  (time,item)  (location,item)
+3-D (base):   (time,location,item)
+
+all
+├ time ──┬ (time,location) ──┐
+├ location┤ (time,item)     ──┼ (time,location,item)
+└ item ──┴ (location,item) ──┘</div>
+<p class="ans">Apex cuboid = “all” (the grand total of sales). Base cuboid = (time, location, item), the full detailed data.</p>
+<p>S25 3f dimensions: Time (Q1–Q4), Location (Dhaka, Khulna, Rajshahi), Item (TV, Laptop, AC, Router). S24 3b: Time (Q1–Q4), Location (Los Angeles, Baltimore, London, Manchester), Item (Home Ent, Comp, Phone, Sec). Each cuboid is a GROUP BY on its dimensions; every cuboid is derived from a lower (more detailed) one.</p>
+<p class="ref">Han et al., Ch. 4, §4.2.1 “Data Cube: A Multidimensional Data Model” (lattice of cuboids, Figure 4.5). Notes: 03/09/26.</p></div></details>
+
+<details><summary>A12. OLAP operations on a cube (S25 3d, F24 3b, S24 3c)</summary><div class="in">
+<p><b>Definitions.</b> <b>Roll-up (drill-up):</b> aggregate by climbing a concept hierarchy or removing a dimension. <b>Drill-down (stepping down a concept hierarchy):</b> the reverse, to finer detail or an added dimension. <b>Slice:</b> fix one dimension to one value, giving a sub-cube. <b>Dice:</b> select ranges on two or more dimensions. <b>Rotate (pivot):</b> swap axes for a new view.</p>
+<p><b>S25 3d</b>, using the legible numbers (Delhi face by quarter and item, Q1 row for the other cities):</p>
+<div class="f">Q1        Egg  Milk  Bread  Biscuit
+Delhi     260  508    15     60
+Mumbai    390  385    20     39
+Kolkata   435  460    20     15
+Chennai   340  360    20     10</div>
+<p>(i) <b>Drill-up (roll-up)</b>, time quarter → year for Delhi: Egg = 260+390+436+528 = 1614; Milk = 508+256+396+483 = 1643; Bread = 15+20+50+35 = 120; Biscuit = 60+90+40+50 = 240. Rolling up location city → country (Q1): Egg = 1425, Milk = 1713, Bread = 75, Biscuit = 124.</p>
+<p>(ii) <b>Stepping down a concept hierarchy</b>, time quarter → month: each Q1 cell splits into Jan, Feb, Mar (for example Delhi–Egg 260 becomes three monthly figures summing to 260). This needs the finer-grained data from a lower cuboid. Likewise location country → city restores the table above from the country totals.</p>
+<p>(iii) <b>Slice</b>, Location = Delhi: gives the 2-D Time × Item table (Q1 to Q4 by Egg, Milk, Bread, Biscuit), shown on the front face of the cube. A slice on Time = Q1 gives the city × item table above.</p>
+<p><b>F24 3b</b> (Location: Mumbai, New Delhi, Gurgaon; Time: Q1–Q4; Item: Mouse, Mobile, Modem). The front face (Gurgaon) as I read it: Mouse 288, 678, 899, 787; Mobile 987, 654, 875, 969; Modem 265, 987, 190, 908. (i) Step down: city → locality or quarter → month. (ii) Rotate: swap axes so rows are Items and columns are Time, or show Location × Item. (iii) Drill-up: rolling quarters to a year gives Mouse 2652, Mobile 3485, Modem 2350 for Gurgaon; or roll city → country.</p>
+<p><b>S24 3c</b> (Location: Chicago, New York, Toronto; Time: Q1–Q3; Item: Phone, Mouse, Computer; the cell numbers are not readable). (i) Roll-up: location city → country (Chicago and New York → USA, Toronto → Canada), summing sales. (ii) Drill-down: quarter → month. (iii) Slice: Time = Q1, giving a Location × Item face.</p>
+<p class="ref">Han et al., Ch. 4, §4.2.3 “Dimensions: The Role of Concept Hierarchies”, §4.2.5 “Typical OLAP Operations”. Notes: 10/09/26.</p></div></details>
+
+<details><summary>A13. Choosing and drawing the schema (S25 3a, F24 3d, S24 3a)</summary><div class="in">
+<p>All three datasets share the structure Time × Location × Item with one measure (sales). This calls for <b>one fact table</b>, so a fact constellation is not needed (it suits several fact tables, such as sales and shipping).</p>
+<p><b>Minimizing redundancy (S25 3a, S24 3a): snowflake schema.</b> Snowflake normalizes the dimension tables, so repeated attribute values (city name or item category) are stored once. The cost is extra joins. Star is simpler and faster but repeats dimension values.</p>
+<div class="f">Fact: sales_fact(time_key, item_key, location_key, dollars_sold)
+time(time_key, quarter, year)
+item(item_key, item_name, category_key)     → category(category_key, category_name)
+location(location_key, city_key)            → city(city_key, city_name, country)</div>
+<p>S25 3a: items Keyboard/Tablet/Laptop; locations Dhaka, Chattogram, Sylhet; Q1–Q3. S24 3a: items Home Ent, Comp, Phone, Sec; locations Chicago, New York, Toronto, Vancouver; Q1–Q4. Only the dimension rows change.</p>
+<p><b>F24 3d</b> (SIM/Phone/Mouse; Comilla, Dhaka, Khulna; Q1–Q4) asks you to weigh redundancy, performance and clarity. Choose <b>star</b>: one fact table plus three denormalized dimension tables. It needs the fewest joins (best query speed), is the easiest to read, and the redundancy cost is small because the dimensions are tiny. Mention snowflake as the alternative if storage mattered more.</p>
+<div class="f">Fact: sales_fact(time_key, item_key, location_key, dollars_sold)
+Dim:  time(time_key, quarter, year)
+      item(item_key, item_name, type)
+      location(location_key, city, country)</div>
+<p class="ref">Han et al., Ch. 4, §4.2.2 “Stars, Snowflakes, and Fact Constellations: Schemas for Multidimensional Data Models”; Kimball &amp; Ross, <em>The Data Warehouse Toolkit</em>, 3rd ed., Ch. 1 “Data Warehousing, Business Intelligence, and Dimensional Modeling Primer”. Notes: 10/09/26.</p></div></details>
+
+<h2 id="theory">B. Theory questions</h2>
+
+<details><summary>B1. Sampling methods and representativeness (S25 1e, F24 1g)</summary><div class="in">
+<p>Sampling selects a subset of s tuples from N to cut cost before mining. Diagram (population T1…T10):</p>
+<div class="f">SRSWOR   T1 T2 T3 T4 T5 T6 T7 T8 T9 T10  → T2 T5 T9      (each tuple at most once)
+SRSWR    same population                      → T2 T5 T2 T9   (T2 returned, may repeat)
+Cluster  [T1 T2 T3] [T4 T5 T6] [T7 T8 T9 T10] → pick [T4 T5 T6] (whole group)
+Stratified  A: T1–T6 (60%)  B: T7–T10 (40%)   → 3 from A + 2 from B</div>
+<ul>
+<li><b>SRSWOR:</b> every tuple has equal chance and is drawn once. Unbiased and unique, but a small sample can miss rare patterns.</li>
+<li><b>SRSWR:</b> a drawn tuple is put back, so duplicates appear. Draws are independent and the maths is simple, but duplicates distort item counts, which matters for support and correlation.</li>
+<li><b>Cluster sampling:</b> tuples are grouped into clusters and whole clusters are drawn. It is cheap, but if clusters differ from each other the sample may miss whole classes, so representativeness is weakest.</li>
+<li><b>Stratified sampling:</b> split into strata (such as customer type or class label) and take an SRS from each in proportion to its size. Best for skewed data: rare groups stay represented, so frequent-pattern and correlation results stay close to the full data.</li>
+</ul>
+<p class="ref">Han et al., Ch. 3, §3.4.8 “Sampling”. Notes: 17/08/26.</p></div></details>
+
+<details><summary>B2. Interval-scaled or ratio-scaled? (F24 1f, S24 1g)</summary><div class="in">
+<p class="ans">Both “monthly sales volume” and “monthly income” are ratio-scaled.</p>
+<ul>
+<li>They have a <b>true zero</b>: 0 means no sales or no income at all, unlike 0 °C, which is not “no temperature”.</li>
+<li>Ratios are meaningful: 80,000 is twice 40,000.</li>
+<li>Values are non-negative, ordered, and differences are meaningful, so all numeric operations (mean, median, ratios) apply.</li>
+</ul>
+<p>An interval-scaled attribute has ordered values and equal gaps but no true zero (temperature in °C or dates), so ratios make no sense.</p>
+<p class="ref">Han et al., Ch. 2, §2.1.5 “Numeric Attributes” (interval-scaled vs ratio-scaled). Notes: 25/06/26.</p></div></details>
+
+<details><summary>B3. Data reduction for annual sales: data cube aggregation (F24 1c)</summary><div class="in">
+<p>The Audi data holds sales per quarter for 2022–2024, but only yearly totals are needed. The best procedure is <b>data cube aggregation</b>: roll the Time dimension up from quarter to year and store the smaller cuboid.</p>
+<div class="f">2022: Q1 + Q2 + Q3 + Q4  →  Sales(2022)
+2023: Q1 + Q2 + Q3 + Q4  →  Sales(2023)
+2024: Q1 + Q2 + Q3 + Q4  →  Sales(2024)
+12 quarterly values  →  3 annual values</div>
+<p><b>Why this choice:</b> it uses the concept hierarchy quarter &lt; year; the result is exact for the question being asked (a sum is a distributive measure, so nothing is lost for annual analysis); and it cuts the data by a factor of 4. PCA or DWT would only approximate the totals, attribute subset selection removes no tuples, and sampling would give a wrong total.</p>
+<p class="ref">Han et al., Ch. 3, §3.4.9 “Data Cube Aggregation” (Figure 3.11, sales aggregated from quarters to years); Ch. 4, §4.2.4 (distributive measures).</p></div></details>
+
+<details><summary>B4. Major steps of data preprocessing with an example (S24 1c)</summary><div class="in">
+<ol>
+<li><b>Data cleaning:</b> fill missing values, smooth noise (binning, regression), remove outliers, fix inconsistencies. Example: a missing <i>age</i> filled with the mean of customers in the same class.</li>
+<li><b>Data integration:</b> merge several sources, resolve naming and format conflicts, remove redundancy using χ² or correlation. Example: <i>cust_id</i> and <i>customer_no</i> matched; <i>age</i> and <i>birth_year</i> found to be redundant.</li>
+<li><b>Data reduction:</b> dimensionality reduction (PCA, DWT, attribute subset selection) and numerosity reduction (sampling, histograms, clustering). Example: PCA keeps 2 components for 10 correlated attributes.</li>
+<li><b>Data transformation and discretization:</b> normalization, aggregation, concept hierarchies. Example: min-max scaling income 73,600 with min 12,000 and max 98,000: (73,600 − 12,000)/(98,000 − 12,000) = 0.716.</li>
+</ol>
+<p>Quality dimensions that drive these steps: accuracy, completeness, consistency, timeliness, believability, interpretability.</p>
+<p class="ref">Han et al., Ch. 3, §3.1 “Data Preprocessing: An Overview”, §3.2 “Data Cleaning”, §3.3 “Data Integration”, §3.4 “Data Reduction”, §3.5 “Data Transformation and Data Discretization”. Notes: 16/07/26.</p></div></details>
+
+<details><summary>B5. Characterization, discrimination and other functionalities (S25 2a, F24 2a, S24 2b)</summary><div class="in">
+<p><b>Characterization</b> summarizes the general features of a target class. <b>Discrimination</b> compares the target class with one or more contrasting classes. Together they form class/concept description.</p>
+<p><b>S25 2a (academic advisors).</b> Use characterization to describe a group, for example students with CGPA ≥ 3.5: “90% attend over 90% of classes and study 15+ hours a week.” Use discrimination to compare them with students on probation (CGPA &lt; 2.0): “attendance 60%, late submissions 40%”. Output: summary rules, charts or tables. The advisor can then target the differences.</p>
+<p><b>F24 2a.</b> Same definitions; example in a shop: characterize customers who buy laptops (age 20–30, high income, online buyers) and discriminate them from customers who buy only accessories.</p>
+<p><b>S24 2b (marketing analyst).</b> Use <b>discrimination</b> to compare loyal and occasional buyers, plus <b>characterization</b> of the loyal segment. Add <b>association mining</b> (loyal customers often buy milk and bread together, with support and confidence) and <b>classification or clustering</b> to predict which customers will become loyal. Example: loyal buyers average 12 visits and a 1,500 basket; occasional buyers purchase only discounted items.</p>
+<p class="ref">Han et al., Ch. 1 “Introduction”, §1.4.1 “Class/Concept Description: Characterization and Discrimination”, §1.4.2–§1.4.4. Notes: 24/06/26.</p></div></details>
+
+<details><summary>B6. Why a separate data warehouse; data warehouse vs database (S25 2b, F24 2c, S24 2a)</summary><div class="in">
+<p><b>Reasons (S25 2b, S24 2a):</b></p>
+<ol>
+<li><b>Performance:</b> operational databases are tuned for short transactions (indexing, hashing). Long analytic queries with scans and aggregations would slow them down.</li>
+<li><b>Concurrency and recovery:</b> OLTP needs locking and logging. Imposing that on read-only analysis slows queries, while mixing analytics into OLTP risks blocking transactions.</li>
+<li><b>Different data:</b> decision support needs historical, summarized, consolidated data from many sources; operational systems hold current, detailed, isolated data.</li>
+<li><b>Data quality:</b> warehouse data must be integrated and cleaned into a consistent format; operational data is not.</li>
+<li><b>Different functions:</b> OLTP serves clerks; OLAP serves analysts and managers.</li>
+</ol>
+<p><b>Warehouse vs database (F24 2c):</b></p>
+<div class="tw"><table>
+<tr><th>Feature</th><th>Database (OLTP)</th><th>Data warehouse (OLAP)</th></tr>
+<tr><td>Orientation</td><td>Application, customer</td><td>Subject, market</td></tr>
+<tr><td>Data</td><td>Current, detailed</td><td>Historical, summarized, integrated</td></tr>
+<tr><td>Design</td><td>ER, normalized</td><td>Star or snowflake, data cube</td></tr>
+<tr><td>Access</td><td>Read and write, short</td><td>Mostly read, complex</td></tr>
+<tr><td>Size</td><td>MBs to GBs</td><td>GBs to TBs</td></tr>
+</table></div>
+<p>Example: a bank database records today’s deposits; its warehouse holds 10 years of monthly totals per branch for trend analysis.</p>
+<p class="ref">Han et al., Ch. 4, §4.1.1 “What Is a Data Warehouse?”, §4.1.2 “Differences between Operational Database Systems and Data Warehouses”, §4.1.3 “But, Why Have a Separate Data Warehouse?”. Notes: 24/08/26, 27/08/26.</p></div></details>
+
+<details><summary>B7. MOLAP vs ROLAP (S25 2c, S24 2c)</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Point</th><th>MOLAP</th><th>ROLAP</th></tr>
+<tr><td>Storage</td><td>Multidimensional arrays (cube cells)</td><td>Relational tables (star or snowflake) accessed with SQL</td></tr>
+<tr><td>Speed</td><td>Fast: aggregates precomputed, direct array indexing</td><td>Slower: joins and group-bys at query time, helped by indexes and materialized views</td></tr>
+<tr><td>Scalability</td><td>Limited by sparse cubes and size; data explosion</td><td>Scales to very large data</td></tr>
+</table></div>
+<p>Example: a sales cube of 3 quarters × 3 items × 3 cities is stored as a 27-cell array in MOLAP (any cell is a direct lookup). In ROLAP it is rows of sales_fact joined to time, item and location tables, with the total computed by SUM … GROUP BY. <b>HOLAP</b> mixes the two: detail stays relational, summaries stay in arrays.</p>
+<p class="ref">Han et al., Ch. 4, §4.4.4 “OLAP Server Architectures: ROLAP versus MOLAP versus HOLAP”. Notes: 10/09/26.</p></div></details>
+
+<details><summary>B8. Back-end tools and utilities (F24 2b)</summary><div class="in">
+<ul>
+<li><b>Data extraction:</b> collects data from multiple, heterogeneous, external sources.</li>
+<li><b>Data cleaning:</b> detects errors and corrects them where possible.</li>
+<li><b>Data transformation:</b> converts from legacy or host format to warehouse format.</li>
+<li><b>Load:</b> sorts, summarizes, consolidates, computes views, checks integrity, and builds indices and partitions.</li>
+<li><b>Refresh:</b> propagates updates from the sources to the warehouse.</li>
+</ul>
+<p>Together they are called ETL (extract, transform, load); they sit at the bottom tier, between the sources and the warehouse database.</p>
+<p class="ref">Han et al., Ch. 4, §4.1.4 “Data Warehouse: A Multitiered Architecture”, §4.1.6 “Extraction, Transformation, and Loading”. Notes: 27/08/26.</p></div></details>
+
+<details><summary>B9. Recommended approach and three-tier architecture (S25 3b, F24 3a, S24 3f)</summary><div class="in">
+<p><b>Recommended approach: incremental and evolutionary</b> (S25 3b Walton Electronics, F24 3a Samsung Ltd.):</p>
+<ol>
+<li><b>High-level corporate data model</b> defined in a short time (1–2 months): a consistent, integrated view across subjects. Walton: sales, purchasing, inventory, service.</li>
+<li><b>Independent data marts</b> built in parallel (and optionally the enterprise warehouse) from the same model. Samsung: marts for mobile sales, TV sales, supply chain.</li>
+<li><b>Distributed data marts</b> integrated through hub servers.</li>
+<li><b>Multitier data warehouse:</b> the enterprise warehouse is the sole custodian of all data, which feeds the dependent data marts. Mining then runs on the warehouse.</li>
+</ol>
+<p>Benefit: early results, lower risk, and no big-bang failure. Compare top-down (enterprise first, costly) and bottom-up (marts first, quick but may not integrate).</p>
+<p><b>S24 3f, Tesla Motors, three-tier design:</b></p>
+<ul>
+<li><b>Bottom tier:</b> warehouse database server. Back-end tools extract, clean, transform, load and refresh data from the sources (vehicle sales, factory, service and supplier systems), plus a metadata repository and data marts.</li>
+<li><b>Middle tier:</b> OLAP server (ROLAP or MOLAP) exposing cubes such as model × region × quarter.</li>
+<li><b>Top tier:</b> front-end tools: query and reporting, analysis, data mining.</li>
+</ul>
+<p>Implementation: (1) define business process and grain (vehicle sale); (2) design star schema and dimensions (time, model, region, customer); (3) build ETL pipelines; (4) load the warehouse and materialize key cuboids; (5) deploy the OLAP server; (6) connect front-end tools; (7) test, then refresh on a schedule.</p>
+<p class="ref">Han et al., Ch. 4, §4.1.4, §4.1.5 “Data Warehouse Models: Enterprise Warehouse, Data Mart, and Virtual Warehouse” (recommended approach, Figure 4.2), §4.3.2 “Data Warehouse Design Process”. Notes: 27/08/26, 31/08/26.</p></div></details>
+
+<details><summary>B10. Bitmap index (S25 3g, F24 3c)</summary><div class="in">
+<p><b>Concept:</b> <b>bitmap indexing</b>, an OLAP indexing technique. The tables show a base table (product, region) and one bit vector per distinct value (B, M, T, L and E, W). The F24 table does the same for attribute X with bitmaps b₀ to b₄. A selection such as product = M AND region = W becomes a bitwise AND of two columns (O6 only), which is much faster than scanning the table.</p>
+<p><b>Alternatives:</b></p>
+<ul>
+<li><b>Join indexing:</b> precomputes the join between a dimension table and the fact table. It stores (dimension value → matching fact rows), so star joins are avoided. Example: a join index on location city “Dhaka” lists all sales_fact row IDs for Dhaka.</li>
+<li><b>B-tree or hash indexes:</b> traditional, but less efficient for low-cardinality attributes.</li>
+</ul>
+<p>Bitmaps suit attributes with few distinct values (region, quarter); they cost more for high-cardinality attributes. Both bitmap and join indexes speed up dimensional queries by reducing disk reads and replacing joins with bit operations.</p>
+<p class="ref">Han et al., Ch. 4, §4.4.2 “Indexing OLAP Data: Bitmap Index and Join Index”. Notes: 15/09/26.</p></div></details>
+
+<details><summary>B11. Materialization with examples (S24 3e)</summary><div class="in">
+<p>Materialization means precomputing and storing cuboids. It saves query time but costs storage. Example cube: Time, Item, Location (2³ = 8 cuboids).</p>
+<ul>
+<li><b>No materialization:</b> precompute nothing, even the base cuboid is computed on the fly. Smallest storage, slowest queries.</li>
+<li><b>Full materialization:</b> precompute all 8 cuboids. Fastest queries, but storage grows exponentially with dimensions and hierarchy levels (Π(Lᵢ+1) cuboids).</li>
+<li><b>Partial materialization:</b> precompute only selected cuboids, usually the frequently queried ones, for example the base cuboid, (time, item), (item) and the apex. Other queries are answered from the nearest precomputed cuboid. This is the practical choice.</li>
+</ul>
+<p class="ref">Han et al., Ch. 4, §4.4.1 “Efficient Data Cube Computation: An Overview” (full, partial and no materialization). Notes: 15/09/26.</p></div></details>
+
+<details><summary>B12. Data cube measures (F24 3f)</summary><div class="in">
+<p>A measure is a numeric value of the fact table (such as dollars sold) that is aggregated per cell. Categories by aggregation behavior:</p>
+<ul>
+<li><b>Distributive:</b> aggregating the partial results equals aggregating all the data. Examples: sum, count, min, max. Sales of a year = the sum of the four quarterly sums, so roll-up is easy.</li>
+<li><b>Algebraic:</b> computed from a fixed number of distributive measures. Example: average = sum/count; standard deviation from sum, count and sum of squares.</li>
+<li><b>Holistic:</b> no fixed-size summary is enough. Examples: median, mode, rank. Computing the yearly median needs all quarterly values, so it cannot be built from sub-cuboid medians alone.</li>
+</ul>
+<p>These categories decide how efficiently higher cuboids are computed from lower ones in OLAP roll-up.</p>
+<p class="ref">Han et al., Ch. 4, §4.2.4 “Measures: Their Categorization and Computation”. Notes: 14/09/26.</p></div></details>
+
+</main>
+<script>
+(function(){
+  var b=document.getElementById('all'),d=document.querySelectorAll('details'),open=false;
+  b.addEventListener('click',function(){
+    open=!open;
+    for(var i=0;i<d.length;i++){d[i].open=open;}
+    b.textContent=open?'Collapse all':'Expand all';
+  });
+})();
+</script>
+</body>
+</html>
