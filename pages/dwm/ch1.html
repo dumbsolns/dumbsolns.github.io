@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chapter 1 Deep Dive: Introduction to Data Mining</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2421;--muted:#55605b;--line:#d9ded8;--accent:#1f6f5c;--soft:#e1f0eb;--warn:#fff4d6;--warn-ink:#5c4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}}
+:root[data-theme="dark"]{--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,summary,.btn,nav a{font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.btn{font-weight:600;font-size:14px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.btn:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+main{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;color:var(--accent);margin:26px 0 4px}
+.lead{color:var(--muted);margin:0 0 12px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);background:var(--soft);border-radius:999px;padding:8px 14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"\2212"}
+.in{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.in p{margin:.6em 0}
+ul,ol{padding-left:1.15em;margin:.5em 0}li{margin:.25em 0}
+.ref{font-size:.82rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin:.8em 0 0;font-style:italic}
+.f{font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:6px;padding:8px 10px;margin:.5em 0;overflow-x:auto;white-space:pre}
+.tip{background:var(--warn);color:var(--warn-ink);border-radius:8px;padding:8px 10px;margin:.7em 0;font-size:.92rem}
+.ans{font-weight:700;color:var(--accent)}
+.tw{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;min-width:100%;font-size:.86rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.pager{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.deep{font:600 .88rem "Trebuchet MS",system-ui,sans-serif;margin:.8em 0 0}
+.deep a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="btn" href="../dwm-summary.html" aria-label="Back to the summary">&larr; Summary</a>
+  <a class="btn" href="/" aria-label="Home page">Home</a>
+  <span class="sp"></span>
+  <button class="btn" id="all" type="button">Expand all</button>
+</div>
+<main>
+<h1>Chapter 1 Deep Dive</h1>
+<p class="lead">Introduction to data mining. Built from Chapter 1 of your copy of Han, Kamber &amp; Pei, <em>Data Mining: Concepts and Techniques</em>, 3rd ed. (pp. 1–36), checked against your class slides and handwritten notes, with Tan et al. and Zaki &amp; Meira as other sources. Examples use the book’s fictitious AllElectronics store.</p>
+<nav aria-label="Sections"><a href="#s11">1.1 Why</a><a href="#s12">1.2 What / KDD</a><a href="#s13">1.3 Data</a><a href="#s14">1.4 Patterns</a><a href="#s15">1.5 Technologies</a><a href="#s16">1.6–1.7 Apps &amp; issues</a><a href="#prac">Practice</a><a href="#refs">References</a><a href="../dwm-solves.html">Solved papers</a></nav>
+
+<h2 id="map">The big picture</h2>
+<p>The slides organize the chapter as a “multi-dimensional view” of data mining. Use it as a revision frame:</p>
+<div class="tw"><table>
+<tr><th>Dimension</th><th>Question</th><th>Contents</th><th>Book section</th></tr>
+<tr><td>Data</td><td>What can be mined?</td><td>Database data, data warehouses, transactional data, and advanced types (streams, sequences, graphs, spatial, text, multimedia, Web)</td><td>1.3</td></tr>
+<tr><td>Knowledge</td><td>What patterns?</td><td>Characterization and discrimination, frequent patterns and associations, classification and regression, clustering, outlier analysis; descriptive vs predictive</td><td>1.4</td></tr>
+<tr><td>Technologies</td><td>Built on what?</td><td>Statistics, machine learning, database and data warehouse systems, information retrieval, visualization, pattern recognition, algorithms, high-performance computing</td><td>1.5</td></tr>
+<tr><td>Applications</td><td>Used where?</td><td>Business intelligence, Web search, retail, banking, telecommunications, fraud, bioinformatics, text and Web mining</td><td>1.6</td></tr>
+</table></div>
+
+<h2 id="s11">1.1 Why data mining?</h2>
+<details id="d1-1-1"><summary>1.1.1 The data age: data rich but information poor</summary><div class="in">
+<p>We live in the <b>data age</b>: terabytes and petabytes arrive daily from business (a large chain handles hundreds of millions of transactions a week), science and engineering, medicine, the Web, and social media. This growth comes from the computerization of society and powerful data-collection and storage tools.</p>
+<p>The result is a <b>data rich but information poor</b> situation. Data become “<b>data tombs</b>”, archives seldom visited, so decisions rely on intuition. Expert systems (knowledge entered by hand) are costly, slow and biased. Data mining turns data tombs into “golden nuggets” of knowledge.</p>
+<p><b>Example 1.1 (Google Flu Trends):</b> aggregated flu-related searches track real flu activity and can estimate it up to two weeks faster than traditional systems. A pattern appears only when the queries are aggregated; no single query shows it.</p>
+<p>Slides add a view of the evolution of science: empirical (before 1600), theoretical (1600–1950s), computational (1950s–1990s), and data science (1990 to now), where data mining is a major challenge.</p>
+<p class="ref">Han et al., Ch. 1 “Introduction”, §1.1.1 “Moving toward the Information Age”, Figure 1.2; slides, “Why Data Mining?” and “Evolution of Sciences”.</p></div></details>
+
+<details id="d1-1-2"><summary>1.1.2 Data mining as the evolution of information technology</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Period</th><th>Stage</th><th>Key developments</th></tr>
+<tr><td>1960s and earlier</td><td>Data collection and database creation</td><td>Primitive file processing</td></tr>
+<tr><td>1970s to early 1980s</td><td>Database management systems</td><td>Hierarchical, network and relational DBMSs; ER modelling; SQL; indexing; query optimization; transactions, concurrency control and recovery; <b>OLTP</b></td></tr>
+<tr><td>Mid-1980s to present</td><td>Advanced database systems</td><td>Extended-relational, object-relational, deductive models; spatial, temporal, multimedia, stream, sensor and scientific databases; Web databases (XML); cloud computing; privacy and security</td></tr>
+<tr><td>Late 1980s to present</td><td>Advanced data analysis</td><td><b>Data warehouses and OLAP</b>; <b>data mining and knowledge discovery</b>; mining complex data (streams, text, spatial, Web, networks); applications; data mining and society</td></tr>
+</table></div>
+<p>Data collection and databases were prerequisites for efficient storage, retrieval and transaction processing; advanced data analysis is the natural next step. OLAP gives multidimensional summaries, but in-depth analysis (classification, clustering, outlier detection, change over time) needs data mining tools.</p>
+<p class="ref">Han et al., §1.1.2 “Data Mining as the Evolution of Information Technology”, Figure 1.1; slides, “Evolution of Database Technology”.</p></div></details>
+
+<h2 id="s12">1.2 What is data mining?</h2>
+<details id="d1-2"><summary>Definition, the “misnomer”, and the KDD process</summary><div class="in">
+<p><b>Data mining</b> is the process of discovering interesting patterns and knowledge from large amounts of data. The sources can be databases, data warehouses, the Web, other repositories, or streamed data. Your notes: extracting important and interesting information or patterns from any data set.</p>
+<p>The name is a <b>misnomer</b>: gold mining is not called “rock mining”, so “knowledge mining from data” would be more accurate, but it is long. “Mining” captures finding a small set of precious nuggets in a great deal of raw material. Similar terms: knowledge extraction, data/pattern analysis, data archaeology, data dredging.</p>
+<p><b>KDD (knowledge discovery from data)</b> is an <b>iterative sequence</b> of seven steps (Figure 1.4):</p>
+<div class="tw"><table>
+<tr><th>#</th><th>Step</th><th>Purpose</th></tr>
+<tr><td>1</td><td>Data cleaning</td><td>Remove noise and inconsistent data</td></tr>
+<tr><td>2</td><td>Data integration</td><td>Combine multiple data sources</td></tr>
+<tr><td>3</td><td>Data selection</td><td>Retrieve data relevant to the analysis task</td></tr>
+<tr><td>4</td><td>Data transformation</td><td>Consolidate into forms for mining, by summary or aggregation operations</td></tr>
+<tr><td>5</td><td>Data mining</td><td>Apply intelligent methods to extract patterns (an essential step)</td></tr>
+<tr><td>6</td><td>Pattern evaluation</td><td>Identify truly interesting patterns using interestingness measures</td></tr>
+<tr><td>7</td><td>Knowledge presentation</td><td>Visualization and knowledge representation for users</td></tr>
+</table></div>
+<ul>
+<li>Steps 1–4 are <b>data preprocessing</b>. The data mining step may interact with the user or a knowledge base, and interesting patterns can be stored as new knowledge.</li>
+<li>Two views: data mining as <i>one step</i> of KDD, or (common in industry and media) as the <i>whole</i> process. The book adopts the broad view.</li>
+<li>Footnotes: cleaning and integration are often done as preprocessing whose output is stored in a data warehouse; transformation may precede selection (especially with warehouses); data reduction may also be applied.</li>
+</ul>
+<div class="tip">Your notes list the steps as “sequential”. The book calls the process iterative (you may loop back to earlier steps). Mention both if a question asks: “steps in order, with feedback loops”.</div>
+<p class="ref">Han et al., §1.2 “What Is Data Mining?”, Figures 1.3–1.4. Notes: 22/06/26 (Quiz 1: “Describe the essential steps of KDD”).</p></div></details>
+
+<h2 id="s13">1.3 What kinds of data can be mined?</h2>
+<details id="d1-3-1"><summary>1.3.1 Database data (relational databases)</summary><div class="in">
+<p>A <b>DBMS</b> is a collection of interrelated data (the database) plus programs to define structures, manage concurrent, shared or distributed access, and ensure consistency and security. A <b>relational database</b> is a collection of tables with unique names; each table has attributes (columns, fields) and tuples (records, rows). Each tuple is an object with a unique key. An <b>ER model</b> describes entities and relationships.</p>
+<p><b>Example 1.2 (AllElectronics schema):</b></p>
+<div class="f">customer  (cust_ID, name, address, age, occupation, annual_income, credit_information, category, …)
+item      (item_ID, brand, category, type, price, place_made, supplier, cost, …)
+employee  (empl_ID, name, category, group, salary, commission, …)
+branch    (branch_ID, name, address, …)
+purchases (trans_ID, cust_ID, empl_ID, date, time, method_paid, amount)
+items_sold(trans_ID, item_ID, qty)       works_at(empl_ID, branch_ID)</div>
+<p><b>Queries (SQL)</b> retrieve subsets and use aggregates (sum, avg, count, max, min): “total sales of last month grouped by branch”. <b>Mining goes further:</b> predict the credit risk of new customers from income, age and credit history, or detect <b>deviations</b> (items whose sales differ greatly from last year), which may point to a packaging or price change.</p>
+<p class="ref">Han et al., §1.3.1 “Database Data”, Example 1.2, Figure 1.5.</p></div></details>
+
+<details id="d1-3-2"><summary>1.3.2 Data warehouses, data cubes and OLAP</summary><div class="in">
+<p>A <b>data warehouse</b> is a repository of information from multiple sources, stored under a unified schema, usually at a single site. It is built by data cleaning, integration, transformation, loading and periodic refreshing. Data are organized around <b>subjects</b> (customer, item, supplier, activity), stored from a <b>historical</b> perspective (for example the past 6 to 12 months), and typically <b>summarized</b> (sales per item type per store or region rather than each transaction).</p>
+<p>A warehouse is modelled by a <b>data cube</b>: each dimension is an attribute or set of attributes, and each cell holds an aggregate measure (count, sum of sales). <b>Example 1.3:</b> dimensions address (Chicago, New York, Toronto, Vancouver), time (Q1–Q4) and item (home entertainment, computer, phone, security); the cell ⟨Vancouver, Q1, security⟩ holds $400,000.</p>
+<ul>
+<li><b>OLAP operations</b> present data at different levels of abstraction: <b>drill-down</b> (quarter to month) and <b>roll-up</b> (city to country).</li>
+<li><b>Multidimensional data mining</b> (exploratory) does data mining in OLAP style: patterns across combinations of dimensions at varying granularity.</li>
+<li>Past-paper link: why a separate warehouse, and warehouse vs database (Chapter 4).</li>
+</ul>
+<p class="ref">Han et al., §1.3.2 “Data Warehouses”, Example 1.3, Figures 1.6–1.7; <a href="ch4.html">Chapter 4 deep dive</a>. Notes: “Data Warehouse: NOT Database” page.</p></div></details>
+
+<details id="d1-3-3"><summary>1.3.3–1.3.4 Transactional data and other kinds of data</summary><div class="in">
+<p><b>Transactional data:</b> each record is one transaction (a purchase, a flight booking, a user’s clicks) with a <b>trans_ID</b> and a list of items. Example 1.4, Figure 1.8: T100 {I1, I3, I8, I16}, T200 {I2, I8}. It is a <b>nested relation</b> (the item list is a set), so it is stored as a flat file or unfolded into an items_sold table. A plain database system cannot answer <b>market basket</b> questions (“which items sell together?”), but mining <b>frequent itemsets</b> can (Chapter 6). Use: bundle printers with computers, or discount one to sell the other.</p>
+<p><b>Other kinds:</b> time-related or sequence data (stock, bio-sequences), data streams (sensors, surveillance), spatial data (maps), engineering design data, hypertext and multimedia (text, image, video, audio), graph and networked data (social networks), and the Web. Each adds structure and semantics (order, connectivity) and new challenges. Examples: schedule bank tellers by traffic trends; detect network intrusions from stream anomalies; mine product comments for customer sentiment; detect goals in hockey video. Often several types coexist (Web pages mix text, images and links).</p>
+<p class="ref">Han et al., §1.3.3 “Transactional Data”, Example 1.4, §1.3.4 “Other Kinds of Data”. Notes: 24/06/26 (frequent itemset = same transaction; frequent subsequence = different transactions).</p></div></details>
+
+<h2 id="s14">1.4 What kinds of patterns can be mined?</h2>
+<details id="d1-4"><summary>Overview: descriptive vs predictive</summary><div class="in">
+<p>Functionalities specify the kinds of patterns to find. Tasks are <b>descriptive</b> (characterize general properties of the target data) or <b>predictive</b> (induce from current data to make predictions).</p>
+<div class="tw"><table>
+<tr><th>Functionality</th><th>Needs class labels?</th><th>Type</th><th>Typical output</th></tr>
+<tr><td>Characterization, discrimination</td><td>Classes given by the user</td><td>Descriptive</td><td>Summaries, charts, characteristic and discriminant rules</td></tr>
+<tr><td>Frequent patterns, associations, correlations</td><td>No</td><td>Descriptive</td><td>Itemsets, rules with support and confidence</td></tr>
+<tr><td>Classification</td><td>Yes (training data)</td><td>Predictive</td><td>Rules, decision trees, neural networks</td></tr>
+<tr><td>Regression</td><td>Yes (numeric target)</td><td>Predictive</td><td>A function predicting a number</td></tr>
+<tr><td>Clustering</td><td>No</td><td>Descriptive (unsupervised)</td><td>Groups of similar objects</td></tr>
+<tr><td>Outlier analysis</td><td>No</td><td>Either</td><td>Objects not following the general behaviour</td></tr>
+</table></div>
+<p class="ref">Han et al., §1.4 “What Kinds of Patterns Can Be Mined?”. Notes: 24/06/26, 25/06/26.</p></div></details>
+
+<details id="d1-4-1"><summary>1.4.1 Class/concept description: characterization and discrimination</summary><div class="in">
+<p>Data are associated with <b>classes</b> (item classes: computers, printers) or <b>concepts</b> (customer concepts: bigSpenders, budgetSpenders). A class/concept description summarizes a class concisely and precisely, by <b>characterization</b>, <b>discrimination</b>, or both.</p>
+<ul>
+<li><b>Characterization:</b> summarizes the general features of the <b>target class</b>, usually collected by a query. Methods: simple statistics and plots (Chapter 2), OLAP roll-up, and attribute-oriented induction (Chapter 4). Output: pie and bar charts, curves, cubes, crosstabs, generalized relations, or <b>characteristic rules</b>. <b>Example 1.5:</b> customers who spend more than $5000 a year are 40 to 50 years old, employed, with excellent credit.</li>
+<li><b>Discrimination:</b> compares the target class with one or more <b>contrasting classes</b>; output includes <b>comparative measures</b>; in rule form, <b>discriminant rules</b>. <b>Example 1.6:</b> 80% of customers who frequently buy computer products are 20 to 40 years old with a university education, whereas 60% of those who rarely buy them are seniors or youths with no degree.</li>
+</ul>
+<p class="ref">Han et al., §1.4.1 “Class/Concept Description: Characterization and Discrimination”, Examples 1.5–1.6. Notes: 24/06/26.</p></div></details>
+
+<details id="d1-4-2"><summary>1.4.2 Frequent patterns, associations and correlations</summary><div class="in">
+<p><b>Frequent patterns</b> occur frequently in data. Kinds: <b>frequent itemsets</b> (milk and bread bought together), <b>frequent subsequences</b> or sequential patterns (laptop, then digital camera, then memory card), and <b>frequent substructures</b> (graphs, trees, lattices that occur often). They lead to associations and correlations.</p>
+<p><b>Example 1.7:</b> <i>buys(X, “computer”) ⇒ buys(X, “software”) [support = 1%, confidence = 50%]</i>, written simply computer ⇒ software [1%, 50%]. Support 1%: 1% of all transactions contain both. Confidence 50%: if a customer buys a computer there is a 50% chance of buying software.</p>
+<ul>
+<li><b>Single-dimensional</b> association rule: one repeated predicate (buys).</li>
+<li><b>Multidimensional</b> association rule: several predicates: age(X, “20..29”) ∧ income(X, “40K..49K”) ⇒ buys(X, “laptop”) [2%, 60%].</li>
+<li>Rules are discarded as uninteresting unless they meet <b>both</b> minimum support and minimum confidence. Statistical correlation analysis can then refine them (Chapter 6).</li>
+</ul>
+<p>Your notes: support is the percentage of all transactions containing the rule, so it is usually small when there are many transactions; confidence is like a conditional probability.</p>
+<p class="ref">Han et al., §1.4.2 “Mining Frequent Patterns, Associations, and Correlations”, Example 1.7; <a href="ch6.html">Chapter 6 deep dive</a>. Notes: 24/06/26.</p></div></details>
+
+<details id="d1-4-3"><summary>1.4.3 Classification and regression</summary><div class="in">
+<p><b>Classification</b> finds a <b>model</b> (function) that describes and distinguishes data classes, derived from <b>training data</b> (objects whose class labels are known), then used to predict the label of objects whose label is unknown. Notes: training data have the class-attribute value; test data do not.</p>
+<ul>
+<li><b>Forms of the model:</b> IF-THEN <b>classification rules</b>; a <b>decision tree</b> (nodes test an attribute, branches are outcomes, leaves are classes); mathematical formulae; <b>neural networks</b> (weighted-connection units). Others: naive Bayes, support vector machines, k-nearest-neighbour.</li>
+<li><b>Regression</b> models continuous-valued functions, predicting a missing or unavailable <b>numeric</b> value. <b>Prediction</b> covers both numeric prediction and class-label prediction.</li>
+<li><b>Relevance analysis</b> may come first: pick the attributes that matter and drop the irrelevant ones.</li>
+</ul>
+<p><b>Example 1.8:</b> classify items by campaign response (good, mild, none) with a decision tree showing price as the best discriminator (then brand, place made); predicting each item’s revenue during a sale is regression.</p>
+<p class="ref">Han et al., §1.4.3 “Classification and Regression for Predictive Analysis”, Example 1.8, Figure 1.9. Notes: 25/06/26 (class attribute, training and testing).</p></div></details>
+
+<details id="d1-4-4"><summary>1.4.4–1.4.5 Cluster analysis and outlier analysis</summary><div class="in">
+<p><b>Clustering</b> analyzes objects <b>without class labels</b> (often none exist at the start). Principle: <b>maximize intraclass similarity and minimize interclass similarity</b>, so objects in a cluster resemble each other and differ from other clusters. Each cluster can be seen as a class and used to derive rules; it also supports <b>taxonomy formation</b> (a hierarchy of classes). <b>Example 1.9:</b> customer locations in a city form three clusters, giving target groups for marketing.</p>
+<p><b>Outliers</b> are objects that do not comply with the general behaviour or model of the data. Many methods discard them as noise, but in <b>fraud detection</b> the rare events are the interesting ones. The analysis is <b>outlier analysis</b> or <b>anomaly mining</b>.</p>
+<ul>
+<li><b>Statistical tests</b> assume a distribution or probability model.</li>
+<li><b>Distance measures:</b> objects remote from any cluster are outliers.</li>
+<li><b>Density-based methods:</b> find outliers in a local region that look normal globally.</li>
+</ul>
+<p><b>Example 1.10:</b> unusually large purchases for an account, or unusual locations, types or frequency of purchases, suggest credit card fraud.</p>
+<p class="ref">Han et al., §1.4.4 “Cluster Analysis”, §1.4.5 “Outlier Analysis”, Examples 1.9–1.10, Figure 1.10. Notes: 25/06/26 (outliers are extreme values).</p></div></details>
+
+<details id="d1-4-6"><summary>1.4.6 Are all patterns interesting?</summary><div class="in">
+<p>A system can generate thousands or millions of patterns, and only a small fraction interest a user. A pattern is <b>interesting</b> if it is:</p>
+<ol>
+<li><b>Easily understood</b> by humans,</li>
+<li><b>Valid</b> on new or test data with some degree of certainty,</li>
+<li><b>Potentially useful</b>, and</li>
+<li><b>Novel</b>.</li>
+</ol>
+<p>A pattern also qualifies if it validates a hypothesis the user wanted to confirm. Interesting patterns represent <b>knowledge</b>.</p>
+<ul>
+<li><b>Objective measures</b> use the structure and statistics of the pattern: rule <b>support</b> = P(X ∪ Y), <b>confidence</b> = P(Y | X) (each with a user threshold); for classification rules, <b>accuracy</b> and <b>coverage</b>; for understandability, simple measures such as pattern length.</li>
+<li><b>Subjective measures</b> reflect the user’s beliefs: a pattern is interesting if it is <b>unexpected</b> (contradicts a belief) or <b>actionable</b> (the user can act on it, such as “a large earthquake often follows a cluster of small quakes”). Objective measures alone can flag common sense as interesting.</li>
+</ul>
+<p>Three questions: (1) What makes a pattern interesting? (above). (2) Can a system generate <i>all</i> interesting patterns? This is <b>completeness</b>; it is unrealistic, so constraints and interestingness measures focus the search (enough for completeness in association mining). (3) Can it generate <i>only</i> interesting patterns? An optimization problem that is still hard. Interestingness measures can rank and filter patterns <b>after</b> mining and, more importantly, <b>prune the search during mining</b>.</p>
+<p class="ref">Han et al., §1.4.6 “Are All Patterns Interesting?”; Chapter 6, §6.3 (lift, χ² and Kulczynski). Notes: 22/06/26 (“pattern evaluation: identify which patterns are more interesting”).</p></div></details>
+
+<h2 id="s15">1.5 Which technologies are used?</h2>
+<details id="d1-5"><summary>Statistics, machine learning, databases, information retrieval</summary><div class="in">
+<p>Data mining draws on statistics, machine learning, pattern recognition, database and data warehouse systems, information retrieval, visualization, algorithms and high-performance computing (Figure 1.11).</p>
+<ul>
+<li><b>Statistics:</b> a <b>statistical model</b> describes the behaviour of a target class by random variables and probability distributions. Uses: build models of classes (characterization, classification), model noise and missing values, descriptive and <b>inferential</b> statistics, and verify results by <b>hypothesis testing</b> (a result is statistically significant if unlikely to have occurred by chance). Challenge: scaling statistical methods to large, distributed or real-time data.</li>
+<li><b>Machine learning:</b> <b>supervised</b> learning ≈ classification (labelled examples supervise); <b>unsupervised</b> ≈ clustering (unlabelled input; the clusters have no semantic names); <b>semi-supervised</b> uses labelled and unlabelled data (unlabelled points refine the decision boundary and reveal noise); <b>active learning</b> asks a user to label chosen examples. Difference from data mining: ML focuses on model accuracy; data mining adds efficiency, scalability and complex data.</li>
+<li><b>Database systems and data warehouses:</b> scalable storage, query processing and indexing for large structured data; warehouses consolidate sources and time frames into partially materialized cubes, supporting OLAP and multidimensional mining.</li>
+<li><b>Information retrieval:</b> searching documents; data are <b>unstructured</b> and queries are <b>keywords</b> (unlike SQL). Documents as a <b>bag of words</b> with a <b>language model</b>; a <b>topic model</b> is a distribution over the vocabulary, and documents are mixtures of topics. Leads to text and multimedia mining.</li>
+</ul>
+<p class="ref">Han et al., §1.5 “Which Technologies Are Used?”, §1.5.1–§1.5.4, Figures 1.11–1.12.</p></div></details>
+
+<h2 id="s16">1.6 Applications and 1.7 major issues</h2>
+<details id="d1-6"><summary>1.6 Business intelligence and Web search engines</summary><div class="in">
+<p><b>Business intelligence (BI)</b> gives historical, current and predictive views of operations (reporting, OLAP, performance management, competitive intelligence, benchmarking, predictive analytics). Data mining is its core: OLAP relies on warehousing and multidimensional mining; classification and prediction power predictive analytics; <b>clustering</b> groups customers for customer relationship management; <b>characterization</b> describes each group to design reward programs.</p>
+<p><b>Web search engines</b> are very large data mining applications, used in crawling (which pages, how often), indexing, and ranking, advertising and personalization. Three challenges: (1) <b>huge, growing data</b> needing clouds of computers; (2) <b>online data</b> and models that must be fast enough for real-time queries and incrementally updated on streams (for example a query classifier for “apple”); (3) <b>rare queries</b> (most queries are asked once or a few times), giving severely skewed data.</p>
+<p class="ref">Han et al., §1.6 “Which Kinds of Applications Are Targeted?”, §1.6.1 “Business Intelligence”, §1.6.2 “Web Search Engines”.</p></div></details>
+
+<details id="d1-7"><summary>1.7 Major issues in data mining (five groups)</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Group</th><th>Issues</th></tr>
+<tr><td>Mining methodology</td><td>New kinds of knowledge; knowledge in multidimensional space; interdisciplinary integration (text with NLP, bug mining); networked environments; uncertainty, noise and incompleteness; pattern evaluation and constraint-guided mining</td></tr>
+<tr><td>User interaction</td><td>Interactive mining (change focus, drill, dice, pivot); incorporating background knowledge; ad hoc mining and data mining query languages; presentation and visualization of results</td></tr>
+<tr><td>Efficiency and scalability</td><td>Efficient, scalable algorithms with predictable, short running time; parallel, distributed and incremental mining (cloud and cluster computing)</td></tr>
+<tr><td>Diversity of database types</td><td>Complex data types (semi-structured, streams, temporal, spatial, multimedia, networks); dynamic, networked and global repositories; domain-specific systems</td></tr>
+<tr><td>Data mining and society</td><td>Social impact and misuse; privacy-preserving data mining; <b>invisible data mining</b> (built into systems such as online stores and search engines, often unnoticed by users)</td></tr>
+</table></div>
+<p class="ref">Han et al., §1.7 “Major Issues in Data Mining”, §1.7.1–§1.7.5.</p></div></details>
+
+<h2 id="prac">Practice and exam toolkit</h2>
+<details id="d-exercises"><summary>Model answers to the chapter’s exercises (1.1–1.9)</summary><div class="in">
+<p><b>1.1 What is data mining?</b> (a) Not just hype: it solves real problems (flu tracking, fraud detection, market basket analysis), though early marketing oversold it. (b) Not a simple re-application: scale, mixed data types, noise, and the need for efficient, scalable algorithms and interestingness measures made it a field of its own, though it draws on databases, statistics, machine learning and pattern recognition. (c) It is also an evolution of machine learning, statistics and pattern recognition: it applies their model-building methods to very large data. (d) The seven KDD steps (section 1.2).</p>
+<p><b>1.2 Data warehouse vs database.</b> <i>Differences:</i> a warehouse supports decisions (OLAP); it is subject-oriented, integrated from many sources, historical, summarized, multidimensional, mostly read-only; a database supports operations (OLTP); it holds current detailed data in ER tables with short read-write transactions. <i>Similarities:</i> both are data repositories built on DBMS technology (storage, indexing, query processing), and a warehouse is often implemented on a relational DBMS.</p>
+<p><b>1.3, 1.4 Functionalities with examples (a store):</b> characterization (profile of big spenders), discrimination (frequent vs rare computer buyers), association (computer ⇒ software), classification (predict a customer’s credit risk), regression (predict revenue of an item during a sale), clustering (customer segments), outlier analysis (fraudulent card use).</p>
+<p><b>1.5 Differences and similarities.</b> Discrimination vs classification: both separate classes; discrimination compares class descriptions in summarized terms for users, while classification builds a model to label new objects. Characterization vs clustering: both summarize groups; characterization describes a <i>given</i> class, clustering <i>discovers</i> groups in unlabelled data. Classification vs regression: both predictive and supervised; classification predicts categorical labels, regression predicts continuous values.</p>
+<p><b>1.7 Outliers in fraud detection (two methods).</b> (i) Statistical: model each account’s normal charges and flag charges far in the tail. (ii) Distance or density based: cluster accounts or transactions and flag objects remote from any cluster. Neither is always more reliable: statistical tests need a correct distribution assumption, distance methods need a sensible distance, and density methods find local outliers. Use them together and validate on known fraud cases.</p>
+<p><b>1.8 Three challenges (methodology and user interaction).</b> Handling noise, uncertainty and incompleteness; deciding which of the many patterns are interesting; and giving users interactive control, background knowledge and clear presentation of results.</p>
+<p><b>1.9 Huge versus small data.</b> Efficiency and scalability (sublinear or parallel algorithms, sampling, incremental mining), data that do not fit in memory or live on many sites, data quality at scale, and presenting results from billions of tuples.</p>
+<p class="ref">Han et al., §1.9 “Exercises” (questions only; the answers above are written from the chapter).</p></div></details>
+
+<details id="d-pastpaper"><summary>Past-paper questions this chapter answers</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Question</th><th>Use</th></tr>
+<tr><td>Characteristics of a student group and comparison with another (S25 2a); loyal vs occasional buyers (S24 2b); characterization vs discrimination (F24 2a)</td><td>1.4.1 plus 1.4.2 for the marketing case</td></tr>
+<tr><td>Warehouse vs database (F24 2c); why a separate warehouse (S25 2b, S24 2a)</td><td>Exercise 1.2 here, then Chapter 4 for the full answer</td></tr>
+<tr><td>Steps of data preprocessing with an example (S24 1c); essential steps of KDD (Quiz 1)</td><td>1.2 (steps 1–4 are preprocessing)</td></tr>
+</table></div>
+<p class="deep">Solved past-paper answers: <a href="../dwm-solves.html#b5">Characterization vs discrimination</a> · <a href="../dwm-solves.html#b6">Warehouse vs database</a> · <a href="../dwm-solves.html#b4">Preprocessing steps</a>. All of them: <a href="../dwm-solves.html">dwm-solves page</a>.</p></div></details>
+
+<details id="d-mistakes"><summary>Common mistakes and quick sheet</summary><div class="in">
+<ul>
+<li>Writing the KDD steps out of order, or forgetting that steps 1–4 are preprocessing.</li>
+<li>Mixing characterization (one class) with discrimination (target against contrasting classes).</li>
+<li>Calling clustering “supervised”: it has no class labels.</li>
+<li>Describing classification as predicting numbers: that is regression.</li>
+<li>Saying data mining is just querying: queries retrieve what you ask for, mining discovers patterns you did not specify.</li>
+<li>Forgetting “interesting” has four properties: understandable, valid, useful, novel.</li>
+</ul>
+<div class="f">support(X⇒Y) = P(X ∪ Y)      confidence(X⇒Y) = P(Y | X)
+descriptive: characterization, discrimination, frequent patterns, clustering
+predictive : classification, regression
+interesting = understandable + valid + useful + novel
+objective measures: support, confidence, accuracy, coverage; subjective: unexpected, actionable</div></div></details>
+
+<h2 id="refs">References</h2>
+<ul>
+<li>Han, J., Kamber, M., &amp; Pei, J. <em>Data Mining: Concepts and Techniques</em>, 3rd ed., Morgan Kaufmann, 2012. Ch. 1 “Introduction”, §1.1–§1.10 and Exercises 1.1–1.10 (pp. 1–36).</li>
+<li>Your lecture slides for Chapter 1 (the multi-dimensional view of data mining, evolution of sciences and database technology, history of the data mining community). The book’s bibliographic notes name the early KDD books: Piatetsky-Shapiro &amp; Frawley (1991), <em>Knowledge Discovery in Databases</em>, and Fayyad, Piatetsky-Shapiro, Smyth &amp; Uthurusamy (1996), <em>Advances in Knowledge Discovery and Data Mining</em>.</li>
+<li>Tan, P.-N., Steinbach, M., Karpatne, A., &amp; Kumar, V. <em>Introduction to Data Mining</em>, 2nd ed. Chapter “Introduction” (what data mining is, motivating challenges, origins, and data mining tasks split into predictive and descriptive). Section names are from memory; check them against your edition.</li>
+<li>Zaki, M. J., &amp; Meira Jr., W. <em>Data Mining and Analysis: Fundamental Concepts and Algorithms</em>, Cambridge University Press, 2014. Ch. 1 “Data Mining and Analysis” (the data matrix and the four core tasks: exploratory analysis, frequent pattern mining, clustering, classification). Check the numbering in your edition.</li>
+</ul>
+<div class="pager"><span></span><a class="btn" href="../dwm-summary.html">Summary</a><a class="btn" href="../dwm-solves.html">Solved past papers</a><a class="btn" href="ch2.html">Chapter 2 &rarr;</a></div>
+</main>
+<script>
+(function(){
+  var b=document.getElementById('all'),d=document.querySelectorAll('details'),open=false;
+  b.addEventListener('click',function(){
+    open=!open;
+    for(var i=0;i<d.length;i++){d[i].open=open;}
+    b.textContent=open?'Collapse all':'Expand all';
+  });
+})();
+
+(function(){
+  function openHash(){
+    var h=location.hash.slice(1); if(!h) return;
+    var e=document.getElementById(h); if(!e) return;
+    var d=(e.tagName==='DETAILS')?e:e.closest('details'); if(d) d.open=true;
+    e.scrollIntoView();
+  }
+  window.addEventListener('hashchange',openHash); openHash();
+})();
+</script>
+</body>
+</html>

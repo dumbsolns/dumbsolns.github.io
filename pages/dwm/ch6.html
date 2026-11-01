@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chapter 6 Deep Dive: Frequent Patterns, Associations, Correlations</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2421;--muted:#55605b;--line:#d9ded8;--accent:#1f6f5c;--soft:#e1f0eb;--warn:#fff4d6;--warn-ink:#5c4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}}
+:root[data-theme="dark"]{--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,summary,.btn,nav a{font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.btn{font-weight:600;font-size:14px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.btn:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+main{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;color:var(--accent);margin:26px 0 4px}
+.lead{color:var(--muted);margin:0 0 12px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);background:var(--soft);border-radius:999px;padding:8px 14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"\2212"}
+.in{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.in p{margin:.6em 0}
+ul,ol{padding-left:1.15em;margin:.5em 0}li{margin:.25em 0}
+.ref{font-size:.82rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin:.8em 0 0;font-style:italic}
+.f{font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:6px;padding:8px 10px;margin:.5em 0;overflow-x:auto;white-space:pre}
+.tip{background:var(--warn);color:var(--warn-ink);border-radius:8px;padding:8px 10px;margin:.7em 0;font-size:.92rem}
+.ans{font-weight:700;color:var(--accent)}
+.tw{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;min-width:100%;font-size:.86rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.pager{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.deep{font:600 .88rem "Trebuchet MS",system-ui,sans-serif;margin:.8em 0 0}
+.deep a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="btn" href="../dwm-summary.html" aria-label="Back to the summary">&larr; Summary</a>
+  <a class="btn" href="/" aria-label="Home page">Home</a>
+  <span class="sp"></span>
+  <button class="btn" id="all" type="button">Expand all</button>
+</div>
+<main>
+<h1>Chapter 6 Deep Dive</h1>
+<p class="lead">Mining Frequent Patterns, Associations, and Correlations: Basic Concepts and Methods. Built from the chapter in your copy of Han, Kamber &amp; Pei, <em>Data Mining: Concepts and Techniques</em>, 3rd ed. (pp. 243–273), with Zaki &amp; Meira and Tan et al. as second and third sources. Every worked example below uses the book’s own data (Table 6.1) unless stated.</p>
+<nav aria-label="Sections"><a href="#map">Map</a><a href="#s61">6.1 Basics</a><a href="#s62">6.2 Methods</a><a href="#s63">6.3 Interesting?</a><a href="#prac">Practice</a><a href="#refs">References</a><a href="../dwm-solves.html">Solved papers</a></nav>
+
+<h2 id="map">The big picture</h2>
+<div class="f">transactions → [1] find frequent itemsets   (expensive: Apriori, FP-growth, Eclat)
+                    ↓
+               [2] generate strong rules    (cheap: s ⇒ l − s)
+                    ↓
+               [3] filter by interestingness (lift, χ², Kulc + IR)</div>
+<p>Step 1 decides the running time of the whole task. Steps 2 and 3 are cheap or are filters.</p>
+<div class="tw"><table>
+<tr><th>Book section</th><th>Topic</th><th>Key idea</th></tr>
+<tr><td>6.1.1</td><td>Market basket analysis</td><td>Which items are bought together?</td></tr>
+<tr><td>6.1.2</td><td>Itemsets, closed itemsets, rules</td><td>Support, confidence, closed, maximal</td></tr>
+<tr><td>6.2.1</td><td>Apriori</td><td>Level-wise join and prune</td></tr>
+<tr><td>6.2.2</td><td>Rules from itemsets</td><td>Output s ⇒ (l − s) if confidence ≥ min_conf</td></tr>
+<tr><td>6.2.3</td><td>Improving Apriori</td><td>Hash, transaction reduction, partition, sample, DIC</td></tr>
+<tr><td>6.2.4</td><td>FP-growth</td><td>FP-tree plus conditional pattern bases</td></tr>
+<tr><td>6.2.5</td><td>Vertical format (Eclat)</td><td>Intersect TID sets</td></tr>
+<tr><td>6.2.6</td><td>Closed and max patterns</td><td>Item merging, sub-itemset pruning, item skipping</td></tr>
+<tr><td>6.3</td><td>Interestingness</td><td>Lift, χ², all_conf, max_conf, Kulc, cosine, IR</td></tr>
+</table></div>
+
+<h2 id="s61">6.1 Basic concepts</h2>
+<details id="d6-1-1"><summary>Definitions you must know exactly</summary><div class="in">
+<ul>
+<li><b>Itemset</b> = a set of items. A <b>k-itemset</b> has k items. A <b>transaction</b> T ⊆ I has a TID. T <i>contains</i> A if A ⊆ T.</li>
+<li><b>Support count</b> (absolute support, frequency) = number of transactions containing the itemset. <b>Relative support</b> = that count divided by |D|.</li>
+<li>An itemset is <b>frequent</b> if its support meets min_sup. The set of frequent k-itemsets is <b>L<sub>k</sub></b>.</li>
+<li><b>Rule</b> A ⇒ B with A, B non-empty and A ∩ B = ∅.</li>
+</ul>
+<div class="f">support(A ⇒ B)    = P(A ∪ B)             = count(A ∪ B) / |D|
+confidence(A ⇒ B) = P(B | A)             = count(A ∪ B) / count(A)</div>
+<p>P(A ∪ B) means a transaction contains <i>all</i> items of both A and B, not “A or B”. A rule is <b>strong</b> if it meets both min_sup and min_conf. Support measures usefulness; confidence measures certainty.</p>
+<p><b>Example 6.1:</b> computer ⇒ antivirus software [support = 2%, confidence = 60%]. 2% of all transactions contain both; 60% of computer buyers also bought the software.</p>
+<p><b>The two-step process:</b> (1) find all frequent itemsets; (2) generate strong rules from them. Because step 2 is much cheaper, the overall performance depends on step 1.</p>
+<div class="tip">Notes check: confidence is P(B|A) = count(A∪B)/count(A). The count of the left side is always in the denominator.</div>
+<p class="ref">Han et al., Ch. 6, §6.1.1 “Market Basket Analysis: A Motivating Example”, §6.1.2 “Frequent Itemsets, Closed Itemsets, and Association Rules”; Zaki &amp; Meira, <em>Data Mining and Analysis</em>, Ch. 8 “Itemset Mining”, §8.1 “Frequent Itemsets and Association Rules”; Tan et al., <em>Introduction to Data Mining</em>, chapter “Association Analysis: Basic Concepts and Algorithms”.</p></div></details>
+
+<details id="d6-1-2"><summary>Why closed and maximal itemsets exist</summary><div class="in">
+<p>If an itemset is frequent, every subset is frequent. A frequent itemset of length 100 therefore holds 2¹⁰⁰ − 1 ≈ 1.27 × 10³⁰ frequent itemsets (Eq. 6.5), too many to compute or store.</p>
+<ul>
+<li><b>Closed:</b> no proper superset has the <i>same</i> support count. A <b>closed frequent itemset</b> is closed and frequent.</li>
+<li><b>Maximal (max-itemset):</b> frequent, and <i>no</i> proper superset is frequent.</li>
+</ul>
+<p>Relationship: maximal ⊆ closed ⊆ frequent. Every maximal frequent itemset is closed.</p>
+<p><b>Example 6.2:</b> D = {⟨a₁…a₁₀₀⟩, ⟨a₁…a₅₀⟩}, min_sup = 1. Closed: {a₁…a₁₀₀}:1 and {a₁…a₅₀}:2. Maximal: only {a₁…a₁₀₀}:1.</p>
+<ul>
+<li><b>Closed sets are lossless.</b> From C you can derive {a₂,a₄₅}:2 (subset of the count-2 closed set) and {a₈,a₅₅}:1 (it is only inside the count-1 set). Rule: support of any frequent itemset = the largest support among its closed supersets.</li>
+<li><b>Maximal sets lose counts.</b> You know {a₂,a₄₅} and {a₈,a₅₅} are frequent but not their supports.</li>
+</ul>
+<p class="ref">Han et al., §6.1.2, Eq. (6.5) and Example 6.2; Zaki &amp; Meira, Ch. 9 “Summarizing Itemsets”, §9.1 “Maximal and Closed Frequent Itemsets”. Notes: 17/09/26.</p></div></details>
+
+<h2 id="s62">6.2 Frequent itemset mining methods</h2>
+<details id="d6-2-1"><summary>6.2.1 Apriori: the algorithm and the Apriori property</summary><div class="in">
+<p><b>Apriori property:</b> all non-empty subsets of a frequent itemset must also be frequent. <b>Why:</b> adding an item to an itemset cannot raise its support, so if I fails min_sup then I ∪ {A} fails too. This is <b>antimonotonicity</b>: if a set fails a test, all its supersets fail.</p>
+<p><b>Level-wise search:</b> find L₁ by one scan; use L₁ to find L₂; and so on until L<sub>k</sub> is empty. Each L<sub>k</sub> needs one full scan.</p>
+<ol>
+<li><b>Join step:</b> C<sub>k</sub> = L<sub>k−1</sub> ⋈ L<sub>k−1</sub>. Two itemsets (sorted lexicographically) join if their first k−2 items are identical and the last items satisfy l₁[k−1] &lt; l₂[k−1] (this avoids duplicates).</li>
+<li><b>Prune step:</b> delete any candidate with a (k−1)-subset that is not in L<sub>k−1</sub>.</li>
+<li><b>Scan</b> D, count candidates, keep those with count ≥ min_sup as L<sub>k</sub>.</li>
+</ol>
+<div class="f">L1 = frequent 1-itemsets(D)
+for (k = 2; L(k-1) not empty; k++) {
+  Ck = apriori_gen(L(k-1))         // join + prune
+  for each transaction t in D:  count candidates contained in t
+  Lk = { c in Ck : c.count >= min_sup }
+}
+return union of all Lk</div>
+<p class="ref">Han et al., §6.2.1 “Apriori Algorithm: Finding Frequent Itemsets by Confined Candidate Generation”, Figure 6.4; Agrawal &amp; Srikant (1994), the original Apriori paper (cited in the book as [AS94b]); Tan et al., sections “Frequent Itemset Generation” and “Candidate Generation and Pruning”.</p></div></details>
+
+<details id="d6-2-1w"><summary>Worked example: Apriori on Table 6.1 (Example 6.3)</summary><div class="in">
+<div class="f">Table 6.1 (min_sup = 2, |D| = 9)
+T100 I1,I2,I5   T200 I2,I4   T300 I2,I3   T400 I1,I2,I4   T500 I1,I3
+T600 I2,I3      T700 I1,I3   T800 I1,I2,I3,I5   T900 I1,I2,I3
+
+C1 counts: I1 6, I2 7, I3 6, I4 2, I5 2          L1 = all five
+C2 = C(5,2) = 10 pairs (no pruning possible; every 1-subset is frequent)
+   I1I2 4, I1I3 4, I1I4 1, I1I5 2, I2I3 4,
+   I2I4 2, I2I5 2, I3I4 0, I3I5 1, I4I5 0
+L2 = {I1I2:4, I1I3:4, I1I5:2, I2I3:4, I2I4:2, I2I5:2}</div>
+<p><b>Join L₂ ⋈ L₂</b> (pairs sharing the first item): I1I2+I1I3 → I1I2I3; I1I2+I1I5 → I1I2I5; I1I3+I1I5 → I1I3I5; I2I3+I2I4 → I2I3I4; I2I3+I2I5 → I2I3I5; I2I4+I2I5 → I2I4I5. That gives 6 candidates.</p>
+<p><b>Prune:</b> I1I3I5 (I3I5 not in L₂), I2I3I4 (I3I4), I2I3I5 (I3I5), I2I4I5 (I4I5) are removed. C₃ = {I1I2I3, I1I2I5}.</p>
+<div class="f">Scan: I1I2I3 = 2 (T800, T900)    I1I2I5 = 2 (T100, T800)     L3 = both
+C4: join gives I1I2I3I5, but its subset I2I3I5 is not frequent → pruned
+C4 = empty. Stop.</div>
+<p class="ans">Frequent itemsets: 5 + 6 + 2 = 13 (all 1-itemsets, six 2-itemsets, I1I2I3 and I1I2I5).</p>
+<p><b>Cost:</b> 3 database scans here (one per level that produced candidates). Pruning saved the counting of 4 of 6 candidate 3-itemsets.</p>
+<p class="ref">Han et al., Example 6.3, Table 6.1, Figures 6.2 and 6.3. Notes: 23/09/26.</p></div></details>
+
+<details id="d6-2-2"><summary>6.2.2 Generating association rules from frequent itemsets</summary><div class="in">
+<p>For each frequent itemset l, take every non-empty proper subset s and output <b>s ⇒ (l − s)</b> if count(l)/count(s) ≥ min_conf. Rules automatically meet min_sup because l is frequent. A k-itemset gives 2ᵏ − 2 candidate rules.</p>
+<p><b>Example 6.4:</b> X = {I1, I2, I5}, count 2.</p>
+<div class="f">{I1,I2} ⇒ I5       2/4 = 50%
+{I1,I5} ⇒ I2       2/2 = 100%
+{I2,I5} ⇒ I1       2/2 = 100%
+I1 ⇒ {I2,I5}       2/6 = 33%
+I2 ⇒ {I1,I5}       2/7 = 29%
+I5 ⇒ {I1,I2}       2/2 = 100%</div>
+<p>With min_conf = 70%, only the 2nd, 3rd and 6th rules are output. Unlike classification rules, the right side can contain several items.</p>
+<p><b>Faster rule generation (Exercises 6.3c and 6.5):</b> since count(s′) ≥ count(s) for s′ ⊂ s, confidence(s′ ⇒ l − s′) ≤ confidence(s ⇒ l − s). So if a rule fails, every rule with a <i>smaller</i> left side from the same itemset fails too. In Example 6.4, {I1,I2} ⇒ I5 fails at 70%, so I1 ⇒ … and I2 ⇒ … can be skipped. Generate rules with the largest left side first and prune downward.</p>
+<p class="ref">Han et al., §6.2.2 “Generating Association Rules from Frequent Itemsets”, Example 6.4; Exercises 6.3(c) and 6.5; Zaki &amp; Meira, Ch. 8, §8.3 “Generating Association Rules”; Tan et al., section “Rule Generation”. Notes: 24/09/26.</p></div></details>
+
+<details id="d6-2-3"><summary>6.2.3 Improving the efficiency of Apriori</summary><div class="in">
+<p>Apriori’s two costs: many candidates (10⁴ frequent items give over 10⁷ candidate pairs) and repeated database scans. Five fixes from the book:</p>
+<ul>
+<li><b>Hash-based counting:</b> while computing L₁, hash every 2-itemset of each transaction into a bucket and count the buckets. A pair in a bucket with count below min_sup cannot be frequent. In Figure 6.5, with min_sup = 3 the buckets 0, 1, 3, 4 (counts 2) are dropped, so their pairs never enter C₂. Most useful at k = 2.</li>
+<li><b>Transaction reduction:</b> a transaction with no frequent k-itemset cannot contain a frequent (k+1)-itemset, so mark or drop it from later scans.</li>
+<li><b>Partitioning (2 scans):</b> split D into n non-overlapping partitions, each small enough for memory. <i>Phase I:</i> find local frequent itemsets in each partition (local threshold = min_sup × partition size). <i>Phase II:</i> one scan of D counts the union of all local frequent itemsets to get the global ones. This works because any globally frequent itemset must be locally frequent in at least one partition (if it were below the threshold in every partition, its total count would be below min_sup × |D|).</li>
+<li><b>Sampling:</b> mine a random sample S in memory with a <i>lowered</i> threshold to reduce misses, then verify the counts on the rest of D. One scan if no frequent itemset was missed, otherwise a second pass. Trades some accuracy for speed.</li>
+<li><b>Dynamic itemset counting (DIC):</b> D is split into blocks with start points; a new candidate can start counting at any start point, and its count-so-far acts as a lower bound. Fewer scans than Apriori.</li>
+</ul>
+<p class="ref">Han et al., §6.2.3 “Improving the Efficiency of Apriori”, Figures 6.5 and 6.6; Exercise 6.3(d) (partitioning proof).</p></div></details>
+
+<details id="d6-2-4"><summary>6.2.4 FP-growth: mining without candidate generation</summary><div class="in">
+<p><b>Why:</b> Apriori can generate huge candidate sets and rescans D. FP-growth uses divide and conquer: compress D into a <b>frequent pattern tree (FP-tree)</b> that keeps the itemset information, then mine <b>conditional databases</b> one frequent item at a time. It needs only two scans of D.</p>
+<p><b>Build the tree (Example 6.5, min_sup = 2):</b></p>
+<ol>
+<li>Scan 1: count items. L = {I2:7, I1:6, I3:6, I4:2, I5:2} (descending support).</li>
+<li>Scan 2: sort each transaction’s frequent items in L order. T100 becomes I2, I1, I5. Insert into a tree with a “null” root. A shared prefix only increments counts; new items create new nodes.</li>
+<li>Keep a header table with node-links from each item to all its tree nodes.</li>
+</ol>
+<div class="f">null
+├─ I2:7
+│   ├─ I1:4
+│   │   ├─ I5:1
+│   │   ├─ I4:1
+│   │   └─ I3:2
+│   │       └─ I5:1
+│   ├─ I4:1
+│   └─ I3:2
+└─ I1:2
+    └─ I3:2</div>
+<p><b>Mine the tree:</b> for each item, from the least frequent up, take its <b>conditional pattern base</b> (the prefix paths ending at that item, each with the item’s count), build the <b>conditional FP-tree</b> (drop items below min_sup), and append the item as a suffix to the patterns found.</p>
+<div class="tw"><table>
+<tr><th>Item</th><th>Conditional pattern base</th><th>Conditional FP-tree</th><th>Patterns generated</th></tr>
+<tr><td>I5</td><td>{I2,I1:1}, {I2,I1,I3:1}</td><td>⟨I2:2, I1:2⟩</td><td>{I2,I5:2}, {I1,I5:2}, {I2,I1,I5:2}</td></tr>
+<tr><td>I4</td><td>{I2,I1:1}, {I2:1}</td><td>⟨I2:2⟩</td><td>{I2,I4:2}</td></tr>
+<tr><td>I3</td><td>{I2,I1:2}, {I2:2}, {I1:2}</td><td>⟨I2:4, I1:2⟩, ⟨I1:2⟩</td><td>{I2,I3:4}, {I1,I3:4}, {I2,I1,I3:2}</td></tr>
+<tr><td>I1</td><td>{I2:4}</td><td>⟨I2:4⟩</td><td>{I2,I1:4}</td></tr>
+</table></div>
+<p>For I5, I3 is dropped from its conditional tree because its count there is 1 &lt; 2. If a conditional tree is a <b>single path</b>, all combinations of its nodes are patterns, each with the minimum count on the chosen nodes.</p>
+<p><b>Why start from the least frequent item:</b> its prefix paths are short and selective, and every frequent pattern is found exactly once, as a suffix plus a pattern from its conditional tree. FP-growth is reported to be about an order of magnitude faster than Apriori. If the tree is too big for memory, partition D into projected databases first.</p>
+<p><b>Your class example</b> (T1 {E,K,M,N,O,Y} … T5 {C,E,I,K,O,O}, threshold 3) is Exercise 6.6 in the book. Its tree is K:5 → E:4 (→ M:2 → O:1 → Y:1, and → O:2 → Y:1) plus K → M:1 → Y:1. Patterns: {K,Y:3}, {K,O:3}, {E,O:3}, {K,E,O:3}, {K,M:3}, {K,E:4}.</p>
+<div class="tip">O appears in T1, T2 and T5, so its count is 3. In T5 the item O is listed twice, but a transaction counts once. If your notes show 4 for the O patterns, correct them to 3.</div>
+<p class="ref">Han et al., §6.2.4 “A Pattern-Growth Approach for Mining Frequent Itemsets”, Example 6.5, Figures 6.7–6.9, Table 6.2; Han, Pei &amp; Yin (2000), “Mining frequent patterns without candidate generation” (cited as [HPY00]); Zaki &amp; Meira, Ch. 8, §8.2 (FPGrowth); Tan et al., section “FP-Growth Algorithm”. Notes: 28/09/26.</p></div></details>
+
+<details id="d6-2-5"><summary>6.2.5 Vertical data format (Eclat)</summary><div class="in">
+<p><b>Horizontal</b> format is {TID : itemset} (Apriori, FP-growth). <b>Vertical</b> format is {item : TID set}. The support of an itemset is the size of its TID set, and a (k+1)-itemset’s TID set is the <b>intersection</b> of two k-itemset TID sets. No further database scans are needed after the first conversion.</p>
+<div class="f">I1 {T100,T400,T500,T700,T800,T900}   I2 {T100,T200,T300,T400,T600,T800,T900}
+I3 {T300,T500,T600,T700,T800,T900}   I4 {T200,T400}    I5 {T100,T800}
+
+I1∩I2 = {T100,T400,T800,T900}  (4)     I1∩I3 = {T500,T700,T800,T900} (4)
+I1∩I5 = {T100,T800} (2)  I2∩I3 = {T300,T600,T800,T900} (4)
+I2∩I4 = {T200,T400} (2)  I2∩I5 = {T100,T800} (2)
+I1I4 = {T400} and I3I5 = {T800}: one transaction each, so infrequent
+Candidates (Apriori property): I1I2I3 → {T800,T900} (2);  I1I2I5 → {T100,T800} (2)</div>
+<p>Result: the same frequent itemsets as Apriori, found with 10 intersections for pairs.</p>
+<p><b>Drawback and fix:</b> TID sets can be long. A <b>diffset</b> stores only the difference: diffset({I1,I2},{I1}) = {T500, T700}, so support({I1,I2}) = 6 − 2 = 4. It helps most on dense data with long patterns.</p>
+<div class="tw"><table>
+<tr><th></th><th>Apriori</th><th>FP-growth</th><th>Eclat</th></tr>
+<tr><td>Strategy</td><td>Generate and test</td><td>Divide and conquer, pattern growth</td><td>Intersect TID sets</td></tr>
+<tr><td>Candidates</td><td>Many</td><td>None</td><td>Few (Apriori property)</td></tr>
+<tr><td>DB scans</td><td>One per level</td><td>Two</td><td>One (to convert)</td></tr>
+<tr><td>Main cost</td><td>Candidates, repeated scans</td><td>FP-tree memory</td><td>Long TID sets</td></tr>
+</table></div>
+<p class="ref">Han et al., §6.2.5 “Mining Frequent Itemsets Using Vertical Data Format”, Example 6.6, Tables 6.3–6.5; Zaki, “Scalable algorithms for association mining” (2000), the Eclat paper (cited as [Zak00]); Zaki &amp; Meira, Ch. 8, §8.2 (tidset intersection and diffsets).</p></div></details>
+
+<details id="d6-2-6"><summary>6.2.6 Mining closed and max patterns (with a worked example)</summary><div class="in">
+<p><b>Naive way:</b> mine all frequent itemsets and delete non-closed ones. This is prohibitively costly (2¹⁰⁰ − 1 sets to reach one long pattern). <b>Recommended:</b> search for closed itemsets directly, using pruning:</p>
+<ul>
+<li><b>Item merging:</b> if every transaction containing X also contains Y (and no proper superset of Y), then X ∪ Y is closed and sets containing X without Y need not be searched. In Table 6.2, I5’s conditional database {{I2,I1},{I2,I1,I3}} always contains {I2,I1}, so {I5,I2,I1:2} is closed.</li>
+<li><b>Sub-itemset pruning:</b> if X is a proper subset of an already found closed set Y with the same support, X and its descendants cannot be closed.</li>
+<li><b>Item skipping:</b> if a local frequent item has the same support in header tables at several levels, prune it from the higher ones.</li>
+</ul>
+<p><b>Closure checking:</b> superset checking (built in when item merging is used) and subset checking (a pattern-tree indexed by last item and support).</p>
+<p><b>Worked example: Table 6.1 at min_sup = 2.</b> The 13 frequent itemsets (counts above) split as follows:</p>
+<div class="f">Closed (9):  I1:6  I2:7  I3:6  {I1,I2}:4  {I1,I3}:4  {I2,I3}:4
+             {I2,I4}:2  {I1,I2,I3}:2  {I1,I2,I5}:2
+Not closed:  I4:2 (same as {I2,I4}),  I5:2 and {I1,I5}:2 and {I2,I5}:2 (same as {I1,I2,I5})
+Maximal (3): {I2,I4}:2   {I1,I2,I3}:2   {I1,I2,I5}:2</div>
+<p>13 frequent → 9 closed → 3 maximal. Notice that {I1,I3}:4 is closed but not maximal (its superset I1I2I3 is frequent).</p>
+<p class="ref">Han et al., §6.2.6 “Mining Closed and Max Patterns”; Zaki &amp; Meira, Ch. 9, §9.2 “Mining Maximal Frequent Itemsets: GenMax Algorithm” and §9.3 “Mining Closed Frequent Itemsets: Charm Algorithm”; Tan et al., section “Compact Representation of Frequent Itemsets”.</p></div></details>
+
+<h2 id="s63">6.3 Which patterns are interesting?</h2>
+<details id="d6-3-1"><summary>6.3.1 Strong rules can be misleading (Example 6.7)</summary><div class="in">
+<p>10,000 transactions: 6000 contain games, 7500 contain videos, 4000 contain both. With min_sup = 30% and min_conf = 60%, the rule <b>game ⇒ video</b> [support 40%, confidence 66%] is strong. But P(video) = 75%, higher than 66%, so buying games actually <i>lowers</i> the chance of buying videos. Confidence ignores the base rate of B. Interestingness can be subjective (user-judged) or objective (statistics-based); objective measures help weed out uninteresting rules.</p>
+<p class="ref">Han et al., §6.3.1 “Strong Rules Are Not Necessarily Interesting”, Example 6.7.</p></div></details>
+
+<details id="d6-3-2"><summary>6.3.2 Lift and χ² (Examples 6.8 and 6.9)</summary><div class="in">
+<p>A <b>correlation rule</b> is A ⇒ B [support, confidence, correlation].</p>
+<div class="f">lift(A,B) = P(A ∪ B) / (P(A) P(B)) = P(B|A)/P(B) = conf(A⇒B)/sup(B)
+lift &gt; 1 positively correlated;  = 1 independent;  &lt; 1 negatively correlated</div>
+<p>Game and video: lift = 0.40/(0.60 × 0.75) = <b>0.89 &lt; 1</b>, so negatively correlated.</p>
+<p><b>χ²</b> uses the 2 × 2 contingency table (expected values in brackets):</p>
+<div class="f">            game         ¬game        Σrow
+video       4000 (4500)  3500 (3000)  7500
+¬video      2000 (1500)   500 (1000)  2500
+Σcol        6000         4000        10,000
+
+χ² = 500²/4500 + 500²/3000 + 500²/1500 + 500²/1000 = 555.6</div>
+<p>χ² is large and the observed (game, video) count 4000 is below the expected 4500, so the correlation is negative, matching lift.</p>
+<p class="ref">Han et al., §6.3.2 “From Association Analysis to Correlation Analysis”, Examples 6.8–6.9, Tables 6.6–6.7; Ch. 3, Eq. 3.1 (χ²). Notes: 22/07/26.</p></div></details>
+
+<details id="d6-3-3"><summary>6.3.3 Null-invariant measures: all_conf, max_conf, Kulc, cosine, and IR</summary><div class="in">
+<p>A <b>null-transaction</b> contains none of the itemsets being examined. A measure is <b>null-invariant</b> if null-transactions do not change its value. Lift and χ² are <b>not</b> null-invariant; the four below are.</p>
+<div class="f">all_conf(A,B) = sup(A∪B) / max{sup(A), sup(B)} = min{P(A|B), P(B|A)}
+max_conf(A,B) = max{P(A|B), P(B|A)}
+Kulc(A,B)     = ½ (P(A|B) + P(B|A))
+cosine(A,B)   = sup(A∪B) / √(sup(A) × sup(B)) = √(P(A|B) × P(B|A))
+IR(A,B)       = |sup(A) − sup(B)| / (sup(A) + sup(B) − sup(A∪B))</div>
+<p>All four range from 0 to 1 (higher means a closer relationship). <b>IR</b> (imbalance ratio) is 0 for a perfectly balanced pair and near 1 for a very skewed one.</p>
+<p><b>Table 6.9</b> (m = milk, c = coffee; m̄c̄ is the null-transaction count):</p>
+<div class="tw"><table>
+<tr><th>Set</th><th>mc</th><th>m̄c</th><th>mc̄</th><th>m̄c̄</th><th>χ²</th><th>lift</th><th>all_conf</th><th>max_conf</th><th>Kulc</th><th>cosine</th></tr>
+<tr><td>D1</td><td>10,000</td><td>1000</td><td>1000</td><td>100,000</td><td>90557</td><td>9.26</td><td>0.91</td><td>0.91</td><td>0.91</td><td>0.91</td></tr>
+<tr><td>D2</td><td>10,000</td><td>1000</td><td>1000</td><td>100</td><td>0</td><td>1</td><td>0.91</td><td>0.91</td><td>0.91</td><td>0.91</td></tr>
+<tr><td>D3</td><td>100</td><td>1000</td><td>1000</td><td>100,000</td><td>670</td><td>8.44</td><td>0.09</td><td>0.09</td><td>0.09</td><td>0.09</td></tr>
+<tr><td>D4</td><td>1000</td><td>1000</td><td>1000</td><td>100,000</td><td>24740</td><td>25.75</td><td>0.5</td><td>0.5</td><td>0.5</td><td>0.5</td></tr>
+<tr><td>D5</td><td>1000</td><td>100</td><td>10,000</td><td>100,000</td><td>8173</td><td>9.18</td><td>0.09</td><td>0.91</td><td>0.5</td><td>0.29</td></tr>
+<tr><td>D6</td><td>1000</td><td>10</td><td>100,000</td><td>100,000</td><td>965</td><td>1.97</td><td>0.01</td><td>0.99</td><td>0.5</td><td>0.10</td></tr>
+</table></div>
+<ul>
+<li><b>D1 vs D2:</b> same mc, m̄c, mc̄; only the null count differs. The four null-invariant measures give 0.91 for both, but lift jumps from 9.26 to 1 and χ² from 90,557 to 0. So lift and χ² are unstable.</li>
+<li><b>D3:</b> truly negative (0.09 on all four); lift (8.44) wrongly says positive.</li>
+<li><b>D4:</b> neutral (0.5) by the four measures; lift (25.75) claims strong positive.</li>
+<li><b>D5 and D6:</b> unbalanced conditionals. all_conf and cosine say negative, max_conf says strongly positive, Kulc says neutral (0.5). IR = 0 for D4, 0.89 for D5, 0.99 for D6.</li>
+</ul>
+<p class="ans">Book recommendation: use Kulczynski together with the imbalance ratio.</p>
+<p><b>Game and video, all measures</b> (computed here from the book’s counts): all_conf = 0.40/0.75 = 0.53; max_conf = 4000/6000 = 0.67; Kulc = (0.67 + 0.53)/2 = 0.60; cosine = 0.40/√(0.60 × 0.75) = 0.60; IR = |0.60 − 0.75|/(0.60 + 0.75 − 0.40) = 0.16.</p>
+<p class="ref">Han et al., §6.3.3 “A Comparison of Pattern Evaluation Measures”, Eqs. 6.9–6.13, Examples 6.10–6.11, Table 6.9; Zaki &amp; Meira, Ch. 12 “Pattern and Rule Assessment”, §12.1 “Rule and Pattern Assessment Measures”; Tan et al., section “Evaluation of Association Patterns”.</p></div></details>
+
+<h2 id="prac">Practice and exam toolkit</h2>
+<details id="d-exercises"><summary>Book Exercise 6.6 solved (Apriori, FP-growth and a rule metarule)</summary><div class="in">
+<p>Five transactions, min_sup = 60% (count 3), min_conf = 80%: T100 {M,O,N,K,E,Y}, T200 {D,O,N,K,E,Y}, T300 {M,A,K,E}, T400 {M,U,C,K,Y}, T500 {C,O,O,K,I,E}.</p>
+<div class="f">C1: K 5, E 4, M 3, O 3, Y 3, C 2, N 2, A 1, D 1, I 1, U 1     L1 = K, E, M, O, Y
+C2 counts: KE 4, KM 3, KO 3, KY 3, EO 3, EM 2, EY 2, MY 2, OY 2, MO 1
+L2 = {KE:4, KM:3, KO:3, KY:3, EO:3}
+C3: only {K,E,O} survives pruning (KEM needs EM, KMY needs MY, and so on)
+    count = 3 (T100, T200, T500)  → L3 = {K,E,O}:3</div>
+<p><b>(a)</b> All frequent itemsets: K, E, M, O, Y; KE, KM, KO, KY, EO; KEO. FP-growth gives the same set from the tree in the previous section with 2 scans and no candidates; Apriori needed 3 scans and generated 10 pair candidates.</p>
+<p><b>(b)</b> Rules X, Y ⇒ Z from {K,E,O} (support 3/5 = 60%): KE ⇒ O = 3/4 = 75% (fails 80%); <b>KO ⇒ E = 3/3 = 100%</b>; <b>EO ⇒ K = 3/3 = 100%</b>. Pairs such as {K,M} have no 3-item superset, so they give no rule of this form.</p>
+<p class="ans">Strong rules: {K,O} ⇒ E [60%, 100%] and {E,O} ⇒ K [60%, 100%].</p>
+<p class="ref">Han et al., Ch. 6 Exercises, Exercise 6.6.</p></div></details>
+
+<details id="d-mistakes"><summary>Common mistakes and a quick exam checklist</summary><div class="in">
+<ul>
+<li>Dividing by the wrong count: confidence divides by the count of the <b>left side</b>; support divides by |D|.</li>
+<li>Counting an item twice within one transaction (a transaction contributes 1).</li>
+<li>Forgetting the prune step: always check every (k−1)-subset against L<sub>k−1</sub> before scanning.</li>
+<li>Joining itemsets that do not share the first k−2 items, which creates duplicates or invalid candidates.</li>
+<li>Calling an itemset closed or maximal without comparing against <i>all</i> proper supersets. Closed looks at equal support; maximal looks at frequency.</li>
+<li>FP-tree: forgetting to sort by descending support (and using one fixed tie-break order for every transaction).</li>
+<li>Trusting confidence alone: report lift or Kulc when asked whether a rule is interesting.</li>
+</ul>
+<p><b>Exam routine:</b> (1) convert min_sup percentage to a count; (2) list C₁ and counts, then L₁; (3) join, prune, count for each level, stating why each pruned candidate was removed; (4) stop when C<sub>k</sub> or L<sub>k</sub> is empty; (5) for rules, list every non-empty proper subset and its confidence, then mark the strong ones.</p>
+<p class="deep">Solved past-paper answers: <a href="../dwm-solves.html#a7">Closed and maximal</a> · <a href="../dwm-solves.html#a8">Rules from an itemset</a> · <a href="../dwm-solves.html#a9">Apriori</a>. All of them: <a href="../dwm-solves.html">dwm-solves page</a>.</p></div></details>
+
+<details id="d-formulas"><summary>Formula sheet</summary><div class="in">
+<div class="f">support(A⇒B) = count(A∪B)/|D|        confidence = count(A∪B)/count(A)
+Apriori property: subsets of frequent are frequent; supersets of infrequent are infrequent
+|C2| = C(|L1|, 2)         rules from a k-itemset = 2^k − 2
+all frequent subsets of a length-n itemset = 2^n − 1
+confidence(s'⇒l−s') ≤ confidence(s⇒l−s)  for s' ⊂ s
+lift = P(A∪B)/(P(A)P(B))      χ² = Σ (o − e)²/e
+Kulc = ½(P(A|B)+P(B|A))       IR = |sup(A)−sup(B)| / (sup(A)+sup(B)−sup(A∪B))
+support from closed sets: max support among closed supersets</div></div></details>
+
+<h2 id="refs">References</h2>
+<ul>
+<li>Han, J., Kamber, M., &amp; Pei, J. <em>Data Mining: Concepts and Techniques</em>, 3rd ed., Morgan Kaufmann, 2012. Ch. 6 “Mining Frequent Patterns, Associations, and Correlations: Basic Concepts and Methods”, §6.1–§6.4 and Exercises 6.1–6.9 (pp. 243–276). Chapter 7 (advanced pattern mining) is outside your syllabus.</li>
+<li>Zaki, M. J., &amp; Meira Jr., W. <em>Data Mining and Analysis: Fundamental Concepts and Algorithms</em>, Cambridge University Press, 2014. Ch. 8 “Itemset Mining”, Ch. 9 “Summarizing Itemsets”, Ch. 12 “Pattern and Rule Assessment”.</li>
+<li>Tan, P.-N., Steinbach, M., Karpatne, A., &amp; Kumar, V. <em>Introduction to Data Mining</em>, 2nd ed. Chapter “Association Analysis: Basic Concepts and Algorithms” (Ch. 4 in the Global edition, Ch. 5 in the 2021 US edition). Section titles above are from memory of the book; check them against your edition.</li>
+<li>Original papers named in the book: Agrawal &amp; Srikant, 1994 (Apriori); Han, Pei &amp; Yin, 2000 (FP-growth); Zaki, 2000 (Eclat).</li>
+</ul>
+<div class="pager"><a class="btn" href="ch4.html">&larr; Chapter 4</a><a class="btn" href="../dwm-summary.html">Summary</a><a class="btn" href="../dwm-solves.html">Solved past papers</a><span></span></div>
+</main>
+<script>
+(function(){
+  var b=document.getElementById('all'),d=document.querySelectorAll('details'),open=false;
+  b.addEventListener('click',function(){
+    open=!open;
+    for(var i=0;i<d.length;i++){d[i].open=open;}
+    b.textContent=open?'Collapse all':'Expand all';
+  });
+})();
+
+(function(){
+  function openHash(){
+    var h=location.hash.slice(1); if(!h) return;
+    var e=document.getElementById(h); if(!e) return;
+    var d=(e.tagName==='DETAILS')?e:e.closest('details'); if(d) d.open=true;
+    e.scrollIntoView();
+  }
+  window.addEventListener('hashchange',openHash); openHash();
+})();
+</script>
+</body>
+</html>

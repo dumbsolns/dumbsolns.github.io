@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chapter 4 Deep Dive: Data Warehousing and OLAP</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2421;--muted:#55605b;--line:#d9ded8;--accent:#1f6f5c;--soft:#e1f0eb;--warn:#fff4d6;--warn-ink:#5c4400;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}}
+:root[data-theme="dark"]{--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,summary,.btn,nav a{font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.btn{font-weight:600;font-size:14px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.btn:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+main{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;color:var(--accent);margin:26px 0 4px}
+.lead{color:var(--muted);margin:0 0 12px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);background:var(--soft);border-radius:999px;padding:8px 14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:1rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"\2212"}
+.in{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.in p{margin:.6em 0}
+ul,ol{padding-left:1.15em;margin:.5em 0}li{margin:.25em 0}
+.ref{font-size:.82rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin:.8em 0 0;font-style:italic}
+.f{font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:6px;padding:8px 10px;margin:.5em 0;overflow-x:auto;white-space:pre}
+.tip{background:var(--warn);color:var(--warn-ink);border-radius:8px;padding:8px 10px;margin:.7em 0;font-size:.92rem}
+.ans{font-weight:700;color:var(--accent)}
+.tw{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;min-width:100%;font-size:.86rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.pager{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+.deep{font:600 .88rem "Trebuchet MS",system-ui,sans-serif;margin:.8em 0 0}
+.deep a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="btn" href="../dwm-summary.html" aria-label="Back to the summary">&larr; Summary</a>
+  <a class="btn" href="/" aria-label="Home page">Home</a>
+  <span class="sp"></span>
+  <button class="btn" id="all" type="button">Expand all</button>
+</div>
+<main>
+<h1>Chapter 4 Deep Dive</h1>
+<p class="lead">Data Warehousing and Online Analytical Processing. Built from Chapter 4 of your copy of Han, Kamber &amp; Pei, <em>Data Mining: Concepts and Techniques</em>, 3rd ed. (pp. 125–184), using the book’s own AllElectronics data, with Kimball &amp; Ross as a second source. Section 4.5 (attribute-oriented induction) is summarized only, since your notes do not cover it.</p>
+<nav aria-label="Sections"><a href="#s41">4.1 Concepts</a><a href="#s42">4.2 Model and OLAP</a><a href="#s43">4.3 Design</a><a href="#s44">4.4 Implementation</a><a href="#prac">Practice</a><a href="#refs">References</a><a href="../dwm-solves.html">Solved papers</a></nav>
+
+<h2 id="map">The big picture</h2>
+<div class="f">operational DBs + external sources
+        │  extract → clean → transform → load → refresh   (back-end tools, 4.1.6)
+        ▼
+ data warehouse / data marts   (subject-oriented, integrated, time-variant, nonvolatile)
+        │  modeled as a data cube: dimensions + measures, in a star/snowflake/constellation
+        ▼
+   OLAP server (ROLAP / MOLAP / HOLAP)   → roll-up, drill-down, slice, dice, pivot
+        ▼
+ front-end tools: reports, analysis, data mining</div>
+<div class="tw"><table>
+<tr><th>Section</th><th>Topic</th><th>One-line idea</th></tr>
+<tr><td>4.1</td><td>Basic concepts</td><td>What a warehouse is, why separate it, tiers, models, ETL, metadata</td></tr>
+<tr><td>4.2</td><td>Cube and OLAP</td><td>Cuboids, schemas, hierarchies, measures, OLAP operations</td></tr>
+<tr><td>4.3</td><td>Design and usage</td><td>Four design steps, top-down vs bottom-up, OLAP vs data mining</td></tr>
+<tr><td>4.4</td><td>Implementation</td><td>Materialization, indexing, query processing, ROLAP/MOLAP/HOLAP</td></tr>
+<tr><td>4.5</td><td>Attribute-oriented induction</td><td>Generalization for characterization and comparison</td></tr>
+</table></div>
+
+<h2 id="s41">4.1 Data warehouse: basic concepts</h2>
+<details id="d4-1-1"><summary>4.1.1 What a data warehouse is (Inmon’s four features)</summary><div class="in">
+<p>A data warehouse is a repository maintained <b>separately</b> from the operational databases, supporting decisions with consolidated historic data. Inmon’s definition: “a subject-oriented, integrated, time-variant, and nonvolatile collection of data in support of management’s decision making process.”</p>
+<ul>
+<li><b>Subject-oriented:</b> organized around subjects (customer, supplier, product, sales), not day-to-day operations; data not useful for decisions is excluded.</li>
+<li><b>Integrated:</b> built from heterogeneous sources (relational databases, flat files, online transaction records); cleaning and integration make names, encodings and measures consistent.</li>
+<li><b>Time-variant:</b> holds history (for example 5–10 years); every key structure has a time element.</li>
+<li><b>Nonvolatile:</b> physically separate from operational data, so it needs <b>no transaction processing, recovery or concurrency control</b>. Only two operations: initial loading and access.</li>
+</ul>
+<div class="tip">Notes check: your 24/08 note says non-volatile means “has recovery and concurrency”. The book says the opposite: a warehouse does not need those mechanisms.</div>
+<p><b>Update-driven vs query-driven integration (Exercise 4.1).</b> The traditional <i>query-driven</i> approach puts wrappers and mediators on top of each source and translates each query at run time. It is complex, competes with the sources for resources, and is expensive for frequent aggregate queries. The warehouse uses an <i>update-driven</i> approach: data are integrated in advance and stored for direct querying, so queries are fast and do not disturb the sources. The trade-off is that the warehouse is not completely current.</p>
+<p>Uses (the book’s list): increasing customer focus, repositioning products by comparing sales by quarter, year and region, analyzing operations and sources of profit, and managing customer relationships.</p>
+<p class="ref">Han et al., Ch. 4 “Data Warehousing and Online Analytical Processing”, §4.1.1 “What Is a Data Warehouse?”; Inmon (1996), as cited in the book; Kimball &amp; Ross, <em>The Data Warehouse Toolkit</em>, 3rd ed., Ch. 1 “Data Warehousing, Business Intelligence, and Dimensional Modeling Primer”. Notes: the undated “Data Warehouse: NOT Database” page, 24/08/26.</p></div></details>
+
+<details id="d4-1-2"><summary>4.1.2–4.1.3 OLTP vs OLAP, and why keep a separate warehouse</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Feature</th><th>OLTP (operational DB)</th><th>OLAP (warehouse)</th></tr>
+<tr><td>Orientation, users</td><td>Transaction; clerks, DBAs</td><td>Analysis; managers, analysts</td></tr>
+<tr><td>Function</td><td>Day-to-day operations</td><td>Long-term decision support</td></tr>
+<tr><td>Design</td><td>ER-based, application-oriented</td><td>Star/snowflake, subject-oriented</td></tr>
+<tr><td>Data</td><td>Current, detailed, up to date</td><td>Historic, summarized, consolidated</td></tr>
+<tr><td>View</td><td>Detailed, flat relational</td><td>Summarized, multidimensional</td></tr>
+<tr><td>Unit of work, access</td><td>Short simple transactions; read/write</td><td>Complex queries; mostly read</td></tr>
+<tr><td>Records per access</td><td>Tens</td><td>Millions</td></tr>
+<tr><td>Users, size</td><td>Thousands; GB</td><td>Hundreds; ≥ TB</td></tr>
+<tr><td>Priority, metric</td><td>Availability; transaction throughput</td><td>Flexibility; query throughput and response time</td></tr>
+</table></div>
+<p><b>Why separate (three reasons from §4.1.3):</b></p>
+<ol>
+<li><b>Performance of both systems.</b> Operational databases are tuned for known tasks (primary-key indexing, canned queries). Warehouse queries are complex aggregations over large groups; running them on the operational system would degrade it.</li>
+<li><b>Concurrency control and recovery.</b> OLTP needs locking and logging. Applying these to read-only OLAP scans can jeopardize concurrent transactions and cut throughput.</li>
+<li><b>Different structure, content and use.</b> Decision support needs historic, consolidated, clean data from many sources; operational databases hold only current detailed raw data.</li>
+</ol>
+<p>Your notes add “merging them slows both”, which is reason 1. Faster market analysis needs less detail, which is reason 3.</p>
+<p class="ref">Han et al., §4.1.2 “Differences between Operational Database Systems and Data Warehouses” (Table 4.1), §4.1.3 “But, Why Have a Separate Data Warehouse?”. Notes: 24/08/26, 27/08/26.</p></div></details>
+
+<details id="d4-1-4"><summary>4.1.4 Three-tier architecture</summary><div class="in">
+<div class="f">Top tier     front-end tools: query/report, analysis, data mining
+Middle tier  OLAP server (ROLAP or MOLAP)
+Bottom tier  warehouse database server (almost always relational)
+             + metadata repository + data marts
+             fed by: extract, clean, transform, load, refresh
+             from operational databases and external sources</div>
+<ul>
+<li><b>Bottom:</b> data enter through back-end tools and utilities using <b>gateways</b>, such as ODBC, OLE DB and JDBC, which let client programs run SQL on a server. The metadata repository lives here.</li>
+<li><b>Middle:</b> a <b>ROLAP</b> server (extended relational DBMS mapping multidimensional operations to relational ones) or a <b>MOLAP</b> server (special-purpose, array-based).</li>
+<li><b>Top:</b> reporting, analysis and mining tools (trend analysis, prediction).</li>
+</ul>
+<p class="ref">Han et al., §4.1.4 “Data Warehousing: A Multitiered Architecture”, Figure 4.1. Notes: 27/08/26.</p></div></details>
+
+<details id="d4-1-5"><summary>4.1.5 Warehouse models and the recommended approach</summary><div class="in">
+<ul>
+<li><b>Enterprise warehouse:</b> all subjects across the organization; detailed plus summarized data; GBs to TBs; needs extensive business modeling and may take years.</li>
+<li><b>Data mart:</b> a subset for a specific group (for example marketing: customer, item, sales); usually summarized; low-cost departmental servers; weeks to build. <i>Independent</i> marts come from operational or local sources; <i>dependent</i> marts come from the enterprise warehouse.</li>
+<li><b>Virtual warehouse:</b> a set of <b>views</b> over operational databases, with only some summaries materialized. Easy to build but needs excess capacity on operational servers.</li>
+</ul>
+<div class="tw"><table>
+<tr><th>Approach</th><th>Pros</th><th>Cons</th></tr>
+<tr><td>Top-down (enterprise first)</td><td>Systematic; minimizes integration problems</td><td>Expensive, slow, inflexible (hard to agree on one model)</td></tr>
+<tr><td>Bottom-up (marts first)</td><td>Flexible, low cost, quick return on investment</td><td>Integrating disparate marts later can be hard</td></tr>
+</table></div>
+<p><b>Recommended approach (incremental and evolutionary, Figure 4.2):</b></p>
+<ol>
+<li>Define a <b>high-level corporate data model</b> in a short period (one or two months): a corporate-wide, consistent view across subjects.</li>
+<li>Build <b>independent data marts</b> in parallel with the enterprise warehouse, based on the same model.</li>
+<li>Build <b>distributed data marts</b> that integrate the different marts via hub servers.</li>
+<li>Construct a <b>multitier data warehouse</b>: the enterprise warehouse is the sole custodian of all warehouse data, which is distributed to the dependent data marts.</li>
+</ol>
+<p><b>Answer template for “Design a warehouse for Samsung / Walton / Tesla”:</b> name the four steps, then attach a company example to each: step 1 model subjects (sales, products, suppliers, service); step 2 marts per department (for example mobile sales, TV sales); step 3 hub server joining marts; step 4 enterprise warehouse feeding dependent marts, with model refinement between stages. For a three-tier design, add the bottom, middle and top tiers with their tools.</p>
+<p class="ref">Han et al., §4.1.5 “Data Warehouse Models: Enterprise Warehouse, Data Mart, and Virtual Warehouse”, Figure 4.2; Kimball &amp; Ross, Ch. 1 (“Kimball’s DW/BI Architecture”, “Alternative DW/BI Architectures”). Notes: 27/08/26, 31/08/26.</p></div></details>
+
+<details id="d4-1-6"><summary>4.1.6–4.1.7 ETL back-end tools and the metadata repository</summary><div class="in">
+<ul>
+<li><b>Data extraction:</b> gathers data from multiple, heterogeneous, external sources.</li>
+<li><b>Data cleaning:</b> detects errors and rectifies them when possible.</li>
+<li><b>Data transformation:</b> converts from legacy or host format to warehouse format.</li>
+<li><b>Load:</b> sorts, summarizes, consolidates, computes views, checks integrity, builds indices and partitions.</li>
+<li><b>Refresh:</b> propagates updates from the sources to the warehouse.</li>
+</ul>
+<p><b>Metadata</b> is data about data. The repository holds: the warehouse structure (schema, views, dimensions, hierarchies, derived data, mart locations); <i>operational metadata</i> (lineage, currency of data as active, archived or purged, monitoring statistics); summarization algorithms; the mapping from sources (extraction, cleaning and transformation rules, refresh and purging rules, security); performance data (indices, profiles, refresh schedules); and business metadata (terms, ownership, charging policies). It is a directory for analysts and a guide for the data mapping. Store it persistently on disk.</p>
+<p>Levels of summarization in a warehouse: current detailed data (on disk), older detailed data (tertiary storage), lightly summarized, highly summarized.</p>
+<p class="ref">Han et al., §4.1.6 “Extraction, Transformation, and Loading”, §4.1.7 “Metadata Repository”. Notes: 27/08/26.</p></div></details>
+
+<h2 id="s42">4.2 Data warehouse modeling: data cube and OLAP</h2>
+<details id="d4-2-1"><summary>4.2.1 The data cube, cuboids, base and apex, lattice</summary><div class="in">
+<p>A data cube is defined by <b>dimensions</b> (perspectives such as time, item, branch, location; each may have a <b>dimension table</b>) and <b>facts</b> (numeric <b>measures</b> such as dollars sold, units sold, amount budgeted) kept in a <b>fact table</b> that holds the measure names plus a key to each dimension table. The cube is n-dimensional; “3-D” is only a metaphor.</p>
+<div class="f">Table 4.3, sales in $ thousands, by time (rows) and item, per city
+         Chicago              New York             Toronto              Vancouver
+      HE   comp phone sec   HE   comp phone sec   HE  comp phone sec   HE   comp phone sec
+Q1   854   882   89  623   1087  968   38  872    818  746   43  591    605   825   14  400
+Q2   943   890   64  698   1130 1024   41  925    894  769   52  682    680   952   31  512
+Q3  1032   924   59  789   1034 1048   45 1002    940  795   58  728    812  1023   30  501
+Q4  1129   992   63  870   1142 1091   54  984    978  864   59  784    927  1038   38  580
+(HE = home entertainment; Table 4.2 is the Vancouver slice alone)</div>
+<ul>
+<li>Each subset of the dimensions gives a <b>cuboid</b> (a group-by). All cuboids form a <b>lattice</b>, and the lattice is the <b>data cube</b>.</li>
+<li><b>Base cuboid:</b> all n dimensions, lowest level of summarization. <b>Apex cuboid:</b> 0-D, the grand total, written <b>all</b>.</li>
+<li>With dimensions time, item, location, supplier there are 2⁴ = 16 cuboids (Figure 4.5).</li>
+</ul>
+<p class="ref">Han et al., §4.2.1 “Data Cube: A Multidimensional Data Model”, Tables 4.2–4.3, Figures 4.3–4.5. Notes: 03/09/26.</p></div></details>
+
+<details id="d4-2-2"><summary>4.2.2 Schemas: star, snowflake, fact constellation (and how to choose)</summary><div class="in">
+<p>The ER model suits OLTP. A warehouse needs a concise, subject-oriented schema for analysis.</p>
+<div class="f">STAR (Fig. 4.6)                         SNOWFLAKE (Fig. 4.7)
+sales(time_key, item_key, branch_key,   same fact table; dimensions normalized:
+      location_key, dollars_sold,       item(item_key, item_name, brand, type, supplier_key)
+      units_sold)                         → supplier(supplier_key, supplier_type)
+time(time_key, day, day_of_week,        location(location_key, street, city_key)
+     month, quarter, year)                → city(city_key, city, province_or_state, country)
+item(item_key, item_name, brand, type,
+     supplier_type)                     FACT CONSTELLATION (Fig. 4.8)
+branch(branch_key, branch_name,         two fact tables, sales and shipping, sharing the
+       branch_type)                     time, item and location dimension tables;
+location(location_key, street, city,    shipping(item_key, time_key, shipper_key,
+         province_or_state, country)    from_location, to_location, dollars_cost, units_shipped)</div>
+<div class="tw"><table>
+<tr><th></th><th>Star</th><th>Snowflake</th><th>Fact constellation</th></tr>
+<tr><td>Fact tables</td><td>One</td><td>One</td><td>Several, sharing dimensions</td></tr>
+<tr><td>Dimension tables</td><td>One per dimension, denormalized</td><td>Normalized into sub-tables</td><td>Shared among facts</td></tr>
+<tr><td>Redundancy</td><td>Some (Urbana and Chicago repeat IL, USA)</td><td>Reduced</td><td>As star or snowflake</td></tr>
+<tr><td>Joins, speed</td><td>Fewest joins, fastest, clearest</td><td>More joins, can hurt performance</td><td>More complex</td></tr>
+<tr><td>Typical use</td><td>Data marts (most popular)</td><td>Data marts, when space matters</td><td>Enterprise warehouses (many subjects)</td></tr>
+</table></div>
+<p><b>How to choose in an exam:</b> one subject and one set of measures means one fact table, so star or snowflake. “Minimize redundancy” points to snowflake; “query performance and clarity” points to star (the book notes the space saving of snowflake is negligible next to the fact table). Several subjects or fact tables sharing dimensions means constellation. Always draw the fact table with its foreign keys and measures plus each dimension table.</p>
+<p class="ref">Han et al., §4.2.2 “Stars, Snowflakes, and Fact Constellations: Schemas for Multidimensional Data Models”, Examples 4.1–4.3; Kimball &amp; Ross, Ch. 3 “Retail Sales” (four-step design, star schema case study). Notes: 10/09/26.</p></div></details>
+
+<details id="d4-2-3"><summary>4.2.3 Concept hierarchies</summary><div class="in">
+<p>A concept hierarchy maps low-level concepts to higher-level, more general ones (city → province or state → country).</p>
+<ul>
+<li><b>Schema hierarchy, total order:</b> street &lt; city &lt; province_or_state &lt; country.</li>
+<li><b>Schema hierarchy, partial order (lattice):</b> day &lt; {month &lt; quarter; week} &lt; year. A week often crosses month boundaries, so week is treated as a lower level of year, not of month (book footnote).</li>
+<li><b>Set-grouping hierarchy:</b> values grouped into ranges, such as price ($0…$1000] split into ($0…$200], …</li>
+</ul>
+<p>There can be several hierarchies per dimension (different viewpoints), defined manually or generated automatically. Hierarchies let data be handled at varying levels of abstraction, which is what roll-up and drill-down use.</p>
+<p class="ref">Han et al., §4.2.3 “Dimensions: The Role of Concept Hierarchies”, Figures 4.9–4.11.</p></div></details>
+
+<details id="d4-2-4"><summary>4.2.4 Measures: distributive, algebraic, holistic</summary><div class="in">
+<p>A measure is a numeric function evaluated at each point (a set of dimension–value pairs, such as ⟨Q1, Vancouver, computer⟩) by aggregating the matching data.</p>
+<ul>
+<li><b>Distributive:</b> split the data into n partitions, apply the function to each, then apply it to the n results; if this equals applying it to all the data, it is distributive. Examples: sum(), count(), min(), max().</li>
+<li><b>Algebraic:</b> computed from a bounded number M of distributive results. Examples: avg() = sum()/count(); min_N(), max_N(); standard deviation().</li>
+<li><b>Holistic:</b> no constant bound on the storage needed for a sub-aggregate. Examples: median(), mode(), rank().</li>
+</ul>
+<p>Most large cube applications need distributive and algebraic measures, which are efficient. Holistic measures are hard; approximations exist (for example the estimated median from Chapter 2, Eq. 2.3).</p>
+<p><b>Incremental computation (Exercise 4.12):</b> when new data are added, count and sum update by adding; standard deviation updates from the stored count, sum and sum of squares; the median cannot be updated from a few stored values, so all data must be revisited. Averaging averages is wrong unless the counts are carried along: avg is algebraic because it keeps sum and count.</p>
+<p class="ref">Han et al., §4.2.4 “Measures: Their Categorization and Computation”; Exercise 4.12. Notes: 14/09/26.</p></div></details>
+
+<details id="d4-2-5"><summary>4.2.5 OLAP operations, worked on the book’s data</summary><div class="in">
+<p>OLAP operations materialize different views of a cube for interactive analysis.</p>
+<ul>
+<li><b>Roll-up (drill-up):</b> aggregate by climbing a hierarchy <i>or</i> by dimension reduction (removing a dimension).</li>
+<li><b>Drill-down:</b> the reverse: step down a hierarchy <i>or</i> add a dimension.</li>
+<li><b>Slice:</b> select on <b>one</b> dimension (a sub-cube). <b>Dice:</b> select on <b>two or more</b> dimensions.</li>
+<li><b>Pivot (rotate):</b> rotate the axes of a view.</li>
+<li><b>Others:</b> drill-across (queries over more than one fact table), drill-through (down to the back-end relational tables), top-N ranking, moving averages, growth rates.</li>
+</ul>
+<p><b>Examples using Table 4.3</b> (Q1 row; $ thousands):</p>
+<div class="f">ROLL-UP location city → country (Q1):
+  USA     (Chicago + New York):  HE 854+1087 = 1941   comp 882+968 = 1850
+                                 phone 89+38 = 127    sec 623+872 = 1495
+  Canada  (Toronto + Vancouver): HE 818+605 = 1423    comp 746+825 = 1571
+                                 phone 43+14 = 57     sec 591+400 = 991
+ROLL-UP by dimension reduction (drop time), Vancouver:
+  HE 605+680+812+927 = 3024   comp 3838   phone 113   security 1993
+DRILL-DOWN time quarter → month: each Q1 cell splits into Jan, Feb, Mar
+  (needs finer data, so it comes from a lower cuboid)
+SLICE time = "Q1": the city × item table of Q1 values
+DICE (location = Toronto or Vancouver) and (time = Q1 or Q2)
+     and (item = HE or computer):
+            HE    comp
+  Toronto Q1  818   746      Toronto Q2  894  769
+  Vancouver Q1 605  825      Vancouver Q2 680  952
+PIVOT: swap rows and columns of a slice (items down the side, cities across)</div>
+<p class="ref">Han et al., §4.2.5 “Typical OLAP Operations”, Example 4.4, Figure 4.12. Notes: 10/09/26.</p></div></details>
+
+<details id="d4-2-6"><summary>4.2.6 Starnet query model</summary><div class="in">
+<p>A starnet has radial lines, one per dimension, each a concept hierarchy; each abstraction level on a line is a <b>footprint</b> (time: day, month, quarter, year). Users roll up or drill down along a line. In Figure 4.13 the dimensions are location (street, city, province_or_state, country, continent), customer, item and time.</p>
+<p class="ref">Han et al., §4.2.6 “A Starnet Query Model for Querying Multidimensional Databases”, Figure 4.13.</p></div></details>
+
+<h2 id="s43">4.3 Data warehouse design and usage</h2>
+<details id="d4-3-1"><summary>4.3.1–4.3.2 Business analysis framework and the design process</summary><div class="in">
+<p><b>Four views</b> must be considered: top-down (what the business needs), data source (what operational systems capture), data warehouse (fact and dimension tables) and business query (the end-user’s view).</p>
+<ul>
+<li><b>Top-down:</b> starts with overall planning; suits mature technology and well-understood problems.</li>
+<li><b>Bottom-up:</b> starts with experiments and prototypes; cheaper, lets you evaluate technology before big commitments.</li>
+<li><b>Combined:</b> planned and strategic, but with rapid implementation.</li>
+</ul>
+<p><b>Waterfall</b> does structured analysis at each step before the next; <b>spiral</b> makes quick, increasingly functional releases and suits data marts.</p>
+<p><b>Four design steps:</b></p>
+<ol>
+<li>Choose a <b>business process</b> (orders, shipments, inventory, sales). Organization-wide means a warehouse; departmental means a data mart.</li>
+<li>Choose the <b>grain</b>: the atomic level of data in the fact table (individual transactions, daily snapshots).</li>
+<li>Choose the <b>dimensions</b> for each fact record (time, item, customer, supplier).</li>
+<li>Choose the <b>measures</b> (numeric additive quantities such as dollars sold and units sold).</li>
+</ol>
+<p>Define the scope (budget, subsets, sources, departments), then plan deployment and administration (refresh, synchronization, disaster recovery, access control, performance).</p>
+<p class="ref">Han et al., §4.3.1 “A Business Analysis Framework for Data Warehouse Design”, §4.3.2 “Data Warehouse Design Process”; Kimball &amp; Ross, Ch. 3, “Four-Step Dimensional Design Process”. Notes: 14/09/26.</p></div></details>
+
+<details id="d4-3-3"><summary>4.3.3–4.3.4 Usage, OLAP vs data mining, and OLAM</summary><div class="in">
+<p><b>Three kinds of applications:</b></p>
+<ul>
+<li><b>Information processing:</b> querying, basic statistics, reports (crosstabs, tables, charts).</li>
+<li><b>Analytical processing:</b> OLAP operations on summarized and detailed historic data (slice and dice, drill, roll-up, pivot).</li>
+<li><b>Data mining:</b> hidden patterns and associations, classification, prediction, clustering, with visualization of results.</li>
+</ul>
+<p>Information processing is not data mining. OLAP is user-directed summarization and comparison; data mining automates discovery of implicit patterns and goes beyond OLAP (association, classification, clustering, time series, and data that does not fit a cube, such as text).</p>
+<p><b>Multidimensional data mining (OLAM, online analytical mining)</b> integrates OLAP with mining, for four reasons: (1) warehouse data are clean and integrated, saving preprocessing; (2) existing infrastructure surrounds the warehouse; (3) OLAP-based exploration lets users mine different subsets at different abstraction levels; (4) users can select and swap mining functions online. Example: roll up items to brands, or transactions to customer types, before mining associations.</p>
+<p class="ref">Han et al., §4.3.3 “Data Warehouse Usage for Information Processing”, §4.3.4 “From Online Analytical Processing to Multidimensional Data Mining”; Exercise 4.17.</p></div></details>
+
+<h2 id="s44">4.4 Data warehouse implementation</h2>
+<details id="d4-4-1"><summary>4.4.1 Cube computation, cuboid counts, and materialization</summary><div class="in">
+<p>Each group-by is a cuboid. The <b>compute cube</b> operator computes aggregates for all subsets of the listed dimensions (the n-dimensional generalization of group-by).</p>
+<div class="f">dimensions (city, item, year), measure sum(sales)  →  2³ = 8 cuboids
+{(city,item,year), (city,item), (city,year), (item,year), (city), (item), (year), ()}
+Total cuboids with hierarchies = Π (Lᵢ + 1)        (+1 for the virtual top level "all")
+10 dimensions × 5 levels (incl. all):  5¹⁰ ≈ 9.8 × 10⁶ cuboids</div>
+<p>Storage can explode: the <b>curse of dimensionality</b>. A cuboid’s size also depends on cardinalities (a city × item group-by can have |city| × |item| rows).</p>
+<ul>
+<li><b>No materialization:</b> compute non-base cuboids on the fly; slow.</li>
+<li><b>Full materialization:</b> precompute all (the full cube); needs huge storage.</li>
+<li><b>Partial materialization:</b> compute a proper subset of cuboids, or a subcube (only some cells). Choose by workload, frequencies, access costs, update cost and storage. Heuristics: materialize the cuboid on which many frequent cuboids are based; an <b>iceberg cube</b> stores only cells whose aggregate (such as count) passes a threshold; a <b>shell cube</b> precomputes cuboids on only a few dimensions (3–5).</li>
+</ul>
+<p><b>Check yourself (derived here):</b> a cube with n dimensions and exactly p distinct values per dimension (no hierarchies) has at most pⁿ base cells, and at most (p + 1)ⁿ cells in total, because each dimension can take one of p values or “all”.</p>
+<p class="ref">Han et al., §4.4.1 “Efficient Data Cube Computation: An Overview”, Example 4.6, Eq. (4.1); Gray et al. (1997), the CUBE operator, and Harinarayan et al. (1996), cuboid selection, as cited in the book. Notes: 14/09/26, 15/09/26.</p></div></details>
+
+<details id="d4-4-2"><summary>4.4.2 Bitmap and join indexes</summary><div class="in">
+<p><b>Bitmap index:</b> for an attribute with n distinct values, keep n bit vectors; a row’s bit in vector v is 1 if the row has value v. Comparison, join and aggregation become <b>bit arithmetic</b>, saving time, space and I/O. It is best for <b>low-cardinality</b> attributes (compression adapts it to high cardinality) and beats hash and tree indices there.</p>
+<div class="f">Base table: R1 H V | R2 C V | R3 P V | R4 S V | R5 H T | R6 C T | R7 P T | R8 S T
+item index   H C P S :  R1 1000  R2 0100  R3 0010  R4 0001  R5 1000  R6 0100  R7 0010  R8 0001
+city index   V T     :  R1–R4 = 10, R5–R8 = 01
+Query item = C AND city = T :  (C column 01000100) AND (T column 00001111) = 00000100 → R6</div>
+<p>Sizing example: a cube stored as 100,000 rows with four item values needs four bit vectors of 100,000 bits.</p>
+<p><b>Join index:</b> records pairs of joinable row IDs (RID, SID) from two relations, avoiding costly joins. In a star schema it links a dimension value to the fact rows that match it. Example 4.8: “Main Street” joins fact tuples T57, T238, T884; “Sony-TV” joins T57 and T459; a composite join index on (Main Street, Sony-TV) gives T57. <b>Bitmapped join indices</b> combine both methods.</p>
+<p class="ref">Han et al., §4.4.2 “Indexing OLAP Data: Bitmap Index and Join Index”, Examples 4.7–4.8, Figures 4.15–4.17. Notes: 15/09/26.</p></div></details>
+
+<details id="d4-4-3"><summary>4.4.3 Processing OLAP queries (choosing a cuboid)</summary><div class="in">
+<p>Steps: (1) translate selection, projection, roll-up and drill-down into operations on available cuboids; (2) pick the materialized cuboid(s) that can answer the query, prune using dominance, estimate costs, and take the cheapest.</p>
+<p><b>Example 4.9:</b> query on {brand, province_or_state} with year = 2010. Materialized cuboids: (1) {year, item_name, city}; (2) {year, brand, country}; (3) {year, brand, province_or_state}; (4) {item_name, province_or_state} where year = 2010.</p>
+<ul>
+<li><b>Cuboid 2 is unusable:</b> country is more general than province_or_state, and finer data cannot be built from coarser data.</li>
+<li>Cuboids 1, 3 and 4 qualify: same or more dimensions, the selection can be implied, and item and location are at a finer or equal level.</li>
+<li>Cuboid 1 is likely the costliest (both dimensions far finer than needed). Cuboid 3 is usually smaller than 4, so it is chosen, unless efficient indices on cuboid 4 make it cheaper. A cost estimate decides.</li>
+</ul>
+<p class="ref">Han et al., §4.4.3 “Efficient Processing of OLAP Queries”, Example 4.9.</p></div></details>
+
+<details id="d4-4-4"><summary>4.4.4 ROLAP, MOLAP, HOLAP and specialized SQL servers</summary><div class="in">
+<div class="tw"><table>
+<tr><th></th><th>ROLAP</th><th>MOLAP</th><th>HOLAP</th></tr>
+<tr><td>Storage</td><td>Relational tables (base and summary fact tables)</td><td>Array-based multidimensional storage</td><td>Detail in relational, aggregates in a MOLAP store</td></tr>
+<tr><td>Speed</td><td>Slower; relies on optimization and indexes</td><td>Fast indexing into precomputed summaries</td><td>Faster than ROLAP for aggregates</td></tr>
+<tr><td>Scalability</td><td>Greater</td><td>Lower; sparse data waste space (use sparse-matrix compression, two-level dense/sparse storage)</td><td>Benefits of both</td></tr>
+<tr><td>Examples in book</td><td>MicroStrategy DSS server</td><td>Array engines</td><td>Microsoft SQL Server 2000</td></tr>
+</table></div>
+<p><b>Specialized SQL servers</b> provide advanced query support over star and snowflake schemas in a read-only environment.</p>
+<p><b>Example 4.10, ROLAP storage:</b> one summary fact table can hold both base and aggregated rows; the special value <b>all</b> marks a subtotal.</p>
+<div class="f">RID   item  day month quarter year  dollars_sold
+1001  TV     15   10    Q4     2010     250.60   (base: Oct 15, 2010)
+1002  TV     23   10    Q4     2010     175.00   (base: Oct 23, 2010)
+5001  TV    all   10    Q4     2010   45,786.08  (aggregate: all of October 2010)</div>
+<p class="ref">Han et al., §4.4.4 “OLAP Server Architectures: ROLAP versus MOLAP versus HOLAP”, Example 4.10, Table 4.4. Notes: 10/09/26.</p></div></details>
+
+<details id="d4-5"><summary>4.5 Attribute-oriented induction (summary only)</summary><div class="in">
+<p>Data generalization abstracts a large set of task-relevant data from low to higher conceptual levels, by <b>data cube aggregation</b> or by <b>attribute-oriented induction (AOI)</b>. Concept description has two forms: <b>characterization</b> (summarize a target class) and <b>comparison/discrimination</b> (distinguish the target class from contrasting classes). AOI techniques: data focusing, attribute removal or attribute generalization, count and aggregate accumulation, generalization control, and visualization. Ask me if your course covers this and I will expand it.</p>
+<p class="ref">Han et al., §4.5 “Data Generalization by Attribute-Oriented Induction” (§4.5.1–§4.5.3) and §4.6 “Summary”.</p></div></details>
+
+<h2 id="prac">Practice and exam toolkit</h2>
+<details id="d-exercises"><summary>Worked: Exercise 4.3 (hospital warehouse) and 4.4(b)</summary><div class="in">
+<p><b>4.3.</b> Dimensions time, doctor, patient; measures count and charge.</p>
+<div class="f">(a) three schema classes: star, snowflake, fact constellation
+(b) star schema:
+    fee_fact(time_key, doctor_key, patient_key, count, charge)
+    time(time_key, day, month, quarter, year)
+    doctor(doctor_key, name, specialty, hospital)
+    patient(patient_key, name, age, gender)
+(c) from base cuboid [day, doctor, patient], total fee per doctor in 2010:
+    1. roll-up time: day → month → quarter → year
+    2. slice (or dice) year = 2010
+    3. roll-up patient to all (dimension reduction)
+    result: doctor × total charge
+(d) SELECT doctor, SUM(charge) FROM fee WHERE year = 2010 GROUP BY doctor;</div>
+<p><b>4.4(b).</b> Average grade of CS courses for each student: dice or slice on course department = CS; roll up instructor and semester to all; roll up course to department; result: student × average grade. Averaging stored averages is only correct if the counts are kept and weighted (avg is algebraic).</p>
+<p class="ref">Han et al., Ch. 4 Exercises 4.3 and 4.4.</p></div></details>
+
+<details id="d-pastpaper"><summary>Mapping to past-paper questions</summary><div class="in">
+<div class="tw"><table>
+<tr><th>Past-paper question</th><th>Use this section</th></tr>
+<tr><td>Why a separate warehouse; warehouse vs database</td><td>4.1.2–4.1.3</td></tr>
+<tr><td>Recommended approach (Walton, Samsung); three-tier (Tesla)</td><td>4.1.4–4.1.5</td></tr>
+<tr><td>Back-end tools and utilities</td><td>4.1.6</td></tr>
+<tr><td>Choose and draw a schema</td><td>4.2.2 (decision rule)</td></tr>
+<tr><td>Measure categories</td><td>4.2.4</td></tr>
+<tr><td>Roll-up, drill-down, slice, rotate</td><td>4.2.5</td></tr>
+<tr><td>Number of cuboids; lattice, apex, base</td><td>4.2.1, 4.4.1</td></tr>
+<tr><td>Materialization types</td><td>4.4.1</td></tr>
+<tr><td>Bitmap index and alternatives</td><td>4.4.2</td></tr>
+<tr><td>MOLAP vs ROLAP</td><td>4.4.4</td></tr>
+</table></div>
+<p class="deep">Solved past-paper answers: <a href="../dwm-solves.html#a10">Number of cuboids</a> · <a href="../dwm-solves.html#a11">Lattice</a> · <a href="../dwm-solves.html#a12">OLAP operations</a> · <a href="../dwm-solves.html#a13">Schema design</a> · <a href="../dwm-solves.html#b6">Warehouse vs DB</a> · <a href="../dwm-solves.html#b7">MOLAP vs ROLAP</a> · <a href="../dwm-solves.html#b8">ETL tools</a> · <a href="../dwm-solves.html#b9">Recommended approach</a> · <a href="../dwm-solves.html#b10">Bitmap index</a> · <a href="../dwm-solves.html#b11">Materialization</a> · <a href="../dwm-solves.html#b12">Measures</a>. All of them: <a href="../dwm-solves.html">dwm-solves page</a>.</p></div></details>
+
+<details id="d-mistakes"><summary>Common mistakes and formula sheet</summary><div class="in">
+<ul>
+<li>Forgetting the +1 for “all” in Π(Lᵢ + 1), or counting “all” as a real level in Lᵢ.</li>
+<li>Mixing up slice (one dimension) and dice (two or more).</li>
+<li>Calling roll-up and drill-up different things: they are the same operation.</li>
+<li>Saying a warehouse needs concurrency control and recovery; it does not.</li>
+<li>Choosing snowflake “for speed”: it saves space but needs more joins.</li>
+<li>Treating the median as algebraic: it is holistic.</li>
+<li>Drawing a schema without foreign keys and measures in the fact table.</li>
+</ul>
+<div class="f">cuboids (no hierarchy) = 2ⁿ        cuboids (hierarchies) = Π (Lᵢ + 1)
+max cells, n dims, p values each = (p + 1)ⁿ    (base cells ≤ pⁿ)
+avg = sum / count (algebraic)    median, mode, rank = holistic
+bitmap index: n distinct values → n bit vectors, one bit per row each</div></div></details>
+
+<h2 id="refs">References</h2>
+<ul>
+<li>Han, J., Kamber, M., &amp; Pei, J. <em>Data Mining: Concepts and Techniques</em>, 3rd ed., Morgan Kaufmann, 2012. Ch. 4 “Data Warehousing and Online Analytical Processing”, §4.1–§4.6 and Exercises 4.1–4.17 (pp. 125–184). Chapter 5 (cube computation in depth) is outside your syllabus.</li>
+<li>Kimball, R., &amp; Ross, M. <em>The Data Warehouse Toolkit: The Definitive Guide to Dimensional Modeling</em>, 3rd ed., Wiley, 2013. Ch. 1 “Data Warehousing, Business Intelligence, and Dimensional Modeling Primer”; Ch. 3 “Retail Sales” (four-step design process and star schema); Ch. 4 “Inventory” (bus architecture and conformed dimensions, for data marts that must integrate).</li>
+<li>Inmon, W. H. <em>Building the Data Warehouse</em> (1996), the source of the four-feature definition as cited in the book.</li>
+<li>Papers named in the book’s bibliographic notes: Chaudhuri &amp; Dayal (1997) on data warehousing and OLAP technology; Gray et al. (1997) on the CUBE operator; Harinarayan, Rajaraman &amp; Ullman (1996) on selecting cuboids to materialize.</li>
+</ul>
+<div class="pager"><a class="btn" href="ch3.html">&larr; Chapter 3</a><a class="btn" href="../dwm-summary.html">Summary</a><a class="btn" href="../dwm-solves.html">Solved past papers</a><a class="btn" href="ch6.html">Chapter 6 &rarr;</a></div>
+</main>
+<script>
+(function(){
+  var b=document.getElementById('all'),d=document.querySelectorAll('details'),open=false;
+  b.addEventListener('click',function(){
+    open=!open;
+    for(var i=0;i<d.length;i++){d[i].open=open;}
+    b.textContent=open?'Collapse all':'Expand all';
+  });
+})();
+
+(function(){
+  function openHash(){
+    var h=location.hash.slice(1); if(!h) return;
+    var e=document.getElementById(h); if(!e) return;
+    var d=(e.tagName==='DETAILS')?e:e.closest('details'); if(d) d.open=true;
+    e.scrollIntoView();
+  }
+  window.addEventListener('hashchange',openHash); openHash();
+})();
+</script>
+</body>
+</html>
