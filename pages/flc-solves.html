@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSE4129 Past-Paper Solutions</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="/" aria-label="Back to home page">← Back</a><b>CSE4129 · past-paper solutions</b></div>
+<nav><a href="#freq">Frequency</a><a href="#q1">Q1 Theory</a><a href="#q2">Q2 Parsing</a><a href="#q3">Q3 Automata</a><a href="#q4">Q4 Design</a></nav>
+</header>
+<main>
+<h1>Past-Paper Solutions (Spring 2023 – Spring 2025)</h1>
+<p class="lead">Worked answers to the questions in your five papers (Sp = Spring, Fa = Fall). Methods follow your slides; where the slides don’t cover a topic (LR parsing, three-address-code forms) the answer is marked <b>[book]</b> and cites the Dragon Book (Aho, Lam, Sethi, Ullman, <i>Compilers: Principles, Techniques, and Tools</i>, 2nd ed.). Grammar primes are written E′.</p>
+
+<section id="freq">
+<h2>What keeps repeating</h2>
+<div class="scroll"><table>
+<tr><th>Topic</th><th>Papers</th><th>Where answered</th></tr>
+<tr><td>LR(0) automaton for E→E+T|T, T→T*F|F, F→(E)|id</td><td>Sp25, Sp24 (+similar Fa24, Fa23)</td><td>Q2</td></tr>
+<tr><td>LL(1): FIRST/FOLLOW, table, trace</td><td>all five</td><td>Q2</td></tr>
+<tr><td>CNF / CFG simplification</td><td>all five</td><td>Q2</td></tr>
+<tr><td>ε-NFA → DFA, DFA minimization</td><td>all five</td><td>Q3</td></tr>
+<tr><td>Make grammar top-down suitable</td><td>all five</td><td>Q3</td></tr>
+<tr><td>Lexical analysis of a code snippet</td><td>Sp25, Fa24, Sp24</td><td>Q3</td></tr>
+<tr><td>SDD / 3-address code for <code>a := b*-c + b*-c</code></td><td>Sp25, Fa24, Sp24</td><td>Q4</td></tr>
+<tr><td>Regex, DFA-from-regex, PDA, CFG design</td><td>all five</td><td>Q4</td></tr>
+<tr><td>Ambiguity, error recovery, compiler block diagram, shift-reduce conflicts</td><td>3+ papers each</td><td>Q1</td></tr>
+</table></div>
+</section>
+
+<section id="q1">
+<h2>Question 1: short theory answers</h2>
+
+<h3>Language processing system <span class="w">Sp25</span></h3>
+<p>Source (high-level) → <b>preprocessor</b> (macros, file inclusion) → <b>compiler</b> (to assembly) → <b>assembler</b> (to relocatable object code) → <b>linker</b> (merges object files, resolves external references) → <b>loader</b> (loads the executable into memory, sets registers, starts execution). An <b>interpreter</b> instead translates and runs one statement at a time. Cross-compilers target a different platform; source-to-source compilers emit another high-level language.</p>
+<p><b>Linker and loader; why relocatable code</b> <span class="w">Sp24</span>: the assembler cannot know final memory addresses or where other modules live, so it emits relocatable code with relative addresses. The linker combines modules and fixes references; the loader assigns actual addresses.</p>
+
+<h3>Block diagram and components of a compiler <span class="w">Fa24, Sp24, Sp23</span></h3>
+<pre>chars → Lexical → tokens → Syntax → parse tree → Semantic (SDT) → annotated tree
+      → Intermediate code gen → 3-address code → Optimizer → Code generator → target
+      (Symbol table + Error handler interact with every phase)</pre>
+<ul>
+<li><b>Lexical:</b> groups characters into lexemes/tokens (RE → NFA → DFA, tool FLEX), removes whitespace and comments.</li>
+<li><b>Syntax:</b> checks tokens against a CFG, builds parse tree (LL, LR parsers; tool Bison).</li>
+<li><b>Semantic:</b> type checking, scope resolution; attaches attributes (SDT).</li>
+<li><b>Intermediate code:</b> machine-independent 3-address code. <b>Optimizer:</b> faster/smaller code, same meaning. <b>Code generator:</b> target code, register allocation, instruction selection.</li>
+<li>Front end = analysis (lexical, syntax, semantic); back end = synthesis (optimization, code generation). <b>Analysis phase</b> <span class="w">Fa23</span> reads the source, splits it into tokens, builds an intermediate representation and the symbol table, and reports syntax and semantic errors.</li>
+</ul>
+
+<h3>Intermediate code, 3-address code and portability <span class="w">Sp25, Fa24</span> <b>[book]</b></h3>
+<p>Intermediate code sits between source and machine code so that one front end can serve many back ends (N languages + M machines instead of N×M compilers). Three-address code has at most one operator on the right (<code>t1 = b * c</code>), uses compiler-made temporaries, and is machine-independent, so only the code generator is rewritten per architecture, and the optimizer works once on the IR. <b>Representations</b> (Dragon Book §6.2.2): <b>quadruples</b> (op, arg1, arg2, result): easy to reorder, so good for optimization, but more space; <b>triples</b> (op, arg1, arg2), compact but results are referenced by position, so moving code is hard; <b>indirect triples</b> (a list of pointers to triples): reordering is cheap, at the cost of an extra indirection.</p>
+
+<h3>Lexical errors and recovery <span class="w">Sp25</span></h3>
+<p>A lexical error is a character sequence matching no token pattern (illegal character, misspelled keyword/identifier, e.g. <code>@var</code>). The lexer reports it with line number, then recovers by: (1) <b>panic mode</b>: delete successive characters until a valid token starts (<code>int x@@ = 5;</code> drops <code>@@</code>); (2) <b>delete/insert/replace one character</b> or <b>transpose two adjacent characters</b> (<code>whlie</code> → <code>while</code>) to form a valid token.</p>
+
+<h3>Parser error-recovery strategies <span class="w">Fa24, Sp23</span></h3>
+<div class="scroll"><table>
+<tr><th>Strategy</th><th>How</th><th>Pros / cons</th></tr>
+<tr><td>Panic mode</td><td>Skip tokens until a synchronizing token (<code>;</code>, <code>}</code>)</td><td>Simple, never loops; may skip a lot of input</td></tr>
+<tr><td>Phrase-level</td><td>Local fix, e.g. insert a missing <code>;</code></td><td>Good for small errors; risk of infinite loops</td></tr>
+<tr><td>Error productions</td><td>Add rules for common mistakes to the grammar</td><td>Good messages; grammar becomes hard to maintain</td></tr>
+<tr><td>Global correction</td><td>Find the closest error-free program (fewest edits)</td><td>Ideal, but too costly in time and space to implement</td></tr>
+</table></div>
+
+<h3>SDT, synthesized vs inherited attributes <span class="w">Sp25</span></h3>
+<p>Syntax-directed translation augments the grammar with attributes and semantic rules/actions run as productions are reduced; the result is an annotated parse tree (CFG + semantic rules = SDD). A <b>synthesized</b> attribute is computed from the children (S→ABC: S gets values from A, B, C), as in <code>E → E+T { E.val = E.val + T.val }</code>; S-attributed SDTs use only these (bottom-up). An <b>inherited</b> attribute is taken from the parent and/or siblings (e.g. the type passed down in a declaration <code>T L</code> to each identifier in L); L-attributed SDTs may use inherited attributes from the parent and left siblings only (top-down).</p>
+
+<h3>Ambiguity <span class="w">Sp25, Fa23, Sp23</span></h3>
+<p>A grammar is <b>ambiguous</b> if some string has two parse trees (equivalently, two leftmost or two rightmost derivations). Example: <code>E → E+E | E*E | id</code> on <code>id+id*id</code> gives two trees (+ at the root, or * at the root). <b>Unambiguous</b> version: <code>E → E+T | T; T → T*F | F; F → (E) | id</code>, one tree only, with * binding tighter. <b>Problem:</b> the parse tree determines meaning, so the same program could evaluate differently, and top-down parsers cannot choose a production. <b>Removal:</b> (1) disambiguating rules (precedence and associativity) without changing the grammar, or (2) rewrite the grammar with one non-terminal per precedence level. (Dangling else needs matching each <code>else</code> with the nearest <code>then</code>.)</p>
+
+<h3>Parsing phase, algorithms, top-down vs bottom-up <span class="w">Sp25, Fa24, Fa23</span></h3>
+<p>The parser takes tokens from the lexer, checks that they are generated by the CFG, builds the parse tree/AST, reports and recovers from syntax errors. It cannot catch re-declarations, uninitialized use or type mismatch (semantic phase). <b>Top-down</b> (recursive descent with backtracking, predictive LL(1)): builds the tree from the start symbol using leftmost derivation; easy to write by hand, but needs no left recursion or left factoring and handles a smaller grammar class. <b>Bottom-up</b> (shift-reduce: LR(0), SLR, LALR, canonical LR): builds from the leaves, reducing to the start symbol (reverse rightmost derivation); handles larger grammar classes and left recursion, so it is the one used in real tools such as Bison, but tables are large and hard to build by hand. <b>[book]</b> Dragon Book §4.4–4.5.</p>
+
+<h3>Shift-reduce conflicts <span class="w">Sp24, Sp23</span> <b>[book]</b></h3>
+<p>A shift-reduce parser shifts input onto a stack and reduces a handle to a non-terminal. <b>Shift/reduce conflict:</b> a state can either shift the next token or reduce. <b>Reduce/reduce conflict:</b> two different reductions apply. Causes: ambiguous grammar, or lookahead too weak (LR(0) uses none). Example: in LR(0) for <code>E → T | T*F …</code> the state {E→T•, T→T•*F} has both reduce and shift on <code>*</code>. SLR fixes it by reducing only on FOLLOW(E) = {$, +, )}. Reduce/reduce: state with <code>A→d•</code> and <code>B→d•</code>.</p>
+
+<h3>LL(1) grammars and the table algorithm <span class="w">Sp24, Fa23</span></h3>
+<p><b>Conditions:</b> no left recursion, no left factoring, unambiguous; for each A→α|β: FIRST(α)∩FIRST(β)=∅; at most one alternative derives ε, and if β⇒*ε then FIRST(α)∩FOLLOW(A)=∅. <b>Algorithm:</b> compute FIRST and FOLLOW; for each A→α put it in M[A,a] for a∈FIRST(α); if ε∈FIRST(α), put it in M[A,b] for each b∈FOLLOW(A). A cell with two entries means the grammar is not LL(1); the fix is rewriting (remove left recursion/factoring) or using a stronger parser. Impact: the table makes each step a lookup, so no backtracking, giving linear-time predictive parsing.</p>
+
+<h3>SLR table steps <span class="w">Sp24</span> <b>[book]</b></h3>
+<ol><li>Augment the grammar (S′→S). 2. Build the canonical LR(0) item sets with closure and goto. 3. Shift: if item A→α•aβ in I<sub>i</sub> and goto(I<sub>i</sub>,a)=I<sub>j</sub>, ACTION[i,a]=shift j. 4. Reduce: if A→α• in I<sub>i</sub>, ACTION[i,a]=reduce A→α for every a∈FOLLOW(A). 5. S′→S• gives accept on $. 6. goto(I<sub>i</sub>,A)=I<sub>j</sub> fills GOTO. 7. Empty cells are errors; any multiple entry means the grammar is not SLR.</li></ol>
+
+<h3>Formal definitions: DFA, NFA, ε-NFA, PDA <span class="w">Sp25; extended δ: Fa24, Fa23</span></h3>
+<ul>
+<li><b>DFA</b> (Q,Σ,δ,q₀,F), δ:Q×Σ→Q. Example: strings ending in 01 (3 states). + Simple, fast, easy to implement as a table; − can be large, harder to design.</li>
+<li><b>NFA</b> same tuple with δ:Q×Σ→2<sup>Q</sup>; accepts if some path ends in F. Example: ends in 01 with 3 states. + Easy to design and small; − must be simulated or converted (up to 2ⁿ DFA states).</li>
+<li><b>ε-NFA</b> δ:Q×(Σ∪{ε})→2<sup>Q</sup>; ε-moves need no input; uses ECLOSE. + Easiest to build from regular expressions (union, concatenation, star); − needs ε-closure computation.</li>
+<li><b>PDA</b> (Q,Σ,Γ,δ,q₀,Z,F): finite control plus a stack. Example: aⁿbⁿ. + Recognizes all context-free languages (nesting, balanced brackets) that finite automata cannot; − nondeterministic PDA are more powerful than DPDA, and parsing is costlier. Also not enough for context-sensitive structure.</li>
+<li><b>Extended transition function:</b> DFA: δ̂(q,ε)=q, δ̂(q,xa)=δ(δ̂(q,x),a). NFA: δ̂(q,xa)=∪ δ(p,a) over p∈δ̂(q,x). Language: DFA δ̂(q₀,w)∈F; NFA δ̂(q₀,w)∩F≠∅. Example for the NFA ending in 01: δ̂(q₀,101) = {q₀,q₁} then {q₀,q₂} contains q₂ → accept.</li>
+</ul>
+
+<h3>Other short ones</h3>
+<ul>
+<li><b>CFG</b> <span class="w">Sp24</span>: G=(V,T,P,S); called <i>context-free</i> because the left side of every production is a single variable, so replacing it never depends on its surrounding context.</li>
+<li><b>Natural vs formal language</b> <span class="w">Fa24, Fa23</span>: natural languages evolve and are ambiguous (“I saw the man with the telescope”); formal languages are strictly defined by a grammar, so every compiler phase can decide validity mechanically. Example: <code>a+b*c</code> must have exactly one meaning. Formal languages specify tokens (regular expressions) and syntax (CFG).</li>
+<li><b>Symbol, alphabet, string</b> <span class="w">Fa24</span>: symbol = undefined atom; alphabet Σ = finite non-empty set of symbols ({0,1}); string = finite sequence of symbols over Σ (<code>0110</code>, ε); language = subset of Σ*.</li>
+<li><b>Left recursion elimination</b> <span class="w">Sp23</span>: <code>A → Aα | β</code> becomes <code>A → βA′; A′ → αA′ | ε</code>. Example <code>E → E+T | T</code> becomes <code>E → TE′; E′ → +TE′ | ε</code>.</li>
+<li><b>DFA in compiler design</b> <span class="w">Sp23</span>: the lexer is a DFA (from the token REs): e.g. identifier <code>letter(letter|digit)*</code> as states start → in-id (accepting, loops on letter/digit).</li>
+<li><b>Lexical analysis illustrated</b> <span class="w">Sp23</span>: see Q3 (lexical analysis of a code snippet).</li>
+</ul>
+</section>
+
+<section id="q2">
+<h2>Question 2: parsing and grammars</h2>
+
+<h3>LR(0) automaton: E→E+T|T, T→T*F|F, F→(E)|id <span class="w">Sp25, Sp24</span> <b>[book]</b></h3>
+<p>Augment with <code>E′→E</code>. Productions: 1 E→E+T, 2 E→T, 3 T→T*F, 4 T→F, 5 F→(E), 6 F→id.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Items</th><th>Transitions</th></tr>
+<tr><td>I0</td><td>E′→•E, E→•E+T, E→•T, T→•T*F, T→•F, F→•(E), F→•id</td><td>E:I1 T:I2 F:I3 (:I4 id:I5</td></tr>
+<tr><td>I1</td><td>E′→E•, E→E•+T</td><td>+:I6 (accept on $)</td></tr>
+<tr><td>I2</td><td>E→T•, T→T•*F</td><td>*:I7</td></tr>
+<tr><td>I3</td><td>T→F•</td><td>reduce 4</td></tr>
+<tr><td>I4</td><td>F→(•E) + closure of E (as I0)</td><td>E:I8 T:I2 F:I3 (:I4 id:I5</td></tr>
+<tr><td>I5</td><td>F→id•</td><td>reduce 6</td></tr>
+<tr><td>I6</td><td>E→E+•T, T→•T*F, T→•F, F→•(E), F→•id</td><td>T:I9 F:I3 (:I4 id:I5</td></tr>
+<tr><td>I7</td><td>T→T*•F, F→•(E), F→•id</td><td>F:I10 (:I4 id:I5</td></tr>
+<tr><td>I8</td><td>F→(E•), E→E•+T</td><td>):I11 +:I6</td></tr>
+<tr><td>I9</td><td>E→E+T•, T→T•*F</td><td>*:I7</td></tr>
+<tr><td>I10 / I11</td><td>T→T*F• / F→(E)•</td><td>reduce 3 / reduce 5</td></tr>
+</table></div>
+<p><b>Conflicts:</b> in plain LR(0) a reduce item fills the whole row, so <b>I2</b> (reduce E→T vs shift <code>*</code>) and <b>I9</b> (reduce E→E+T vs shift <code>*</code>) are <b>shift/reduce conflicts</b>; the grammar is not LR(0). With SLR(1), reduce only on FOLLOW(E)={$,+,)}, which excludes <code>*</code>, so the conflicts disappear. SLR table (s=shift, r=reduce):</p>
+<div class="scroll"><table>
+<tr><th>St</th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th><th>E</th><th>T</th><th>F</th></tr>
+<tr><td>0</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
+<tr><td>1</td><td></td><td>s6</td><td></td><td></td><td></td><td>acc</td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td></td><td>r2</td><td>s7</td><td></td><td>r2</td><td>r2</td><td></td><td></td><td></td></tr>
+<tr><td>3</td><td></td><td>r4</td><td>r4</td><td></td><td>r4</td><td>r4</td><td></td><td></td><td></td></tr>
+<tr><td>4</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td>8</td><td>2</td><td>3</td></tr>
+<tr><td>5</td><td></td><td>r6</td><td>r6</td><td></td><td>r6</td><td>r6</td><td></td><td></td><td></td></tr>
+<tr><td>6</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td></td><td>9</td><td>3</td></tr>
+<tr><td>7</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td></td><td></td><td>10</td></tr>
+<tr><td>8</td><td></td><td>s6</td><td></td><td></td><td>s11</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>9</td><td></td><td>r1</td><td>s7</td><td></td><td>r1</td><td>r1</td><td></td><td></td><td></td></tr>
+<tr><td>10</td><td></td><td>r3</td><td>r3</td><td></td><td>r3</td><td>r3</td><td></td><td></td><td></td></tr>
+<tr><td>11</td><td></td><td>r5</td><td>r5</td><td></td><td>r5</td><td>r5</td><td></td><td></td><td></td></tr>
+</table></div>
+<p><b>LR moves on <code>id+id</code> (Fa23 table, same as above):</b></p>
+<pre>stack            input    action
+0                id+id$   s5
+0 id 5           +id$     r6 (F→id), goto(0,F)=3
+0 F 3            +id$     r4, goto(0,T)=2
+0 T 2            +id$     r2, goto(0,E)=1
+0 E 1            +id$     s6
+0 E 1 + 6        id$      s5
+0 E 1 + 6 id 5   $        r6, goto(6,F)=3
+0 E 1 + 6 F 3    $        r4, goto(6,T)=9
+0 E 1 + 6 T 9    $        r1 (E→E+T), goto(0,E)=1
+0 E 1            $        accept</pre>
+
+<h3>LR(0) automaton: S→AA, A→aA|b <span class="w">Fa23</span> and moves for <code>baab</code> <span class="w">Sp23 style</span></h3>
+<p>I0: S′→•S, S→•AA, A→•aA, A→•b · I1 (S): S′→S• · I2 (A): S→A•A, A→•aA, A→•b · I3 (a): A→a•A, A→•aA, A→•b · I4 (b): A→b• · I5 (I2,A): S→AA• · I6 (I3,A): A→aA•. Edges: I0 S→1, A→2, a→3, b→4; I2 A→5, a→3, b→4; I3 A→6, a→3, b→4. No conflicts. Moves: <code>0 b4</code> r3 → <code>0A2</code>; a,a: <code>0A2a3a3</code>; b: <code>…b4</code>; r3 → <code>0A2a3a3A6</code>; r2 → <code>0A2a3A6</code>; r2 → <code>0A2A5</code>; r1 (S→AA) → <code>0S1</code>; accept.</p>
+
+<h3>LR(0) for S→Aa|bAc|Bc|bBa, A→d, B→d <span class="w">Fa24</span></h3>
+<p>I0: S′→•S, S→•Aa|•bAc|•Bc|•bBa, A→•d, B→•d · I1 S: S′→S• · I2 A: S→A•a · I3 b: S→b•Ac, S→b•Ba, A→•d, B→•d · I4 B: S→B•c · I5 d (from I0): A→d•, B→d• · I6 (I2,a): S→Aa• · I7 (I3,A): S→bA•c · I8 (I3,B): S→bB•a · I9 (I3,d): A→d•, B→d• · I10 (I4,c): S→Bc• · I11 (I7,c): S→bAc• · I12 (I8,a): S→bBa•.<br><b>Conflict:</b> I5 and I9 contain two complete items, so a <b>reduce/reduce conflict</b> (A→d• vs B→d•). SLR does not help (FOLLOW(A)=FOLLOW(B)={a,c}); the grammar needs LR(1).</p>
+
+<h3>LL(1) for E→T+E|T, T→id|id*T|(E) <span class="w">Sp25</span></h3>
+<p><b>Not LL(1):</b> E→T+E|T share the prefix T, and T→id|id*T share <code>id</code> (left factoring needed; no left recursion). Factored: <code>E→TE′; E′→+E|ε; T→idT′|(E); T′→*T|ε</code>.</p>
+<div class="scroll"><table>
+<tr><th></th><th>FIRST</th><th>FOLLOW</th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th></tr>
+<tr><td>E</td><td>{id,(}</td><td>{$,)}</td><td>TE′</td><td></td><td></td><td>TE′</td><td></td><td></td></tr>
+<tr><td>E′</td><td>{+,ε}</td><td>{$,)}</td><td></td><td>+E</td><td></td><td></td><td>ε</td><td>ε</td></tr>
+<tr><td>T</td><td>{id,(}</td><td>{+,$,)}</td><td>idT′</td><td></td><td></td><td>(E)</td><td></td><td></td></tr>
+<tr><td>T′</td><td>{*,ε}</td><td>{+,$,)}</td><td></td><td>ε</td><td>*T</td><td></td><td>ε</td><td>ε</td></tr>
+</table></div>
+<p>Moves on <code>id*(id+id)$</code> (stack top on the left): <code>E$</code> → E→TE′ → T→idT′ → match id → T′→*T → match * → T→(E) → match ( → E→TE′ → T→idT′ → match id → T′→ε → E′→+E → match + → E→TE′ → T→idT′ → match id → T′→ε → E′→ε → match ) → E′→ε (input $) → <b>accept</b>.</p>
+
+<h3>LL(1) for S→AcBd, A→bA|ε, B→cBd|a, input <code>bccadd</code> <span class="w">Sp24</span></h3>
+<p>FIRST(A)={b,ε}, FIRST(B)={c,a}, FIRST(S)={b,c}. FOLLOW(S)={$}, FOLLOW(A)={c}, FOLLOW(B)={d}. Table: M[S,b]=M[S,c]=S→AcBd; M[A,b]=A→bA; M[A,c]=A→ε; M[B,c]=B→cBd; M[B,a]=B→a. Moves: S→AcBd; A→bA; match b; A→ε; match c; B→cBd; match c; B→a; match a; match d; match d; <b>accept</b>.</p>
+
+<h3>LL(1) for E→TE′ grammar <span class="w">Sp23</span></h3>
+<p>Identical to the worked FIRST/FOLLOW/table/trace for <code>id+id*id</code> on the lecture slides (FIRST(E)={(,id}, FOLLOW(E)={$,)}, FOLLOW(T)={+,$,)}, FOLLOW(F)={*,+,$,)}). The trace is: E→TE′, T→FT′, F→id, match id, T′→ε, E′→+TE′, match +, T→FT′, F→id, match id, T′→*FT′, match *, F→id, match id, T′→ε, E′→ε, accept.</p>
+<p>For Fa23’s grammar (the scan is blurry; I read it as <code>S→A$, A→BC, B→b|ε, C→a</code>, input <code>ba</code>): FIRST(A)={b,a}, FIRST(B)={b,ε}, FIRST(C)={a}; the table gives A→BC on b,a; B→b on b; B→ε on a; C→a on a. Moves: A→BC; B→b; match b; C→a; match a; accept.</p>
+
+<h3>CNF: S→a|aA|B, A→aBB|ε, B→Aa|b <span class="w">Sp25</span></h3>
+<ol>
+<li><b>Remove ε:</b> nullable = {A}. B→Aa|a|b; A→aBB; S→a|aA|B (S is not nullable).</li>
+<li><b>Remove unit S→B:</b> S→a|aA|Aa|b.</li>
+<li><b>Terminals in mixed bodies:</b> X→a.</li>
+<li><b>Break long bodies:</b> A→aBB becomes A→XC, C→BB.</li>
+</ol>
+<p><b>CNF:</b> <code>S→a|b|XA|AX; A→XC; C→BB; B→AX|a|b; X→a</code>.</p>
+
+<h3>CFG simplification: S→ASA|aB, A→B|S, B→b|ε <span class="w">Sp24</span></h3>
+<p>Nullable: B, then A (A→B); S is not. Removing ε: S→ASA|SA|AS|S|aB|a; A→B|S; B→b. Drop S→S. Unit A→B gives A→b; unit A→S gives A→ASA|SA|AS|aB|a. Result: <code>S→ASA|SA|AS|aB|a; A→ASA|SA|AS|aB|a|b; B→b</code>. All symbols generating and reachable. (Order: ε, unit, useless; as on the slides.)</p>
+
+<div class="tip">Method for any simplification question: nullable set → ε-removal → unit removal → non-generating → non-reachable → (CNF steps). Show each intermediate grammar.</div>
+</section>
+
+<section id="q3">
+<h2>Question 3: automata, grammars, lexical analysis</h2>
+
+<h3>ε-NFA → DFA <span class="w">Fa24, Sp24, Sp23, Fa23</span></h3>
+<p>Method: ECLOSE(start) is the DFA start; for each DFA state S and symbol a, <code>ECLOSE(∪ δ(p,a))</code>; final if it contains an NFA final state.</p>
+<ul>
+<li><b>Fa24</b> (q₀ε→q₁,q₂; q₁–0→q₃; q₂–1→q₃; q₃–1→q₄ final): A={q₀,q₁,q₂}; A–0,1→B={q₃}; B–1→C={q₄}* ; B–0→∅. Language {01, 11}.</li>
+<li><b>Sp24</b> (q₀ loop a, ε→q₁ loop b, q₁–a→q₂ final loop a,b): A={q₀,q₁}; A–a→B={q₀,q₁,q₂}*; A–b→C={q₁}; B–a→B; B–b→E={q₁,q₂}*; C–a→F={q₂}*; C–b→C; E–a→F; E–b→E; F–a,b→F.</li>
+<li><b>Sp23</b> (q₀ loop 0, ε→q₁ loop 1, ε→q₂ loop 2 final): A={q₀,q₁,q₂}*; A–0→A; A–1→B={q₁,q₂}*; A–2→C={q₂}*; B–1→B; B–2→C; C–2→C. Language 0*1*2*.</li>
+<li><b>Fa23</b> (table as read: 1:ε{2},b{3}; 2:a{2,3},b{2}; 3:a{1,3}): A={1,2}*; A–a,b→B={2,3}; B–a→C={1,2,3}*; B–b→D={2}; C–a→C; C–b→B; D–a→B; D–b→D.</li>
+</ul>
+
+<h3>DFA minimization (table filling) <span class="w">Fa24, Sp23</span></h3>
+<p>Fa24 DFA (finals c,d,e; a–0→b, a–1→d, b–0→a, b–1→c, c/d/e–0→e, c/d/e–1→f, f loops). Step 1: mark final/non-final pairs. Step 2: (c,d), (c,e), (d,e) all go to the same targets, so they stay unmarked. (a,b): both go to non-final on 0 and final on 1, depending only on each other, so unmarked. (a,f): on 1, d vs f, a final vs non-final pair → marked; likewise (b,f). Merge: <b>{a,b}, {c,d,e}, {f}</b>: P–0→P, P–1→Q, Q–0→Q, Q–1→F, F–0,1→F (3 states). The Sp23 DFA (q0,q3 | q1,q2,q4 | q5) has the same structure and the same answer.</p>
+
+<h3>Making a grammar suitable for top-down parsing <span class="w">all papers</span></h3>
+<p>Reasoning: top-down (LL(1)) parsers loop forever on <b>left recursion</b>, cannot choose between alternatives with a common prefix (<b>left factoring</b>), and fail on <b>ambiguity</b>.</p>
+<ul>
+<li><b>Fa24:</b> <code>E→TE′; E′→+TE′|-TE′|ε; T→FT′; T′→*FT′|/FT′|ε; F→(E)|id</code>.</li>
+<li><b>Sp25:</b> expr: <code>expr→term expr′; expr′→+term expr′|-term expr′|ε</code>. stmt (left recursive, common prefix <code>if expr then stmt</code>): <code>stmt→S stmt′; stmt′→; stmt|ε; S→if expr then stmt S′|expr; S′→else stmt|ε</code> (dangling else resolved by matching the nearest <code>then</code>).</li>
+<li><b>Sp24:</b> <code>S→Ax|By; A→A′; A′→mA′|zzA′|ε; B→qB′; B′→pB′|qB′|ε</code> (A→Am|Azz|ε has β=ε; B→Bp|Bq|q).</li>
+<li><b>Fa23:</b> indirect recursion S→Aa, A→Sd. Order S,A,B; substitute S into A: <code>A→Aa|Aad|Acd|Bd|ε</code>; remove: <code>A→BdA′|A′; A′→aA′|adA′|cdA′|ε</code>; <code>B→bB′; B′→eB′|ε</code>; left-factor S: <code>S→AS′|B; S′→a|c</code>.</li>
+<li><b>Sp23:</b> <code>X→YX′; X′→/YX′|ε; Y→ZY′; Y′→*ZY′|ε; Z→(X)|d</code>.</li>
+</ul>
+
+<h3>Lexical analysis of a code snippet <span class="w">Sp25, Fa24, Sp24</span></h3>
+<p>Processes and outputs, for <code>void bubbleSort(vector&lt;int&gt;&amp; arr) { int n = arr.size(); … }</code>:</p>
+<ol>
+<li><b>Input reading:</b> the character stream is read through a buffer.</li>
+<li><b>Removing whitespace and comments:</b> <code>// An optimized version…</code> and <code>// If no two elements…</code> are deleted; layout characters are discarded.</li>
+<li><b>Tokenization</b> (lexeme matched to a pattern, giving <code>&lt;token name, attribute&gt;</code>):
+<pre>&lt;keyword,void&gt; &lt;id,1&gt; &lt;(&gt; &lt;id,2&gt; &lt;&lt;&gt; &lt;keyword,int&gt; &lt;&gt;&gt; &lt;&amp;&gt; &lt;id,3&gt; &lt;)&gt; &lt;{&gt;
+&lt;keyword,int&gt; &lt;id,4&gt; &lt;=&gt; &lt;id,3&gt; &lt;.&gt; &lt;id,5&gt; &lt;(&gt; &lt;)&gt; &lt;;&gt; ...
+&lt;keyword,for&gt; &lt;(&gt; &lt;keyword,int&gt; &lt;id,6&gt; &lt;=&gt; &lt;num,0&gt; &lt;;&gt; &lt;id,6&gt; &lt;&lt;&gt; &lt;id,4&gt; &lt;-&gt; &lt;num,1&gt; ...</pre></li>
+<li><b>Symbol table entries:</b> 1 bubbleSort, 2 vector, 3 arr, 4 n, 5 size, 6 i, 7 swapped, 8 j, with types/scope filled later. Keywords, operators, punctuation have no attribute.</li>
+<li><b>Error reporting:</b> none here (no illegal characters). A character such as <code>@</code> would be reported with its line number.</li>
+</ol>
+<p>The leap-year program (Sp24) is handled the same way: <code>#include</code> is handled by the preprocessor, then <code>int</code>, <code>main</code>, <code>(</code>, <code>)</code>, <code>{</code>, ids <code>year</code>, <code>isLeap</code>, the string literal <code>"Enter a year: "</code>, <code>%</code>, <code>==</code>, <code>switch</code>, <code>case</code>, numbers 400, 100, 4, 1, 0.</p>
+</section>
+
+<section id="q4">
+<h2>Question 4: translation, regular expressions, PDA, CFG design</h2>
+
+<h3>SDD and 3-address code for <code>a := b * -c + b * -c</code> <span class="w">Sp25, Fa24, Sp24</span></h3>
+<p>Unary minus binds tightest, then <code>*</code>, then <code>+</code>: <code>a := (b * (-c)) + (b * (-c))</code>. Annotated parse tree (bottom-up, each E gets <code>place</code> and <code>code</code>): <code>id(c)</code> → E.place=c, code=''; <code>-E</code> → place t1, code <code>t1 := uminus c</code>; <code>E*E</code> with b → place t2, code <code>t1 := uminus c; t2 := b * t1</code>; the second copy gives t3, t4; <code>E+E</code> → place t5; <code>S → id := E</code> appends <code>a := t5</code>. <b>Output:</b></p>
+<pre>t1 := uminus c
+t2 := b * t1
+t3 := uminus c
+t4 := b * t3
+t5 := t2 + t4
+a  := t5</pre>
+
+<h3>Regular expressions <span class="w">Sp25, Fa24, Fa23, Sp24, Sp23</span></h3>
+<div class="scroll"><table>
+<tr><th>Language</th><th>RE</th></tr>
+<tr><td>at least one 0 and at least one 1</td><td><code>(0+1)*0(0+1)*1(0+1)* + (0+1)*1(0+1)*0(0+1)*</code></td></tr>
+<tr><td>length a multiple of 3</td><td><code>((0+1)(0+1)(0+1))*</code></td></tr>
+<tr><td>no substring 00</td><td><code>(1+01)*(ε+0)</code></td></tr>
+<tr><td>odd length</td><td><code>(0+1)((0+1)(0+1))*</code></td></tr>
+<tr><td>at least three 1s</td><td><code>(0+1)*1(0+1)*1(0+1)*1(0+1)*</code></td></tr>
+<tr><td>starts and ends with same symbol</td><td><code>0 + 1 + 0(0+1)*0 + 1(0+1)*1</code></td></tr>
+<tr><td>length 1 to 3</td><td><code>(0+1)(ε+(0+1)(ε+(0+1)))</code></td></tr>
+<tr><td>length ≥ 3</td><td><code>(0+1)(0+1)(0+1)(0+1)*</code></td></tr>
+<tr><td>contains 0101 / 1001</td><td><code>(0+1)*0101(0+1)*</code> / <code>(0+1)*1001(0+1)*</code></td></tr>
+<tr><td>no substring 110</td><td><code>(0+10)*1*</code></td></tr>
+<tr><td>over {x,y}: starts with x, no consecutive y</td><td><code>x(x+yx)*(ε+y)</code></td></tr>
+<tr><td>over {x,y}: no substring xy</td><td><code>y*x*</code></td></tr>
+<tr><td>over {x,y}: x’s then y’s</td><td><code>x*y*</code></td></tr>
+</table></div>
+
+<h3>PDAs with IDs <span class="w">Sp25, Sp24, Sp23</span></h3>
+<p><b>L = {wwᴿ | w∈{0,1}*}, input 001100</b> (stack top on the left, Z = bottom marker; q₀ pushes, a nondeterministic ε-move guesses the middle, q₁ pops on a match, q₂ accepts): δ(q₀,0|1,X)=(q₀,0|1·X); δ(q₀,ε,X)=(q₁,X); δ(q₁,a,a)=(q₁,ε); δ(q₁,ε,Z)=(q₂,Z).</p>
+<pre>(q0,001100,Z) ⊢ (q0,01100,0Z) ⊢ (q0,1100,00Z) ⊢ (q0,100,100Z)
+ ⊢ (q1,100,100Z) ⊢ (q1,00,00Z) ⊢ (q1,0,0Z) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z)  accept</pre>
+<p><b>L = {w01wᴿ}, input 100101</b> (w=10): push w, guess the marker <code>01</code> (read 0 → q₁, read 1 → q₂), then pop-match:</p>
+<pre>(q0,100101,Z) ⊢ (q0,00101,1Z) ⊢ (q0,0101,01Z) ⊢ (q1,101,01Z) ⊢ (q2,01,01Z)
+ ⊢ (q2,1,1Z) ⊢ (q2,ε,Z) ⊢ (q3,ε,Z)  accept</pre>
+<p><b>L = {aⁿba²ⁿ | n≥0}, input aabaaaa</b>: push AA per a, at b switch state, pop one A per a:</p>
+<pre>(q0,aabaaaa,Z) ⊢ (q0,abaaaa,AAZ) ⊢ (q0,baaaa,AAAAZ) ⊢ (q1,aaaa,AAAAZ)
+ ⊢ (q1,aaa,AAAZ) ⊢ (q1,aa,AAZ) ⊢ (q1,a,AZ) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z)  accept</pre>
+
+<h3>DFAs from regular expressions <span class="w">Sp25, Fa24, Sp24</span></h3>
+<ul>
+<li><code>(0|1)*10</code> (and <code>(0|1)*01</code> by swapping): A–1→B, A–0→A; B–0→C*, B–1→B; C–1→B, C–0→A.</li>
+<li><code>ab(a|b)*</code>: q0–a→q1–b→q2* (loops a,b); every other move goes to dead state d.</li>
+<li><code>ab(a|b)*ab</code>: q0–a→q1–b→q2; then track the last two symbols: q2–a→q3, q2–b→q2′; q3–b→q4*, q3–a→q3; q4–a→q3, q4–b→q2′; q2′–a→q3, q2′–b→q2′; dead state for a wrong start.</li>
+<li><code>01(0|1)*01</code>: p0–0→p1–1→p2 (dead on other input); p2–0→p3, p2–1→p5; p3–0→p3, p3–1→p4*; p4–0→p3, p4–1→p5; p5–0→p3, p5–1→p5. (Needs at least 0101.)</li>
+</ul>
+
+<h3>CFG design with derivations <span class="w">Sp25, Sp24, Fa24, Sp23</span></h3>
+<p><b>switch-case</b> with multiple cases, optional default, break:</p>
+<pre>S    → switch ( id ) { Cases Def }
+Cases→ Case Cases | Case
+Case → case num : Stmts break ;
+Def  → default : Stmts break ; | ε
+Stmts→ Stmt Stmts | ε
+Stmt → id = num ;</pre>
+<p>Derivation for <code>switch(x){case 1: y=1; break; case 2: y=2; break; default: y=0; break;}</code>: S ⇒ switch ( id ) { Cases Def } ⇒ … Case Cases ⇒ case num : Stmts break ; Case … ⇒ case 1 : y = 1 ; break ; case 2 : y = 2 ; break ; Def ⇒ default : Stmts break ; with Stmts ⇒ Stmt ⇒ y = 0 ;.</p>
+<p><b>do-while</b> with nested statements:</p>
+<pre>S    → do { Stmts } while ( Cond ) ;
+Stmts→ Stmt Stmts | ε
+Stmt → id = Expr ; | S
+Cond → id relop id | id relop num
+Expr → id | num | id + num</pre>
+<p>Derivation for <code>do { x = 0; do { y = x + 1; } while (y &lt; 5); } while (x &lt; 3);</code>: the outer S derives Stmts ⇒ Stmt Stmts ⇒ (id = Expr ;) (Stmt ⇒ S, the inner do-while); the inner S derives <code>y = x + 1 ;</code> and the condition <code>y &lt; 5</code>.</p>
+<p><b>Function prototypes</b> (Sp23): <code>P → T id ( Args ); Args → ε | List; List → T id | T id , List; T → int | void | double</code>. <code>double name(double arg1, int arg2)</code> ⇒ T id ( List ) ⇒ double name ( T id , List ) ⇒ double name ( double arg1 , int arg2 ).</p>
+
+<h3>Three-address code for loops and switch <span class="w">Fa23, Sp23</span></h3>
+<p><b>Sp23</b> (while loops and switch(b)):</p>
+<pre>L1: if i &gt; end goto L5          L5: goto TEST
+    j = 1                      L6: i = i - 1 ; goto NEXT
+L2: if j &gt; i goto L4           L7: t1 = uminus i ; t2 = t1 * 3
+    j = j + 1                      t3 = t2 + 5 ; j = t3 ; goto NEXT
+    goto L2                    L8: i = 0 ; goto NEXT
+L4: i = i + 1 ; goto L1        TEST: if b == 1 goto L6
+                                     if b == 2 goto L7 ; goto L8
+                               NEXT:</pre>
+<p><b>Fa23</b> (nested for loops):</p>
+<pre>    i = 1
+L1: if i &gt; rows goto END
+    space = 1 ; t1 = rows - i
+L2: if space &gt; t1 goto L3
+    hello = hello + 1 ; space = space + 1 ; goto L2
+L3: j = 1 ; t2 = 2 * i ; t3 = t2 - 1
+L4: if j &gt; t3 goto L5
+    hello = hello - 1 ; j = j + 1 ; goto L4
+L5: i = i + 1 ; goto L1
+END:</pre>
+</section>
+
+<footer>Not included in this version: the diagram-only questions that were hard to read reliably (Sp25 ε-NFA, Sp24/Fa23 minimization diagrams, Fa23 NFA-design part), the Fa24 CNF grammar, the Fa23 7-mark CFG simplification, the Sp25 LR(0) for E→E+T, T→TF, F→F*|a|b, and the Fa23 variable-declaration CFG. Method boxes above apply to all of them; send a clearer scan or ask and I’ll add them. LR parsing and three-address-code forms are not in your slides, so those answers come from the Dragon Book (Ch. 4 §4.5–4.6 and Ch. 6 §6.2).</footer>
+</main>
+</body>
+</html>
