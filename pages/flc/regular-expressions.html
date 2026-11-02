@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: Regular Expressions</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · regular expressions</b></div>
+<nav><a href="#basics">Basics</a><a href="#laws">Laws</a><a href="#build">Building REs</a><a href="#exam">Exam answers</a><a href="#auto">RE ⇄ automata</a><a href="#lex">In the lexer</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>Regular Expressions</h1>
+<p class="lead">Slides 32–38 (alphabets, strings, languages, RE rules) and 285–291 (lexical analysis), plus every “construct regular expressions for…” question from your five papers (Q4b). DFA design from a given regular expression (Q4d) comes in the next page on DFA design. Textbooks: Hopcroft–Motwani–Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i>, 3rd ed.; Sipser, <i>Introduction to the Theory of Computation</i>; Dragon Book (Aho et al.).</p>
+
+<section id="basics">
+<h2>1. Definition and notation</h2>
+<ul>
+<li><b>Alphabet Σ</b> (finite, non-empty); <b>string</b> = finite sequence of symbols, <code>|w|</code> = its length, <code>ε</code> = empty string (<code>|ε| = 0</code>); <b>Σ*</b> = all strings over Σ including ε; <b>Σ⁺</b> = all non-empty strings; <b>language</b> = any subset of Σ*. A regular expression describes a language; it is <i>not</i> itself a set.</li>
+<li><b>Recursive definition</b> (slides 36–37): the language L(E) of each expression:</li>
+</ul>
+<div class="scroll"><table>
+<tr><th>Expression</th><th>Language</th><th>Name</th></tr>
+<tr><td><code>∅</code></td><td>{ } (nothing)</td><td>empty set</td></tr>
+<tr><td><code>ε</code></td><td>{ ε }</td><td>empty string</td></tr>
+<tr><td><code>a</code> (a ∈ Σ)</td><td>{ a }</td><td>symbol</td></tr>
+<tr><td><code>E + F</code> or <code>E | F</code></td><td>L(E) ∪ L(F)</td><td>union</td></tr>
+<tr><td><code>E F</code></td><td>{ xy : x ∈ L(E), y ∈ L(F) }</td><td>concatenation</td></tr>
+<tr><td><code>E*</code></td><td>zero or more strings of L(E) joined</td><td>Kleene closure</td></tr>
+<tr><td><code>(E)</code></td><td>L(E)</td><td>grouping</td></tr>
+</table></div>
+<ul>
+<li><b>Precedence</b> (highest first): <b>star</b> &gt; <b>concatenation</b> &gt; <b>union</b>. So <code>ab*+c</code> means <code>(a(b*))+c</code>. Union binds loosest, which is why <code>0+1</code> needs brackets inside bigger expressions: <code>(0+1)*</code>.</li>
+<li>Your papers write union as <code>+</code> in some questions and <code>|</code> in others; they mean the same. In a lexer tool (lex/flex) <code>+</code> means “one or more”, not union, so say which convention you use.</li>
+<li><b>Regular language:</b> a language described by some regular expression (equivalently accepted by a DFA/NFA/ε-NFA). Regular languages are closed under union, concatenation and star, as the recursive definition shows.</li>
+</ul>
+<div class="refs"><b>Read:</b> HMU Ch. 3 “Regular Expressions and Languages”, §3.1 “Regular Expressions” (§3.1.1 operators, §3.1.2 building RE’s, §3.1.3 precedence); Sipser Ch. 1 §1.3 “Regular Expressions”; Dragon Book §3.3 “Specification of Tokens”.</div>
+</section>
+
+<section id="laws">
+<h2>2. Algebraic laws (simplifying and checking)</h2>
+<div class="scroll"><table>
+<tr><th>Law</th><th>Meaning</th></tr>
+<tr><td><code>R + S = S + R</code>, <code>R + R = R</code>, <code>R + ∅ = R</code></td><td>union is commutative, idempotent, ∅ is its identity</td></tr>
+<tr><td><code>Rε = εR = R</code></td><td>ε is the identity for concatenation</td></tr>
+<tr><td><code>R∅ = ∅R = ∅</code></td><td>∅ annihilates concatenation</td></tr>
+<tr><td><code>RS ≠ SR</code> in general</td><td>concatenation is <b>not</b> commutative</td></tr>
+<tr><td><code>R(S+T) = RS + RT</code></td><td>concatenation distributes over union</td></tr>
+<tr><td><code>(R*)* = R*</code>, <code>ε* = ∅* = ε</code></td><td>closure identities</td></tr>
+<tr><td><code>R*R* = R*</code>, <code>RR* = R*R = R⁺</code>, <code>R* = ε + RR*</code></td><td>closure forms</td></tr>
+<tr><td><code>(R+S)* = (R*S*)* = (R*+S*)*</code></td><td>all strings over R and S pieces</td></tr>
+</table></div>
+<p>Slide examples: <code>Rε = R</code>; <code>R + ∅ = R</code>; <code>L(1∅) = ∅</code>. <b>Common ways to describe all strings over {0,1}:</b> <code>(0+1)*</code>.</p>
+<div class="refs"><b>Read:</b> HMU §3.4 “Algebraic Laws for Regular Expressions”.</div>
+</section>
+
+<section id="build">
+<h2>3. How to build a regular expression</h2>
+<ol>
+<li><b>Understand the language:</b> list 3–4 strings that belong and 3–4 that do not.</li>
+<li><b>Decompose:</b> split into <b>alternatives</b> (union), <b>sequence</b> (concatenation) and <b>repetition</b> (star). Often the language is “anything, then the special part, then anything”: <code>(0+1)* part (0+1)*</code>.</li>
+<li>For “<b>not containing</b> X”, describe the allowed building blocks that never make X, then repeat them (see no-00 below).</li>
+<li><b>Test:</b> run your accept strings and reject strings through the expression. Check ε and single-symbol strings explicitly.</li>
+</ol>
+<h3>Pattern table (alphabet {0,1} unless stated)</h3>
+<div class="scroll"><table>
+<tr><th>Language</th><th>RE</th><th>Why</th></tr>
+<tr><td>starts with 11</td><td><code>11(0+1)*</code></td><td>fixed prefix + anything</td></tr>
+<tr><td>ends with 00</td><td><code>(0+1)*00</code></td><td>anything + fixed suffix</td></tr>
+<tr><td>contains 1001</td><td><code>(0+1)*1001(0+1)*</code></td><td>substring in the middle</td></tr>
+<tr><td>length exactly 3</td><td><code>(0+1)(0+1)(0+1)</code></td><td>three symbol slots</td></tr>
+<tr><td>length ≥ 3</td><td><code>(0+1)(0+1)(0+1)(0+1)*</code></td><td>three slots then anything</td></tr>
+<tr><td>length 1 to 3</td><td><code>(0+1)(ε+(0+1)(ε+(0+1)))</code></td><td>nested optional symbols</td></tr>
+<tr><td>even length</td><td><code>((0+1)(0+1))*</code></td><td>repeat pairs</td></tr>
+<tr><td>odd length</td><td><code>(0+1)((0+1)(0+1))*</code></td><td>one symbol plus pairs</td></tr>
+<tr><td>length multiple of 3</td><td><code>((0+1)(0+1)(0+1))*</code></td><td>repeat triples</td></tr>
+<tr><td>exactly one 1</td><td><code>0*10*</code></td><td>zeros around the 1</td></tr>
+<tr><td>at least two 1s / at least three 1s</td><td><code>(0+1)*1(0+1)*1(0+1)*</code> / one more <code>1(0+1)*</code></td><td>each required 1 separated by anything</td></tr>
+<tr><td>even number of 1s</td><td><code>0*(10*10*)*</code></td><td>pairs of 1s with zeros between</td></tr>
+<tr><td>at least one 0 and one 1</td><td><code>(0+1)*0(0+1)*1(0+1)* + (0+1)*1(0+1)*0(0+1)*</code></td><td>union of the two orders</td></tr>
+<tr><td>no substring 00</td><td><code>(1+01)*(ε+0)</code></td><td>every 0 is followed by a 1, except possibly a last 0</td></tr>
+<tr><td>no substring 11</td><td><code>(0+10)*(ε+1)</code></td><td>every 1 followed by a 0, except possibly the last</td></tr>
+<tr><td>no substring 110</td><td><code>(0+10)*1*</code></td><td>after a “11” only 1s may follow</td></tr>
+<tr><td>starts and ends with same symbol</td><td><code>0 + 1 + 0(0+1)*0 + 1(0+1)*1</code></td><td>single symbols plus two cases</td></tr>
+<tr><td>over {x,y}: x’s then y’s</td><td><code>x*y*</code></td><td>no x after a y</td></tr>
+<tr><td>over {x,y}: no substring xy</td><td><code>y*x*</code></td><td>once an x appears no y may follow</td></tr>
+<tr><td>over {x,y}: starts with x, no yy</td><td><code>x(x+yx)*(ε+y)</code></td><td>every y followed by x, except a last y</td></tr>
+</table></div>
+<div class="tip"><b>Single-symbol trap:</b> “starts and ends with the same symbol” includes the strings <code>0</code> and <code>1</code>; forgetting them loses a mark. The same applies to “no 00” (<code>ε</code>, <code>0</code> must match; hence <code>(ε+0)</code>).</div>
+<h3>From a DFA to a regular expression: state elimination <span class="w">HMU §3.2.2</span></h3>
+<p>When a language is easier to see as an automaton, remove states one by one, merging paths into regular expressions on the edges. Example, “even number of 0s”: A (start, final) –1→ A, A –0→ B, B –1→ B, B –0→ A. Eliminate B: the route A → B → A reads <code>0 1* 0</code>, so A’s loop becomes <code>1 + 01*0</code> and the answer is <code>(1 + 01*0)*</code>. (Equivalent to <code>1*(01*01*)*</code>.)</p>
+</section>
+
+<section id="exam">
+<h2>4. Past-paper answers (Q4b, 6 marks)</h2>
+<div class="scroll"><table>
+<tr><th>Paper</th><th>Language</th><th>Answer</th></tr>
+<tr><td rowspan="3">Spring 2025</td><td>at least one 0 and at least one 1</td><td><code>(0+1)*0(0+1)*1(0+1)* + (0+1)*1(0+1)*0(0+1)*</code></td></tr>
+<tr><td>length a multiple of 3</td><td><code>((0+1)(0+1)(0+1))*</code></td></tr>
+<tr><td>no substring 00</td><td><code>(1+01)*(ε+0)</code></td></tr>
+<tr><td rowspan="3">Fall 2024</td><td>odd length</td><td><code>(0+1)((0+1)(0+1))*</code></td></tr>
+<tr><td>at least three 1s</td><td><code>(0+1)*1(0+1)*1(0+1)*1(0+1)*</code></td></tr>
+<tr><td>starts and ends with same character</td><td><code>0 + 1 + 0(0+1)*0 + 1(0+1)*1</code></td></tr>
+<tr><td rowspan="3">Spring 2024</td><td>length at least 1 and at most 3</td><td><code>(0+1)(ε+(0+1)(ε+(0+1)))</code></td></tr>
+<tr><td>contains 0101</td><td><code>(0+1)*0101(0+1)*</code></td></tr>
+<tr><td>no substring 110</td><td><code>(0+10)*1*</code></td></tr>
+<tr><td rowspan="3">Fall 2023</td><td>length 3 or more</td><td><code>(0+1)(0+1)(0+1)(0+1)*</code></td></tr>
+<tr><td>contains 1001</td><td><code>(0+1)*1001(0+1)*</code></td></tr>
+<tr><td>no substring 00</td><td><code>(1+01)*(ε+0)</code></td></tr>
+<tr><td rowspan="3">Spring 2023 (over {x,y})</td><td>starts with x, no consecutive y’s</td><td><code>x(x+yx)*(ε+y)</code></td></tr>
+<tr><td>no substring xy</td><td><code>y*x*</code></td></tr>
+<tr><td>x’s followed by y’s</td><td><code>x*y*</code></td></tr>
+</table></div>
+<p><b>Check example (no 110):</b> accepts ε, <code>1</code>, <code>11</code>, <code>0111</code>, <code>1011</code>, <code>1010</code>; rejects <code>110</code>, <code>0110</code>, <code>1101</code>. For <code>1011</code>: <code>(10)</code> from <code>(0+10)*</code> and <code>11</code> from <code>1*</code>.</p>
+<p><b>Why <code>x(x+yx)*(ε+y)</code> works:</b> after the first x, every y is immediately followed by an x (the <code>yx</code> unit) so no two y’s touch; the optional final y is allowed because nothing follows it. Test: <code>xyxxy</code> = x · yx · x · y ✓; <code>xyy</code> fails ✓.</p>
+</section>
+
+<section id="auto">
+<h2>5. Regular expression ⇄ automaton</h2>
+<h3>RE → ε-NFA (McNaughton–Yamada–Thompson construction) <span class="w">Dragon Book §3.7.4</span></h3>
+<p>Build the machine by structure; each piece has <b>one start state and one accepting state</b>.</p>
+<div class="scroll"><table>
+<tr><th>Expression</th><th>Machine</th></tr>
+<tr><td><code>ε</code></td><td>start –ε→ accept</td></tr>
+<tr><td><code>a</code></td><td>start –a→ accept</td></tr>
+<tr><td><code>R + S</code></td><td>new start with ε-edges into the starts of N(R) and N(S); ε-edges from both accepts into a new accept</td></tr>
+<tr><td><code>R S</code></td><td>accept of N(R) joined (by ε, or merged) to start of N(S)</td></tr>
+<tr><td><code>R*</code></td><td>new start and accept; ε from new start to N(R)’s start and to the new accept; ε from N(R)’s accept back to N(R)’s start and to the new accept</td></tr>
+</table></div>
+<p>Result: an ε-NFA with at most twice as many states as there are symbols and operators in the RE. Then apply the conversions of the <a href="automata-conversions.html">automata conversions page</a> (ε-removal, subset construction, minimization). This is the lexer pipeline from the compiler overview: RE → NFA → DFA.</p>
+<h3>Other directions</h3>
+<ul>
+<li><b>DFA → RE:</b> state elimination (section 3), or the R<sub>ij</sub><sup>(k)</sup> recurrence (HMU §3.2.1).</li>
+<li><b>Hence</b> RE, DFA, NFA and ε-NFA describe exactly the same class: the regular languages.</li>
+<li>Languages that need a stack or counting (aⁿbⁿ, balanced parentheses) are <b>not</b> regular; use a CFG or PDA.</li>
+</ul>
+<div class="refs"><b>Read:</b> HMU §3.2 “Finite Automata and Regular Expressions” (§3.2.3 converting regular expressions to automata); Sipser Ch. 1 §1.3 (Lemma 1.55 RE → NFA, Lemma 1.60 DFA → RE); Dragon Book §3.7.4.</div>
+</section>
+
+<section id="lex">
+<h2>6. Regular expressions in the lexical analyzer <span class="w">slides 285–291</span></h2>
+<p>Each token has a <b>pattern</b> written as a regular expression; the lexer matches the longest lexeme and returns <code>&lt;token, attribute&gt;</code>. Typical definitions:</p>
+<div class="scroll"><table>
+<tr><th>Token</th><th>Pattern</th><th>Example lexemes</th></tr>
+<tr><td>identifier</td><td><code>letter (letter | digit | _)*</code></td><td><code>swapped</code>, <code>arr</code>, <code>i2</code></td></tr>
+<tr><td>integer</td><td><code>digit digit*</code> (also written <code>digit⁺</code>)</td><td><code>0</code>, <code>400</code></td></tr>
+<tr><td>real number</td><td><code>digit⁺ . digit⁺</code></td><td><code>2.5</code></td></tr>
+<tr><td>relational op</td><td><code>&lt; | &lt;= | == | != | &gt; | &gt;=</code></td><td><code>&lt;=</code></td></tr>
+<tr><td>whitespace</td><td><code>(blank | tab | newline)⁺</code> (discarded)</td><td></td></tr>
+<tr><td>comment</td><td><code>// (any char except newline)*</code> (discarded)</td><td><code>// If no two…</code></td></tr>
+</table></div>
+<ul>
+<li>Keywords usually match the identifier pattern; the lexer looks them up in a reserved-word table (<code>for</code>, <code>if</code>, <code>int</code>).</li>
+<li>Two rules decide ambiguity: take the <b>longest match</b> (<code>&lt;=</code> not <code>&lt;</code> then <code>=</code>), and if two patterns match equally, the <b>earlier rule</b> wins (keyword before identifier).</li>
+<li>Extended notation in tools: <code>[a-z]</code> (class), <code>R⁺</code> (one or more), <code>R?</code> (optional, = <code>ε+R</code>), <code>R{n}</code>. They are shorthand; the underlying languages are still regular.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 3: §3.3.3 “Regular Expressions”, §3.3.5 “Extensions of Regular Expressions”, §3.4 “Recognition of Tokens”; Louden, <i>Compiler Construction: Principles and Practice</i>, Ch. 2 “Scanning”.</div>
+</section>
+
+<section id="prac">
+<h2>7. Mistakes &amp; practice</h2>
+<ul>
+<li>Writing <code>0+1*</code> when you mean <code>(0+1)*</code> (precedence: it means 0 or 1*).</li>
+<li>Describing a <b>contains</b> language without <code>(0+1)*</code> on <b>both</b> sides.</li>
+<li>Forgetting ε and one-symbol strings in “no pattern” or “starts/ends” languages.</li>
+<li>Confusing <code>R⁺</code> (at least one) with <code>R*</code> (zero or more).</li>
+<li>Giving only an example string instead of the whole language; always test with at least one rejected string.</li>
+</ul>
+<p><b>P1.</b> Even number of 1s over {0,1}.</p>
+<details><summary>Answer</summary><code>0*(10*10*)*</code>. Every 1 is paired with the next 1; zeros may appear anywhere. (Also <code>(0*10*1)*0*</code>.)</details>
+<p><b>P2.</b> No substring 11.</p>
+<details><summary>Answer</summary><code>(0+10)*(ε+1)</code>. Every 1 inside the string is followed by a 0, and a lone 1 is allowed at the end. Rejects <code>011</code>, accepts <code>1010</code>, <code>01</code>, ε.</details>
+<p><b>P3.</b> Exactly two 0s.</p>
+<details><summary>Answer</summary><code>1*01*01*</code>.</details>
+<p><b>P4.</b> Is <code>(a+b)* = (a*b*)*</code>?</p>
+<details><summary>Answer</summary>Yes, by the law <code>(R+S)* = (R*S*)*</code>. Both generate every string over {a,b}.</details>
+<p><b>P5.</b> Describe in words: <code>(0+1)*0(0+1)(0+1)</code>.</p>
+<details><summary>Answer</summary>Strings whose third symbol from the end is 0 (and length ≥ 3).</details>
+</section>
+
+<footer>Slides: 32–38 and 285–291. Section numbers refer to the HMU 3rd edition and the Dragon Book 2nd edition and may differ in other editions.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: LR Parsing</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · LR parsing</b></div>
+<nav><a href="#sr">Shift-reduce</a><a href="#items">Items &amp; automaton</a><a href="#tab">Tables</a><a href="#ex1">S→AA</a><a href="#ex2">E,T,F</a><a href="#ex3">R/R conflict</a><a href="#ex4">E→E+T, T→TF</a><a href="#lalr">LR(1)/LALR</a><a href="#theory">Theory Q&amp;A</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>LR Parsing (LR(0), SLR(1), LR(1), LALR)</h1>
+<p class="lead">LR parsing is in <b>every</b> paper (Q2a, 7 marks, plus Q1 and Q3 variants), but your slides only introduce bottom-up/shift-reduce parsing, so this page follows the Dragon Book (Aho, Lam, Sethi, Ullman, <i>Compilers: Principles, Techniques, and Tools</i>, 2nd ed.) and marks the material <b>[book]</b>. It solves the Spring 2025, Spring 2024, Fall 2024, Fall 2023 and Spring 2023 questions.</p>
+
+<section id="sr">
+<h2>1. Bottom-up parsing and shift-reduce <span class="w">[book] Dragon Book §4.5</span></h2>
+<ul>
+<li><b>Bottom-up</b> parsing builds the parse tree from the leaves up to the start symbol. It is a <b>reverse rightmost derivation</b>: it repeatedly <b>reduces</b> a substring matching the body of a production to its head.</li>
+<li>Example <code>id + id</code> with <code>E→E+T|T, T→T*F|F, F→(E)|id</code>. Rightmost derivation: E ⇒ E+T ⇒ E+F ⇒ E+id ⇒ T+id ⇒ F+id ⇒ id+id. The parser performs these steps <i>backwards</i>.</li>
+<li><b>Handle:</b> the substring that matches a production body and whose reduction is one step of a rightmost derivation in reverse. The parser must find the handle, not just any matching body.</li>
+<li><b>Shift-reduce parser:</b> a stack (grammar symbols) and the input. Four actions: <b>shift</b> (push the next token), <b>reduce</b> (pop the body, push the head), <b>accept</b>, <b>error</b>.</li>
+<li><b>Compare with top-down:</b> top-down (LL) predicts productions from the start symbol and needs the grammar free of left recursion and left factoring; bottom-up (LR) <b>handles left recursion and a larger class of grammars</b> and is what real tools use (Yacc/Bison generate LALR(1) parsers).</li>
+</ul>
+<h3>LR(k)</h3>
+<p><b>L</b>eft-to-right scan, <b>R</b>ightmost derivation in reverse, <b>k</b> lookahead symbols (usually 0 or 1). The LR parser keeps a stack of <b>states</b> (each state summarizes the grammar symbols below it) and uses two tables:</p>
+<ul>
+<li><b>ACTION[state, terminal]</b> = s<i>n</i> (shift and go to state n), r<i>k</i> (reduce by production k), acc (accept) or blank (error).</li>
+<li><b>GOTO[state, non-terminal]</b> = next state after a reduction.</li>
+</ul>
+<h3>The driver algorithm</h3>
+<ol>
+<li>Let s be the state on top of the stack and a the next input symbol; look up ACTION[s, a].</li>
+<li><b>Shift n:</b> push a and state n; advance the input.</li>
+<li><b>Reduce A → β:</b> pop 2·|β| entries (the |β| symbols and their states), let t be the new top state, push A and GOTO[t, A]. (Do not consume input.)</li>
+<li><b>Accept:</b> stop with success. <b>Blank:</b> syntax error.</li>
+</ol>
+<div class="scroll"><table>
+<tr><th>Class</th><th>Lookahead used for reductions</th><th>Power</th></tr>
+<tr><td>LR(0)</td><td>none (reduce in every column)</td><td>weakest</td></tr>
+<tr><td>SLR(1)</td><td>FOLLOW(A)</td><td>LR(0) ⊂ SLR(1)</td></tr>
+<tr><td>LALR(1)</td><td>per-state lookaheads (merged LR(1) states)</td><td>SLR(1) ⊂ LALR(1)</td></tr>
+<tr><td>LR(1) (canonical)</td><td>exact lookahead per item</td><td>LALR(1) ⊂ LR(1); strongest, biggest tables</td></tr>
+</table></div>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 4 “Syntax Analysis”: §4.5 “Bottom-Up Parsing” (§4.5.1 Reductions, §4.5.2 Handle Pruning, §4.5.3 Shift-Reduce Parsing, §4.5.4 Conflicts During Shift-Reduce Parsing); §4.6 “Introduction to LR Parsing: Simple LR” (§4.6.3 The LR-Parsing Algorithm). Louden Ch. 5 “Bottom-Up Parsing”.</div>
+</section>
+
+<section id="items">
+<h2>2. Items, closure, goto: building the LR(0) automaton <span class="w">[book] §4.6.2</span></h2>
+<ul>
+<li><b>Augment</b> the grammar: add <code>S′ → S</code> (new start). Acceptance is reducing by S′→S, i.e. reaching <code>S′ → S•</code> on $.</li>
+<li><b>LR(0) item:</b> a production with a dot marking how much of the body has been seen: <code>A → α•β</code>. <code>A → •XYZ</code> = nothing seen; <code>A → XYZ•</code> = complete (reduce). A production <code>A → ε</code> gives the single item <code>A → •</code>.</li>
+<li><b>Closure(I):</b> add every item of I; then, whenever an item <code>A → α•Bβ</code> is in the set (dot before a non-terminal B), add <code>B → •γ</code> for every production of B; repeat until nothing new.</li>
+<li><b>Goto(I, X):</b> move the dot over X in every item <code>A → α•Xβ</code> of I, giving <code>A → αX•β</code>, then take the closure. The result is a new state (or an existing one).</li>
+<li><b>Canonical collection:</b> I₀ = closure({S′ → •S}); keep applying goto for every symbol X until no new sets appear. Sets are the <b>states</b>; goto is the <b>transition</b> function, so the whole thing is a DFA that recognizes viable prefixes.</li>
+</ul>
+<div class="tip"><b>Exam layout:</b> (1) numbered productions incl. S′; (2) list states I₀, I₁… with all items (kernel + closure items); (3) draw or list the transitions; (4) fill the table; (5) state conflicts. Write a state’s closure items right under its kernel items to show you applied closure.</div>
+</section>
+
+<section id="tab">
+<h2>3. Filling the table and the conflicts</h2>
+<div class="scroll"><table>
+<tr><th>Item in state i</th><th>LR(0) table</th><th>SLR(1) table</th></tr>
+<tr><td><code>A → α•aβ</code> and goto(i,a)=j</td><td colspan="2">ACTION[i,a] = shift j (a is a terminal)</td></tr>
+<tr><td><code>A → α•</code> (A ≠ S′)</td><td>reduce A→α in <b>every</b> terminal column</td><td>reduce A→α only for a ∈ <b>FOLLOW(A)</b></td></tr>
+<tr><td><code>S′ → S•</code></td><td colspan="2">ACTION[i,$] = accept</td></tr>
+<tr><td>goto(i,A)=j, A non-terminal</td><td colspan="2">GOTO[i,A] = j</td></tr>
+<tr><td>no entry</td><td colspan="2">error</td></tr>
+</table></div>
+<ul>
+<li><b>Shift/reduce (S/R) conflict:</b> one cell has both “shift” and “reduce”. Typical cause: a state with a complete item <code>A → α•</code> and another item with the dot before a terminal (<code>B → γ•aδ</code>), e.g. <code>E → T•</code> and <code>T → T•*F</code>. Ambiguity also causes it (dangling else: <code>S → if E then S•</code> vs <code>S → if E then S• else S</code>; <code>E → E+E•</code> vs <code>E → E•+E</code>).</li>
+<li><b>Reduce/reduce (R/R) conflict:</b> a state has two complete items (<code>A → d•</code> and <code>B → d•</code>) and their lookaheads overlap.</li>
+<li>A grammar is <b>LR(0)</b> if no state has a conflict with reduction in all columns; <b>SLR(1)</b> if the FOLLOW-restricted table has no multiple entries. Conflicts that remain mean the grammar is not in that class; use a bigger class (LALR/LR(1)), rewrite the grammar, or give precedence rules (Yacc).</li>
+<li><b>FOLLOW is needed for SLR.</b> Compute FIRST/FOLLOW exactly as in the LL(1) page.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book §4.6.4 “Constructing SLR-Parsing Tables”, §4.5.4 “Conflicts During Shift-Reduce Parsing”, §4.8 “Using Ambiguous Grammars”.</div>
+</section>
+
+<section id="ex1">
+<h2>4. Worked example: S → AA, A → aA | b <span class="w">Fall 2023 Q2a; Spring 2023 Q3d</span></h2>
+<p>Productions: <b>1</b> S→AA · <b>2</b> A→aA · <b>3</b> A→b. FOLLOW(S)={$}, FOLLOW(A)={a,b,$}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Items</th><th>Transitions</th></tr>
+<tr><td>I0</td><td>S′→•S, S→•AA, A→•aA, A→•b</td><td>S:I1 A:I2 a:I3 b:I4</td></tr>
+<tr><td>I1</td><td>S′→S•</td><td>accept on $</td></tr>
+<tr><td>I2</td><td>S→A•A, A→•aA, A→•b</td><td>A:I5 a:I3 b:I4</td></tr>
+<tr><td>I3</td><td>A→a•A, A→•aA, A→•b</td><td>A:I6 a:I3 b:I4</td></tr>
+<tr><td>I4</td><td>A→b•</td><td>reduce 3</td></tr>
+<tr><td>I5</td><td>S→AA•</td><td>reduce 1</td></tr>
+<tr><td>I6</td><td>A→aA•</td><td>reduce 2</td></tr>
+</table></div>
+<div class="scroll"><table>
+<tr><th rowspan="2">State</th><th colspan="3">ACTION</th><th colspan="2">GOTO</th></tr>
+<tr><th>a</th><th>b</th><th>$</th><th>S</th><th>A</th></tr>
+<tr><td>0</td><td>s3</td><td>s4</td><td></td><td>1</td><td>2</td></tr>
+<tr><td>1</td><td></td><td></td><td>acc</td><td></td><td></td></tr>
+<tr><td>2</td><td>s3</td><td>s4</td><td></td><td></td><td>5</td></tr>
+<tr><td>3</td><td>s3</td><td>s4</td><td></td><td></td><td>6</td></tr>
+<tr><td>4</td><td>r3</td><td>r3</td><td>r3</td><td></td><td></td></tr>
+<tr><td>5</td><td></td><td></td><td>r1</td><td></td><td></td></tr>
+<tr><td>6</td><td>r2</td><td>r2</td><td>r2</td><td></td><td></td></tr>
+</table></div>
+<p><b>No conflicts, so the grammar is LR(0) and SLR(1).</b> (The exam-supplied table in the paper is this one; with states named I₀…I₆.) <b>Moves for <code>baaaab</code></b> (Spring 2023):</p>
+<pre>stack                      input     action
+0                          baaaab$   s4
+0 b 4                      aaaab$    r3 (A→b), goto(0,A)=2
+0 A 2                      aaaab$    s3
+0 A 2 a 3                  aaab$     s3
+0 A 2 a 3 a 3              aab$      s3
+0 A 2 a 3 a 3 a 3          ab$       s3
+0 A 2 a 3 a 3 a 3 a 3      b$        s4
+0 A 2 a3 a3 a3 a3 b 4      $         r3, goto(3,A)=6
+0 A 2 a3 a3 a3 a3 A 6      $         r2 (A→aA), goto(3,A)=6
+0 A 2 a3 a3 a3 A 6         $         r2, goto(3,A)=6
+0 A 2 a3 a3 A 6            $         r2, goto(3,A)=6
+0 A 2 a3 A 6               $         r2, goto(2,A)=5
+0 A 2 A 5                  $         r1 (S→AA), goto(0,S)=1
+0 S 1                      $         accept</pre>
+<p>(The first b is the first A, and <code>aaaab</code> is the second A.)</p>
+</section>
+
+<section id="ex2">
+<h2>5. Worked example: E → E+T | T, T → T*F | F, F → (E) | id <span class="w">Spring 2025 Q2a, Spring 2023 Q2a, Fall 2023 Q3d</span></h2>
+<p>Productions: <b>1</b> E→E+T · <b>2</b> E→T · <b>3</b> T→T*F · <b>4</b> T→F · <b>5</b> F→(E) · <b>6</b> F→id. FOLLOW(E)={$,+,)}, FOLLOW(T)={$,+,*,)}, FOLLOW(F)={$,+,*,)}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Items</th><th>Edges</th></tr>
+<tr><td>I0</td><td>E′→•E, E→•E+T, E→•T, T→•T*F, T→•F, F→•(E), F→•id</td><td>E:1 T:2 F:3 (:4 id:5</td></tr>
+<tr><td>I1</td><td>E′→E•, E→E•+T</td><td>+:6; acc on $</td></tr>
+<tr><td>I2</td><td>E→T•, T→T•*F</td><td>*:7</td></tr>
+<tr><td>I3</td><td>T→F•</td><td>reduce 4</td></tr>
+<tr><td>I4</td><td>F→(•E) + all closure items of E</td><td>E:8 T:2 F:3 (:4 id:5</td></tr>
+<tr><td>I5</td><td>F→id•</td><td>reduce 6</td></tr>
+<tr><td>I6</td><td>E→E+•T, T→•T*F, T→•F, F→•(E), F→•id</td><td>T:9 F:3 (:4 id:5</td></tr>
+<tr><td>I7</td><td>T→T*•F, F→•(E), F→•id</td><td>F:10 (:4 id:5</td></tr>
+<tr><td>I8</td><td>F→(E•), E→E•+T</td><td>):11 +:6</td></tr>
+<tr><td>I9</td><td>E→E+T•, T→T•*F</td><td>*:7</td></tr>
+<tr><td>I10 / I11</td><td>T→T*F• / F→(E)•</td><td>reduce 3 / reduce 5</td></tr>
+</table></div>
+<p><b>LR(0) conflicts:</b> I2 (<code>E→T•</code> reduces in every column, but <code>*</code> shifts) and I9 (<code>E→E+T•</code> vs shift <code>*</code>) are <b>shift/reduce conflicts</b>: not LR(0). With FOLLOW sets the reduce goes only on {$,+,)}, so the * column is shift only: <b>SLR(1)</b> table below.</p>
+<div class="scroll"><table>
+<tr><th>St</th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th><th>E</th><th>T</th><th>F</th></tr>
+<tr><td>0</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
+<tr><td>1</td><td></td><td>s6</td><td></td><td></td><td></td><td>acc</td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td></td><td>r2</td><td>s7</td><td></td><td>r2</td><td>r2</td><td></td><td></td><td></td></tr>
+<tr><td>3</td><td></td><td>r4</td><td>r4</td><td></td><td>r4</td><td>r4</td><td></td><td></td><td></td></tr>
+<tr><td>4</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td>8</td><td>2</td><td>3</td></tr>
+<tr><td>5</td><td></td><td>r6</td><td>r6</td><td></td><td>r6</td><td>r6</td><td></td><td></td><td></td></tr>
+<tr><td>6</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td></td><td>9</td><td>3</td></tr>
+<tr><td>7</td><td>s5</td><td></td><td></td><td>s4</td><td></td><td></td><td></td><td></td><td>10</td></tr>
+<tr><td>8</td><td></td><td>s6</td><td></td><td></td><td>s11</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>9</td><td></td><td>r1</td><td>s7</td><td></td><td>r1</td><td>r1</td><td></td><td></td><td></td></tr>
+<tr><td>10</td><td></td><td>r3</td><td>r3</td><td></td><td>r3</td><td>r3</td><td></td><td></td><td></td></tr>
+<tr><td>11</td><td></td><td>r5</td><td>r5</td><td></td><td>r5</td><td>r5</td><td></td><td></td><td></td></tr>
+</table></div>
+<p><b>Moves for <code>id+id</code></b> (Fall 2023 Q3d, using the same table): stack <code>0</code> s5 → <code>0 id5</code> r6 → <code>0F3</code> r4 → <code>0T2</code> r2 → <code>0E1</code> s6 → <code>0E1+6</code> s5 → <code>0E1+6id5</code> r6 → <code>0E1+6F3</code> r4 → <code>0E1+6T9</code> r1 (pop three) → <code>0E1</code> accept on $.</p>
+<p><b>Moves for <code>id+id*id</code></b> (to show the s7 shift in state 9): …<code>0E1+6T9</code> with next token <code>*</code> ⇒ <b>s7</b> → <code>0E1+6T9*7</code> s5 → <code>…*7id5</code> r6 → <code>…*7F10</code> r3 (T→T*F, pop three) → <code>0E1+6T9</code> r1 → <code>0E1</code> accept. The shift on <code>*</code> in state 9 is why <code>*</code> binds tighter than <code>+</code>.</p>
+</section>
+
+<section id="ex3">
+<h2>6. Worked example: S → Aa | bAc | Bc | bBa, A → d, B → d <span class="w">Fall 2024 Q2a</span></h2>
+<p>Productions: 1 S→Aa, 2 S→bAc, 3 S→Bc, 4 S→bBa, 5 A→d, 6 B→d. States:</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Items</th><th>Edges</th></tr>
+<tr><td>I0</td><td>S′→•S, S→•Aa, S→•bAc, S→•Bc, S→•bBa, A→•d, B→•d</td><td>S:1 A:2 b:3 B:4 d:5</td></tr>
+<tr><td>I1</td><td>S′→S•</td><td>accept</td></tr>
+<tr><td>I2</td><td>S→A•a</td><td>a:6</td></tr>
+<tr><td>I3</td><td>S→b•Ac, S→b•Ba, A→•d, B→•d</td><td>A:7 B:8 d:9</td></tr>
+<tr><td>I4</td><td>S→B•c</td><td>c:10</td></tr>
+<tr><td>I5</td><td><b>A→d•, B→d•</b></td><td>R/R</td></tr>
+<tr><td>I6</td><td>S→Aa•</td><td>reduce 1</td></tr>
+<tr><td>I7</td><td>S→bA•c</td><td>c:11</td></tr>
+<tr><td>I8</td><td>S→bB•a</td><td>a:12</td></tr>
+<tr><td>I9</td><td><b>A→d•, B→d•</b></td><td>R/R</td></tr>
+<tr><td>I10 / I11 / I12</td><td>S→Bc• / S→bAc• / S→bBa•</td><td>reduce 3 / 2 / 4</td></tr>
+</table></div>
+<p><b>Conflicts:</b> I5 and I9 each hold <code>A→d•</code> and <code>B→d•</code>: a <b>reduce/reduce conflict</b> in LR(0). <b>SLR does not help:</b> FOLLOW(A) = {a, c} and FOLLOW(B) = {c, a} are the same, so both reductions still compete on a and c. <b>LR(1) fixes it</b> because lookaheads are state-specific: in I5 (state after d from I0) A→d• with lookahead <b>a</b> (S→Aa) and B→d• with lookahead <b>c</b> (S→Bc); in I9 (after bd) A→d• with <b>c</b> (S→bAc) and B→d• with <b>a</b> (S→bBa). Each cell has one reduction. <b>LALR does not fix it:</b> I5 and I9 have the same core, so merging gives lookaheads {a,c} for both again. The grammar is LR(1) but not LALR(1) and not SLR(1).</p>
+</section>
+
+<section id="ex4">
+<h2>7. Worked example: E → E+T | T, T → TF | F, F → F* | a | b <span class="w">Spring 2024 Q2a</span></h2>
+<p>Productions: <b>1</b> E→E+T · <b>2</b> E→T · <b>3</b> T→TF · <b>4</b> T→F · <b>5</b> F→F* · <b>6</b> F→a · <b>7</b> F→b. FOLLOW(E)={$,+}, FOLLOW(T)={$,+,a,b}, FOLLOW(F)={$,+,a,b,*}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Items</th><th>Edges</th></tr>
+<tr><td>I0</td><td>E′→•E, E→•E+T, E→•T, T→•TF, T→•F, F→•F*, F→•a, F→•b</td><td>E:1 T:2 F:3 a:4 b:5</td></tr>
+<tr><td>I1</td><td>E′→E•, E→E•+T</td><td>+:6; acc</td></tr>
+<tr><td>I2</td><td>E→T•, T→T•F, F→•F*, F→•a, F→•b</td><td>F:7 a:4 b:5</td></tr>
+<tr><td>I3</td><td>T→F•, F→F•*</td><td>*:8</td></tr>
+<tr><td>I4 / I5</td><td>F→a• / F→b•</td><td>reduce 6 / 7</td></tr>
+<tr><td>I6</td><td>E→E+•T, T→•TF, T→•F, F→•F*, F→•a, F→•b</td><td>T:9 F:3 a:4 b:5</td></tr>
+<tr><td>I7</td><td>T→TF•, F→F•*</td><td>*:8</td></tr>
+<tr><td>I8</td><td>F→F*•</td><td>reduce 5</td></tr>
+<tr><td>I9</td><td>E→E+T•, T→T•F, F→•F*, F→•a, F→•b</td><td>F:7 a:4 b:5</td></tr>
+</table></div>
+<p><b>LR(0) conflicts (S/R):</b> I2 (reduce E→T vs shift a,b), I3 (reduce T→F vs shift *), I7 (reduce T→TF vs shift *), I9 (reduce E→E+T vs shift a,b). <b>SLR(1) resolves all of them:</b> I2 reduces on {$,+} only; I3 and I7 reduce on {$,+,a,b}, which does not contain *; I9 reduces on {$,+}.</p>
+<div class="scroll"><table>
+<tr><th>St</th><th>a</th><th>b</th><th>+</th><th>*</th><th>$</th><th>E</th><th>T</th><th>F</th></tr>
+<tr><td>0</td><td>s4</td><td>s5</td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
+<tr><td>1</td><td></td><td></td><td>s6</td><td></td><td>acc</td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td>s4</td><td>s5</td><td>r2</td><td></td><td>r2</td><td></td><td></td><td>7</td></tr>
+<tr><td>3</td><td>r4</td><td>r4</td><td>r4</td><td>s8</td><td>r4</td><td></td><td></td><td></td></tr>
+<tr><td>4</td><td>r6</td><td>r6</td><td>r6</td><td>r6</td><td>r6</td><td></td><td></td><td></td></tr>
+<tr><td>5</td><td>r7</td><td>r7</td><td>r7</td><td>r7</td><td>r7</td><td></td><td></td><td></td></tr>
+<tr><td>6</td><td>s4</td><td>s5</td><td></td><td></td><td></td><td></td><td>9</td><td>3</td></tr>
+<tr><td>7</td><td>r3</td><td>r3</td><td>r3</td><td>s8</td><td>r3</td><td></td><td></td><td></td></tr>
+<tr><td>8</td><td>r5</td><td>r5</td><td>r5</td><td>r5</td><td>r5</td><td></td><td></td><td></td></tr>
+<tr><td>9</td><td>s4</td><td>s5</td><td>r1</td><td></td><td>r1</td><td></td><td></td><td>7</td></tr>
+</table></div>
+<p>Written answer: “The grammar is not LR(0) because states I2, I3, I7, I9 have shift/reduce conflicts; it is SLR(1) because the FOLLOW sets separate the reduce and shift columns.”</p>
+</section>
+
+<section id="lalr">
+<h2>8. LR(1) and LALR(1) in short <span class="w">[book] §4.7</span></h2>
+<ul>
+<li><b>LR(1) item:</b> <code>[A → α•β, a]</code>, a = lookahead terminal expected after the production is complete. Closure: for <code>[A→α•Bβ, a]</code> add <code>[B→•γ, b]</code> for every b ∈ FIRST(βa). Reduce <code>A→α•</code> only on its own lookahead a (stronger than FOLLOW).</li>
+<li><b>LALR(1):</b> merge LR(1) states with the <b>same core</b> (same LR(0) items), union the lookaheads. Same number of states as SLR/LR(0), almost as powerful as LR(1); merging can introduce reduce/reduce conflicts (never shift/reduce), as in section 6. <b>Yacc/Bison</b> generate LALR(1).</li>
+<li><b>Error handling:</b> blank ACTION cell = error; panic mode pops states until one with a transition on a special <code>error</code> token (Yacc), then discards input until a synchronizing token; phrase-level recovery and error productions are also used.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book §4.7 “More Powerful LR Parsers” (§4.7.1 canonical LR(1) items, §4.7.4 canonical LR(1) tables, §4.7.5 LALR tables); §4.9 “Parser Generators” (Yacc).</div>
+</section>
+
+<section id="theory">
+<h2>9. Theory questions asked</h2>
+<h3>Shift/reduce conflicts: what, why, example <span class="w">Spring 2024, Spring 2023, Fall 2024</span></h3>
+<p>See section 3. Give: definition (parser cannot decide between shift and reduce), cause (ambiguous grammar, or insufficient lookahead), and one example. Example answer: grammar <code>E → E+E | E*E | id</code> is ambiguous. In the state with items <code>E → E+E•</code> and <code>E → E•*E</code>, on input <code>*</code> the parser may <b>reduce</b> (making + bind first) or <b>shift</b> (making * bind first). Resolve with precedence/associativity rules or by rewriting the grammar to the E, T, F form. Reduce/reduce conflicts come from two complete items in one state (section 6).</p>
+<h3>Steps to build an SLR parsing table <span class="w">Spring 2024, 4 marks</span></h3>
+<p>1. Augment (S′→S). 2. Build the canonical LR(0) collection with closure and goto. 3. Compute FOLLOW for every non-terminal. 4. For each state: shift on terminals after the dot; reduce A→α on FOLLOW(A) for complete items; accept for S′→S• on $; fill GOTO for non-terminals. 5. Leave blanks as errors; any cell with two entries means the grammar is not SLR(1).</p>
+<h3>Top-down vs bottom-up, which is more common? <span class="w">Fall 2023, 4 marks</span></h3>
+<p>Top-down builds the tree from the root, leftmost derivation, predicts productions, needs left recursion removed (recursive descent, LL(1)). Bottom-up builds from the leaves, reverse rightmost derivation, shift-reduce, accepts left-recursive and a bigger class of grammars (LR). <b>Bottom-up (LR/LALR) is the common choice in generated compilers</b> (Yacc/Bison) because it handles more grammars and detects errors early; hand-written compilers often use recursive descent for clearer error messages and easier code.</p>
+</section>
+
+<section id="prac">
+<h2>10. Mistakes &amp; practice</h2>
+<ul>
+<li>Forgetting the augmented production, or the closure items inside a state.</li>
+<li>Pushing only states when shifting/reducing and losing the symbols (write symbols and states, or only states, but be consistent).</li>
+<li>Popping the wrong number of entries on a reduce: it is |body| symbols (2·|body| stack entries if you write symbols and states).</li>
+<li>Filling reduce entries across all columns for an SLR question (use FOLLOW).</li>
+<li>Calling a grammar “LR(0)” because there are no conflicts in the SLR table; check the LR(0) table.</li>
+</ul>
+<p><b>P1.</b> Is <code>S → aS | b</code> LR(0)? Build the item sets.</p>
+<details><summary>Answer</summary>I0: S′→•S, S→•aS, S→•b. I1 S: S′→S•. I2 a: S→a•S, S→•aS, S→•b. I3 b: S→b•. I4 (I2,S): S→aS•. States I3 and I4 have only one complete item and no other items, so there are no conflicts: LR(0).</details>
+<p><b>P2.</b> Which grammar class can parse <code>E → E+E | id</code> without rewriting?</p>
+<details><summary>Answer</summary>None of the plain classes: the grammar is ambiguous, so a state has <code>E→E+E•</code> and <code>E→E•+E</code> (S/R conflict even in LR(1)). Yacc resolves it by declaring <code>+</code> left-associative, which picks reduce.</details>
+<p><b>P3.</b> A parser stack is <code>0 E 1 + 6 T 9</code> with next token <code>$</code> in the table of section 5. What happens?</p>
+<details><summary>Answer</summary>ACTION[9,$] = r1 (E→E+T): pop three symbols (and their states), top state 0, GOTO[0,E] = 1, stack <code>0 E 1</code>; then accept on $.</details>
+<p><b>P4.</b> Order by power: LALR(1), LR(0), LR(1), SLR(1).</p>
+<details><summary>Answer</summary>LR(0) ⊂ SLR(1) ⊂ LALR(1) ⊂ LR(1).</details>
+</section>
+
+<footer>Your slides cover only the idea of bottom-up/shift-reduce parsing; items, tables and conflicts on this page follow the Dragon Book. Section numbers refer to the 2nd edition and may differ in other editions. FIRST/FOLLOW are explained in the LL(1) material.</footer>
+</main>
+</body>
+</html>

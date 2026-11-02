@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: Pushdown Automata</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · pushdown automata</b></div>
+<nav><a href="#def">Definition</a><a href="#idm">IDs &amp; acceptance</a><a href="#design">Design</a><a href="#exam">Exam answers</a><a href="#cfg">PDA ⇄ CFG</a><a href="#theory">Theory Q&amp;A</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>Pushdown Automata (PDA)</h1>
+<p class="lead">Slides 342–361: the stack, the 7-tuple, moves (⊢), acceptance, DPDA vs NPDA, and worked designs. Then every PDA question from your papers: Spring 2025 (<code>wwᴿ</code>, input 001100), Spring 2024 (<code>w01wᴿ</code>, input 100101), Spring 2023 (<code>aⁿba²ⁿ</code>, input aabaaaa), plus the theory questions. Textbooks: Hopcroft–Motwani–Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i>, 3rd ed.; Sipser, <i>Introduction to the Theory of Computation</i>.</p>
+
+<section id="def">
+<h2>1. What a PDA is</h2>
+<ul>
+<li>A <b>finite automaton + a stack</b> (LIFO, unbounded). The stack gives it memory for counting and matching, which a DFA/NFA does not have. A PDA recognizes exactly the <b>context-free languages</b>.</li>
+<li><b>Formal definition:</b> <code>P = (Q, Σ, Γ, δ, q₀, Z, F)</code>
+<ul>
+<li>Q: finite set of states; Σ: input alphabet; Γ: stack alphabet (finite);</li>
+<li>δ: transition function; q₀ ∈ Q: start state; Z ∈ Γ: initial stack symbol (bottom marker); F ⊆ Q: final states.</li>
+</ul></li>
+<li><b>Transition function:</b> <code>δ(q, a, X) = { (p, γ), … }</code> where a ∈ Σ ∪ {ε}, X ∈ Γ, p ∈ Q, γ ∈ Γ*. Meaning: in state q, reading input a (or no input if a = ε), with X on top of the stack: move to state p, <b>pop X and push the string γ</b> (leftmost symbol of γ becomes the new top).</li>
+<li>Typical stack operations: <b>push</b> <code>(p, AX)</code> (γ longer than X), <b>pop</b> <code>(p, ε)</code>, <b>replace</b> <code>(p, Y)</code>, <b>no change</b> <code>(p, X)</code>.</li>
+<li>A move may consume input (a ∈ Σ) or be an <b>ε-move</b> (spontaneous). The move depends on the state, the next input symbol <b>and the stack top</b>; the stack top is always popped when the move is taken.</li>
+</ul>
+<div class="scroll"><table>
+<tr><th></th><th>DPDA</th><th>NPDA</th></tr>
+<tr><td>Choices per (state, input/ε, stack top)</td><td>at most one; if an ε-move is possible no input move is allowed for that (q, X)</td><td>any number</td></tr>
+<tr><td>Language class</td><td>deterministic CFLs (strictly fewer)</td><td>all CFLs</td></tr>
+<tr><td>Example</td><td>aⁿbⁿ; <code>w c wᴿ</code> (marked middle)</td><td><code>wwᴿ</code> (the middle must be guessed)</td></tr>
+<tr><td>Link to compilers</td><td>LR parsers behave like DPDAs; deterministic parsing is practical</td><td>general CFG parsing needs backtracking or CYK/Earley</td></tr>
+</table></div>
+<div class="refs"><b>Read:</b> HMU Ch. 6 “Pushdown Automata”, §6.1 “Definition of the Pushdown Automaton” (§6.1.1 informal introduction, §6.1.2 formal definition, §6.1.3 graphical notation); Sipser Ch. 2 §2.2 “Pushdown Automata” (formal definition, examples).</div>
+</section>
+
+<section id="idm">
+<h2>2. Instantaneous descriptions and acceptance</h2>
+<ul>
+<li><b>ID (instantaneous description):</b> a snapshot <code>(q, w, γ)</code>: current state, <b>remaining</b> input, stack contents (<b>top on the left</b>).</li>
+<li><b>Turnstile:</b> <code>(q, aw, Xβ) ⊢ (p, w, γβ)</code> if <code>(p, γ) ∈ δ(q, a, X)</code>. <code>⊢*</code> means zero or more moves. For an ε-move the input does not change.</li>
+<li><b>Acceptance by final state:</b> <code>L(P) = { w | (q₀, w, Z) ⊢* (q, ε, γ), q ∈ F }</code> (any stack).</li>
+<li><b>Acceptance by empty stack:</b> <code>N(P) = { w | (q₀, w, Z) ⊢* (q, ε, ε) }</code> (any state).</li>
+<li>The two modes have the same power: any PDA of one kind can be converted to the other (HMU §6.2.3 and §6.2.4). In an exam say <b>which mode you use</b>, and use a bottom marker Z so you can detect an empty stack.</li>
+<li>The input is accepted if <b>some</b> sequence of choices succeeds (nondeterminism); you only need to show one accepting computation.</li>
+</ul>
+<div class="tip"><b>How to write the IDs:</b> start (q₀, whole string, Z); at every ⊢ change the state, drop the consumed symbol from the front of the input, and rewrite the stack top-first. Number or list every move; mark the ε-move that “guesses the middle”.</div>
+</section>
+
+<section id="design">
+<h2>3. Design strategies, with transition tables</h2>
+<p>Stack alphabet Γ = {Z, …}; Z marks the bottom. The tables list δ(state, input, top) = (new state, string pushed).</p>
+<h3>A. Counting: aⁿbⁿ, n ≥ 1 (DPDA, final-state acceptance)</h3>
+<p>Push one A per a; pop one A per b; accept when only Z is left.</p>
+<pre>δ(q0, a, Z) = (q0, AZ)       δ(q0, a, A) = (q0, AA)
+δ(q0, b, A) = (q1, ε)        δ(q1, b, A) = (q1, ε)
+δ(q1, ε, Z) = (q2, Z)        F = {q2}</pre>
+<pre>(q0,aabb,Z) ⊢ (q0,abb,AZ) ⊢ (q0,bb,AAZ) ⊢ (q1,b,AZ) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z)  accept</pre>
+<p>Variant <b>aⁿb²ⁿ</b>: push <code>AA</code> per a and pop one A per b. Ratio questions are answered by changing the amount pushed.</p>
+<h3>B. Matching a reverse: wwᴿ over {0,1} (NPDA)</h3>
+<p>Push the first half; <b>guess the middle</b> with an ε-move; then pop-match the second half. Write a ∈ {0,1} and X ∈ {0, 1, Z}.</p>
+<pre>δ(q0, a, X) = (q0, aX)         push every symbol
+δ(q0, ε, X) = (q1, X)          guess: the middle is here
+δ(q1, a, a) = (q1, ε)          match and pop
+δ(q1, ε, Z) = (q2, Z)          F = {q2}</pre>
+<h3>C. Marker between: w01wᴿ (NPDA, because 0 and 1 also occur in w)</h3>
+<pre>δ(q0, a, X) = (q0, aX)         push w
+δ(q0, 0, X) = (q1, X)          guess: this 0 starts the marker 01
+δ(q1, 1, X) = (q2, X)          marker 1
+δ(q2, a, a) = (q2, ε)          match wᴿ
+δ(q2, ε, Z) = (q3, Z)          F = {q3}</pre>
+<h3>D. Ratio: aⁿ b a²ⁿ (push twice, pop once per a)</h3>
+<pre>δ(q0, a, Z) = (q0, AAZ)   δ(q0, a, A) = (q0, AAA)     push two A per a
+δ(q0, b, Z) = (q1, Z)     δ(q0, b, A) = (q1, A)        n = 0 allowed
+δ(q1, a, A) = (q1, ε)     δ(q1, ε, Z) = (q2, Z)        F = {q2}</pre>
+<h3>E. Comparing counts: equal numbers of a’s and b’s</h3>
+<p>The stack holds the surplus of whichever symbol is ahead (A for extra a’s, B for extra b’s); an opposite symbol cancels.</p>
+<pre>δ(q, a, Z) = (q, AZ)   δ(q, a, A) = (q, AA)   δ(q, a, B) = (q, ε)
+δ(q, b, Z) = (q, BZ)   δ(q, b, B) = (q, BB)   δ(q, b, A) = (q, ε)
+δ(q, ε, Z) = (f, Z)    F = {f}</pre>
+<p>For <b>unequal</b> counts, accept when the surplus is non-empty instead: after the input is read, an ε-move that sees A or B on top goes to the final state.</p>
+<div class="tip"><b>Recipe:</b> (1) what must be remembered? count or sequence → stack; (2) where does the stack change? (3) is the switching point visible (a different symbol, a marker) or must it be <b>guessed</b> (ε-move, NPDA)? (4) how do I know it matched? Z reached. Then write the table, then trace one accepted and one rejected string.</div>
+</section>
+
+<section id="exam">
+<h2>4. Past-paper answers (Q4c, 6 marks)</h2>
+<h3>Spring 2025: L = { wwᴿ | w ∈ {0,1}* }, input 001100</h3>
+<p>Use design B. Here w = 001 and wᴿ = 100. The stack is written top-first.</p>
+<pre>(q0,001100,Z)
+⊢ (q0,01100,0Z)    push 0
+⊢ (q0,1100,00Z)    push 0
+⊢ (q0,100,100Z)    push 1
+⊢ (q1,100,100Z)    ε-move: guess the middle
+⊢ (q1,00,00Z)      read 1, pop 1
+⊢ (q1,0,0Z)        read 0, pop 0
+⊢ (q1,ε,Z)         read 0, pop 0
+⊢ (q2,ε,Z)         ε-move: only Z left, accept</pre>
+<p>Rejected example: <code>0010</code> (odd/not a palindrome): the guess at any position leaves a mismatch or leftover symbols.</p>
+<h3>Spring 2024: L = { w01wᴿ | w ∈ (0+1)* }, input 100101</h3>
+<p>Use design C. Here w = 10, so the string splits as 10 · 01 · 01.</p>
+<pre>(q0,100101,Z)
+⊢ (q0,00101,1Z)   push 1
+⊢ (q0,0101,01Z)   push 0
+⊢ (q1,101,01Z)    guess: this 0 is the marker’s 0
+⊢ (q2,01,01Z)     marker’s 1
+⊢ (q2,1,1Z)       read 0, pop 0
+⊢ (q2,ε,Z)        read 1, pop 1
+⊢ (q3,ε,Z)        accept</pre>
+<h3>Spring 2023: L = { aⁿ b a²ⁿ | n ≥ 0 }, input aabaaaa</h3>
+<p>Use design D (n = 2: two a’s, then b, then four a’s).</p>
+<pre>(q0,aabaaaa,Z)
+⊢ (q0,abaaaa,AAZ)    a: push AA
+⊢ (q0,baaaa,AAAAZ)   a: push AA
+⊢ (q1,aaaa,AAAAZ)    b: switch state
+⊢ (q1,aaa,AAAZ)      a: pop
+⊢ (q1,aa,AAZ)        a: pop
+⊢ (q1,a,AZ)          a: pop
+⊢ (q1,ε,Z)           a: pop
+⊢ (q2,ε,Z)           accept</pre>
+<h3>Fall 2024 (the language is hard to read in the scan)</h3>
+<p>The question gives input <code>00100</code>. If the language is odd-length palindromes with a middle symbol, use design B with an extra ε-move that <i>reads and discards</i> the middle symbol: <code>δ(q0, a, X) ∋ (q1, X)</code>. Trace: (q0,00100,Z) ⊢ (q0,0100,0Z) ⊢ (q0,100,00Z) ⊢ (q1,00,00Z) [read middle 1, no push] ⊢ (q1,0,0Z) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z). If your copy of the paper shows a different language (for instance with a trailing fixed block), say so and send the line; the method (push first part, guess the boundary, match) stays the same.</p>
+</section>
+
+<section id="cfg">
+<h2>5. PDA ⇄ CFG</h2>
+<p><b>CFG → PDA (one state, empty-stack acceptance):</b> put the start symbol S on the stack; then
+<br>• for each production <code>A → α</code>: <code>δ(q, ε, A) ∋ (q, α)</code> (replace the variable by its body);
+<br>• for each terminal a: <code>δ(q, a, a) = (q, ε)</code> (match and pop).</p>
+<p>Example <code>S → aSb | ε</code> on input aabb (stack top on the left):</p>
+<pre>(q,aabb,S) ⊢ (q,aabb,aSb) ⊢ (q,abb,Sb) ⊢ (q,abb,aSbb) ⊢ (q,bb,Sbb)
+⊢ (q,bb,bb) ⊢ (q,b,b) ⊢ (q,ε,ε)   accept (empty stack)</pre>
+<p>This <i>is</i> a top-down (leftmost-derivation) parser: the stack of a predictive LL(1) parser works exactly this way, with a table choosing the production. A bottom-up shift-reduce parser uses the stack the other way round (push input, reduce a handle on top); that is the PDA for LR parsing.</p>
+<p><b>PDA → CFG:</b> variables [pXq] mean “from state p with X on top, reach q with X popped”; the construction is long and only needed for the proof (HMU §6.3.2).</p>
+<div class="refs"><b>Read:</b> HMU §6.3 “Equivalence of PDA’s and CFG’s”, §6.4 “Deterministic Pushdown Automata”; Sipser Ch. 2 §2.2 (Theorem 2.20, equivalence with CFGs); Dragon Book §4.5 “Bottom-Up Parsing” (stack-based parsers).</div>
+</section>
+
+<section id="theory">
+<h2>6. Theory questions</h2>
+<h3>“Describe a PDA. What are its advantages over a DFA/NFA?” <span class="w">Spring 2024, 4 marks</span></h3>
+<ul>
+<li><b>Description:</b> finite control + input tape + stack; 7-tuple; moves use state, input symbol (or ε) and stack top; accepts by final state or empty stack.</li>
+<li><b>Advantages:</b> (1) unbounded memory through the stack, so it can <b>count and match</b> (aⁿbⁿ, balanced parentheses, wwᴿ); (2) recognizes all CFLs, a strictly larger class than the regular languages; (3) is the machine model behind parsing (nested structures in programming languages: expressions, blocks, if-else); (4) any DFA/NFA is a PDA that ignores its stack.</li>
+<li><b>Limits:</b> only one stack, so aⁿbⁿcⁿ and ww (copy language) are <b>not</b> CFLs; nondeterministic PDAs are more powerful than deterministic ones (wwᴿ needs a guess); simulation costs more than a DFA.</li>
+</ul>
+<h3>“Formally define DFA, NFA, PDA and ε-NFA…” <span class="w">Spring 2025, 4 marks</span></h3>
+<p>The PDA part: the 7-tuple of section 1 plus one worked example (A or B above). The other three are in the <a href="automata-conversions.html">automata conversions page</a>. Add one advantage and one disadvantage each, e.g. PDA: + handles nesting; − nondeterministic ones cannot always be made deterministic.</p>
+</section>
+
+<section id="prac">
+<h2>7. Mistakes &amp; practice</h2>
+<ul>
+<li>Writing the stack with the top on the right in some IDs and on the left in others. Pick one (top-left) and keep it.</li>
+<li>Forgetting the bottom marker Z, so “empty” cannot be detected.</li>
+<li>Pushing in the wrong order: <code>(p, AX)</code> puts A <b>above</b> X.</li>
+<li>Not showing the ε-move for the guessed middle (it counts as a move in the trace).</li>
+<li>Claiming a DPDA exists for wwᴿ. It does not.</li>
+</ul>
+<p><b>P1.</b> PDA for aⁿb²ⁿ, n ≥ 0. Trace <code>abb</code>.</p>
+<details><summary>Answer</summary>Push AA per a: δ(q0,a,Z)=(q0,AAZ), δ(q0,a,A)=(q0,AAA); on b switch and pop: δ(q0,b,A)=(q1,ε), δ(q1,b,A)=(q1,ε); δ(q0,ε,Z)=(q2,Z) for n = 0, δ(q1,ε,Z)=(q2,Z). Trace: (q0,abb,Z) ⊢ (q0,bb,AAZ) ⊢ (q1,b,AZ) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z).</details>
+<p><b>P2.</b> Is { aⁿbⁿcⁿ | n ≥ 1 } accepted by a PDA?</p>
+<details><summary>Answer</summary>No. After matching a’s against b’s the stack is empty, so nothing is left to match the c’s. The language is not context-free.</details>
+<p><b>P3.</b> Which need a nondeterministic PDA: (i) aⁿbⁿ, (ii) wwᴿ, (iii) w c wᴿ, (iv) balanced parentheses?</p>
+<details><summary>Answer</summary>Only (ii). (i), (iii), (iv) are deterministic (the switch point is visible or no switch is needed).</details>
+<p><b>P4.</b> Convert <code>S → 0S1 | 01</code> into a PDA and trace <code>0011</code>.</p>
+<details><summary>Answer</summary>δ(q,ε,S) = {(q,0S1),(q,01)}; δ(q,0,0)=(q,ε); δ(q,1,1)=(q,ε). (q,0011,S) ⊢ (q,0011,0S1) ⊢ (q,011,S1) ⊢ (q,011,011) ⊢ (q,11,11) ⊢ (q,1,1) ⊢ (q,ε,ε).</details>
+</section>
+
+<footer>Slides: 342–361. Section numbers refer to the HMU 3rd edition and may differ in other editions. The Fall 2024 PDA language was unclear in the scan; check the paper and use the same method.</footer>
+</main>
+</body>
+</html>

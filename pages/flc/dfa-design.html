@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: DFA Design &amp; Regular Expressions → DFA</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · DFA design &amp; RE → DFA</b></div>
+<nav><a href="#method">Method</a><a href="#pat">Patterns</a><a href="#re2dfa">RE → DFA</a><a href="#exam">Exam answers</a><a href="#links">DFA ⇄ RE</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>DFA Design &amp; Regular Expressions → DFA</h1>
+<p class="lead">The bridge between the two topics: how to <b>design</b> a DFA from a language description or a regular expression, and every such question from your five papers (Q4d: “construct DFAs from the following regular expressions”, plus the Spring 2023 “draw a DFA for…”). Companion pages: <a href="regular-expressions.html">Regular expressions</a> (building REs) and <a href="automata-conversions.html">Automata conversions</a> (NFA → DFA, minimization). Textbooks: Hopcroft–Motwani–Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i>, 3rd ed.; Sipser, <i>Introduction to the Theory of Computation</i>.</p>
+
+<section id="method">
+<h2>1. The design method</h2>
+<p>A DFA is (Q, Σ, δ, q₀, F) with exactly one move for every state and every symbol. The skill is deciding <b>what each state remembers</b>.</p>
+<ol>
+<li><b>Decide what must be remembered</b> about the prefix read so far: progress through a fixed pattern, the last few symbols, a parity or a count mod n, or “already failed”.</li>
+<li><b>One state per distinct memory.</b> The start state remembers “nothing yet” (ε).</li>
+<li><b>Mark final states:</b> the memories for which the string read so far is in the language.</li>
+<li><b>Fill every transition.</b> Anything that can never lead to acceptance goes to a <b>dead (trap) state</b> that loops on all symbols. Check every state has an arrow for every symbol.</li>
+<li><b>Test</b> with ε, a short string that is accepted, and two that are rejected.</li>
+<li>Optionally <b>minimize</b>: states that behave the same on every future string can be merged (see the conversions page).</li>
+</ol>
+<div class="tip"><b>For an RE:</b> read it left to right as a sequence of required pieces; draw the chain for the fixed parts, add loops for stars, and branch only where the RE has a union. Build the DFA directly when the RE is small, or first build an NFA and convert it.</div>
+<div class="refs"><b>Read:</b> HMU Ch. 2 §2.2 “Deterministic Finite Automata” (definition, transition diagrams and tables, extended δ, the language of a DFA); Sipser Ch. 1 §1.1 “Finite Automata” (Designing finite automata, the “reader as automaton” idea).</div>
+</section>
+
+<section id="pat">
+<h2>2. Standard design patterns</h2>
+<div class="scroll"><table>
+<tr><th>Language type</th><th>States remember</th><th>Shape</th></tr>
+<tr><td>fixed prefix (starts with w)</td><td>progress through w</td><td>chain q₀ → … → q<sub>|w|</sub>; a wrong symbol goes to dead; the last state loops on Σ</td></tr>
+<tr><td>contains substring w</td><td>longest suffix read that is a prefix of w</td><td>chain; the last state is final and loops on Σ</td></tr>
+<tr><td>ends with w</td><td>longest suffix read that is a prefix of w</td><td>chain with “fall-back” arrows; last state final but <b>not</b> absorbing</td></tr>
+<tr><td>length mod n = r</td><td>length mod n</td><td>cycle of n states</td></tr>
+<tr><td>#symbol mod n</td><td>count mod n</td><td>cycle on that symbol, self-loops on others</td></tr>
+<tr><td>conditions joined by AND / OR</td><td>one memory per condition</td><td><b>product</b>: states are pairs; final set chosen by AND (both) / OR (either)</td></tr>
+<tr><td>NOT a language</td><td>same as the language</td><td>complete DFA with final and non-final states swapped</td></tr>
+<tr><td>“does not contain w”</td><td>progress towards w</td><td>like “contains”, but the “found” state is the dead state and all others are final</td></tr>
+</table></div>
+<h3>A. “Ends with abba” over {a, b} <span class="w">Spring 2023</span></h3>
+<p>q₀ = no progress, q₁ = ends in a, q₂ = ends in ab, q₃ = ends in abb, q₄ = ends in abba (final). After each symbol move to the state for the <b>longest suffix of the input that is a prefix of abba</b>.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>a</th><th>b</th></tr>
+<tr><td>→ q₀</td><td>q₁</td><td>q₀</td></tr>
+<tr><td>q₁ (a)</td><td>q₁</td><td>q₂</td></tr>
+<tr><td>q₂ (ab)</td><td>q₁</td><td>q₃</td></tr>
+<tr><td>q₃ (abb)</td><td>q₄</td><td>q₀</td></tr>
+<tr><td>* q₄ (abba)</td><td>q₁</td><td>q₂</td></tr>
+</table></div>
+<p>Explanations of the fall-backs: from q₃ on b the text ends in <code>abbb</code>, which has no useful suffix ⇒ q₀. From q₄ on a: <code>abbaa</code> ends in <code>a</code> ⇒ q₁; on b: <code>abbab</code> ends in <code>ab</code> ⇒ q₂. Test: <code>abba</code> ✓, <code>aabba</code> ✓, <code>abbab</code> ✗.</p>
+<h3>B. “Odd number of 0s <u>or</u> even number of 1s” over {0, 1} <span class="w">Spring 2023</span></h3>
+<p>Track both parities: state (p₀, p₁) with p₀ = parity of 0s, p₁ = parity of 1s. A 0 flips the first, a 1 flips the second. Start (e,e). Final when p₀ is odd <b>or</b> p₁ is even.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>0</th><th>1</th><th>Final?</th></tr>
+<tr><td>→ (e,e)</td><td>(o,e)</td><td>(e,o)</td><td>yes (1s even)</td></tr>
+<tr><td>(e,o)</td><td>(o,o)</td><td>(e,e)</td><td>no</td></tr>
+<tr><td>(o,e)</td><td>(e,e)</td><td>(o,o)</td><td>yes</td></tr>
+<tr><td>(o,o)</td><td>(e,o)</td><td>(o,e)</td><td>yes (0s odd)</td></tr>
+</table></div>
+<p>Only (e,o) is non-final: the language is every string except those with an even number of 0s and an odd number of 1s. For AND, only (o,e) would be final. This product idea (HMU §4.2.1 “Closure under intersection”) is how to combine any two conditions.</p>
+<h3>C. “No substring 00” (compare with the RE <code>(1+01)*(ε+0)</code>)</h3>
+<p>A = last symbol not 0 (start), B = last symbol 0, D = dead (00 seen). A: 0→B, 1→A. B: 0→D, 1→A. D loops. Finals A, B. Each loop in the RE (<code>1</code> and <code>01</code> from A back to A) is a path in the DFA.</p>
+<h3>D. Binary numbers divisible by 3 (mod-counting)</h3>
+<p>States = remainder r ∈ {0,1,2}; reading bit b maps r to (2r + b) mod 3. r₀: 0→r₀, 1→r₁; r₁: 0→r₂, 1→r₀; r₂: 0→r₁, 1→r₂. Start and final: r₀.</p>
+</section>
+
+<section id="re2dfa">
+<h2>3. Regular expression → DFA</h2>
+<p>Two valid routes. Pick whichever the question allows:</p>
+<ul>
+<li><b>Direct design:</b> read the RE as a pattern (prefix, loop, suffix), then apply section 2. Fast for small REs; the answer is accepted as long as the DFA is complete and correct.</li>
+<li><b>Systematic:</b> RE → ε-NFA (Thompson construction, see the RE page) → remove ε / subset construction → minimize (see conversions page). Slower, always works.</li>
+</ul>
+<p>Translate each RE operator into DFA shape: <b>concatenation</b> = chain; <b>star</b> = loop (return to the state before the starred part, or a state with the same future behaviour); <b>union</b> = branches that either end in finals or merge. <code>(0+1)*</code> in the middle is a state that loops on both symbols.</p>
+<div class="tip"><b>The “ends with” trap:</b> for <code>(0|1)*w</code> the end of the string must be exactly w, so use fall-back arrows (section 2A). For <code>w(0|1)*</code> use an absorbing final state. For <code>w(0|1)*w</code> track the suffix <b>only after the prefix is complete</b>, so “abab” is the shortest string for <code>ab(a|b)*ab</code>, not “ab”.</div>
+</section>
+
+<section id="exam">
+<h2>4. Past-paper answers: DFAs from regular expressions (Q4d, 6 marks)</h2>
+<p>All DFAs below are complete (the dead state D loops on every symbol and is not repeated in each table row).</p>
+<h3>Spring 2025 (i): <code>(00)*(0+1) + (1)*</code></h3>
+<p>Language = <code>(00)*(0+1)</code> ∪ <code>1*</code> = <b>0<sup>odd</sup></b>, or <b>0<sup>even</sup>1</b>, or <b>1<sup>n</sup></b> (n ≥ 0). Remember: even zeros then one symbol, or only 1s.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>meaning</th><th>0</th><th>1</th></tr>
+<tr><td>→ * A</td><td>ε</td><td>B</td><td>T</td></tr>
+<tr><td>* B</td><td>0<sup>odd</sup></td><td>C</td><td>D</td></tr>
+<tr><td>C</td><td>0<sup>even ≥ 2</sup></td><td>B</td><td>U</td></tr>
+<tr><td>* T</td><td>1<sup>n</sup>, n ≥ 1</td><td>D</td><td>T</td></tr>
+<tr><td>* U</td><td>0<sup>even</sup>1 (complete)</td><td>D</td><td>D</td></tr>
+<tr><td>D</td><td>dead</td><td>D</td><td>D</td></tr>
+</table></div>
+<p>Tests: <code>000</code> ✓ (A,B,C,B), <code>001</code> ✓ (…C,U), <code>0011</code> ✗, <code>0001</code> ✗, <code>111</code> ✓, ε ✓. A and C look alike, but A is final (ε ∈ 1*) while C is not, so they stay separate.</p>
+<h3>Spring 2025 (ii): <code>(0|1)*01</code> (ends in 01)</h3>
+<p>A (no progress / last 1): 0→B, 1→A. B (last 0): 0→B, 1→C. * C (ends 01): 0→B, 1→A.</p>
+<h3>Fall 2024 (i): <code>ab(a|b)*ab</code></h3>
+<p>Prefix chain p₀ –a→ p₁ –b→ p₂. From p₂ the string may continue and must end in <code>ab</code>: track the last symbol.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>meaning</th><th>a</th><th>b</th></tr>
+<tr><td>→ p₀</td><td>ε</td><td>p₁</td><td>D</td></tr>
+<tr><td>p₁</td><td>a</td><td>D</td><td>p₂</td></tr>
+<tr><td>p₂</td><td>prefix ab, or last b</td><td>p₃</td><td>p₂</td></tr>
+<tr><td>p₃</td><td>last a</td><td>p₃</td><td>p₄</td></tr>
+<tr><td>* p₄</td><td>ends in ab (after prefix)</td><td>p₃</td><td>p₂</td></tr>
+</table></div>
+<p>6 states with D. Tests: <code>abab</code> ✓, <code>ababab</code> ✓, <code>ab</code> ✗ (the suffix may not reuse the prefix), <code>abb</code> ✗.</p>
+<h3>Fall 2024 (ii): <code>(0|1)*10</code> (ends in 10)</h3>
+<p>A: 0→A, 1→B. B (last 1): 0→C, 1→B. * C (ends in 10): 0→A, 1→B.</p>
+<h3>Spring 2024 (i): <code>ab(a|b)*</code></h3>
+<p>p₀ –a→ p₁ –b→ * p₂ (loops on a, b). Every other move goes to D (p₀ on b, p₁ on a). Tests: <code>ab</code> ✓, <code>abba</code> ✓, <code>aab</code> ✗.</p>
+<h3>Spring 2024 (ii): <code>01(0|1)*01</code></h3>
+<p>Prefix p₀ –0→ p₁ –1→ p₂, other moves to D. After the prefix, track the suffix:</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>meaning</th><th>0</th><th>1</th></tr>
+<tr><td>→ p₀</td><td>ε</td><td>p₁</td><td>D</td></tr>
+<tr><td>p₁</td><td>0</td><td>D</td><td>p₂</td></tr>
+<tr><td>p₂</td><td>prefix 01, or last 1 not after 0</td><td>p₃</td><td>p₂</td></tr>
+<tr><td>p₃</td><td>last 0</td><td>p₃</td><td>p₄</td></tr>
+<tr><td>* p₄</td><td>ends in 01</td><td>p₃</td><td>p₂</td></tr>
+</table></div>
+<p>Shortest accepted string: <code>0101</code>. (A version with a separate state for “last 1 not after 0” is correct too, but it is not minimal: that state and p₂ behave identically.)</p>
+<h3>Fall 2023 (i): <code>ab(a+b)*</code></h3>
+<p>Same DFA as Spring 2024 (i).</p>
+<h3>Fall 2023 (ii): <code>011(0|1)*01*</code></h3>
+<p>Because <code>(0|1)*01*</code> means “anything, then a 0, then only 1s”, it is satisfied by any string that contains <b>at least one 0</b> (take the last 0). So the language is: starts with 011, and the part after 011 contains a 0.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>meaning</th><th>0</th><th>1</th></tr>
+<tr><td>→ p₀</td><td>ε</td><td>p₁</td><td>D</td></tr>
+<tr><td>p₁</td><td>0</td><td>D</td><td>p₂</td></tr>
+<tr><td>p₂</td><td>01</td><td>D</td><td>p₃</td></tr>
+<tr><td>p₃</td><td>011, no 0 after it yet</td><td>p₄</td><td>p₃</td></tr>
+<tr><td>* p₄</td><td>a 0 has appeared after 011</td><td>p₄</td><td>p₄</td></tr>
+</table></div>
+<p>Tests: <code>0110</code> ✓, <code>01101</code> ✓, <code>011</code> ✗, <code>0111</code> ✗, <code>0101</code> ✗.</p>
+</section>
+
+<section id="links">
+<h2>5. DFA ⇄ regular expression: checking your answer</h2>
+<ul>
+<li><b>Describe a DFA in words:</b> name what each state means, then read the final states. That sentence is the “language” you can turn into an RE with the pattern table on the RE page.</li>
+<li><b>DFA → RE:</b> state elimination (HMU §3.2.2). Example: the “ends with 01” DFA gives <code>(0+1)*01</code>.</li>
+<li><b>Compare answers:</b> two DFAs accept the same language iff their minimized forms are identical (HMU §4.4.2); useful for checking that your direct design matches the book answer.</li>
+<li><b>Complement:</b> to get “does <i>not</i> end with 01”, keep the same complete DFA and swap final and non-final states. This does not work on an NFA.</li>
+</ul>
+<div class="refs"><b>Read:</b> HMU Ch. 3 §3.2.2 “Converting DFA’s to Regular Expressions by Eliminating States”, Ch. 4 §4.2.1–4.2.2 “Closure under complementation / intersection (product construction)”, §4.4.2 “Testing equivalence of regular languages”; Sipser Ch. 1 §1.1 “The regular operations”.</div>
+</section>
+
+<section id="prac">
+<h2>6. Mistakes &amp; practice</h2>
+<ul>
+<li>Missing arrows: every state needs one arrow per symbol. Add the dead state instead of leaving blanks.</li>
+<li>Making the last state of an “ends with” DFA absorbing (it must move on).</li>
+<li>Letting the suffix of <code>w(0|1)*w</code> overlap the prefix.</li>
+<li>Mixing up AND and OR in product constructions: check which pair-states are final.</li>
+<li>Not marking the start state final when ε belongs to the language (e.g. <code>1*</code>).</li>
+</ul>
+<p><b>P1.</b> DFA for even number of 0s <b>and</b> even number of 1s.</p>
+<details><summary>Answer</summary>States (p₀,p₁) with parities, start and only final state (e,e); 0 flips p₀, 1 flips p₁. Four states: (e,e) –0→ (o,e), –1→ (e,o), etc.</details>
+<p><b>P2.</b> DFA for strings over {0,1} that start with 0 and end with 1.</p>
+<details><summary>Answer</summary>Start S –1→ D, S –0→ X (last symbol 0). X: 0→X, 1→Y*. Y*: 0→X, 1→Y*. Dead D loops. Four states; the string “0” is rejected because it ends in 0.</details>
+<p><b>P3.</b> How many states does the minimal DFA for “contains 101” need (alphabet {0,1})?</p>
+<details><summary>Answer</summary>Four: q₀ (nothing), q₁ (1), q₂ (10), q₃ (101, final, absorbing). No dead state is needed because every state can still reach acceptance.</details>
+<p><b>P4.</b> Give a DFA for “does not end with 01”, starting from the DFA for “ends with 01”.</p>
+<details><summary>Answer</summary>Keep the three-state DFA (A: 0→B,1→A; B: 0→B,1→C; C: 0→B,1→A) and make A and B final, C non-final.</details>
+</section>
+
+<footer>Slides: DFA material 39–125; the “construct DFA from RE” questions are from your papers (Q4d). Section numbers refer to the HMU 3rd edition and may differ in other editions. The regular-expressions page stays as the RE-only reference; this page is the combined one.</footer>
+</main>
+</body>
+</html>

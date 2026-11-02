@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: SDT &amp; Three-Address Code</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · SDT &amp; 3-address code</b></div>
+<nav><a href="#why">Why</a><a href="#attr">Attributes</a><a href="#sl">S vs L</a><a href="#ex">Worked SDDs</a><a href="#tac">3-address code</a><a href="#exam">Exam SDD</a><a href="#flow">Control flow</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>Syntax-Directed Translation &amp; Three-Address Code</h1>
+<p class="lead">Covers semantic analysis, attribute grammars (synthesized, inherited, S- and L-attributed), SDD-driven translation, three-address code and its representations, and the exact exam question “annotate the parse tree and generate code for <code>a := b * -c + b * -c</code>”. Lecture slides 431–451 are the base; the exam parts follow the Dragon Book (Aho, Lam, Sethi, Ullman, <i>Compilers: Principles, Techniques, and Tools</i>, 2nd ed.).</p>
+
+<section id="why">
+<h2>1. Why semantic analysis and SDT?</h2>
+<ul>
+<li>A parse tree only says the string is <i>well formed</i>. It carries no meaning and no instructions for evaluating anything. The productions of a CFG “do not accommodate how to interpret them” (slides). <b>CFG + semantic rules = Syntax-Directed Definition (SDD).</b></li>
+<li><b>Semantic analysis</b> does scope resolution, type checking and array-bound checking. It must recognize: type mismatch, undeclared variable, reserved-identifier misuse, multiple declarations in one scope, out-of-scope access, and actual/formal parameter mismatch. The parser cannot detect these.</li>
+<li><b>Syntax-directed translation</b> attaches information to grammar symbols and computes it as the parse proceeds. Two methods: <b>attribute grammars / SDD</b> (rules per production; no order stated) and <b>translation schemes</b> (actions in <code>{ }</code> placed inside the production body, so the order is explicit).</li>
+<li><b>Expansion vs reduction</b> (slides): expansion replaces a non-terminal using a rule (top-down); reduction replaces a body by its non-terminal (bottom-up). Semantic rules run at reduction in the bottom-up view.</li>
+<li>Typical outputs: values (calculator), postfix strings, syntax trees, <b>three-address code</b> (intermediate code), type information, symbol-table updates.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 5 “Syntax-Directed Translation” (§5.1 Syntax-Directed Definitions; §5.4 Syntax-Directed Translation Schemes); Ch. 2 §2.3 “Syntax-Directed Translation”.</div>
+</section>
+
+<section id="attr">
+<h2>2. Attributes and annotated parse trees</h2>
+<p>An <b>attribute</b> is a value (integer, string, type, code, memory location) attached to a grammar symbol, e.g. <code>E.val</code>, <code>id.lexval</code> (the lexical value the scanner returns), <code>E.place</code>, <code>E.code</code>. A parse tree with attribute values written at its nodes is an <b>annotated parse tree</b>.</p>
+<div class="scroll"><table>
+<tr><th></th><th>Synthesized</th><th>Inherited</th></tr>
+<tr><td>Value comes from</td><td>Children of the node (and the node’s own tokens)</td><td>Parent and/or siblings</td></tr>
+<tr><td>In <code>S → ABC</code></td><td>S gets values from A, B, C</td><td>A may use S, B, C; B may use S, A, C; C may use S, A, B</td></tr>
+<tr><td>Evaluation direction</td><td>Bottom-up</td><td>Top-down / sideways</td></tr>
+<tr><td>Typical use</td><td>Expression values, code strings, postfix</td><td>Declaration types, expected types, inherited labels</td></tr>
+<tr><td>Example rule</td><td><code>E → E₁ + T { E.val = E₁.val + T.val }</code></td><td><code>L → L₁ , id { L₁.in = L.in }</code></td></tr>
+</table></div>
+<div class="tip"><b>Tokens only synthesize:</b> terminals such as <code>num</code> or <code>id</code> have attributes supplied by the lexer (<code>num.lexval</code>, <code>id.place</code>/<code>id.entry</code> pointing into the symbol table). They never inherit.</div>
+<h3>Inherited-attribute example: declarations <span class="w">Dragon Book §5.1</span></h3>
+<pre>D → T L        { L.in = T.type }
+T → int        { T.type = integer }
+T → float      { T.type = float }
+L → L1 , id    { L1.in = L.in ; addtype(id.entry, L.in) }
+L → id         { addtype(id.entry, L.in) }</pre>
+<p>For <code>float a, b, c</code>: T.type = float is <i>synthesized</i>; L.in gets it from its sibling T (<i>inherited</i>), passes it down the left-recursive L chain, and each <code>id</code> is stored with that type in the symbol table. This is how declarations in Fall 2023 Q4(a) (“variable declarations, assignments and arithmetic expressions”) get their types.</p>
+</section>
+
+<section id="sl">
+<h2>3. S-attributed vs L-attributed</h2>
+<div class="scroll"><table>
+<tr><th></th><th>S-attributed</th><th>L-attributed</th></tr>
+<tr><td>Allowed attributes</td><td>Synthesized only</td><td>Synthesized + inherited with a restriction</td></tr>
+<tr><td>Restriction</td><td>none needed</td><td>An inherited attribute of Xᵢ in <code>A → X₁X₂…Xₙ</code> may use only: A’s inherited attributes, and attributes of X₁…Xᵢ₋₁ (left siblings). <b>Never a right sibling.</b></td></tr>
+<tr><td>Action position</td><td>Rightmost, after the body</td><td>Anywhere in the body (before a symbol if it inherits something for it)</td></tr>
+<tr><td>Parsing</td><td>Bottom-up (evaluate at reduction)</td><td>Top-down, depth-first, left to right</td></tr>
+<tr><td>Relation</td><td colspan="2">Every S-attributed SDD is also L-attributed.</td></tr>
+</table></div>
+<p>For <code>S → ABC</code> under L-attribution (slides): S takes values from A, B, C (synthesized); A can use only S; B can use S and A (not C, its right sibling); C can use S, A and B.</p>
+<h3>The slide quiz, solved</h3>
+<p>Rule set 1 for <code>A → PQ</code>: <code>P.i = A.i + 2</code>, <code>Q.i = P.i + A.i</code>, <code>A.s = P.s + Q.s</code>. P uses the parent; Q uses its left sibling and the parent; A.s is synthesized. <b>L-attributed.</b> Rule set 2 for <code>A → XY</code>: <code>X.i = A.i + Y.i</code> needs Y, a <b>right</b> sibling. <b>Not L-attributed.</b> Answer: <b>only 1 is L-attributed.</b></p>
+<div class="tip"><b>Checklist to classify an SDD:</b> (1) any inherited attribute at all? No → S-attributed. (2) For every inherited attribute, list what it reads. (3) Does any read come from a symbol to its right, or form a circular dependency? Yes → not L-attributed. Otherwise L-attributed.</div>
+</section>
+
+<section id="ex">
+<h2>4. Worked SDDs</h2>
+<h3>A. Desk calculator (S-attributed) <span class="w">slides 443–444</span></h3>
+<pre>S → E $        { print(E.val) }
+E → E1 + T     { E.val = E1.val + T.val }
+E → T          { E.val = T.val }
+T → T1 * F     { T.val = T1.val * F.val }
+T → F          { T.val = F.val }
+F → ( E )      { F.val = E.val }
+F → num        { F.val = num.lexval }</pre>
+<p>Annotated tree for <code>3*5+4</code> (values in brackets): E[19] → E[15] + T[4]; E[15] → T[15] → T[3]*F[5]; T[3] → F[3] → num(3); F[5] → num(5); T[4] → F[4] → num(4). Evaluation is a post-order walk: leaves first, so parents always find their children ready.</p>
+
+<h3>B. Infix → postfix (S-attributed) <span class="w">slides 448–450</span></h3>
+<pre>E → E1 + T     { E.val = E1.val || T.val || '+' }
+E → E1 - T     { E.val = E1.val || T.val || '-' }
+E → T          { E.val = T.val }
+T → num        { T.val = num }</pre>
+<p><code>||</code> is string concatenation. For <code>3 + 2 - 4</code>: the tree groups left to right, <code>(3+2)-4</code>. T[3] → E[3]; T[2]; E[3 2 +]; T[4]; E[3 2 + 4 -]. Result <b>3 2 + 4 -</b>. (If the rule concatenated <code>'+' || E1.val || T.val</code> you would get prefix instead; the position of the operator in the rule decides the notation.)</p>
+
+<h3>C. Same grammar, different goal: the infix string itself</h3>
+<p>Slide 448 uses <code>E.val = E1.val || '+' || T.val</code> to rebuild the infix string. Comparing B and C shows the idea of SDT: <b>one grammar, different semantic rules, different translation.</b></p>
+
+<h3>D. Why left recursion matters here</h3>
+<p>These SDDs are written on left-recursive grammars, which suits <b>bottom-up</b> parsing (S-attributed). A top-down parser needs the grammar rewritten (<code>E → TE′</code>) and then must pass the partial result down as an <b>inherited</b> attribute (<code>E′.inh</code>), giving an L-attributed SDD. Dragon Book §5.4.</p>
+</section>
+
+<section id="tac">
+<h2>5. Three-address code (TAC)</h2>
+<p><b>Definition:</b> a linear intermediate representation in which each instruction has <b>at most one operator and at most three addresses</b> (two operands, one result). Complex expressions are broken up with compiler-generated <b>temporaries</b> <code>t1, t2…</code>. It sits between the front end and the optimizer/code generator, so it is machine-independent: one front end can drive many back ends, and the optimizer works on it once.</p>
+<div class="scroll"><table>
+<tr><th>Form</th><th>Meaning / example</th></tr>
+<tr><td><code>x = y op z</code></td><td>binary assignment: <code>t1 = b * c</code></td></tr>
+<tr><td><code>x = op y</code></td><td>unary: <code>t1 = uminus c</code></td></tr>
+<tr><td><code>x = y</code></td><td>copy</td></tr>
+<tr><td><code>goto L</code></td><td>unconditional jump</td></tr>
+<tr><td><code>if x relop y goto L</code></td><td>conditional jump (<code>if i &gt; end goto L5</code>)</td></tr>
+<tr><td><code>x = y[i]</code>, <code>x[i] = y</code></td><td>indexed copy (array access; offsets are in bytes, so <code>t = 4 * i</code> for int arrays, as in the quick-sort slides)</td></tr>
+<tr><td><code>param x</code>, <code>call p, n</code>, <code>return y</code></td><td>procedure calls</td></tr>
+<tr><td><code>L:</code></td><td>label naming an instruction</td></tr>
+</table></div>
+<h3>Three representations <span class="w">Dragon Book §6.2.2</span></h3>
+<p>For <code>a = b * -c + b * -c</code> (the exam statement):</p>
+<div class="scroll"><table>
+<tr><th>#</th><th>Quadruple (op, arg1, arg2, result)</th><th>Triple (op, arg1, arg2)</th></tr>
+<tr><td>0</td><td>uminus, c, –, t1</td><td>uminus, c</td></tr>
+<tr><td>1</td><td>*, b, t1, t2</td><td>*, b, (0)</td></tr>
+<tr><td>2</td><td>uminus, c, –, t3</td><td>uminus, c</td></tr>
+<tr><td>3</td><td>*, b, t3, t4</td><td>*, b, (2)</td></tr>
+<tr><td>4</td><td>+, t2, t4, t5</td><td>+, (1), (3)</td></tr>
+<tr><td>5</td><td>=, t5, –, a</td><td>=, a, (4)</td></tr>
+</table></div>
+<div class="scroll"><table>
+<tr><th></th><th>Advantages</th><th>Disadvantages</th></tr>
+<tr><td><b>Quadruples</b></td><td>Results are named, so instructions can be moved or deleted freely (good for the optimizer); the symbol table holds the temporaries</td><td>More storage; many temporaries to manage</td></tr>
+<tr><td><b>Triples</b></td><td>No temporaries; compact; the instruction number is the result name</td><td>References are by position, so reordering or deleting breaks them</td></tr>
+<tr><td><b>Indirect triples</b></td><td>A separate instruction list of pointers into the triple table; reordering only edits the list</td><td>Extra indirection and table; slightly more space than triples</td></tr>
+</table></div>
+<div class="tip">Two other IRs the slides mention for code-generator input: postfix notation, syntax trees/DAGs (a DAG shares identical sub-expressions, so <code>b * -c</code> appears once). Notice that quadruple rows 0–1 and 2–3 compute the same thing; common sub-expression elimination (optimization chapter) turns the code into <code>t1 = uminus c; t2 = b * t1; t5 = t2 + t2; a = t5</code>.</div>
+</section>
+
+<section id="exam">
+<h2>6. Exam question: SDD that generates TAC</h2>
+<p>Asked in Spring 2025, Fall 2024 and Spring 2024 (6 marks). Attributes: <code>E.place</code> (name holding E’s value) and <code>E.code</code> (the TAC sequence); <code>newtemp</code> returns a fresh temporary; <code>gen(…)</code> builds one instruction; <code>||</code> joins code.</p>
+<pre>S → id := E     S.code = E.code || gen(id.place ':=' E.place)
+E → E1 + E2     E.place = newtemp
+                E.code  = E1.code || E2.code || gen(E.place ':=' E1.place '+' E2.place)
+E → E1 * E2     E.place = newtemp
+                E.code  = E1.code || E2.code || gen(E.place ':=' E1.place '*' E2.place)
+E → - E1        E.place = newtemp
+                E.code  = E1.code || gen(E.place ':=' 'uminus' E1.place)
+E → ( E1 )      E.place = E1.place ;  E.code = E1.code
+E → id          E.place = id.place ;  E.code = ''</pre>
+<p>All attributes are synthesized, so the SDD is <b>S-attributed</b> and can run during bottom-up parsing.</p>
+<h3>Step 1: parse tree for <code>a := b * -c + b * -c</code></h3>
+<p>Precedence (grammar from the exam, with the usual rules): unary minus &gt; <code>*</code> &gt; <code>+</code>. So the input is <code>a := ((b * (-c)) + (b * (-c)))</code>:</p>
+<pre>S
+├─ id(a)  :=
+└─ E (+)
+   ├─ E (*)                 ├─ E (*)
+   │  ├─ E → id(b)          │  ├─ E → id(b)
+   │  └─ E (-)              │  └─ E (-)
+   │     └─ E → id(c)       │     └─ E → id(c)</pre>
+<h3>Step 2: annotate bottom-up (post-order)</h3>
+<div class="scroll"><table>
+<tr><th>Node</th><th>place</th><th>code added</th></tr>
+<tr><td>id(b), id(c)</td><td>b, c</td><td>(empty)</td></tr>
+<tr><td>E → - E(c)</td><td>t1</td><td><code>t1 := uminus c</code></td></tr>
+<tr><td>E → E(b) * E(t1)</td><td>t2</td><td><code>t2 := b * t1</code></td></tr>
+<tr><td>second E → - E(c)</td><td>t3</td><td><code>t3 := uminus c</code></td></tr>
+<tr><td>second E → E(b) * E(t3)</td><td>t4</td><td><code>t4 := b * t3</code></td></tr>
+<tr><td>E → E(t2) + E(t4)</td><td>t5</td><td><code>t5 := t2 + t4</code></td></tr>
+<tr><td>S → id := E</td><td>(none)</td><td><code>a := t5</code></td></tr>
+</table></div>
+<h3>Step 3: final output (S.code)</h3>
+<pre>t1 := uminus c
+t2 := b * t1
+t3 := uminus c
+t4 := b * t3
+t5 := t2 + t4
+a  := t5</pre>
+<div class="tip"><b>Marking scheme to expect:</b> parse tree (2) · place/code on each node (2) · final TAC in the right order (2). Draw the annotated tree with <code>E.place</code> written beside every E node.</div>
+</section>
+
+<section id="flow">
+<h2>7. Translating control flow into TAC</h2>
+<p>Control statements become labels and jumps. A common scheme: each statement S has an inherited label <b>S.next</b> (where to continue), and conditions B have two jump targets <b>B.true</b> and <b>B.false</b> (Dragon Book §6.6).</p>
+<div class="scroll"><table>
+<tr><th>Statement</th><th>TAC layout</th></tr>
+<tr><td><code>if (B) S1</code></td><td><code>B.code</code> (true → <code>Lt</code>, false → <code>S.next</code>) · <code>Lt: S1.code</code></td></tr>
+<tr><td><code>if (B) S1 else S2</code></td><td><code>B.code</code> · <code>Lt: S1.code</code> · <code>goto S.next</code> · <code>Lf: S2.code</code></td></tr>
+<tr><td><code>while (B) S1</code></td><td><code>Lb: B.code</code> (true → <code>Lt</code>, false → <code>S.next</code>) · <code>Lt: S1.code</code> · <code>goto Lb</code></td></tr>
+<tr><td><code>for (init; cond; step) S1</code></td><td><code>init</code> · <code>Lb: cond</code> (false → exit) · <code>S1</code> · <code>step</code> · <code>goto Lb</code></td></tr>
+<tr><td><code>switch (e)</code></td><td>evaluate <code>t = e</code> · <code>goto TEST</code> · each case body ends with <code>goto NEXT</code> (that is <code>break</code>) · <code>TEST: if t == c1 goto L1 … goto Ldefault</code> · <code>NEXT:</code></td></tr>
+</table></div>
+<h3>Spring 2023: <code>while</code> loops and <code>switch</code></h3>
+<pre>while (i &lt;= end) { j = 1; while (j &lt;= i) { j = j + 1; } i = i + 1; }
+switch (b) { case 1: i--; break;  case 2: j = -i*3+5; break;  default: i = 0; }</pre>
+<pre>L1:  if i &gt; end goto EXIT1
+     j = 1
+L2:  if j &gt; i goto L3
+     j = j + 1
+     goto L2
+L3:  i = i + 1
+     goto L1
+EXIT1: goto TEST
+C1:  i = i - 1
+     goto NEXT
+C2:  t1 = uminus i
+     t2 = t1 * 3
+     t3 = t2 + 5
+     j = t3
+     goto NEXT
+D:   i = 0
+     goto NEXT
+TEST: if b == 1 goto C1
+      if b == 2 goto C2
+      goto D
+NEXT:</pre>
+<p><code>-i*3+5</code> is <code>((-i)*3)+5</code>. The condition <code>i &lt;= end</code> is tested as the <i>negation</i> <code>i &gt; end</code> so that a jump leaves the loop and the body falls through.</p>
+<h3>Fall 2023: nested <code>for</code> loops</h3>
+<pre>for (i = 1; i &lt;= rows; i++) {
+  for (space = 1; space &lt;= rows - i; space++) { hello++; }
+  for (j = 1; j &lt;= (2*i - 1); j++) { --hello; } }</pre>
+<pre>     i = 1
+L1:  if i &gt; rows goto END
+     space = 1
+L2:  t1 = rows - i
+     if space &gt; t1 goto L3
+     hello = hello + 1
+     space = space + 1
+     goto L2
+L3:  j = 1
+L4:  t2 = 2 * i
+     t3 = t2 - 1
+     if j &gt; t3 goto L5
+     hello = hello - 1
+     j = j + 1
+     goto L4
+L5:  i = i + 1
+     goto L1
+END:</pre>
+<p>The bounds <code>rows - i</code> and <code>2*i - 1</code> are recomputed every iteration (<code>t1</code> to <code>t3</code> sit <i>inside</i> the loop) because that is what the source says. An optimizer would move them out of the loop since <code>i</code> does not change inside, which is why the exam answer is accepted either way when explained.</p>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 6 “Intermediate-Code Generation”: §6.2 Three-Address Code, §6.4 Translation of Expressions, §6.6 Control Flow (and §6.7 Backpatching). Louden Ch. 6 “Semantic Analysis” (attribute grammars) and Ch. 8 “Code Generation” (TAC and P-code).</div>
+</section>
+
+<section id="prac">
+<h2>8. Common mistakes &amp; practice</h2>
+<ul>
+<li>Forgetting that <b>unary minus has its own temporary</b> and own instruction (<code>uminus</code>).</li>
+<li>Writing code in the wrong order: <code>E1.code || E2.code</code> must come <b>before</b> the instruction that uses their places.</li>
+<li>Calling an SDD with a right-sibling dependency “L-attributed”.</li>
+<li>Giving <code>E.place</code> for an identifier an empty string: the place of <code>id</code> is the <b>name</b> (or symbol-table entry), and its code is empty.</li>
+<li>Mixing up quadruple rows: the <b>result</b> column exists only in quadruples; triples refer to a row number.</li>
+<li>Jumping on the true condition instead of its negation in loops, producing wrong label layout.</li>
+</ul>
+<h3>Try these</h3>
+<p><b>P1.</b> Annotate the tree and generate TAC for <code>x := (a + b) * (c - d)</code> using the exam SDD (this grammar has no <code>-</code> binary rule: treat <code>c - d</code> as <code>c + (-d)</code>).</p>
+<details><summary>Answer</summary><pre>t1 := a + b
+t2 := uminus d
+t3 := c + t2
+t4 := t1 * t3
+x  := t4</pre>Parenthesized E copies place and code unchanged (<code>E.place = E1.place</code>), so no extra instruction is generated for the brackets.</details>
+<p><b>P2.</b> Give the postfix output of the SDD in 4.B for <code>9 - 5 + 2</code>.</p>
+<details><summary>Answer</summary>Left to right grouping: <code>(9-5)+2</code>. E[9] → E[9 5 -] → E[9 5 - 2 +]. Postfix: <b>9 5 - 2 +</b>.</details>
+<p><b>P3.</b> Is this SDD L-attributed? <code>A → B C</code>, rules: <code>C.i = A.i</code>, <code>B.i = C.s</code>, <code>A.s = B.s</code>.</p>
+<details><summary>Answer</summary>No. <code>B.i = C.s</code> makes the inherited attribute of B depend on a right sibling (C). An S-attributed or L-attributed SDD cannot do this.</details>
+<p><b>P4.</b> Write TAC for <code>if (a &lt; b) x = 1; else x = 2;</code></p>
+<details><summary>Answer</summary><pre>    if a &lt; b goto L1
+    x = 2
+    goto L2
+L1: x = 1
+L2:</pre>Layout equivalent to the table in §7 (the false branch may be placed first; both are correct).</details>
+</section>
+
+<footer>This page follows the course slides for the attribute and SDD parts. The three-address-code representations and control-flow translation are not in your slides, so they come from the Dragon Book chapters listed above. Check section numbers against your edition.</footer>
+</main>
+</body>
+</html>

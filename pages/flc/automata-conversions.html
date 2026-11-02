@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deep Dive: Automata Conversions</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 8px}
+h3{font-size:1rem;margin:14px 0 4px;color:var(--ac)}
+.w{font-size:12px;font-weight:600;color:var(--mut);margin-left:6px}
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+pre{background:var(--code);padding:10px 12px;border-radius:8px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0 12px}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+details{border:1px solid var(--bd);border-radius:8px;padding:6px 12px;margin:8px 0 12px}
+summary{cursor:pointer;font-weight:600}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>Deep dive · automata conversions</b></div>
+<nav><a href="#map">Big picture</a><a href="#eps">ε-NFA → NFA</a><a href="#subset">NFA → DFA</a><a href="#min">Minimization</a><a href="#exam">Exam answers</a><a href="#prac">Practice</a></nav>
+</header>
+<main>
+<h1>Automata Conversions: ε-NFA → NFA → DFA → Minimal DFA</h1>
+<p class="lead">Slides 39–284: definitions, extended transition function, subset construction, ε-closure, equivalent states and the table-filling minimization algorithm, followed by the exam questions that use them (Q1 definitions and Q3 conversions/minimization). Textbooks: Hopcroft–Motwani–Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i>, 3rd ed.; Sipser, <i>Introduction to the Theory of Computation</i>; Dragon Book (Aho et al.).</p>
+
+<section id="map">
+<h2>1. The big picture</h2>
+<pre>Regular expression ⇄ ε-NFA → NFA → DFA → minimal DFA
+                      (remove ε)   (subset construction)   (table filling)</pre>
+<p>All four models accept exactly the <b>regular languages</b>. Conversions never change the language, only the machine. NFAs and ε-NFAs are easier to <i>design</i>; DFAs are easy to <i>run</i> (one move per symbol), which is why the lexer is a DFA.</p>
+<div class="scroll"><table>
+<tr><th></th><th>DFA</th><th>NFA</th><th>ε-NFA</th></tr>
+<tr><td>Tuple</td><td colspan="3">(Q, Σ, δ, q₀, F)</td></tr>
+<tr><td>δ</td><td>Q×Σ → Q</td><td>Q×Σ → 2<sup>Q</sup></td><td>Q×(Σ∪{ε}) → 2<sup>Q</sup></td></tr>
+<tr><td>Moves</td><td>exactly one</td><td>zero, one or many</td><td>also moves without input</td></tr>
+<tr><td>Accepts w if</td><td>δ̂(q₀,w) ∈ F</td><td>δ̂(q₀,w) ∩ F ≠ ∅</td><td>same, using ε-closures</td></tr>
+</table></div>
+<h3>Extended transition function δ̂ <span class="w">slides 102–125, 143–157</span></h3>
+<ul>
+<li><b>DFA:</b> basis <code>δ̂(q, ε) = q</code>; induction on w = xa: <code>δ̂(q, xa) = δ(δ̂(q, x), a)</code>. Meaning: the state reached after reading the whole string.</li>
+<li><b>NFA:</b> basis <code>δ̂(q, ε) = {q}</code>; <code>δ̂(q, xa) = ∪ { δ(p, a) : p ∈ δ̂(q, x) }</code>. Meaning: the <b>set</b> of states you may be in.</li>
+<li><b>Language:</b> DFA <code>L(A) = { w | δ̂(q₀,w) ∈ F }</code>; NFA <code>L(A) = { w | δ̂(q₀,w) ∩ F ≠ ∅ }</code>.</li>
+<li>Example (NFA for “ends in 01”: q₀ loops on 0,1; q₀–0→q₁; q₁–1→q₂ final): δ̂(q₀,101): after 1 {q₀}; after 0 {q₀,q₁}; after 1 {q₀,q₂}. Contains q₂, so 101 is accepted.</li>
+</ul>
+<div class="refs"><b>Read:</b> HMU Ch. 2 “Finite Automata” (§2.2 DFA, §2.2.4 extended transition function, §2.3 Nondeterministic FA, §2.3.2 extended δ for NFAs, §2.5 FA with ε-transitions); Sipser Ch. 1 §1.1 Finite Automata, §1.2 Nondeterminism.</div>
+</section>
+
+<section id="eps">
+<h2>2. ε-NFA → NFA (eliminating ε) <span class="w">slides 280–284</span></h2>
+<p><b>ECLOSE(q)</b> = all states reachable from q using ε-moves only; always contains q itself. For a set, take the union.</p>
+<ol>
+<li>Compute ECLOSE of every state.</li>
+<li><code>δ′(q, a) = ECLOSE( δ( ECLOSE(q), a ) )</code>: close, then read a, then close again.</li>
+<li><b>Final states:</b> q is final in the new NFA if ECLOSE(q) contains an old final state.</li>
+<li>Start state and states unchanged. (Unreachable states may then be dropped.)</li>
+</ol>
+<p><b>Example</b> (Spring 2023 ε-NFA): q₀ loops 0, q₀–ε→q₁, q₁ loops 1, q₁–ε→q₂, q₂ loops 2 and is final. ECLOSE(q₀)={q₀,q₁,q₂}, ECLOSE(q₁)={q₁,q₂}, ECLOSE(q₂)={q₂}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>0</th><th>1</th><th>2</th></tr>
+<tr><td>→ *q₀</td><td>{q₀,q₁,q₂}</td><td>{q₁,q₂}</td><td>{q₂}</td></tr>
+<tr><td>* q₁</td><td>∅</td><td>{q₁,q₂}</td><td>{q₂}</td></tr>
+<tr><td>* q₂</td><td>∅</td><td>∅</td><td>{q₂}</td></tr>
+</table></div>
+<p>All three are final (each closure contains q₂). The language is 0*1*2*.</p>
+<div class="refs"><b>Read:</b> HMU §2.5.3 “Extended transitions and languages for ε-NFAs”, §2.5.5 “Eliminating ε-transitions”; Dragon Book §3.7.1 (ε-closure inside the subset construction).</div>
+</section>
+
+<section id="subset">
+<h2>3. NFA → DFA: subset construction <span class="w">slides 184–207</span></h2>
+<ul>
+<li>Same alphabet. DFA start = <code>{q₀}</code> (for an ε-NFA: <code>ECLOSE(q₀)</code>).</li>
+<li>DFA states are <b>subsets</b> of NFA states. In principle Q_D = 2<sup>Q_N</sup> (n NFA states give up to 2ⁿ), but build only the subsets reachable from the start.</li>
+<li><code>δ_D(S, a) = ∪ δ_N(p, a)</code> for p ∈ S (for ε-NFA: close the result).</li>
+<li>A DFA state is <b>final</b> if the subset contains at least one NFA final state.</li>
+<li>The empty set ∅ is a legal DFA state: the dead (trap) state. Include it, with self-loops, if it is reachable.</li>
+</ul>
+<h3>Procedure (work-list)</h3>
+<ol>
+<li>Write the start subset in the first row.</li>
+<li>For each symbol compute the target subset. If it is new, add it as a new row.</li>
+<li>Repeat until no new subsets appear. Name the subsets A, B, C… and mark finals with *.</li>
+</ol>
+<h3>Worked example: NFA for “ends with 01” <span class="w">slides 195–203</span></h3>
+<p>NFA: q₀ loops on 0,1; q₀–0→q₁; q₁–1→q₂ (final).</p>
+<div class="scroll"><table>
+<tr><th>DFA state</th><th>Subset</th><th>0</th><th>1</th></tr>
+<tr><td>→ A</td><td>{q₀}</td><td>{q₀,q₁} = B</td><td>{q₀} = A</td></tr>
+<tr><td>B</td><td>{q₀,q₁}</td><td>{q₀,q₁} = B</td><td>{q₀,q₂} = C</td></tr>
+<tr><td>* C</td><td>{q₀,q₂}</td><td>{q₀,q₁} = B</td><td>{q₀} = A</td></tr>
+</table></div>
+<p>Only 3 of the 8 possible subsets are reachable. C is final because it contains q₂.</p>
+<div class="tip"><b>Check:</b> every row has an entry for every symbol, every target appears as a row, and the number of subset-names in final states matches the NFA finals. Then test a short string in both machines.</div>
+<div class="refs"><b>Read:</b> HMU §2.3.5 “Equivalence of Deterministic and Nondeterministic Finite Automata” (the subset construction and its proof); Sipser Theorem 1.39; Dragon Book §3.7.1 “Conversion of an NFA to a DFA”.</div>
+</section>
+
+<section id="min">
+<h2>4. DFA minimization <span class="w">slides 211–278</span></h2>
+<ul>
+<li><b>Equivalent states:</b> p ≡ q iff for <b>every</b> string z: δ̂(p,z) ∈ F ⇔ δ̂(q,z) ∈ F. Equivalent states can be merged. States that are not equivalent are <b>distinguishable</b> (some string takes one to a final state and the other not).</li>
+<li>First remove <b>unreachable</b> states. The minimal DFA for a language is unique (up to renaming) and has the fewest states.</li>
+</ul>
+<h3>Table-filling algorithm (slides 231–238)</h3>
+<ol>
+<li>Draw a triangular table with one cell for every unordered pair of distinct states.</li>
+<li><b>Mark</b> every pair with one final and one non-final state (distinguished by ε).</li>
+<li>For each unmarked pair (p,q) and each symbol a: look at the pair (δ(p,a), δ(q,a)). If that pair is marked, mark (p,q) and recursively mark every pair that was waiting on (p,q) (its <i>dependency list</i>). If the pair is unmarked and not trivial, add (p,q) to that pair’s dependency list. Pairs with identical states (r = s) impose nothing.</li>
+<li>When nothing changes, <b>unmarked pairs are equivalent</b>. Merge them into classes (equivalence is transitive).</li>
+<li>Build the new DFA: one state per class; start = the class of q₀; finals = classes of final states; transitions from any representative.</li>
+</ol>
+<div class="tip"><b>Fast hand alternative (partition refinement):</b> start with the partition {F, non-F}; split a block whenever its members move to different blocks on some symbol; stop when nothing splits. It gives the same answer as the table and is quicker for 5–6 states (HMU §4.4.3; Dragon Book §3.9.6). Use the table when the question asks for it.</div>
+<h3>Worked example A: Fall 2024 (finals c, d, e)</h3>
+<p>Transitions: a: 0→b, 1→d · b: 0→a, 1→c · c, d, e: 0→e, 1→f · f: 0,1→f.</p>
+<ol>
+<li><b>Mark</b> final/non-final: (a,c),(a,d),(a,e),(b,c),(b,d),(b,e),(f,c),(f,d),(f,e).</li>
+<li><b>Remaining:</b> (a,b), (a,f), (b,f), (c,d), (c,e), (d,e).</li>
+<li>(a,f): on 1 → (d,f), marked ⇒ mark (a,f). (b,f): on 1 → (c,f), marked ⇒ mark (b,f).</li>
+<li>(c,d), (c,e), (d,e): on 0 both go to e (same), on 1 both to f (same) ⇒ unmarked.</li>
+<li>(a,b): on 0 → (b,a), the same pair; on 1 → (d,c), unmarked ⇒ no marking possible ⇒ unmarked.</li>
+</ol>
+<p>Classes: <b>P = {a,b}</b>, <b>Q = {c,d,e}</b>, <b>R = {f}</b>. Minimal DFA: P –0→ P, P –1→ Q; Q –0→ Q, Q –1→ R; R –0,1→ R. Start P, final Q. 6 states → 3.</p>
+<h3>Worked example B: Fall 2023, the (a|b)*abb DFA <span class="w">as read from the diagram</span></h3>
+<p>q₀: a→q₁, b→q₂ · q₁: a→q₁, b→q₃ · q₂: a→q₁, b→q₂ · q₃: a→q₁, b→q₄ · q₄ (final): a→q₁, b→q₂.</p>
+<ol>
+<li><b>Round 1:</b> mark (q₄, q₀), (q₄,q₁), (q₄,q₂), (q₄,q₃).</li>
+<li><b>Round 2:</b> (q₀,q₃): on b → (q₂,q₄) marked ⇒ mark. (q₁,q₃): on b → (q₃,q₄) ⇒ mark. (q₂,q₃): on b → (q₂,q₄) ⇒ mark.</li>
+<li><b>Round 3:</b> (q₀,q₁): on b → (q₂,q₃) now marked ⇒ mark. (q₁,q₂): on b → (q₃,q₂) marked ⇒ mark.</li>
+<li><b>Unmarked:</b> (q₀,q₂): on a both → q₁; on b both → q₂.</li>
+</ol>
+<p>Merge q₀ and q₂: minimal DFA has 4 states {q₀,q₂}, q₁, q₃, q₄ (5 → 4): {q₀q₂} –a→ q₁, –b→ {q₀q₂}; q₁ –a→ q₁, –b→ q₃; q₃ –a→ q₁, –b→ q₄; q₄ –a→ q₁, –b→ {q₀q₂}.</p>
+<p><b>Spring 2023:</b> its DFA (q₀,q₃ | q₁,q₂,q₄ | q₅) has the same shape as Example A and minimizes the same way to 3 states.</p>
+<div class="refs"><b>Read:</b> HMU Ch. 4 “Properties of Regular Languages”, §4.4 “Equivalence and Minimization of Automata” (§4.4.1 testing equivalence of states, §4.4.3 minimization of DFA’s); Sipser Ch. 1 problems on minimal DFAs; Dragon Book §3.9.6.</div>
+</section>
+
+<section id="exam">
+<h2>5. Past-paper answers: ε-NFA → DFA <span class="w">Q3(a), 4 marks</span></h2>
+<p>Each answer lists ECLOSE of the start, then fills the subset table (∅ = dead state).</p>
+<h3>Fall 2024</h3>
+<p>ε-NFA: q₀–ε→q₁, q₀–ε→q₂; q₁–0→q₃; q₂–1→q₃; q₃–1→q₄ (final). ECLOSE(q₀)={q₀,q₁,q₂}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Subset</th><th>0</th><th>1</th></tr>
+<tr><td>→ A</td><td>{q₀,q₁,q₂}</td><td>B</td><td>B</td></tr>
+<tr><td>B</td><td>{q₃}</td><td>∅</td><td>C</td></tr>
+<tr><td>* C</td><td>{q₄}</td><td>∅</td><td>∅</td></tr>
+<tr><td>D</td><td>∅</td><td>∅</td><td>∅</td></tr>
+</table></div>
+<p>Language {01, 11}. (Dead state D is omitted in a drawing but needed in a complete DFA.)</p>
+<h3>Spring 2024</h3>
+<p>ε-NFA: q₀ loops a, q₀–ε→q₁; q₁ loops b; q₁–a→q₂; q₂ final, loops a,b. ECLOSE(q₀)={q₀,q₁}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Subset</th><th>a</th><th>b</th></tr>
+<tr><td>→ A</td><td>{q₀,q₁}</td><td>B</td><td>C</td></tr>
+<tr><td>* B</td><td>{q₀,q₁,q₂}</td><td>B</td><td>E</td></tr>
+<tr><td>C</td><td>{q₁}</td><td>F</td><td>C</td></tr>
+<tr><td>* E</td><td>{q₁,q₂}</td><td>F</td><td>E</td></tr>
+<tr><td>* F</td><td>{q₂}</td><td>F</td><td>F</td></tr>
+</table></div>
+<p>Language a*b*a(a|b)*, which is exactly the strings that contain at least one a. The table can be minimized: B, E and F are all final and every move from them stays among the finals, so they are equivalent; A and C (non-final) have the same targets on both symbols (a → final class, b → {A,C}), so they are equivalent too. Minimal DFA: 2 states, {A,C} –a→ {B,E,F}, {A,C} –b→ {A,C}, and {B,E,F} loops on a,b.</p>
+<h3>Spring 2023</h3>
+<p>The ε-NFA of section 2. The subset table is A={q₀,q₁,q₂}*; A–0→A, A–1→B={q₁,q₂}*, A–2→C={q₂}*; B–1→B, B–2→C; C–2→C; all other moves go to ∅. Language 0*1*2*.</p>
+<h3>Fall 2023 (transition table)</h3>
+<p>ε: 1→{2}; a: 2→{2,3}, 3→{1,3}; b: 1→{3}, 2→{2}. State 1 is start and final. ECLOSE(1)={1,2}.</p>
+<div class="scroll"><table>
+<tr><th>State</th><th>Subset</th><th>a</th><th>b</th></tr>
+<tr><td>→ * A</td><td>{1,2}</td><td>B</td><td>B</td></tr>
+<tr><td>B</td><td>{2,3}</td><td>C</td><td>D</td></tr>
+<tr><td>* C</td><td>{1,2,3}</td><td>C</td><td>B</td></tr>
+<tr><td>D</td><td>{2}</td><td>B</td><td>D</td></tr>
+</table></div>
+<p>Details: A on a: 1→∅, 2→{2,3}; on b: 1→{3}, 2→{2} → {2,3}. B on a: 2→{2,3}, 3→{1,3}, union {1,2,3} (closure of 1 adds 2, already there). C on b: 1→{3}, 2→{2}, 3→∅ → {2,3}. Finals are the subsets containing 1: A and C.</p>
+<h3>Spring 2025 ε-NFA, Spring 2024 and Spring 2025 minimization</h3>
+<p>These three diagrams were not legible in the scan, so they are not solved. Follow section 2 / 3 / 4 exactly: closure table, subset table, then table filling.</p>
+<h3>Other conversion-style questions</h3>
+<ul>
+<li><b>Fall 2023 Q4(c): NFAs for (a|b)*a and (0|1)*1(0|1)*01*.</b> <i>(a|b)*a:</i> q₀ loops a,b; q₀–a→q₁ (final). Derive aaba: {q₀} →a {q₀,q₁} →a {q₀,q₁} →b {q₀} →a {q₀,q₁}; contains q₁ ⇒ accepted. <i>(0|1)*1(0|1)*01*:</i> q₀ loops 0,1; q₀–1→q₁; q₁ loops 0,1; q₁–0→q₂ (final); q₂ loops 1. For 1101: {q₀} →1 {q₀,q₁} →1 {q₀,q₁} →0 {q₀,q₁,q₂} →1 {q₀,q₁,q₂}; contains q₂ ⇒ accepted.</li>
+<li><b>Q1 “extended transition function for DFA and NFA with examples”:</b> use the section 1 definitions and the “ends in 01” trace. Write one DFA trace (single state each step) and one NFA trace (a set of states each step) to show the difference.</li>
+</ul>
+</section>
+
+<section id="prac">
+<h2>6. Mistakes &amp; practice</h2>
+<ul>
+<li>Forgetting the ε-closure <b>after</b> a move (it is close → move → close).</li>
+<li>Marking a DFA state final only when it <i>equals</i> a final state, instead of <i>contains</i> one.</li>
+<li>Leaving out the dead state ∅, or building all 2ⁿ subsets instead of reachable ones.</li>
+<li>Treating “marked” as “equivalent”: in table filling, <b>marked = distinguishable</b>; unmarked = equivalent.</li>
+<li>Not removing unreachable states before minimizing.</li>
+</ul>
+<p><b>P1.</b> Convert to a DFA: NFA q₀ loops a,b; q₀–a→q₁; q₁–a,b→q₂ (final). (second symbol from the end is a)</p>
+<details><summary>Answer</summary>A={q₀}: a→B, b→A. B={q₀,q₁}: a→C, b→D. *C={q₀,q₁,q₂}: a→C, b→D. *D={q₀,q₂}: a→B, b→A. Four reachable subsets.</details>
+<p><b>P2.</b> ε-NFA: p–ε→q, q–a→r, r–ε→p. Give all ECLOSEs and δ′(p,a).</p>
+<details><summary>Answer</summary>ECLOSE(p)={p,q}, ECLOSE(q)={q}, ECLOSE(r)={r,p,q}. δ′(p,a) = ECLOSE(δ({p,q},a)) = ECLOSE({r}) = {r,p,q}.</details>
+<p><b>P3.</b> A table-filling run leaves (p,q) unmarked. Can p and q be merged?</p>
+<details><summary>Answer</summary>Yes. Unmarked means no string distinguishes them, so they are equivalent (and equivalence is transitive, so merge their whole class).</details>
+<p><b>P4.</b> An NFA has 4 states. What is the maximum number of states in its subset-construction DFA?</p>
+<details><summary>Answer</summary>2⁴ = 16 (including ∅); often far fewer are reachable.</details>
+</section>
+
+<footer>Slides: 39–284. Section numbers refer to the HMU 3rd edition and may differ in other editions. Diagram-based questions that were not legible in the scan are marked in section 5.</footer>
+</main>
+</body>
+</html>
