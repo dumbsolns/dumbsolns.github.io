@@ -35,6 +35,7 @@ th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:
 th{background:var(--acbg)}
 footer{font-size:13px;color:var(--mut);padding:10px 0}
 @media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+.dive{margin:6px 0 12px;padding:7px 11px;border-radius:9px;background:var(--acbg);font-size:14px}.dive a{color:var(--ac);font-weight:600;text-decoration:none}.dive a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
@@ -50,7 +51,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <h2>What keeps repeating</h2>
 <div class="scroll"><table>
 <tr><th>Topic</th><th>Papers</th><th>Where answered</th></tr>
-<tr><td>LR(0) automaton for E→E+T|T, T→T*F|F, F→(E)|id</td><td>Sp25, Sp24 (+similar Fa24, Fa23)</td><td>Q2</td></tr>
+<tr><td>LR(0) automaton for E→E+T|T, T→T*F|F, F→(E)|id</td><td>Sp25, Sp23 (variants: Sp24 TF-grammar, Fa24, Fa23)</td><td>Q2</td></tr>
 <tr><td>LL(1): FIRST/FOLLOW, table, trace</td><td>all five</td><td>Q2</td></tr>
 <tr><td>CNF / CFG simplification</td><td>all five</td><td>Q2</td></tr>
 <tr><td>ε-NFA → DFA, DFA minimization</td><td>all five</td><td>Q3</td></tr>
@@ -65,6 +66,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <section id="q1">
 <h2>Question 1: short theory answers</h2>
 
+<div class="dive">Deep dives: <a href="flc-summary.html">summary</a> · <a href="flc/ll1-parsing.html">LL(1)</a> · <a href="flc/lr-parsing.html">LR</a> · <a href="flc/sdt-three-address-code.html">SDT/TAC</a> · <a href="flc/pushdown-automata.html">PDA</a> · <a href="flc/automata-conversions.html">automata</a> · <a href="flc/cfg-simplification-cnf.html">CFG/CNF</a> · <a href="flc/regular-expressions.html">RE</a> · <a href="flc/dfa-design.html">DFA design</a></div>
 <h3>Language processing system <span class="w">Sp25</span></h3>
 <p>Source (high-level) → <b>preprocessor</b> (macros, file inclusion) → <b>compiler</b> (to assembly) → <b>assembler</b> (to relocatable object code) → <b>linker</b> (merges object files, resolves external references) → <b>loader</b> (loads the executable into memory, sets registers, starts execution). An <b>interpreter</b> instead translates and runs one statement at a time. Cross-compilers target a different platform; source-to-source compilers emit another high-level language.</p>
 <p><b>Linker and loader; why relocatable code</b> <span class="w">Sp24</span>: the assembler cannot know final memory addresses or where other modules live, so it emits relocatable code with relative addresses. The linker combines modules and fixes references; the loader assigns actual addresses.</p>
@@ -137,7 +139,8 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <section id="q2">
 <h2>Question 2: parsing and grammars</h2>
 
-<h3>LR(0) automaton: E→E+T|T, T→T*F|F, F→(E)|id <span class="w">Sp25, Sp24</span> <b>[book]</b></h3>
+<h3>LR(0) automaton: E→E+T|T, T→T*F|F, F→(E)|id <span class="w">Sp25, Sp23</span> <b>[book]</b></h3>
+<div class="dive">Deep dive: <a href="flc/lr-parsing.html#ex2">LR parsing: E, T, F example</a></div>
 <p>Augment with <code>E′→E</code>. Productions: 1 E→E+T, 2 E→T, 3 T→T*F, 4 T→F, 5 F→(E), 6 F→id.</p>
 <div class="scroll"><table>
 <tr><th>State</th><th>Items</th><th>Transitions</th></tr>
@@ -182,13 +185,19 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 0 E 1 + 6 T 9    $        r1 (E→E+T), goto(0,E)=1
 0 E 1            $        accept</pre>
 
-<h3>LR(0) automaton: S→AA, A→aA|b <span class="w">Fa23</span> and moves for <code>baab</code> <span class="w">Sp23 style</span></h3>
-<p>I0: S′→•S, S→•AA, A→•aA, A→•b · I1 (S): S′→S• · I2 (A): S→A•A, A→•aA, A→•b · I3 (a): A→a•A, A→•aA, A→•b · I4 (b): A→b• · I5 (I2,A): S→AA• · I6 (I3,A): A→aA•. Edges: I0 S→1, A→2, a→3, b→4; I2 A→5, a→3, b→4; I3 A→6, a→3, b→4. No conflicts. Moves: <code>0 b4</code> r3 → <code>0A2</code>; a,a: <code>0A2a3a3</code>; b: <code>…b4</code>; r3 → <code>0A2a3a3A6</code>; r2 → <code>0A2a3A6</code>; r2 → <code>0A2A5</code>; r1 (S→AA) → <code>0S1</code>; accept.</p>
+<h3>LR(0) automaton: S→AA, A→aA|b <span class="w">Fa23 Q2a</span> and moves for <code>baaaab</code> <span class="w">Sp23 Q3d</span></h3>
+<div class="dive">Deep dive: <a href="flc/lr-parsing.html#ex1">LR parsing: S→AA with the full trace</a></div>
+<p>I0: S′→•S, S→•AA, A→•aA, A→•b · I1 (S): S′→S• · I2 (A): S→A•A, A→•aA, A→•b · I3 (a): A→a•A, A→•aA, A→•b · I4 (b): A→b• · I5 (I2,A): S→AA• · I6 (I3,A): A→aA•. Edges: I0 S→1, A→2, a→3, b→4; I2 A→5, a→3, b→4; I3 A→6, a→3, b→4. No conflicts. Moves for <code>baaaab$</code> (SLR table: I4 r3, I5 r1, I6 r2 on a, b, $): <code>0</code> s4 → <code>0b4</code> r3 → <code>0A2</code>; four shifts of a → <code>0A2a3a3a3a3</code>; s4 on b; r3 → <code>0A2a3a3a3a3A6</code>; then r2 (A→aA) four times, each pop of two entries and GOTO(3,A)=6, the last one landing on GOTO(2,A)=5 → <code>0A2A5</code>; r1 (S→AA) → <code>0S1</code>; accept.</p>
 
 <h3>LR(0) for S→Aa|bAc|Bc|bBa, A→d, B→d <span class="w">Fa24</span></h3>
-<p>I0: S′→•S, S→•Aa|•bAc|•Bc|•bBa, A→•d, B→•d · I1 S: S′→S• · I2 A: S→A•a · I3 b: S→b•Ac, S→b•Ba, A→•d, B→•d · I4 B: S→B•c · I5 d (from I0): A→d•, B→d• · I6 (I2,a): S→Aa• · I7 (I3,A): S→bA•c · I8 (I3,B): S→bB•a · I9 (I3,d): A→d•, B→d• · I10 (I4,c): S→Bc• · I11 (I7,c): S→bAc• · I12 (I8,a): S→bBa•.<br><b>Conflict:</b> I5 and I9 contain two complete items, so a <b>reduce/reduce conflict</b> (A→d• vs B→d•). SLR does not help (FOLLOW(A)=FOLLOW(B)={a,c}); the grammar needs LR(1).</p>
+<p>I0: S′→•S, S→•Aa|•bAc|•Bc|•bBa, A→•d, B→•d · I1 S: S′→S• · I2 A: S→A•a · I3 b: S→b•Ac, S→b•Ba, A→•d, B→•d · I4 B: S→B•c · I5 d (from I0): A→d•, B→d• · I6 (I2,a): S→Aa• · I7 (I3,A): S→bA•c · I8 (I3,B): S→bB•a · I9 (I3,d): A→d•, B→d• · I10 (I4,c): S→Bc• · I11 (I7,c): S→bAc• · I12 (I8,a): S→bBa•.<br><b>Conflict:</b> I5 and I9 contain two complete items, so a <b>reduce/reduce conflict</b> (A→d• vs B→d•). SLR does not help (FOLLOW(A)=FOLLOW(B)={a,c}); the grammar needs LR(1) (LALR merges I5 and I9 and brings the conflict back).</p>
+<div class="dive">Deep dive: <a href="flc/lr-parsing.html#ex3">LR parsing: the reduce/reduce example</a></div>
+
+<h3>LR(0) for E→E+T|T, T→TF|F, F→F*|a|b <span class="w">Sp24 Q2a</span></h3>
+<p>Productions: 1 E→E+T, 2 E→T, 3 T→TF, 4 T→F, 5 F→F*, 6 F→a, 7 F→b. States: I0 = closure(E′→•E) (all E, T, F items); I1 (E): E′→E•, E→E•+T · I2 (T): E→T•, T→T•F, F→•F*, F→•a, F→•b · I3 (F): T→F•, F→F•* · I4 (a): F→a• · I5 (b): F→b• · I6 (I1,+): E→E+•T and closure · I7 (I2,F): T→TF•, F→F•* · I8 (F,*): F→F*• · I9 (I6,T): E→E+T•, T→T•F, F→•F*, F→•a, F→•b.<br><b>LR(0) conflicts (shift/reduce):</b> I2, I3, I7, I9. <b>SLR(1) resolves them:</b> FOLLOW(E)={$,+}, FOLLOW(T)={$,+,a,b}, FOLLOW(F)={$,+,a,b,*}, so I2 and I9 reduce only on {$,+} (shift a, b); I3 and I7 reduce on {$,+,a,b}, which excludes *, so <code>*</code> stays a shift. The grammar is SLR(1) but not LR(0). Full table: <a href="flc/lr-parsing.html#ex4">LR deep dive</a>.</p>
 
 <h3>LL(1) for E→T+E|T, T→id|id*T|(E) <span class="w">Sp25</span></h3>
+<div class="dive">Deep dive: <a href="flc/ll1-parsing.html#exam">LL(1): all Q2(b) solutions with full traces</a></div>
 <p><b>Not LL(1):</b> E→T+E|T share the prefix T, and T→id|id*T share <code>id</code> (left factoring needed; no left recursion). Factored: <code>E→TE′; E′→+E|ε; T→idT′|(E); T′→*T|ε</code>.</p>
 <div class="scroll"><table>
 <tr><th></th><th>FIRST</th><th>FOLLOW</th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th></tr>
@@ -218,6 +227,13 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <h3>CFG simplification: S→ASA|aB, A→B|S, B→b|ε <span class="w">Sp24</span></h3>
 <p>Nullable: B, then A (A→B); S is not. Removing ε: S→ASA|SA|AS|S|aB|a; A→B|S; B→b. Drop S→S. Unit A→B gives A→b; unit A→S gives A→ASA|SA|AS|aB|a. Result: <code>S→ASA|SA|AS|aB|a; A→ASA|SA|AS|aB|a|b; B→b</code>. All symbols generating and reachable. (Order: ε, unit, useless; as on the slides.)</p>
 
+<h3>CNF: S→ASB, A→aAS|a|ε, B→SbS|A|bb <span class="w">Fa24</span> and S→ASB|SB, A→aAS|aS|a, B→SbS|A|ε|bb <span class="w">Sp23</span></h3>
+<div class="dive">Deep dive: <a href="flc/cfg-simplification-cnf.html#ex2">CFG, simplification &amp; CNF</a></div>
+<p>Both reduce to the same grammar. Nullable: A (and B through B→A) in Fa24, B in Sp23; S is never nullable. After ε- and unit-removal: <code>S→ASB|SB|AS; A→aAS|aS|a; B→SbS|aAS|aS|a|bb</code>. CNF (Xa→a, Xb→b, D1→SB, D2→AS, D3→XbS): <code>S→A D1 | S B | A S; D1→S B; A→Xa D2 | Xa S | a; D2→A S; B→S D3 | Xa D2 | Xa S | a | Xb Xb; D3→Xb S; Xa→a; Xb→b</code>.</p>
+
+<h3>CFG simplification: the long grammar <span class="w">Fa23, 7 marks</span></h3>
+<p><code>S→AB|AC; A→aAb|bAa|a|ε; B→bbA|aaB|AB|D|ε|b; C→abCA|aDb|cd; D→bD|v; Z→bX; X→ε</code> (v read as a terminal; scan blurry). Nullable: A, B, X, S. Remove ε (keep S→ε), then unit rules S→A|B|C, B→A|D, then useless: Z→bX loses X and Z is unreachable. Result: <code>S→AB|AC|ε|aAb|ab|bAa|ba|a|bbA|bb|aaB|aa|b|bD|v|abCA|abC|aDb|cd; A→aAb|ab|bAa|ba|a; B→bbA|bb|aaB|aa|AB|b|aAb|ab|bAa|ba|a|bD|v; C→abCA|abC|aDb|cd; D→bD|v</code>. Steps in detail: <a href="flc/cfg-simplification-cnf.html#ex1">deep dive</a>.</p>
+
 <div class="tip">Method for any simplification question: nullable set → ε-removal → unit removal → non-generating → non-reachable → (CNF steps). Show each intermediate grammar.</div>
 </section>
 
@@ -225,6 +241,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <h2>Question 3: automata, grammars, lexical analysis</h2>
 
 <h3>ε-NFA → DFA <span class="w">Fa24, Sp24, Sp23, Fa23</span></h3>
+<div class="dive">Deep dive: <a href="flc/automata-conversions.html#exam">Automata conversions: subset tables</a></div>
 <p>Method: ECLOSE(start) is the DFA start; for each DFA state S and symbol a, <code>ECLOSE(∪ δ(p,a))</code>; final if it contains an NFA final state.</p>
 <ul>
 <li><b>Fa24</b> (q₀ε→q₁,q₂; q₁–0→q₃; q₂–1→q₃; q₃–1→q₄ final): A={q₀,q₁,q₂}; A–0,1→B={q₃}; B–1→C={q₄}* ; B–0→∅. Language {01, 11}.</li>
@@ -235,6 +252,8 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 
 <h3>DFA minimization (table filling) <span class="w">Fa24, Sp23</span></h3>
 <p>Fa24 DFA (finals c,d,e; a–0→b, a–1→d, b–0→a, b–1→c, c/d/e–0→e, c/d/e–1→f, f loops). Step 1: mark final/non-final pairs. Step 2: (c,d), (c,e), (d,e) all go to the same targets, so they stay unmarked. (a,b): both go to non-final on 0 and final on 1, depending only on each other, so unmarked. (a,f): on 1, d vs f, a final vs non-final pair → marked; likewise (b,f). Merge: <b>{a,b}, {c,d,e}, {f}</b>: P–0→P, P–1→Q, Q–0→Q, Q–1→F, F–0,1→F (3 states). The Sp23 DFA (q0,q3 | q1,q2,q4 | q5) has the same structure and the same answer.</p>
+<div class="dive">Deep dive: <a href="flc/automata-conversions.html#min">Automata conversions &amp; minimization</a></div>
+<p><b>Fa23</b> (as read from the diagram; finals: q4): q0: a→q1, b→q2 · q1: a→q1, b→q3 · q2: a→q1, b→q2 · q3: a→q1, b→q4 · q4: a→q1, b→q2. Marking: all pairs with q4; then (q0,q3), (q1,q3), (q2,q3) (b leads to the marked pair with q4); then (q0,q1) and (q1,q2). Only (q0,q2) stays unmarked (same targets), so merge q0 and q2: a 4-state DFA for (a|b)*abb.</p>
 
 <h3>Making a grammar suitable for top-down parsing <span class="w">all papers</span></h3>
 <p>Reasoning: top-down (LL(1)) parsers loop forever on <b>left recursion</b>, cannot choose between alternatives with a common prefix (<b>left factoring</b>), and fail on <b>ambiguity</b>.</p>
@@ -265,6 +284,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <h2>Question 4: translation, regular expressions, PDA, CFG design</h2>
 
 <h3>SDD and 3-address code for <code>a := b * -c + b * -c</code> <span class="w">Sp25, Fa24, Sp24</span></h3>
+<div class="dive">Deep dive: <a href="flc/sdt-three-address-code.html#exam">SDT &amp; three-address code: the full annotated tree</a></div>
 <p>Unary minus binds tightest, then <code>*</code>, then <code>+</code>: <code>a := (b * (-c)) + (b * (-c))</code>. Annotated parse tree (bottom-up, each E gets <code>place</code> and <code>code</code>): <code>id(c)</code> → E.place=c, code=''; <code>-E</code> → place t1, code <code>t1 := uminus c</code>; <code>E*E</code> with b → place t2, code <code>t1 := uminus c; t2 := b * t1</code>; the second copy gives t3, t4; <code>E+E</code> → place t5; <code>S → id := E</code> appends <code>a := t5</code>. <b>Output:</b></p>
 <pre>t1 := uminus c
 t2 := b * t1
@@ -274,6 +294,7 @@ t5 := t2 + t4
 a  := t5</pre>
 
 <h3>Regular expressions <span class="w">Sp25, Fa24, Fa23, Sp24, Sp23</span></h3>
+<div class="dive">Deep dive: <a href="flc/regular-expressions.html#exam">Regular expressions: all Q4b answers with checks</a></div>
 <div class="scroll"><table>
 <tr><th>Language</th><th>RE</th></tr>
 <tr><td>at least one 0 and at least one 1</td><td><code>(0+1)*0(0+1)*1(0+1)* + (0+1)*1(0+1)*0(0+1)*</code></td></tr>
@@ -292,6 +313,7 @@ a  := t5</pre>
 </table></div>
 
 <h3>PDAs with IDs <span class="w">Sp25, Sp24, Sp23</span></h3>
+<div class="dive">Deep dive: <a href="flc/pushdown-automata.html#exam">Pushdown automata: designs and traces</a></div>
 <p><b>L = {wwᴿ | w∈{0,1}*}, input 001100</b> (stack top on the left, Z = bottom marker; q₀ pushes, a nondeterministic ε-move guesses the middle, q₁ pops on a match, q₂ accepts): δ(q₀,0|1,X)=(q₀,0|1·X); δ(q₀,ε,X)=(q₁,X); δ(q₁,a,a)=(q₁,ε); δ(q₁,ε,Z)=(q₂,Z).</p>
 <pre>(q0,001100,Z) ⊢ (q0,01100,0Z) ⊢ (q0,1100,00Z) ⊢ (q0,100,100Z)
  ⊢ (q1,100,100Z) ⊢ (q1,00,00Z) ⊢ (q1,0,0Z) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z)  accept</pre>
@@ -302,12 +324,16 @@ a  := t5</pre>
 <pre>(q0,aabaaaa,Z) ⊢ (q0,abaaaa,AAZ) ⊢ (q0,baaaa,AAAAZ) ⊢ (q1,aaaa,AAAAZ)
  ⊢ (q1,aaa,AAAZ) ⊢ (q1,aa,AAZ) ⊢ (q1,a,AZ) ⊢ (q1,ε,Z) ⊢ (q2,ε,Z)  accept</pre>
 
-<h3>DFAs from regular expressions <span class="w">Sp25, Fa24, Sp24</span></h3>
+<h3>DFAs from regular expressions <span class="w">Sp25, Fa24, Sp24, Fa23, Sp23</span></h3>
+<div class="dive">Deep dive: <a href="flc/dfa-design.html#exam">DFA design &amp; RE → DFA (with transition tables)</a> · <a href="flc/regular-expressions.html">Regular expressions</a></div>
 <ul>
 <li><code>(0|1)*10</code> (and <code>(0|1)*01</code> by swapping): A–1→B, A–0→A; B–0→C*, B–1→B; C–1→B, C–0→A.</li>
 <li><code>ab(a|b)*</code>: q0–a→q1–b→q2* (loops a,b); every other move goes to dead state d.</li>
-<li><code>ab(a|b)*ab</code>: q0–a→q1–b→q2; then track the last two symbols: q2–a→q3, q2–b→q2′; q3–b→q4*, q3–a→q3; q4–a→q3, q4–b→q2′; q2′–a→q3, q2′–b→q2′; dead state for a wrong start.</li>
-<li><code>01(0|1)*01</code>: p0–0→p1–1→p2 (dead on other input); p2–0→p3, p2–1→p5; p3–0→p3, p3–1→p4*; p4–0→p3, p4–1→p5; p5–0→p3, p5–1→p5. (Needs at least 0101.)</li>
+<li><code>ab(a|b)*ab</code> (minimal): p0–a→p1–b→p2; p2: a→p3, b→p2; p3: a→p3, b→p4*; p4: a→p3, b→p2; dead state for a wrong start. Shortest string abab. (The state after the prefix and the state “last symbol b” behave identically, so one state p2 serves both.)</li>
+<li><code>01(0|1)*01</code> (minimal): p0–0→p1–1→p2; p2: 0→p3, 1→p2; p3: 0→p3, 1→p4*; p4: 0→p3, 1→p2; dead state elsewhere. Shortest string 0101.</li>
+<li><code>(00)*(0+1)+(1)*</code> (Sp25): language 0<sup>odd</sup> ∪ 0<sup>even</sup>1 ∪ 1*. A* (start) 0→B*, 1→T*; B* (odd zeros) 0→C, 1→D; C (even ≥ 2 zeros) 0→B, 1→U*; T* 1→T, 0→D; U* → D on both; D dead.</li>
+<li><code>011(0|1)*01*</code> (Fa23): any string starting 011 whose remainder contains a 0. p0–0→p1–1→p2–1→p3; p3: 1→p3, 0→p4*; p4 loops on 0, 1; dead state elsewhere. <code>ab(a+b)*</code> (Fa23) is the same as <code>ab(a|b)*</code> above.</li>
+<li><b>Sp23, “draw a DFA”:</b> <i>ends with abba:</i> q0–a→q1, q0–b→q0; q1: a→q1, b→q2; q2: a→q1, b→q3; q3: a→q4, b→q0; q4*: a→q1, b→q2. <i>Odd number of 0s or even number of 1s:</i> states (parity of 0s, parity of 1s); 0 flips the first, 1 the second; final when 0s are odd or 1s are even; only (even 0s, odd 1s) is non-final.</li>
 </ul>
 
 <h3>CFG design with derivations <span class="w">Sp25, Sp24, Fa24, Sp23</span></h3>
@@ -328,6 +354,18 @@ Expr → id | num | id + num</pre>
 <p>Derivation for <code>do { x = 0; do { y = x + 1; } while (y &lt; 5); } while (x &lt; 3);</code>: the outer S derives Stmts ⇒ Stmt Stmts ⇒ (id = Expr ;) (Stmt ⇒ S, the inner do-while); the inner S derives <code>y = x + 1 ;</code> and the condition <code>y &lt; 5</code>.</p>
 <p><b>Function prototypes</b> (Sp23): <code>P → T id ( Args ); Args → ε | List; List → T id | T id , List; T → int | void | double</code>. <code>double name(double arg1, int arg2)</code> ⇒ T id ( List ) ⇒ double name ( T id , List ) ⇒ double name ( double arg1 , int arg2 ).</p>
 
+<h3>CFG for declarations, assignments and expressions <span class="w">Fa23</span></h3>
+<pre>Prog → Stmt Prog | Stmt        Stmt → Decl | Assign | Print
+Decl → Type id ;               Type → int | float | string
+Assign → id = Expr ;           Print → print ( id ) ;
+Expr → Expr + Term | Expr - Term | Term
+Term → Term * Factor | Term / Factor | Factor
+Factor → id | num | str | ( Expr )</pre>
+<p>Derives <code>int a; float b; a = 10; b = a * 2.5;</code> (num covers 10 and 2.5). More designs: <a href="flc/cfg-simplification-cnf.html#ex3">CFG deep dive</a>.</p>
+
+<h3>NFAs with extended δ <span class="w">Fa23 Q4c</span></h3>
+<p><code>(a|b)*a</code>: q0 loops a,b; q0–a→q1 (final). δ̂ on aaba: {q0} → {q0,q1} → {q0,q1} → {q0} → {q0,q1}, contains q1 ⇒ accept. <code>(0|1)*1(0|1)*01*</code>: q0 loops 0,1; q0–1→q1; q1 loops 0,1; q1–0→q2 (final); q2 loops 1. On 1101: {q0} → {q0,q1} → {q0,q1} → {q0,q1,q2} → {q0,q1,q2}, contains q2 ⇒ accept. <a href="flc/automata-conversions.html#exam">Deep dive</a>.</p>
+
 <h3>Three-address code for loops and switch <span class="w">Fa23, Sp23</span></h3>
 <p><b>Sp23</b> (while loops and switch(b)):</p>
 <pre>L1: if i &gt; end goto L5          L5: goto TEST
@@ -338,20 +376,24 @@ L2: if j &gt; i goto L4           L7: t1 = uminus i ; t2 = t1 * 3
 L4: i = i + 1 ; goto L1        TEST: if b == 1 goto L6
                                      if b == 2 goto L7 ; goto L8
                                NEXT:</pre>
-<p><b>Fa23</b> (nested for loops):</p>
+<p><b>Fa23</b> (nested for loops; the bounds <code>rows - i</code> and <code>2*i - 1</code> are recomputed on every iteration, as the source says):</p>
 <pre>    i = 1
 L1: if i &gt; rows goto END
-    space = 1 ; t1 = rows - i
-L2: if space &gt; t1 goto L3
+    space = 1
+L2: t1 = rows - i
+    if space &gt; t1 goto L3
     hello = hello + 1 ; space = space + 1 ; goto L2
-L3: j = 1 ; t2 = 2 * i ; t3 = t2 - 1
-L4: if j &gt; t3 goto L5
+L3: j = 1
+L4: t2 = 2 * i ; t3 = t2 - 1
+    if j &gt; t3 goto L5
     hello = hello - 1 ; j = j + 1 ; goto L4
 L5: i = i + 1 ; goto L1
 END:</pre>
+<p>(Computing the bounds once before each loop is a loop-invariant optimization, valid but not the direct translation.)</p>
+<div class="dive">Deep dive: <a href="flc/sdt-three-address-code.html#flow">SDT &amp; three-address code: control-flow translation</a></div>
 </section>
 
-<footer>Not included in this version: the diagram-only questions that were hard to read reliably (Sp25 ε-NFA, Sp24/Fa23 minimization diagrams, Fa23 NFA-design part), the Fa24 CNF grammar, the Fa23 7-mark CFG simplification, the Sp25 LR(0) for E→E+T, T→TF, F→F*|a|b, and the Fa23 variable-declaration CFG. Method boxes above apply to all of them; send a clearer scan or ask and I’ll add them. LR parsing and three-address-code forms are not in your slides, so those answers come from the Dragon Book (Ch. 4 §4.5–4.6 and Ch. 6 §6.2).</footer>
+<footer>Not included: diagram questions that were not legible in the scan (Sp25 ε-NFA and minimization, Sp24 minimization) and the Fa24 PDA, whose language was unclear. Each topic has a deep-dive page in the flc folder (links in the grey boxes and on the summary page). LR parsing and three-address-code forms are not in your slides, so those answers come from the Dragon Book (Ch. 4 §4.5–4.6 and Ch. 6 §6.2).</footer>
 </main>
 </body>
 </html>
