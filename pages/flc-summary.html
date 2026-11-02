@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSE4129 Formal Languages &amp; Compilers: Exam Summary</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--tip:#fff6dc;--tipbd:#e8c766;--code:#f1f3f7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--tip:#2e2a18;--tipbd:#8a7430;--code:#252a35;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px;height:auto}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.back:hover{opacity:.9}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 18px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px 16px 6px;margin:16px 0}
+h2{font-size:1.25rem;margin:0 0 4px;line-height:1.3}
+.src{font-size:12.5px;color:var(--mut);margin:0 0 10px}
+h3{font-size:1rem;margin:16px 0 4px;color:var(--ac)}
+ul{padding-left:20px;margin:6px 0 12px}
+li{margin:3px 0}
+code,.m{background:var(--code);padding:1px 6px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.tip{background:var(--tip);border-left:4px solid var(--tipbd);padding:8px 12px;border-radius:8px;margin:10px 0 14px;font-size:15px}
+.scroll{overflow-x:auto;margin:8px 0 14px}
+table{border-collapse:collapse;font-size:14px;min-width:100%}
+th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left;vertical-align:top}
+th{background:var(--acbg)}
+.refs{border-top:1px dashed var(--bd);margin-top:10px;padding:8px 0;font-size:13.5px;color:var(--mut)}
+.refs b{color:var(--tx)}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar"><a class="back" href="/" aria-label="Back to home page">← Back</a><b>CSE4129 · FLC exam overview</b></div>
+  <nav aria-label="Sections">
+    <a href="#intro">1 Intro</a><a href="#lex">2 Lexical</a><a href="#basics">3 Languages &amp; RE</a><a href="#fa">4 Automata</a><a href="#cfg">5 CFG</a><a href="#pda">6 PDA</a><a href="#syn">7 Parsing</a><a href="#sem">8 Semantic/SDT</a><a href="#opt">9 Optimization</a><a href="#gen">10 Code Gen</a><a href="#cheat">Cheat sheet</a>
+  </nav>
+</header>
+<main>
+<h1>Formal Languages &amp; Compilers: Exam Overview</h1>
+<p class="lead">Summary of all 500 slides, in the order taught: theory of computation first (automata, grammars, PDA), then the compiler phases front to back.</p>
+
+<section id="intro">
+<h2>1. Introduction &amp; Compiler Architecture</h2>
+<p class="src">Slides 3–22</p>
+<ul>
+<li><b>Compiler</b> translates the whole source program into target code (object code); an <b>interpreter</b> translates and executes one statement at a time.</li>
+<li><b>Language processing system:</b> preprocessor (macros, file inclusion) → compiler → assembly → <b>assembler</b> (object file) → <b>linker</b> (merges object files, resolves references) → <b>loader</b> (puts executable in memory).</li>
+<li><b>Cross-compiler:</b> runs on platform A, generates code for B. <b>Source-to-source:</b> one high-level language to another.</li>
+<li><b>Analysis (front end):</b> lexical, syntax, semantic analysis → intermediate representation + symbol table. <b>Synthesis (back end):</b> code optimization and code generation → target code.</li>
+<li><b>Phases and tools:</b> Lexical (RE → NFA → DFA, tool FLEX) · Syntax (CFG/BNF, LL/LR/SLR/LALR, tool Bison) · Semantic (syntax-directed translation) · Intermediate code (3-address code) · Optimizer (loop optimization, register allocation, peephole) · Code generator.</li>
+<li><b>Symbol table and error handler</b> interact with every phase. Errors by phase: lexical (invalid token), syntax (missing <code>;</code>, unmatched parentheses), semantic (undeclared variable, type mismatch), intermediate (division by constant zero).</li>
+</ul>
+<div class="refs"><b>Read:</b> Aho, Lam, Sethi, Ullman, <i>Compilers: Principles, Techniques, and Tools</i> (Dragon Book, 2nd ed.), Ch. 1 “Introduction” (Language Processors; The Structure of a Compiler).</div>
+</section>
+
+<section id="lex">
+<h2>2. Lexical Analysis &amp; Symbol Tables</h2>
+<p class="src">Slides 25–31, 285–291</p>
+<ul>
+<li>The lexer converts a character stream to a token stream, strips whitespace/comments, expands macros, and relates errors to line numbers. The parser calls “get next token” on demand.</li>
+<li><b>Token</b> = abstract unit (id, keyword, operator, constant, punctuation). <b>Lexeme</b> = the actual character sequence matched. <b>Pattern</b> = the rule describing a token's lexemes (usually a regular expression).</li>
+<li>Token format: <code>&lt;token name, attribute value&gt;</code>, e.g. <code>&lt;id, 1&gt;</code> where the attribute points to a symbol-table entry. Operators/keywords usually carry no attribute.</li>
+<li><b>Lexical error:</b> a character sequence matching no pattern (illegal character, misspelling).</li>
+<li><b>Symbol table:</b> stores name, type, scope, etc. for each identifier; built during analysis, used by all phases. Implementations: list, binary search tree, <b>hash table</b> (most common). Operations: <code>insert</code>, <code>lookup(symbol)</code> (returns 0 if absent), plus scope handling.</li>
+<li><b>Static (lexical) scoping:</b> search current block, then enclosing blocks, then global. <b>Dynamic scoping:</b> search current block then calling functions.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 3 “Lexical Analysis” (The Role of the Lexical Analyzer; Specification of Tokens; Recognition of Tokens); Ch. 2 “A Simple Syntax-Directed Translator” (Symbol Tables). Also Louden, <i>Compiler Construction: Principles and Practice</i>, Ch. 2 “Scanning”.</div>
+</section>
+
+<section id="basics">
+<h2>3. Formal Language Basics &amp; Regular Expressions</h2>
+<p class="src">Slides 32–38</p>
+<ul>
+<li><b>Alphabet Σ:</b> finite non-empty set of symbols. <b>String:</b> finite sequence of symbols; <code>|w|</code> = length; <code>|ε| = 0</code>.</li>
+<li><b>Prefix/suffix</b> (proper = not the whole string). <b>Concatenation</b> <code>xy</code>. <b>Σ*</b> = all strings including ε (Kleene star); <b>Σ⁺</b> = all non-empty strings.</li>
+<li><b>Language:</b> any subset L ⊆ Σ*. Natural languages evolve; formal grammars are defined (stipulated).</li>
+<li><b>Regular expression rules:</b> ∅ → {} · ε → {ε} · a → {a} · E+F (or E|F) → union · EF → concatenation · E* → closure. <b>Precedence:</b> star &gt; concatenation &gt; union.</li>
+<li>Regular languages are closed under union and concatenation (and star). A language is regular iff some finite automaton accepts it.</li>
+<li>Useful identities: <code>Rε = R</code>, <code>R+∅ = R</code>, <code>L(1∅) = ∅</code>. Examples: all strings = <code>(0+1)*</code>; start with 11 = <code>11(0+1)*</code>; end with 00 = <code>(0+1)*00</code>; even length = <code>((0+1)(0+1))*</code>; exactly one 1 = <code>0*10*</code>.</li>
+</ul>
+<div class="refs"><b>Read:</b> Hopcroft, Motwani, Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i> (3rd ed.), Ch. 1 “Automata: The Methods and the Madness” (alphabets, strings, languages) and Ch. 3 “Regular Expressions and Languages”. Sipser, <i>Introduction to the Theory of Computation</i>, Ch. 1 “Regular Languages” (§1.3 Regular Expressions).</div>
+</section>
+
+<section id="fa">
+<h2>4. Finite Automata: DFA, NFA, ε-NFA, Minimization</h2>
+<p class="src">Slides 39–284</p>
+<h3>DFA</h3>
+<ul>
+<li><b>5-tuple (Q, Σ, δ, q₀, F):</b> states, alphabet, transition function δ: Q×Σ→Q, start state, final states. Exactly one move per state/symbol.</li>
+<li><b>Extended δ̂:</b> basis <code>δ̂(q, ε) = q</code>; induction for w = xa: <code>δ̂(q, xa) = δ(δ̂(q, x), a)</code>.</li>
+<li><b>Language:</b> <code>L(A) = { w | δ̂(q₀, w) ∈ F }</code>.</li>
+<li><b>Design tips:</b> decide what each state “remembers” (last symbols seen, count mod n, parity); add a dead/trap state for rejected prefixes; strings ending in a pattern need states tracking pattern progress.</li>
+</ul>
+<h3>NFA</h3>
+<ul>
+<li>δ returns a <b>set</b> of states (zero or more): <code>δ: Q×Σ → 2^Q</code>. It can be “in several states at once.”</li>
+<li><code>L(A) = { w | δ̂(q₀, w) ∩ F ≠ ∅ }</code>: accepted if at least one path ends in a final state.</li>
+<li>NFAs are often easier to design (e.g. strings ending in 01, or ending in ab/bc/ca) but accept exactly the same languages as DFAs.</li>
+</ul>
+<h3>NFA → DFA (subset construction)</h3>
+<ul>
+<li>Same alphabet; start state = {q₀}; <code>Q_D</code> = subsets of <code>Q_N</code>; <code>δ_D(S, a) = ∪ δ_N(p, a)</code> over p ∈ S; a DFA state is final if it contains an NFA final state.</li>
+<li>Worst case 2ⁿ states, but build only the subsets reachable from the start (lazy construction).</li>
+</ul>
+<h3>ε-NFA</h3>
+<ul>
+<li>Allows ε-moves. <b>ECLOSE(q)</b> = all states reachable from q using only ε-moves (includes q).</li>
+<li>Eliminate ε: <code>δ'(q, a) = ECLOSE( δ( ECLOSE(q), a ) )</code>; q is final if ECLOSE(q) contains a final state. Then apply subset construction if a DFA is needed.</li>
+</ul>
+<h3>DFA minimization (table-filling)</h3>
+<ul>
+<li><b>Equivalent states</b> p ≡ q iff for every string z, δ̂(p,z) ∈ F ⇔ δ̂(q,z) ∈ F.</li>
+<li><b>Algorithm:</b> (1) make a table of all unordered state pairs; (2) mark every pair of one final + one non-final state; (3) for each unmarked pair (p,q) and symbol a, look at (δ(p,a), δ(q,a)): if that pair is marked, mark (p,q) and recursively mark pairs that depend on it; otherwise record (p,q) as a dependency of that pair; (4) merge unmarked pairs into one state.</li>
+<li>Also remove unreachable states first.</li>
+</ul>
+<div class="tip"><b>Exam tip:</b> expect to convert an NFA/ε-NFA to a DFA and then minimize. Show the transition table, mark final states with *, and list the subsets explicitly.</div>
+<div class="refs"><b>Read:</b> HMU Ch. 2 “Finite Automata” (DFA, NFA, “Finite Automata with Epsilon-Transitions”, equivalence of DFA and NFA) and Ch. 4 “Properties of Regular Languages” (§4.4 Equivalence and Minimization of Automata). Sipser Ch. 1 “Regular Languages” (§1.1 Finite Automata, §1.2 Nondeterminism). Dragon Book §3.7 “From Regular Expressions to Automata”.</div>
+</section>
+
+<section id="cfg">
+<h2>5. Context-Free Grammars &amp; Normal Forms</h2>
+<p class="src">Slides 292–341</p>
+<ul>
+<li><b>CFG G = (V, T, P, S):</b> variables, terminals (V∩T = ∅), productions A → α with α ∈ (V∪T)*, start symbol. “Context-free” because replacing A does not depend on surrounding symbols. Used by parsers (yacc, bison) and to describe XML.</li>
+<li>Examples: <code>S → 01 | 0S1</code> generates {0ⁿ1ⁿ | n&gt;0}; palindromes <code>P → ε | 0 | 1 | 0P0 | 1P1</code>.</li>
+<li><b>Derivations:</b> leftmost (always expand leftmost variable), rightmost, or a parse tree (interior nodes = variables, leaves = terminals).</li>
+<li><b>Ambiguity:</b> a string with more than one parse tree (e.g. <code>E → E+E | E*E | (E) | x | y | z</code> on <code>x+y+z</code>).</li>
+</ul>
+<h3>Simplification (do in this order)</h3>
+<ul>
+<li><b>Useless variables:</b> remove <i>non-generating</i> variables (cannot derive any terminal string) first, then <i>non-reachable</i> ones (cannot be reached from S).</li>
+<li><b>ε-productions:</b> find nullable variables (A ⇒* ε); for each production add every version with nullable symbols omitted (A → X₁X₂X₃X₄ with X₁, X₃ nullable gives 4 versions); drop A → ε (keep S → ε if S nullable).</li>
+<li><b>Unit productions A → B:</b> collapse cycles; for each path A ⇒ … ⇒ α (non-unit) add A → α directly, then delete unit rules.</li>
+</ul>
+<h3>Chomsky Normal Form (CNF)</h3>
+<ul>
+<li>Every production is <code>A → BC</code> or <code>A → a</code> (plus <code>S → ε</code> allowed). Every CFG can be converted.</li>
+<li><b>Steps:</b> (1) remove ε, unit and useless productions; (2) replace terminals inside mixed/long bodies with new variables (<code>A → bCD</code> becomes <code>A → BCD, B → b</code>); (3) break bodies longer than 2 into chains of binary productions.</li>
+</ul>
+<div class="refs"><b>Read:</b> HMU Ch. 5 “Context-Free Grammars and Languages” (§5.1 CFG, §5.2 Parse Trees, §5.4 Ambiguity) and Ch. 7 “Properties of Context-Free Languages” (§7.1 Normal Forms: eliminating useless symbols, ε- and unit productions, CNF). Sipser Ch. 2 “Context-Free Languages” (§2.1 CFG, Chomsky normal form). Dragon Book §2.2 “Syntax Definition”, §4.2 “Context-Free Grammars”.</div>
+</section>
+
+<section id="pda">
+<h2>6. Pushdown Automata (PDA)</h2>
+<p class="src">Slides 342–361</p>
+<ul>
+<li>PDA = finite automaton + <b>stack</b> (LIFO). Recognizes exactly the context-free languages.</li>
+<li><b>7-tuple (Q, Σ, Γ, δ, q₀, Z, F):</b> states, input alphabet, stack alphabet, transition function, start state, initial stack symbol, final states. Each move reads the stack top (and optionally an input symbol or ε), then pushes/pops.</li>
+<li><b>Turnstile ⊢</b> = one move, <b>⊢*</b> = zero or more moves. Instantaneous description (state, remaining input, stack).</li>
+<li><b>Acceptance:</b> by final state or by empty stack.</li>
+<li>Worked examples: <code>aⁿbⁿ</code> (push a, pop a per b) · <code>aⁿb²ⁿ</code> (push two symbols per a) · <code>wwᴿ</code> (push, guess the middle nondeterministically, pop) · equal / unequal numbers of a's and b's (empty-stack acceptance).</li>
+</ul>
+<div class="scroll"><table>
+<tr><th></th><th>DPDA</th><th>NPDA</th></tr>
+<tr><td>Moves per (state, input, stack top)</td><td>At most one</td><td>May be several</td></tr>
+<tr><td>Language class</td><td>DCFL (less powerful)</td><td>All CFLs</td></tr>
+<tr><td>Example</td><td>aⁿbⁿ</td><td>Even-length palindromes wwᴿ</td></tr>
+</table></div>
+<div class="refs"><b>Read:</b> HMU Ch. 6 “Pushdown Automata” (Definition; Languages of a PDA; Equivalence of PDAs and CFGs; Deterministic PDAs). Sipser Ch. 2 “Context-Free Languages” (§2.2 Pushdown Automata).</div>
+</section>
+
+<section id="syn">
+<h2>7. Syntax Analysis (Parsing)</h2>
+<p class="src">Slides 364–428</p>
+<ul>
+<li><b>Role of the parser:</b> check that the token string is generated by the grammar, build the parse tree/AST, detect syntax errors and recover. It <i>cannot</i> catch re-declaration, use before initialization, or type mismatch (semantic phase).</li>
+<li><b>Why CFG not RE:</b> every regular language is context-free, not vice versa. REs suit lexical structure (identifiers, constants); CFGs handle nesting (balanced parentheses, if-else).</li>
+<li><b>Terminals vs tokens:</b> token names are the terminals of the grammar; attribute values live in the symbol table.</li>
+<li><b>Parser types:</b> top-down (LL, leftmost derivation) vs bottom-up (shift-reduce; LR, SLR, LALR).</li>
+</ul>
+<h3>Grammar transformations for top-down parsing</h3>
+<ul>
+<li><b>Ambiguity removal:</b> (1) disambiguating rules (precedence, left associativity) without changing the grammar, or (2) rewrite the grammar so higher-precedence operators bind deeper (E → E+T | T; T → T*F | F; F → (E) | id).</li>
+<li><b>Left factoring:</b> <code>A → αβ₁ | αβ₂ | γ</code> becomes <code>A → αA' | γ; A' → β₁ | β₂</code>.</li>
+<li><b>Immediate left recursion:</b> <code>A → Aα | β</code> becomes <code>A → βA'; A' → αA' | ε</code>. General: <code>A → Aα₁|…|Aαₘ|β₁|…|βₙ</code> becomes <code>A → β₁A'|…|βₙA'; A' → α₁A'|…|αₘA'|ε</code>.</li>
+<li><b>Indirect left recursion:</b> order the variables, substitute earlier variables into later productions, then remove the resulting immediate recursion (example S → AA | 0, A → SS | 1).</li>
+<li>Standard result: <code>E → TE'; E' → +TE' | ε; T → FT'; T' → *FT' | ε; F → (E) | id</code>.</li>
+</ul>
+<h3>Predictive (LL(1)) parsing</h3>
+<ul>
+<li><b>LL(1):</b> Left-to-right scan, Leftmost derivation, 1 lookahead symbol. No backtracking; uses a stack + parsing table; stack and input both end with <code>$</code>. Grammar must have no left recursion and no left factoring (and be unambiguous).</li>
+<li><b>FIRST(X):</b> terminals that can begin strings derived from X (include ε if X ⇒* ε). If X is a terminal, FIRST = {X}.</li>
+<li><b>FOLLOW(A):</b> terminals that can appear right after A. FOLLOW(start) contains <code>$</code>; for B → αAβ add FIRST(β)−{ε}; if β ⇒* ε (or is empty) add FOLLOW(B). FOLLOW never contains ε.</li>
+<li><b>Table construction:</b> for each A → α: put the production in <code>M[A, a]</code> for every a ∈ FIRST(α); if ε ∈ FIRST(α), put it in <code>M[A, b]</code> for every b ∈ FOLLOW(A). Any cell with two entries means the grammar is <b>not</b> LL(1).</li>
+</ul>
+<div class="scroll"><table>
+<tr><th>Symbol</th><th>FIRST</th><th>FOLLOW</th></tr>
+<tr><td>E</td><td>{ ( , id }</td><td>{ $ , ) }</td></tr>
+<tr><td>E'</td><td>{ + , ε }</td><td>{ $ , ) }</td></tr>
+<tr><td>T</td><td>{ ( , id }</td><td>{ + , $ , ) }</td></tr>
+<tr><td>T'</td><td>{ * , ε }</td><td>{ + , $ , ) }</td></tr>
+<tr><td>F</td><td>{ ( , id }</td><td>{ * , + , $ , ) }</td></tr>
+</table></div>
+<div class="scroll"><table>
+<tr><th></th><th>id</th><th>+</th><th>*</th><th>(</th><th>)</th><th>$</th></tr>
+<tr><td>E</td><td>E→TE'</td><td></td><td></td><td>E→TE'</td><td></td><td></td></tr>
+<tr><td>E'</td><td></td><td>E'→+TE'</td><td></td><td></td><td>E'→ε</td><td>E'→ε</td></tr>
+<tr><td>T</td><td>T→FT'</td><td></td><td></td><td>T→FT'</td><td></td><td></td></tr>
+<tr><td>T'</td><td></td><td>T'→ε</td><td>T'→*FT'</td><td></td><td>T'→ε</td><td>T'→ε</td></tr>
+<tr><td>F</td><td>F→id</td><td></td><td></td><td>F→(E)</td><td></td><td></td></tr>
+</table></div>
+<ul>
+<li><b>Parse run (id+id*id):</b> stack starts <code>E$</code>. Top is a non-terminal: look up M[top, input] and replace it by the production body reversed. Top is a terminal: match and advance. Accept when both stack and input are down to <code>$</code>.</li>
+</ul>
+<h3>Error recovery strategies</h3>
+<ul>
+<li><b>Panic mode:</b> skip input until a synchronizing token (<code>;</code>, <code>}</code>); simple, may skip a lot.</li>
+<li><b>Phrase-level:</b> local correction (e.g. insert a missing <code>;</code>).</li>
+<li><b>Error productions:</b> add productions for common mistakes; hard to maintain.</li>
+<li><b>Global correction:</b> find the closest error-free program with the fewest insertions/deletions/changes; too costly in practice.</li>
+</ul>
+<div class="tip"><b>Exam tip:</b> a typical question gives a grammar, asks you to remove left recursion/factoring, compute FIRST/FOLLOW, fill the LL(1) table, and trace a string with a stack/input/action table.</div>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 4 “Syntax Analysis”: §4.1 Introduction (incl. error-recovery strategies), §4.2 Context-Free Grammars, §4.3 Writing a Grammar (ambiguity, left recursion, left factoring), §4.4 Top-Down Parsing (FIRST and FOLLOW, LL(1) Grammars, Nonrecursive Predictive Parsing). Louden Ch. 3 “Context-Free Grammars and Parsing” and Ch. 4 “Top-Down Parsing”. Slide references: GeeksforGeeks “error-detection-recovery-compiler”, TutorialsPoint “compiler_design_error_recovery”.</div>
+</section>
+
+<section id="sem">
+<h2>8. Semantic Analysis &amp; Syntax-Directed Translation</h2>
+<p class="src">Slides 431–451</p>
+<ul>
+<li>A plain parse tree has no meaning attached. <b>CFG + semantic rules = Syntax-Directed Definition (SDD).</b> Semantic analysis does scope resolution, type checking, array-bound checking.</li>
+<li><b>Semantic errors:</b> type mismatch, undeclared variable, reserved-identifier misuse, multiple declaration in one scope, out-of-scope access, actual/formal parameter mismatch.</li>
+<li><b>Two methods:</b> attribute grammars (SDD) and syntax-directed translation schemes (rules/actions embedded in the production). Example: <code>E → E + T { E.value = E.value + T.value }</code>.</li>
+<li><b>Synthesized attribute:</b> value computed from <i>children</i> (S → ABC: S gets values from A, B, C).</li>
+<li><b>Inherited attribute:</b> value taken from <i>parent and/or siblings</i>.</li>
+</ul>
+<div class="scroll"><table>
+<tr><th></th><th>S-attributed</th><th>L-attributed</th></tr>
+<tr><td>Attributes</td><td>Synthesized only</td><td>Synthesized + inherited, but never from a <i>right</i> sibling</td></tr>
+<tr><td>Action placement</td><td>End (rightmost) of the production</td><td>Anywhere in the body</td></tr>
+<tr><td>Parsing style</td><td>Bottom-up</td><td>Top-down (depth-first, left to right)</td></tr>
+</table></div>
+<ul>
+<li><b>L-attributed check</b> for A → X Y: X may use A's inherited attributes only; Y may use A and X. Anything depending on a right sibling (e.g. <code>X.i = A.i + Y.i</code>) violates the rule.</li>
+<li><b>Worked examples:</b> desk-calculator evaluation with <code>val</code>; converting infix to postfix with concatenation <code>||</code>: <code>E → E+T { E.val = E.val || T.val || '+' }</code>. The annotated parse tree for <code>3+2-4</code> yields postfix <code>3 2 + 4 -</code>.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 5 “Syntax-Directed Translation” (§5.1 Syntax-Directed Definitions; §5.2 Evaluation Orders for SDDs, incl. S-attributed and L-attributed; §5.4 Syntax-Directed Translation Schemes). Ch. 2 §2.3–2.5 “Syntax-Directed Translation / Translation Schemes” (infix to postfix). Louden Ch. 6 “Semantic Analysis” (attribute grammars).</div>
+</section>
+
+<section id="opt">
+<h2>9. Code Optimization</h2>
+<p class="src">Slides 454–484</p>
+<ul>
+<li><b>Goal:</b> use fewer resources (CPU, memory) and run faster <b>without changing program meaning</b>. Methods: remove unneeded code, reorder statements.</li>
+<li><b>Basic blocks:</b> straight-line code with one entry and one exit. <b>Find leaders:</b> the first instruction; any jump target; any instruction right after a jump. A block runs from a leader up to (not including) the next leader. Blocks plus jump edges form the flow graph (the quick-sort 3-address code splits into B1–B6).</li>
+</ul>
+<h3>Peephole optimization (local, on a small window of target code)</h3>
+<div class="scroll"><table>
+<tr><th>Technique</th><th>Example</th></tr>
+<tr><td>Redundant instruction elimination</td><td><code>MOV R0,a ; MOV a,R0</code> → drop the second</td></tr>
+<tr><td>Constant folding</td><td><code>x := 32; x := x + 32</code> → <code>x := 64</code></td></tr>
+<tr><td>Unreachable code</td><td>Code after <code>goto L2</code> with no label</td></tr>
+<tr><td>Flow-of-control</td><td><code>goto L1 … L1: goto L2</code> → <code>goto L2</code></td></tr>
+<tr><td>Algebraic simplification</td><td><code>x + 0</code>, <code>x * 1</code> removed</td></tr>
+<tr><td>Dead code</td><td>Assignment to x never used afterwards</td></tr>
+<tr><td>Strength reduction</td><td><code>x * 2</code> → <code>x + x</code> or <code>x &lt;&lt; 1</code></td></tr>
+<tr><td>Machine idioms</td><td>Auto-increment/decrement for <code>i = i + 1</code></td></tr>
+</table></div>
+<ul>
+<li><b>Common sub-expression elimination (CSE):</b> if an expression (e.g. <code>4 * i</code>) was already computed in the block and its operands are unchanged, reuse the earlier temporary. Applied step by step to the quick-sort blocks B5/B6, which also shows copy propagation.</li>
+<li><b>Dead-code elimination:</b> remove statements whose results are never used; typically cleans up after CSE and copy propagation.</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book §8.4 “Basic Blocks and Flow Graphs”, §8.5 “Optimization of Basic Blocks” (common subexpressions, dead-code elimination), §8.7 “Peephole Optimization”; Ch. 9 “Machine-Independent Optimizations” (introduction, global CSE). Three-address code and the quick-sort example: Ch. 6 “Intermediate-Code Generation”.</div>
+</section>
+
+<section id="gen">
+<h2>10. Code Generation</h2>
+<p class="src">Slides 487–499</p>
+<ul>
+<li>Final phase: takes the (optimized) IR plus symbol-table information and produces the target program. Input is assumed error-free (type-checked). IR forms: postfix, three-address code, stack-machine code, syntax tree, DAG.</li>
+<li><b>Design issues:</b> input to the generator, target program form, memory management, instruction selection, register allocation, evaluation order, code-generation approach.</li>
+<li><b>Target forms:</b> absolute machine code (fixed memory location, run immediately) · relocatable machine code (separate compilation, then link/load) · assembly language (easier, symbolic).</li>
+<li><b>Evaluation order</b> affects efficiency: reordering independent computations for <code>a+b-(c+d)*e</code> saves a load/store and a register.</li>
+<li><b>Target machine model:</b> byte-addressable, 4-byte words, registers R0…Rn−1, two-address instructions <code>op source, destination</code> (MOV, ADD, SUB…).</li>
+</ul>
+<div class="scroll"><table>
+<tr><th>Addressing mode</th><th>Form</th><th>Extra cost</th></tr>
+<tr><td>Absolute</td><td>M</td><td>1</td></tr>
+<tr><td>Register</td><td>R</td><td>0</td></tr>
+<tr><td>Indexed</td><td>c(R)</td><td>1</td></tr>
+<tr><td>Indirect register</td><td>*R</td><td>0</td></tr>
+<tr><td>Indirect indexed</td><td>*c(R)</td><td>1</td></tr>
+<tr><td>Literal</td><td>#c</td><td>1</td></tr>
+</table></div>
+<ul>
+<li><b>Cost</b> of an instruction = 1 + costs of its operands (register = 0, memory/constant = 1). Program cost = sum. E.g. <code>MOV R0,R1</code> = 1; <code>MOV R0,M</code> = 2; <code>SUB 4(R0),*12(R1)</code> = 3.</li>
+<li><b>Example a = b + c:</b> <code>MOV b,R0; ADD c,R0; MOV R0,a</code> costs 6, but if R0, R1, R2 already hold the addresses of a, b, c then <code>MOV *R1,*R0; ADD *R2,*R0</code> costs 2 (keeping values in registers pays off).</li>
+</ul>
+<div class="refs"><b>Read:</b> Dragon Book Ch. 8 “Code Generation”: §8.1 Issues in the Design of a Code Generator, §8.2 The Target Language (addressing modes, instruction costs), §8.6 A Simple Code Generator.</div>
+</section>
+
+<section id="cheat">
+<h2>Last-minute cheat sheet</h2>
+<div class="scroll"><table>
+<tr><th>Model</th><th>Accepts / generates</th><th>Memory</th></tr>
+<tr><td>DFA / NFA / ε-NFA / RE</td><td>Regular languages</td><td>Finite states only</td></tr>
+<tr><td>DPDA</td><td>Deterministic CFLs</td><td>States + stack</td></tr>
+<tr><td>NPDA / CFG</td><td>Context-free languages</td><td>States + stack</td></tr>
+</table></div>
+<ul>
+<li><b>Compiler pipeline:</b> characters → <i>lexer</i> → tokens → <i>parser</i> → parse tree → <i>semantic analysis/SDT</i> → annotated tree → <i>intermediate code</i> → <i>optimizer</i> → <i>code generator</i> → target code; the symbol table and error handler serve every phase.</li>
+<li><b>Order for CFG cleanup:</b> ε-productions → unit productions → useless symbols → (CNF). <b>Order for LL(1):</b> remove ambiguity → left recursion → left factoring → FIRST/FOLLOW → table → trace.</li>
+<li><b>Conversions to practise:</b> RE ↔ automaton, NFA → DFA, ε-NFA → NFA/DFA, DFA minimization, CFG → CNF, grammar → LL(1) table, infix → postfix with an SDD, basic blocks and leaders, instruction cost.</li>
+</ul>
+</section>
+
+<footer>The slides themselves cite only two websites (GeeksforGeeks, TutorialsPoint, on error recovery). The textbook chapters listed above are the standard sources for these topics, matched to your slides by me. Check chapter and section numbers against your edition and the books on your course outline.</footer>
+</main>
+</body>
+</html>
