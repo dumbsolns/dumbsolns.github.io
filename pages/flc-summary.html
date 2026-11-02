@@ -37,18 +37,42 @@ th{background:var(--acbg)}
 .refs b{color:var(--tx)}
 footer{font-size:13px;color:var(--mut);padding:10px 0}
 @media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+.dive{margin:10px 0 14px;padding:10px 12px;border-radius:10px;background:var(--acbg);font-size:14.5px}
+.dive b{color:var(--ac)}
+.dive a{color:var(--ac);font-weight:600;text-decoration:none;white-space:nowrap}
+.dive a:hover{text-decoration:underline}
+.grid{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0 14px}
+.grid a{display:block;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;text-decoration:none;color:var(--tx);background:var(--bg)}
+.grid a b{display:block;color:var(--ac);font-size:15px}
+.grid a span{font-size:13px;color:var(--mut)}
+@media (min-width:600px){.grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <header>
   <div class="bar"><a class="back" href="/" aria-label="Back to home page">← Back</a><b>CSE4129 · FLC exam overview</b></div>
   <nav aria-label="Sections">
-    <a href="#intro">1 Intro</a><a href="#lex">2 Lexical</a><a href="#basics">3 Languages &amp; RE</a><a href="#fa">4 Automata</a><a href="#cfg">5 CFG</a><a href="#pda">6 PDA</a><a href="#syn">7 Parsing</a><a href="#sem">8 Semantic/SDT</a><a href="#opt">9 Optimization</a><a href="#gen">10 Code Gen</a><a href="#cheat">Cheat sheet</a>
+    <a href="#intro">1 Intro</a><a href="#lex">2 Lexical</a><a href="#basics">3 Languages &amp; RE</a><a href="#fa">4 Automata</a><a href="#cfg">5 CFG</a><a href="#pda">6 PDA</a><a href="#syn">7 Parsing</a><a href="#sem">8 Semantic/SDT</a><a href="#opt">9 Optimization</a><a href="#gen">10 Code Gen</a><a href="#cheat">Cheat sheet</a><a href="#dives">Deep dives</a>
   </nav>
 </header>
 <main>
 <h1>Formal Languages &amp; Compilers: Exam Overview</h1>
 <p class="lead">Summary of all 500 slides, in the order taught: theory of computation first (automata, grammars, PDA), then the compiler phases front to back.</p>
+
+<section id="dives">
+<h2>Deep dives (one page per topic)</h2>
+<p>Each page has the full method, worked examples, the past-paper questions on that topic, textbook references and practice problems. <a href="flc-solves.html">All past-paper solutions on one page</a> is the quick-answer version.</p>
+<div class="grid">
+<a href="flc/regular-expressions.html"><b>Regular expressions</b><span>Syntax, laws, building REs, Thompson, lexer patterns</span></a>
+<a href="flc/dfa-design.html"><b>DFA design &amp; RE → DFA</b><span>Design method, patterns, Q4d answers</span></a>
+<a href="flc/automata-conversions.html"><b>Automata conversions</b><span>ε-NFA → NFA → DFA, minimization</span></a>
+<a href="flc/pushdown-automata.html"><b>Pushdown automata</b><span>Definition, IDs, designs, PDA ⇄ CFG</span></a>
+<a href="flc/cfg-simplification-cnf.html"><b>CFG, simplification &amp; CNF</b><span>Useless/ε/unit removal, CNF, CFG design</span></a>
+<a href="flc/ll1-parsing.html"><b>Top-down &amp; LL(1) parsing</b><span>Left recursion, FIRST/FOLLOW, tables, error recovery</span></a>
+<a href="flc/lr-parsing.html"><b>LR parsing</b><span>Items, LR(0)/SLR/LALR, conflicts, traces</span></a>
+<a href="flc/sdt-three-address-code.html"><b>SDT &amp; three-address code</b><span>Attributes, annotated trees, TAC, control flow</span></a>
+</div>
+</section>
 
 <section id="intro">
 <h2>1. Introduction &amp; Compiler Architecture</h2>
@@ -76,6 +100,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <li><b>Static (lexical) scoping:</b> search current block, then enclosing blocks, then global. <b>Dynamic scoping:</b> search current block then calling functions.</li>
 </ul>
 <div class="refs"><b>Read:</b> Dragon Book Ch. 3 “Lexical Analysis” (The Role of the Lexical Analyzer; Specification of Tokens; Recognition of Tokens); Ch. 2 “A Simple Syntax-Directed Translator” (Symbol Tables). Also Louden, <i>Compiler Construction: Principles and Practice</i>, Ch. 2 “Scanning”.</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/regular-expressions.html#lex">Regular expressions in the lexer</a> · <a href="flc/regular-expressions.html">full RE page</a></div>
 </section>
 
 <section id="basics">
@@ -90,6 +115,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <li>Useful identities: <code>Rε = R</code>, <code>R+∅ = R</code>, <code>L(1∅) = ∅</code>. Examples: all strings = <code>(0+1)*</code>; start with 11 = <code>11(0+1)*</code>; end with 00 = <code>(0+1)*00</code>; even length = <code>((0+1)(0+1))*</code>; exactly one 1 = <code>0*10*</code>.</li>
 </ul>
 <div class="refs"><b>Read:</b> Hopcroft, Motwani, Ullman (HMU), <i>Introduction to Automata Theory, Languages, and Computation</i> (3rd ed.), Ch. 1 “Automata: The Methods and the Madness” (alphabets, strings, languages) and Ch. 3 “Regular Expressions and Languages”. Sipser, <i>Introduction to the Theory of Computation</i>, Ch. 1 “Regular Languages” (§1.3 Regular Expressions).</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/regular-expressions.html">Regular expressions</a> (laws, building REs, past-paper Q4b) · <a href="flc/dfa-design.html">DFA design &amp; RE → DFA</a></div>
 </section>
 
 <section id="fa">
@@ -126,6 +152,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 </ul>
 <div class="tip"><b>Exam tip:</b> expect to convert an NFA/ε-NFA to a DFA and then minimize. Show the transition table, mark final states with *, and list the subsets explicitly.</div>
 <div class="refs"><b>Read:</b> HMU Ch. 2 “Finite Automata” (DFA, NFA, “Finite Automata with Epsilon-Transitions”, equivalence of DFA and NFA) and Ch. 4 “Properties of Regular Languages” (§4.4 Equivalence and Minimization of Automata). Sipser Ch. 1 “Regular Languages” (§1.1 Finite Automata, §1.2 Nondeterminism). Dragon Book §3.7 “From Regular Expressions to Automata”.</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/automata-conversions.html">Automata conversions &amp; minimization</a> · <a href="flc/dfa-design.html">DFA design</a></div>
 </section>
 
 <section id="cfg">
@@ -149,6 +176,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <li><b>Steps:</b> (1) remove ε, unit and useless productions; (2) replace terminals inside mixed/long bodies with new variables (<code>A → bCD</code> becomes <code>A → BCD, B → b</code>); (3) break bodies longer than 2 into chains of binary productions.</li>
 </ul>
 <div class="refs"><b>Read:</b> HMU Ch. 5 “Context-Free Grammars and Languages” (§5.1 CFG, §5.2 Parse Trees, §5.4 Ambiguity) and Ch. 7 “Properties of Context-Free Languages” (§7.1 Normal Forms: eliminating useless symbols, ε- and unit productions, CNF). Sipser Ch. 2 “Context-Free Languages” (§2.1 CFG, Chomsky normal form). Dragon Book §2.2 “Syntax Definition”, §4.2 “Context-Free Grammars”.</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/cfg-simplification-cnf.html">CFG, simplification &amp; CNF</a> (incl. CFG-design questions)</div>
 </section>
 
 <section id="pda">
@@ -168,6 +196,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <tr><td>Example</td><td>aⁿbⁿ</td><td>Even-length palindromes wwᴿ</td></tr>
 </table></div>
 <div class="refs"><b>Read:</b> HMU Ch. 6 “Pushdown Automata” (Definition; Languages of a PDA; Equivalence of PDAs and CFGs; Deterministic PDAs). Sipser Ch. 2 “Context-Free Languages” (§2.2 Pushdown Automata).</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/pushdown-automata.html">Pushdown automata</a> (designs, ID traces, PDA ⇄ CFG)</div>
 </section>
 
 <section id="syn">
@@ -222,6 +251,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 </ul>
 <div class="tip"><b>Exam tip:</b> a typical question gives a grammar, asks you to remove left recursion/factoring, compute FIRST/FOLLOW, fill the LL(1) table, and trace a string with a stack/input/action table.</div>
 <div class="refs"><b>Read:</b> Dragon Book Ch. 4 “Syntax Analysis”: §4.1 Introduction (incl. error-recovery strategies), §4.2 Context-Free Grammars, §4.3 Writing a Grammar (ambiguity, left recursion, left factoring), §4.4 Top-Down Parsing (FIRST and FOLLOW, LL(1) Grammars, Nonrecursive Predictive Parsing). Louden Ch. 3 “Context-Free Grammars and Parsing” and Ch. 4 “Top-Down Parsing”. Slide references: GeeksforGeeks “error-detection-recovery-compiler”, TutorialsPoint “compiler_design_error_recovery”.</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/ll1-parsing.html">Top-down &amp; LL(1) parsing</a> · <a href="flc/lr-parsing.html">LR parsing</a> (in every exam, but only introduced in the slides)</div>
 </section>
 
 <section id="sem">
@@ -245,6 +275,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <li><b>Worked examples:</b> desk-calculator evaluation with <code>val</code>; converting infix to postfix with concatenation <code>||</code>: <code>E → E+T { E.val = E.val || T.val || '+' }</code>. The annotated parse tree for <code>3+2-4</code> yields postfix <code>3 2 + 4 -</code>.</li>
 </ul>
 <div class="refs"><b>Read:</b> Dragon Book Ch. 5 “Syntax-Directed Translation” (§5.1 Syntax-Directed Definitions; §5.2 Evaluation Orders for SDDs, incl. S-attributed and L-attributed; §5.4 Syntax-Directed Translation Schemes). Ch. 2 §2.3–2.5 “Syntax-Directed Translation / Translation Schemes” (infix to postfix). Louden Ch. 6 “Semantic Analysis” (attribute grammars).</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/sdt-three-address-code.html">SDT &amp; three-address code</a> (S/L-attributed, annotated trees, exam SDD)</div>
 </section>
 
 <section id="opt">
@@ -271,6 +302,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 <li><b>Dead-code elimination:</b> remove statements whose results are never used; typically cleans up after CSE and copy propagation.</li>
 </ul>
 <div class="refs"><b>Read:</b> Dragon Book §8.4 “Basic Blocks and Flow Graphs”, §8.5 “Optimization of Basic Blocks” (common subexpressions, dead-code elimination), §8.7 “Peephole Optimization”; Ch. 9 “Machine-Independent Optimizations” (introduction, global CSE). Three-address code and the quick-sort example: Ch. 6 “Intermediate-Code Generation”.</div>
+<div class="dive"><b>Go deeper:</b> <a href="flc/sdt-three-address-code.html#tac">Three-address code &amp; its representations</a> · <a href="flc/sdt-three-address-code.html#flow">control-flow translation</a></div>
 </section>
 
 <section id="gen">
@@ -314,7 +346,7 @@ footer{font-size:13px;color:var(--mut);padding:10px 0}
 </ul>
 </section>
 
-<footer>The slides themselves cite only two websites (GeeksforGeeks, TutorialsPoint, on error recovery). The textbook chapters listed above are the standard sources for these topics, matched to your slides by me. Check chapter and section numbers against your edition and the books on your course outline.</footer>
+<footer>Past-paper answers: <a href="flc-solves.html">flc-solves.html</a>. The slides themselves cite only two websites (GeeksforGeeks, TutorialsPoint, on error recovery). The textbook chapters listed above are the standard sources for these topics, matched to your slides by me. Check chapter and section numbers against your edition and the books on your course outline.</footer>
 </main>
 </body>
 </html>
