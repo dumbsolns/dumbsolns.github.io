@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Bayesian Decision Theory</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:460px;height:auto;display:block;margin:6px auto;background:var(--code);border-radius:8px}
+.wid svg text{fill:var(--ink);font:11px system-ui,sans-serif}
+.wid label{display:block;font-size:.92rem;margin:6px 0 0}
+.wid input[type=range]{width:100%}
+#rd{font:.86rem/1.55 ui-monospace,Menlo,Consolas,monospace;margin-top:6px}
+.key span{display:inline-block;margin-right:12px;font-size:.88rem}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c4">← Summary (ch. 4)</a></div>
+ <nav aria-label="Sections"><a href="#basic">Basics</a><a href="#err">Min error</a><a href="#src">Probabilities</a><a href="#risk">Risk &amp; loss</a><a href="#disc">Discriminants</a><a href="#gauss">Gaussian cases</a><a href="#demo">Widget</a><a href="#bound">Error bounds</a><a href="#roc">ROC</a><a href="#more">Extensions</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Bayesian decision theory: deep dive</h1>
+<p class="lead">The theory of the best possible classifier: posteriors, minimum error, risk and loss, discriminant functions for Gaussian classes (all three cases derived), error bounds, ROC, and the extensions to discrete, missing and compound decisions.</p>
+<div class="bk"><b>Read:</b> Duda, Hart &amp; Stork, Ch. 2 "Bayesian Decision Theory": §2.1 Introduction, §2.2 "Bayesian Decision Theory: Continuous Features" (§2.2.1 two-category), §2.3 "Minimum-Error-Rate Classification", §2.4 "Classifiers, Discriminant Functions, and Decision Surfaces", §2.5 "The Normal Density", §2.6 "Discriminant Functions for the Normal Density" (cases 1–3), §2.7 "Error Probabilities and Integrals", §2.8 "Error Bounds for Normal Densities" (Chernoff, Bhattacharyya, §2.8.3 ROC), §2.9 "Discrete Features", §2.10 "Missing and Noisy Features", §2.12 "Compound Bayesian Decision Theory and Context". Bishop, <i>PRML</i>, §1.5 "Decision Theory" (§1.5.1 misclassification rate, §1.5.2 expected loss, §1.5.3 reject option) and §2.3 "The Gaussian Distribution".</div>
+
+<h2 id="basic">1. The setting and the vocabulary</h2>
+<p>Bayesian decision theory designs classifiers that make decisions by minimising an expected <b>risk</b>. The simplest risk is the classification error; when some mistakes are worse than others, the risk includes their costs.</p>
+<div class="tw"><table><tr><th>Term</th><th>Symbol</th><th>Meaning (fish example)</th></tr>
+<tr><td>State of nature (class)</td><td>ω₁, ω₂</td><td>sea bass, salmon</td></tr>
+<tr><td>Prior</td><td>P(ω<sub>j</sub>)</td><td>how likely each fish is before looking at it</td></tr>
+<tr><td>Evidence</td><td>p(x)</td><td>density of the measurement (lightness) over all fish</td></tr>
+<tr><td>Likelihood</td><td>p(x|ω<sub>j</sub>)</td><td>how often we measure lightness x when the fish is class j</td></tr>
+<tr><td>Posterior</td><td>P(ω<sub>j</sub>|x)</td><td>probability the fish is class j given the measured x</td></tr></table></div>
+<div class="f">Bayes' rule:   P(ω_j | x) = p(x | ω_j) P(ω_j) / p(x),      p(x) = Σ_j p(x | ω_j) P(ω_j)
+posterior = likelihood × prior / evidence</div>
+<p>The evidence is the same for all classes, so for <i>comparing</i> classes it only scales the posteriors (they must sum to 1: P(ω₁|x) + P(ω₂|x) = 1).</p>
+
+<h2 id="err">2. Minimum-error classification</h2>
+<h3>Priors only</h3>
+<p>With no measurement: decide ω₁ if P(ω₁) &gt; P(ω₂), else ω₂. It favours the likelier class and makes the <i>same decision every time</i>; it is optimal when nothing else is known.</p>
+<h3>With the measurement x</h3>
+<div class="f">decide ω₁ if P(ω₁|x) > P(ω₂|x), else ω₂
+⇔ p(x|ω₁)P(ω₁) > p(x|ω₂)P(ω₂)                          (evidence cancels)
+⇔ p(x|ω₁)/p(x|ω₂) > P(ω₂)/P(ω₁)                         (likelihood ratio vs threshold θ_a)</div>
+<p>Slide illustration: with P(ω₁) = 2/3 and P(ω₂) = 1/3 the posterior curves are the likelihoods re-weighted and re-normalised; where the weighted curves cross the decision changes.</p>
+<h3>Why this rule minimises the error</h3>
+<p>Choosing ω₁ at x makes an error only if the true class is ω₂ (probability P(ω₂|x)), and vice versa:</p>
+<div class="f">P(error | x) = P(ω₁|x) if we decide ω₂,      P(ω₂|x) if we decide ω₁
+the Bayes rule picks the larger posterior, so  P(error | x) = min[ P(ω₁|x), P(ω₂|x) ]
+P(error) = ∫ P(error|x) p(x) dx                        (average error)</div>
+<p>At every x the rule makes P(error|x) as small as it can possibly be; any other rule picks the smaller posterior at some x and increases the error there. Since p(x) ≥ 0, the integral is also minimised. In terms of regions: <code>P(error) = P(ω₂)∫<sub>R₁</sub>p(x|ω₂)dx + P(ω₁)∫<sub>R₂</sub>p(x|ω₁)dx</code>. (Exam: "explain why the Bayes rule minimises the average probability of error".)</p>
+<div class="tip"><b>Priors matter:</b> take p(x|ω₁) = 0.8 and p(x|ω₂) = 0.2 at some x. With equal priors P(ω₁|x) = 0.8. With P(ω₁) = 0.3 and P(ω₂) = 0.7: P(ω₁|x) = 0.24/(0.24 + 0.14) = 0.63. The likelihood is the same; a smaller prior lowers the posterior.</div>
+
+<h2 id="src">3. Where do the probabilities come from?</h2>
+<ul>
+<li><b>Objective approach:</b> probabilities come only from experiments (frequencies).</li>
+<li><b>Subjective approach:</b> probabilities express degree of belief, based on opinion (used when data are scarce, e.g. assume a Gaussian).</li>
+<li><b>Mixed:</b> choose a subjective model (e.g. Gaussian) and use an objective dataset to fit its parameters (μ, Σ), the subject of the parameter-estimation chapter.</li>
+</ul>
+<h3>Slide example (objective): luxury or standard car from its height</h3>
+<p>C₁ = price &gt; $50K (luxury), C₂ = price ≤ $50K; feature x = car height. Collect data: 1 209 cars, 221 luxury and 988 standard.</p>
+<ol>
+<li><b>Priors:</b> P(C₁) = 221/1209 = 0.183, P(C₂) = 988/1209 = 0.817.</li>
+<li><b>Likelihoods:</b> separate the data by class, discretise the height into bins, count cars per bin, normalise the histogram (e.g. if 46 luxury cars fall in a bin, that bin's value is 46 divided by the total times the bin width).</li>
+<li><b>Posterior in a bin:</b> if p(x = 1.0|C₁) = 0.2081 and p(x = 1.0|C₂) = 0.0597:</li>
+</ol>
+<div class="f">P(C₁|x = 1.0) = 0.2081·0.183 / (0.2081·0.183 + 0.0597·0.817) = 0.0381 / 0.0869 = 0.438</div>
+<p>So a car of this height is more likely standard (0.562) even though luxury cars are fairly common at that height: the small luxury prior (0.183) pulls the posterior down.</p>
+
+<h2 id="risk">4. The general theory: actions, loss and risk</h2>
+<p>Generalise in four ways: use <b>many features</b> (x ∈ R<sup>d</sup>), allow <b>c categories</b>, allow <b>actions other than classifying</b> (such as rejecting), and use a <b>general loss function</b>.</p>
+<ul>
+<li>Categories ω₁…ω<sub>c</sub>; actions α₁…α<sub>l</sub>.</li>
+<li><b>Loss</b> λ(α<sub>i</sub>|ω<sub>j</sub>): the cost of taking action α<sub>i</sub> when the true class is ω<sub>j</sub>.</li>
+</ul>
+<div class="f">conditional risk (expected loss of action α_i given x):
+   R(α_i | x) = Σ_{j=1..c} λ(α_i | ω_j) P(ω_j | x)
+overall risk:   R = ∫ R(α(x) | x) p(x) dx            α(x) = decision rule
+Bayes rule:  (i) compute R(α_i | x) for every action;  (ii) choose the action with minimum R(α_i | x)
+minimum overall risk R* = Bayes risk = the best performance achievable</div>
+<h3>Two categories</h3>
+<p>Let α₁ = decide ω₁, α₂ = decide ω₂, λ<sub>ij</sub> = λ(α<sub>i</sub>|ω<sub>j</sub>).</p>
+<div class="f">R(α₁|x) = λ₁₁P(ω₁|x) + λ₁₂P(ω₂|x)
+R(α₂|x) = λ₂₁P(ω₁|x) + λ₂₂P(ω₂|x)
+decide ω₁ if R(α₁|x) < R(α₂|x)
+⇔ (λ₂₁ − λ₁₁) P(ω₁|x) > (λ₁₂ − λ₂₂) P(ω₂|x)
+⇔ (λ₂₁ − λ₁₁) p(x|ω₁)P(ω₁) > (λ₁₂ − λ₂₂) p(x|ω₂)P(ω₂)
+⇔ p(x|ω₁)/p(x|ω₂)  >  [(λ₁₂ − λ₂₂)/(λ₂₁ − λ₁₁)] · P(ω₂)/P(ω₁)  =  θ_b       (assuming λ₂₁ > λ₁₁)</div>
+<p>A wrong decision costs more than a right one (λ₂₁ &gt; λ₁₁, λ₁₂ &gt; λ₂₂), so the sign flip when dividing is safe. The likelihood-ratio plot in the slides shows the threshold θ<sub>a</sub> (zero-one loss) and θ<sub>b</sub> (general loss) cutting the ratio curve into decision regions R₁, R₂, R₁, R₂.</p>
+<h3>Zero-one loss recovers minimum error</h3>
+<div class="f">λ(α_i|ω_j) = 0 if i = j, 1 if i ≠ j
+R(α_i|x) = Σ_{j≠i} P(ω_j|x) = 1 − P(ω_i|x)
+minimise R  ⇔  maximise P(ω_i|x):    decide ω_i if P(ω_i|x) > P(ω_j|x) for all j ≠ i
+two classes:  θ_a = P(ω₂)/P(ω₁)</div>
+<p>The overall risk is then the average probability of error: zero-one loss is just the "all errors are equally bad" special case.</p>
+<h3>Slide example: the cost of a missed disease</h3>
+<p>A blood test gives P(ω₁|x) = 0.15 (severe disease) and P(ω₂|x) = 0.85 (healthy). Actions: α₁ = give treatment, α₂ = send home. Losses: λ(α₁|ω₂) = 1 (treating a healthy person: mild sickness), λ(α₂|ω₁) = 100 (sending a sick person home: death), correct actions cost 0.</p>
+<div class="f">R(α₁|x) = 0·0.15 + 1·0.85  = 0.85
+R(α₂|x) = 100·0.15 + 0·0.85 = 15.00        → minimum risk: α₁, TREAT</div>
+<div class="warn">The posterior alone says "85% healthy, do nothing", but the expected loss says <b>treat</b>. When errors have unequal costs, the most probable class is not necessarily the best decision.</div>
+<h3>Reject option</h3>
+<p>Add a third action α<sub>r</sub> ("too uncertain, ask a human") with loss λ<sub>r</sub> in every state. Decide the class with the largest posterior unless the minimum risk exceeds λ<sub>r</sub>. With zero-one loss, reject when max<sub>i</sub> P(ω<sub>i</sub>|x) &lt; 1 − λ<sub>r</sub>. Example: λ<sub>r</sub> = 0.3 and posteriors (0.55, 0.45): risk of the best class is 1 − 0.55 = 0.45 &gt; 0.3, so reject. (Bishop §1.5.3.)</p>
+
+<h2 id="disc">5. Discriminant functions</h2>
+<p>A classifier can be written as c functions g<sub>i</sub>(x): assign x to ω<sub>i</sub> if <code>g<sub>i</sub>(x) &gt; g<sub>j</sub>(x)</code> for all j ≠ i. For the Bayes classifier:</p>
+<ul>
+<li>General loss: g<sub>i</sub>(x) = −R(α<sub>i</sub>|x) (risk is minimised, a discriminant is maximised, so the minus sign).</li>
+<li>Zero-one loss: g<sub>i</sub>(x) = P(ω<sub>i</sub>|x) = p(x|ω<sub>i</sub>)P(ω<sub>i</sub>)/p(x).</li>
+</ul>
+<p><b>The choice is not unique:</b> replacing g<sub>i</sub> by f(g<sub>i</sub>) for any monotonically increasing f, multiplying all g<sub>i</sub> by the same positive constant, or adding the same constant to all, leaves the decisions unchanged. So drop p(x) and take logs:</p>
+<div class="f">g_i(x) = p(x|ω_i)P(ω_i)         or, more usefully,        g_i(x) = ln p(x|ω_i) + ln P(ω_i)</div>
+<p>The log form is used throughout the Gaussian cases. The feature space splits into <b>decision regions</b> R₁…R<sub>c</sub> separated by <b>decision boundaries</b> where g<sub>i</sub>(x) = g<sub>j</sub>(x).</p>
+<p><b>Two categories: a dichotomizer.</b> One function g(x) = g₁(x) − g₂(x): decide ω₁ if g(x) &gt; 0. It gives a simpler rule and a clear geometry (boundary g = 0). With logs:</p>
+<div class="f">g(x) = ln [ p(x|ω₁)/p(x|ω₂) ] + ln [ P(ω₁)/P(ω₂) ]       (log-likelihood ratio + log prior ratio)</div>
+
+<h2 id="gauss">6. Gaussian class densities N(μ<sub>i</sub>, Σ<sub>i</sub>)</h2>
+<div class="f">g_i(x) = −½ (x − μ_i)ᵀ Σ_i⁻¹ (x − μ_i) − (d/2) ln 2π − ½ ln|Σ_i| + ln P(ω_i)</div>
+<p>The term −(d/2) ln 2π is the same for every class and is dropped. Everything else depends on how much structure we assume for Σ<sub>i</sub>:</p>
+<div class="tw"><table><tr><th>Case</th><th>Σ<sub>i</sub></th><th>Geometry of the classes</th><th>Boundary</th></tr>
+<tr><td>I</td><td>σ²I (uncorrelated, equal variance, same for all classes)</td><td>identical spheres</td><td>hyperplane ⟂ to the line joining the means</td></tr>
+<tr><td>II</td><td>Σ (shared, any shape)</td><td>identical ellipsoids (same size, shape and tilt)</td><td>hyperplane, <i>not</i> ⟂ to the means line</td></tr>
+<tr><td>III</td><td>arbitrary Σ<sub>i</sub></td><td>different ellipses cutting through each other</td><td>hyperquadric (non-linear)</td></tr></table></div>
+<h3>Case I: Σ<sub>i</sub> = σ²I, step by step (as in the slides)</h3>
+<p>|Σ<sub>i</sub>| = σ<sup>2d</sup> and Σ<sub>i</sub>⁻¹ = I/σ², so</p>
+<div class="f">g_i(x) = −‖x − μ_i‖²/(2σ²) − (d/2)ln 2π − d ln σ + ln P(ω_i)
+drop the class-independent terms; expand ‖x − μ_i‖² = xᵀx − 2μ_iᵀx + μ_iᵀμ_i;
+xᵀx is also common to all classes, so drop it:
+g_i(x) = w_iᵀx + w_i0,     w_i = μ_i/σ²,     w_i0 = −μ_iᵀμ_i/(2σ²) + ln P(ω_i)        (a linear discriminant)</div>
+<p><b>Boundary</b> g₁(x) = g₂(x):</p>
+<div class="f">(μ₁ − μ₂)ᵀx/σ² − (‖μ₁‖² − ‖μ₂‖²)/(2σ²) + ln P(ω₁) − ln P(ω₂) = 0
+multiply by σ², use ‖μ₁‖² − ‖μ₂‖² = (μ₁ − μ₂)ᵀ(μ₁ + μ₂):
+(μ₁ − μ₂)ᵀ[ x − ½(μ₁ + μ₂) ] + σ² ln[P(ω₁)/P(ω₂)] = 0
+write the last term as (μ₁ − μ₂)ᵀ{ σ² ln[P(ω₁)/P(ω₂)] (μ₁ − μ₂)/‖μ₁ − μ₂‖² } and factor out:
+wᵀ(x − x₀) = 0
+w = μ₁ − μ₂,     x₀ = ½(μ₁ + μ₂) − [σ² / ‖μ₁ − μ₂‖²] · ln[P(ω₁)/P(ω₂)] · (μ₁ − μ₂)</div>
+<ul>
+<li>The boundary is a <b>hyperplane through x₀, orthogonal to the line joining the means</b> (its normal is μ₁ − μ₂).</li>
+<li><b>Equal priors:</b> the log term vanishes and x₀ is the midpoint ½(μ₁ + μ₂). <b>Unequal priors:</b> x₀ moves <b>away from the more likely class</b> (towards the less likely mean), enlarging the more likely class's region.</li>
+<li>If σ is very small relative to ‖μ₁ − μ₂‖, the shift σ²/‖μ₁ − μ₂‖² ln(…) is tiny: the boundary is insensitive to the priors.</li>
+<li><b>Minimum-distance classifier:</b> with equal priors g<sub>i</sub>(x) = −‖x − μ<sub>i</sub>‖²: assign x to the nearest mean in Euclidean distance (assumptions: independent features, same variance).</li>
+</ul>
+<p><b>Numbers:</b> μ₁ = (0,0), μ₂ = (4,0), σ² = 1. Equal priors: x₀ = (2,0). With P(ω₁) = 0.8, P(ω₂) = 0.2: x₀ = (2,0) − (1/16)·ln 4·(−4,0) = (2.35, 0), shifted towards ω₂ because ω₁ is likelier.</p>
+<h3>Case II: Σ<sub>i</sub> = Σ</h3>
+<p>Now −½ ln|Σ| is also common. Expand −½(x − μ<sub>i</sub>)ᵀΣ⁻¹(x − μ<sub>i</sub>); xᵀΣ⁻¹x is common, and μ<sub>i</sub>ᵀΣ⁻¹x = xᵀΣ⁻¹μ<sub>i</sub> because Σ is symmetric:</p>
+<div class="f">g_i(x) = w_iᵀx + w_i0,     w_i = Σ⁻¹μ_i,     w_i0 = −½ μ_iᵀΣ⁻¹μ_i + ln P(ω_i)      (linear discriminant)
+boundary:  wᵀ(x − x₀) = 0,    w = Σ⁻¹(μ₁ − μ₂)
+x₀ = ½(μ₁ + μ₂) − { ln[P(ω₁)/P(ω₂)] / [(μ₁ − μ₂)ᵀΣ⁻¹(μ₁ − μ₂)] } · (μ₁ − μ₂)</div>
+<ul>
+<li>A hyperplane through x₀, but <b>not orthogonal</b> to the line joining the means (the normal is Σ⁻¹(μ₁ − μ₂), tilted by the covariance). With unequal priors x₀ again moves away from the likelier class.</li>
+<li><b>Mahalanobis-distance classifier:</b> with equal priors g<sub>i</sub>(x) = −½(x − μ<sub>i</sub>)ᵀΣ⁻¹(x − μ<sub>i</sub>): assign to the class with the smallest Mahalanobis distance r² = (x − μ<sub>i</sub>)ᵀΣ⁻¹(x − μ<sub>i</sub>). It generalises Euclidean distance (equal when Σ = σ²I) by rescaling and rotating the axes according to the covariance.</li>
+</ul>
+<p><b>Numbers:</b> Σ = [[2, 0.5], [0.5, 1]], μ₁ = (1,1), μ₂ = (3,−1), equal priors: x₀ = (2,0), w = Σ⁻¹(−2, 2) = (−1.71, 2.86). The angle between w and the means line is about 14° (cosine 0.97): clearly not orthogonal. For x = (2.5, 0.5): r₁² = 2.00, r₂² = 3.14, so choose ω₁.</p>
+<h3>Case III: Σ<sub>i</sub> arbitrary</h3>
+<p>Only the class-independent −(d/2) ln 2π is dropped; the quadratic terms no longer cancel:</p>
+<div class="f">g_i(x) = xᵀW_i x + w_iᵀx + w_i0
+W_i = −½Σ_i⁻¹,   w_i = Σ_i⁻¹μ_i,   w_i0 = −½μ_iᵀΣ_i⁻¹μ_i − ½ ln|Σ_i| + ln P(ω_i)</div>
+<p>The boundaries are <b>hyperquadrics</b>: hyperplanes, pairs of hyperplanes, hyperspheres, hyperellipsoids, hyperparaboloids and hyperhyperboloids. They are non-linear, and <b>need not pass through the midpoint of the means</b>.</p>
+<p><b>Slide example:</b> μ₁ = (3,6), Σ₁ = diag(½, 2); μ₂ = (3,−2), Σ₂ = diag(2, 2); equal priors. The boundary is the parabola <code>x₂ = 3.514 − 1.125x₁ + 0.1875x₁²</code> (I checked it by solving g₁ = g₂ numerically: e.g. x₁ = 0 → x₂ = 3.514, x₁ = 3 → 1.83). Its lowest point, 1.83 at x₁ = 3, is near the midpoint x₂ = 2, but it curves up to 3.5 at x₁ = 0 and x₁ = 6, far from the straight midpoint line: it bends round ω₁, the class with the smaller spread in x₁, and ω₂ (wider in x₁) owns the region below the parabola.</p>
+
+<h2 id="demo">Widget: 1-D Gaussian classes and the Bayes boundary</h2>
+<div class="wid">
+<p style="margin:0 0 4px"><b>Two Gaussian classes in one dimension.</b> Class ω₁ is N(0, σ₁²). Curves show p(x|ω<sub>i</sub>)P(ω<sub>i</sub>); the shaded area is the Bayes error (the overlap you cannot remove).</p>
+<svg id="gs" viewBox="0 0 440 200" role="img" aria-label="Weighted Gaussian densities with decision boundaries and error area">
+ <line x1="20" y1="170" x2="420" y2="170" stroke="var(--mute)"/>
+ <polygon id="er" fill="var(--warn)" opacity="0.35" points=""/>
+ <polyline id="c1" fill="none" stroke="var(--ac2)" stroke-width="2.5" points=""/>
+ <polyline id="c2" fill="none" stroke="var(--warn)" stroke-width="2.5" points=""/>
+ <g id="bd"></g>
+ <text x="14" y="188">−6</text><text x="116" y="188">0</text><text x="222" y="188">6</text><text x="410" y="188">12</text>
+</svg>
+<div class="key"><span style="color:var(--ac2)">— p(x|ω₁)P(ω₁)</span><span style="color:var(--warn)">— p(x|ω₂)P(ω₂)</span><span>| = decision boundary</span></div>
+<label>Mean of ω₂: μ₂ = <b id="m2v">3</b><input id="m2" type="range" min="0.5" max="8" step="0.1" value="3"></label>
+<label>σ₁ = <b id="s1v">1</b><input id="s1" type="range" min="0.4" max="3" step="0.1" value="1"></label>
+<label>σ₂ = <b id="s2v">1</b><input id="s2" type="range" min="0.4" max="3" step="0.1" value="1"></label>
+<label>Prior P(ω₁) = <b id="p1v">0.50</b> (P(ω₂) = 1 − P(ω₁))<input id="p1" type="range" min="0.05" max="0.95" step="0.01" value="0.5"></label>
+<div id="rd"></div>
+</div>
+<p class="note">Try: equal σ and equal priors: the boundary sits at the midpoint of the means (Case I/II in 1-D). Raise P(ω₁): the boundary moves towards ω₂ (away from the likelier class). Make σ₁ ≠ σ₂: you can get <b>two</b> boundaries, because the log densities are quadratic (Case III), and the region of the narrower class becomes an interval.</p>
+
+<h2 id="bound">7. Error bounds</h2>
+<p>Exact error probabilities require integrating the overlapping densities, which is hard in many dimensions; bounds are easier. Start from min[a, b] ≤ a<sup>β</sup>b<sup>1−β</sup> (for 0 ≤ β ≤ 1):</p>
+<div class="f">P(error) ≤ P(ω₁)^β P(ω₂)^(1−β) ∫ p(x|ω₁)^β p(x|ω₂)^(1−β) dx  =  P(ω₁)^β P(ω₂)^(1−β) e^(−k(β))
+for Gaussians:
+k(β) = [β(1−β)/2] (μ₂ − μ₁)ᵀ[βΣ₁ + (1−β)Σ₂]⁻¹(μ₂ − μ₁) + ½ ln( |βΣ₁ + (1−β)Σ₂| / (|Σ₁|^β |Σ₂|^(1−β)) )</div>
+<ul>
+<li><b>Chernoff bound:</b> minimise the bound over β, i.e. maximise k(β): a one-dimensional problem regardless of the dimension of x.</li>
+<li><b>Bhattacharyya bound:</b> simply set β = 0.5: easier to compute, but looser.</li>
+<li>Both are good only for Gaussian densities.</li>
+</ul>
+<p><b>Check on the Case III example</b> (equal priors): with β = 0.5, Σ̄ = diag(1.25, 2), μ₂ − μ₁ = (0, −8): first term 0.125 · 64/2 = 4.0; log term ½ ln(2.5/2) = 0.11; k(0.5) = 4.11 and P(error) ≤ 0.5 · e<sup>−4.11</sup> = 0.0082. The Chernoff optimum is β ≈ 0.503, essentially the same (0.0082). A simulation of 2 million samples gives a true error of about 0.002: the bound is valid but about four times too high. (The slide's own example quotes k(0.5) = 4.06 and P(error) ≤ 0.0087.) Equal-variance 1-D case N(0,1) vs N(2,1): k(0.5) = Δμ²/8 = 0.5, bound 0.30; true error Φ(−1) = 0.159.</p>
+
+<h2 id="roc">8. Thresholds and ROC curves</h2>
+<p>Every classifier uses some threshold. For the likelihood ratio: <code>a = P(ω₂)/P(ω₁)</code> (zero-one loss) or <code>b = P(ω₂)(λ₁₂ − λ₂₂) / [P(ω₁)(λ₂₁ − λ₁₁)]</code> (general loss). Changing the threshold changes the error rates, and the ROC curve plots the trade-off to compare classifiers.</p>
+<p><b>Slide example: person authentication</b> (biometrics). Two classes: Authentic (A) and Impostor (I). Four outcomes:</p>
+<ul>
+<li>correct acceptance (true positive): the person is A and we decide A;</li>
+<li>incorrect acceptance (<b>false positive</b>, FAR = false accept rate): the person is I and we decide A;</li>
+<li>correct rejection (true negative): I, decide I;</li>
+<li>incorrect rejection (<b>false negative</b>, FRR = false reject rate): A, but we decide I.</li>
+</ul>
+<p>Moving the threshold x* trades FAR against FRR. Numbers: impostor scores ~ N(0,1), authentic ~ N(2,1); accept if score &gt; x*.</p>
+<div class="tw"><table><tr><th>x*</th><th>FAR = P(score &gt; x* | I)</th><th>FRR = P(score &lt; x* | A)</th></tr>
+<tr><td>0.5</td><td>0.309</td><td>0.067</td></tr><tr><td>1.0</td><td>0.159</td><td>0.159</td></tr><tr><td>1.5</td><td>0.067</td><td>0.309</td></tr></table></div>
+<p>Strict thresholds (high x*) reject impostors but also lock out genuine users; x* = 1 gives the equal error rate 0.159. The best operating point depends on the costs: a bank vault wants low FAR, a phone unlock wants low FRR. See the chapter notes (model evaluation) for TPR/FPR and AUC.</p>
+
+<h2 id="more">9. Extensions: discrete, missing and compound</h2>
+<h3>Discrete features</h3>
+<p>If x takes only discrete values, replace the integral ∫ p(x|ω<sub>j</sub>) dx by a sum Σ<sub>x</sub> P(x|ω<sub>j</sub>); the rule is unchanged: decide the class maximising P(x|ω<sub>j</sub>)P(ω<sub>j</sub>) (Naive Bayes exercises use this).</p>
+<h3>Missing features</h3>
+<p>Suppose x = [x<sub>g</sub>, x<sub>b</sub>] with the "bad" part x<sub>b</sub> missing. Filling it in with a mean value can mislead. The Bayes-correct way is to <b>marginalise</b> over the missing features:</p>
+<div class="f">P(ω_i | x_g) = ∫ P(ω_i | x_g, x_b) p(x_g, x_b) dx_b / p(x_g) = ∫ g_i(x) p(x) dx_b / ∫ p(x) dx_b</div>
+<p>Example: equal priors; x₁ ∈ {0,1} missing, x₂ = 1 observed; if the features are independent given the class, then p(x₁, x₂ = 1|ω<sub>i</sub>) = p(x₁|ω<sub>i</sub>)p(x₂ = 1|ω<sub>i</sub>) and the sum over x₁ equals 1, so the missing feature simply drops out. With p(x₂ = 1|ω₁) = 0.3 and p(x₂ = 1|ω₂) = 0.6 the posterior of ω₂ is 0.6/0.9 = 0.67: decide ω₂.</p>
+<h3>Compound decisions</h3>
+<p>Sequential: decide each pattern (each fish) as it arrives. <b>Compound:</b> wait for n patterns X = (x₁…x<sub>n</sub>) and decide all states Ω = (ω<sup>(1)</sup>…ω<sup>(n)</sup>) jointly, where each ω<sup>(i)</sup> takes one of c values. This can <b>improve performance when consecutive states of nature are not statistically independent</b> (e.g. letters in a word, weather on consecutive days), because the prior P(Ω) then carries information that one-at-a-time decisions throw away. Assuming independence given the states, p(X|Ω) = Π p(x<sub>i</sub>|ω<sup>(i)</sup>). (Duda §2.12.)</p>
+
+<h2 id="ex">10. Exam kit</h2>
+<div class="tip"><b>Past papers:</b>
+<ul>
+<li>Explain why the Bayes rule minimises the average probability of error (S25) → §2.</li>
+<li>Decision rule for the zero-one loss (S25); role of the loss function (S24) → §4.</li>
+<li>Derive the minimum-risk rule for two categories (S25) → §4.</li>
+<li>Convert g<sub>i</sub>(x) = ln P(ω<sub>i</sub>|x) + ln P(ω<sub>i</sub>) with shared Σ to g(x) = wᵀx + w₀ (S23) → §6 Case II.</li>
+<li>Equal-covariance Gaussian: derive the boundary and say how it moves when priors differ (S24) → §6.</li>
+<li>Numerical: F24 μ₁ = (0,0), μ₂ = (2,0), σ² = 1, P = 0.5, classify (1,0): equal distances, on the boundary x₁ = 1, a tie. S24 shared Σ = [[2, 0.5], [0.5, 1]], μ₁ = (1,1), μ₂ = (3,−1): Mahalanobis r² = 2.00 vs 3.14, choose ω₁. S23i tumor: x* = 13.5 equal priors; 12.58 with P(B) = 2P(M).</li>
+</ul></div>
+<h3>Template: minimum-risk numerical question</h3>
+<ol>
+<li>Get the posteriors P(ω<sub>j</sub>|x) = p(x|ω<sub>j</sub>)P(ω<sub>j</sub>)/p(x).</li>
+<li>For each action compute R(α<sub>i</sub>|x) = Σ<sub>j</sub> λ(α<sub>i</sub>|ω<sub>j</sub>)P(ω<sub>j</sub>|x).</li>
+<li>Choose the smallest R; say whether it differs from the most probable class.</li>
+</ol>
+<h3>Template: Gaussian classification</h3>
+<ol>
+<li>Identify the case from Σ<sub>i</sub> (σ²I, shared Σ, or different).</li>
+<li>Equal priors? Use minimum Euclidean (Case I) or Mahalanobis (Case II) distance; otherwise use g<sub>i</sub> with ln P(ω<sub>i</sub>).</li>
+<li>For a boundary write w and x₀ from the formulas above and show wᵀ(x − x₀) = 0.</li>
+</ol>
+<h3>Common mistakes</h3>
+<ul>
+<li>Forgetting the evidence p(x) cancels, or comparing likelihoods instead of likelihood × prior.</li>
+<li>Choosing the most probable class when the loss function is unequal (see the 0.85 vs 15 example).</li>
+<li>Putting the log prior ratio with the wrong sign: x₀ moves <i>away</i> from the likelier class.</li>
+<li>Using Euclidean distance when the covariance is not σ²I (use Mahalanobis).</li>
+<li>Saying Case III boundaries are lines, or that Case II is orthogonal to the means.</li>
+<li>Applying Chernoff/Bhattacharyya to non-Gaussian densities.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. P(ω₁) = 0.3, P(ω₂) = 0.7, p(x|ω₁) = 0.8, p(x|ω₂) = 0.2. Posterior of ω₁?</summary><div>0.3·0.8 = 0.24; 0.7·0.2 = 0.14; P(ω₁|x) = 0.24/0.38 = 0.632.</div></details>
+<details><summary>2. λ₁₁ = 0, λ₁₂ = 4, λ₂₁ = 1, λ₂₂ = 0 and P(ω₁|x) = 0.7. Which action minimises risk?</summary><div>R(α₁) = 4·0.3 = 1.2; R(α₂) = 1·0.7 = 0.7. Choose α₂ (decide ω₂) even though ω₁ is more probable, because wrongly deciding ω₁ costs 4.</div></details>
+<details><summary>3. Case I, μ₁ = (0,0), μ₂ = (6,0), σ² = 3, P(ω₁) = 2P(ω₂). Where is x₀?</summary><div>x₀ = (3,0) − [3/36]·ln 2·(−6, 0) = (3 + 0.347, 0) = (3.35, 0): shifted towards ω₂ (the less likely class).</div></details>
+<details><summary>4. 1-D, N(0,1) vs N(2,1), equal priors. Boundary and Bayes error?</summary><div>Boundary x = 1 (the midpoint). Error = Φ(−1) = 0.159.</div></details>
+<details><summary>5. Why does minimising risk with zero-one loss reduce to maximising the posterior?</summary><div>R(α<sub>i</sub>|x) = Σ<sub>j≠i</sub> P(ω<sub>j</sub>|x) = 1 − P(ω<sub>i</sub>|x); the smallest risk is the largest posterior.</div></details>
+<details><summary>6. Why can two Gaussian classes with different variances give two decision boundaries in 1-D?</summary><div>g₁ − g₂ contains the terms (x − μ<sub>i</sub>)²/(2σ<sub>i</sub>²) with different coefficients, so it is a quadratic in x and can have two roots (Case III): the narrower class owns an interval, the wider class both tails.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c4">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+var ids=['m2','s1','s2','p1'],E={};ids.forEach(function(i){E[i]=document.getElementById(i)});
+function pdf(x,m,s){var z=(x-m)/s;return Math.exp(-z*z/2)/(s*Math.sqrt(2*Math.PI))}
+var NS='http://www.w3.org/2000/svg',X0=-6,X1=12;
+function X(x){return 20+(x-X0)*(400/(X1-X0))}
+function draw(){
+ var m2=+E.m2.value,s1=+E.s1.value,s2=+E.s2.value,p1=+E.p1.value,p2=1-p1,i,x,st=0.01,a=[],b=[],er=0,mx=0,bs=[],prev=null,xs=[];
+ for(x=X0;x<=X1+1e-9;x+=st){var u=pdf(x,0,s1)*p1,v=pdf(x,m2,s2)*p2;a.push(u);b.push(v);xs.push(x);er+=Math.min(u,v)*st;if(u>mx)mx=u;if(v>mx)mx=v;var d=u-v;if(prev!==null&&((prev<0&&d>=0)||(prev>0&&d<=0)))bs.push(x);prev=d}
+ var sc=150/mx,pa=[],pb=[],pe=['20,170'];
+ for(i=0;i<xs.length;i+=3){pa.push(X(xs[i]).toFixed(1)+','+(170-a[i]*sc).toFixed(1));pb.push(X(xs[i]).toFixed(1)+','+(170-b[i]*sc).toFixed(1));pe.push(X(xs[i]).toFixed(1)+','+(170-Math.min(a[i],b[i])*sc).toFixed(1))}
+ pe.push('420,170');
+ document.getElementById('c1').setAttribute('points',pa.join(' '));document.getElementById('c2').setAttribute('points',pb.join(' '));document.getElementById('er').setAttribute('points',pe.join(' '));
+ var g=document.getElementById('bd');while(g.firstChild)g.removeChild(g.firstChild);
+ bs.forEach(function(x){var l=document.createElementNS(NS,'line');l.setAttribute('x1',X(x));l.setAttribute('x2',X(x));l.setAttribute('y1',20);l.setAttribute('y2',170);l.setAttribute('stroke','var(--ac)');l.setAttribute('stroke-width',2);l.setAttribute('stroke-dasharray','5 4');g.appendChild(l)});
+ document.getElementById('m2v').textContent=m2;document.getElementById('s1v').textContent=s1;document.getElementById('s2v').textContent=s2;document.getElementById('p1v').textContent=p1.toFixed(2);
+ document.getElementById('rd').textContent='boundaries at x = '+(bs.length?bs.map(function(x){return x.toFixed(2)}).join(', '):'none in range')+'   Bayes error = '+er.toFixed(4)+'   (midpoint of means = '+(m2/2).toFixed(2)+')'}
+ids.forEach(function(i){E[i].oninput=draw});draw();
+})();
+</script>
+</body>
+</html>

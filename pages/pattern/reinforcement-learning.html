@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Reinforcement Learning</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+svg{max-width:100%;height:auto;display:block;margin:.6rem auto}
+svg text{fill:var(--ink);font:13px system-ui,sans-serif}
+svg .b{fill:var(--tint);stroke:var(--ac);stroke-width:1.5}
+svg .a{stroke:var(--ac2);stroke-width:2;fill:none}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c9">← Summary (ch. 9)</a></div>
+ <nav aria-label="Sections"><a href="#why">Why RL</a><a href="#mdp">MDP</a><a href="#ret">Return</a><a href="#val">Value functions</a><a href="#plan">Known model</a><a href="#ql">Q-learning</a><a href="#dqn">Deep RL</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Reinforcement learning: deep dive</h1>
+<p class="lead">From the agent–environment loop to Q-learning and DQN, with every formula built step by step and one example (the car MDP) carried through the whole page.</p>
+<div class="bk"><b>Read:</b> Sutton &amp; Barto, <i>Reinforcement Learning: An Introduction</i> (2nd ed.): Ch. 1 "Introduction", Ch. 3 "Finite Markov Decision Processes" (§3.1 The Agent–Environment Interface, §3.3 Returns and Episodes, §3.5 Policies and Value Functions, §3.6 Optimal Policies and Optimal Value Functions), Ch. 4 §4.4 "Value Iteration", Ch. 2 §2.2 "Action-value Methods" (ε-greedy), Ch. 6 §6.1 "TD Prediction" and §6.5 "Q-learning: Off-policy TD Control". Deep RL: Mnih et al. (2015), "Human-level control through deep reinforcement learning", <i>Nature</i>; S&amp;B Ch. 16 §16.5. Bishop's PRML does not cover RL.</div>
+
+<h2 id="why">1. Why reinforcement learning?</h2>
+<p>Supervised learning (regression, classification, SVM, Naive Bayes) needs a labelled answer for every input. Often nobody can supply it: what is the "correct" move in chess, or the correct torque for a robot joint? Instead we can tell the learner <b>how well it did</b> afterwards. That is RL: sequential decision making with <b>evaluative feedback</b>.</p>
+<svg viewBox="0 0 520 190" role="img" aria-label="Agent and environment loop">
+ <rect class="b" x="190" y="12" width="140" height="44" rx="8"/><text x="260" y="40" text-anchor="middle">Agent (policy π)</text>
+ <rect class="b" x="190" y="130" width="140" height="44" rx="8"/><text x="260" y="158" text-anchor="middle">Environment</text>
+ <path class="a" d="M330 34 H440 V152 H330"/><polygon points="330,152 340,147 340,157" fill="var(--ac2)"/>
+ <text x="448" y="92">action a</text>
+ <path class="a" d="M190 152 H80 V34 H190"/><polygon points="190,34 180,29 180,39" fill="var(--ac2)"/>
+ <text x="8" y="86">new state s′</text><text x="8" y="106">reward r</text>
+</svg>
+<p>Examples from the slides: <b>cart-pole</b> (state: angle, angular speed, position, velocity; action: horizontal force; reward 1 per step the pole stays up), <b>robot locomotion</b> (state: joint angles/velocities; action: torques; reward: stay upright and move forward), <b>Atari</b> (state: raw pixels; action: joystick; reward: score change), <b>Go</b> (state: board; action: where to place; reward 1 for a win at the end, else 0).</p>
+<h3>What makes RL harder than supervised learning</h3>
+<ul>
+<li><b>Evaluative feedback:</b> you are told how good your action was, not which action was best, so you must try things.</li>
+<li><b>Delayed feedback:</b> the move that loses a chess game may have been made 40 moves earlier (the <i>credit assignment</i> problem).</li>
+<li><b>Non-stationary data:</b> the states you see depend on your current policy, so the data distribution changes as you learn.</li>
+<li><b>Exploration vs exploitation:</b> repeat the best-known action, or try another that could be better?</li>
+</ul>
+
+<h2 id="mdp">2. The Markov decision process (MDP)</h2>
+<p>The mathematical model of the loop is a tuple <code>(S, A, T, R, γ)</code>:</p>
+<ul>
+<li><b>S</b>: set of states. <b>A</b>: set of actions.</li>
+<li><b>T(s,a,s′) = P(s′ | s, a)</b>: the probability of reaching s′ from s by doing a. For fixed (s,a), it is a distribution over s′, so Σ<sub>s′</sub> T(s,a,s′) = 1.</li>
+<li><b>R(s,a,s′)</b>: the reward received when doing a in s and landing in s′.</li>
+<li><b>γ ∈ [0,1]</b>: the discount factor.</li>
+</ul>
+<p><b>Markov property:</b> the current state summarises everything relevant from the past: <code>P(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>, s<sub>t−1</sub>, …, s<sub>0</sub>) = P(s<sub>t+1</sub> | s<sub>t</sub>, a<sub>t</sub>)</code>. The interaction produces a <b>trajectory</b> s<sub>0</sub>, a<sub>0</sub>, r<sub>1</sub>, s<sub>1</sub>, a<sub>1</sub>, r<sub>2</sub>, … until a terminal state or a fixed horizon.</p>
+<p><b>Fully vs partially observed:</b> chess and Go are fully observed (the agent sees the true state). Poker or a first-person game gives only partial observations; then the agent must remember past observations (e.g. with a recurrent network).</p>
+
+<h3>Running example: the car</h3>
+<p>A robot car wants to travel far, quickly. States: <b>Cool, Warm, Overheated</b> (terminal). Actions: <b>Slow, Fast</b>. Going fast earns double reward but heats the car.</p>
+<div class="tw"><table><tr><th>State</th><th>Action</th><th>Outcome (probability, reward)</th></tr>
+<tr><td>Cool</td><td>Slow</td><td>Cool (1.0, +1)</td></tr>
+<tr><td>Cool</td><td>Fast</td><td>Cool (0.5, +2) or Warm (0.5, +2)</td></tr>
+<tr><td>Warm</td><td>Slow</td><td>Cool (0.5, +1) or Warm (0.5, +1)</td></tr>
+<tr><td>Warm</td><td>Fast</td><td>Overheated (1.0, −10)</td></tr></table></div>
+<p>The slide notes E[R(Cool, Fast, ·)] = 0.5·2 + 0.5·2 = 2. The goal: choose actions so that the total reward is large.</p>
+
+<h2 id="ret">3. Policy, return and discounting</h2>
+<p>A <b>policy</b> is the agent's strategy: deterministic <code>π(s) = a</code> or stochastic <code>π(a|s) = P(A<sub>t</sub> = a | S<sub>t</sub> = s)</code>. <b>Goal:</b> find the optimal policy, the one with maximal value at every state.</p>
+<p>What should "value" mean? Maximising only the next reward is short-sighted (a big reward now may lead into a trap, like Fast in Warm). Summing all future rewards can diverge for never-ending tasks. The fix is the <b>discounted return</b>:</p>
+<div class="f">G_t = R_{t+1} + γR_{t+2} + γ²R_{t+3} + … = Σ_{k=0}^{∞} γ^k R_{t+k+1}</div>
+<ul>
+<li>A reward k steps away is worth γ<sup>k</sup> of the same reward now (the slide's gems: worth 1, γ, γ², …).</li>
+<li><b>Justification:</b> (1) if rewards are bounded by R<sub>max</sub> the sum is at most R<sub>max</sub>/(1−γ), always finite; (2) the future is uncertain, so distant rewards count less; (3) immediate rewards are preferred over delayed ones; (4) it gives the recursion <code>G<sub>t</sub> = R<sub>t+1</sub> + γG<sub>t+1</sub></code> that everything below relies on.</li>
+<li>γ = 0: purely greedy. γ → 1: far-sighted. Typical values 0.9–0.99.</li>
+</ul>
+<div class="warn"><b>Problem with raw return:</b> the future is stochastic (random transitions and, if π is stochastic, random actions). The agent cannot compute G<sub>t</sub> before acting because it does not know which trajectory will happen. So we use the <b>expected</b> return, the value function.</div>
+
+<h2 id="val">4. Value functions and the Bellman equations</h2>
+<h3>State value and action value</h3>
+<div class="f">V_π(s)   = E_π[ G_t | S_t = s ]               how good is it to BE in s, following π
+Q_π(s,a) = E_π[ G_t | S_t = s, A_t = a ]      how good is it to take a in s, THEN follow π</div>
+<p>V converts an uncertain infinite future into one number per state. Q is "quality". They are linked: <code>V<sub>π</sub>(s) = Σ<sub>a</sub> π(a|s) Q<sub>π</sub>(s,a)</code>.</p>
+<h3>Bellman expectation equation (recursive structure)</h3>
+<p>Substitute G<sub>t</sub> = R<sub>t+1</sub> + γG<sub>t+1</sub> into V<sub>π</sub>(s) = E[G<sub>t</sub>|s]:</p>
+<div class="f">V_π(s) = E_π[ R_{t+1} + γ V_π(S_{t+1}) | S_t = s ]
+       = Σ_a π(a|s) Σ_{s′} T(s,a,s′) [ R(s,a,s′) + γ V_π(s′) ]
+Q_π(s,a) = E[ R_{t+1} + γ Q_π(S_{t+1}, A_{t+1}) | S_t=s, A_t=a ]</div>
+<p>Reading the double sum: average over what you might do (π), then over where you might land (T), of "reward now plus discounted value of where you land".</p>
+<h3>Optimality</h3>
+<p>A policy π* is optimal if V<sub>π*</sub>(s) = max<sub>π</sub> V<sub>π</sub>(s) for all s. All optimal policies share the same Q*. Replacing the average over actions by a max gives the <b>Bellman optimality equation</b>:</p>
+<div class="f">Q*(s,a) = E[ R_{t+1} + γ max_{a′} Q*(S_{t+1}, a′) | S_t=s, A_t=a ]
+V*(s)   = max_a Q*(s,a)
+π*(s)   = argmax_a Q*(s,a)</div>
+<div class="tip"><b>Key idea:</b> once you know Q*, the optimal policy is free: in every state pick the action with the highest Q value. So the whole problem becomes "learn Q*".</div>
+
+<h2 id="plan">5. When the model is known: value iteration</h2>
+<p>If T and R are known we can solve the Bellman optimality equation by repeatedly applying it (S&amp;B §4.4): start with V = 0 and iterate <code>V(s) ← max<sub>a</sub> Σ<sub>s′</sub> T(s,a,s′)[R + γV(s′)]</code>. Car MDP with γ = 0.9 (Overheated has V = 0):</p>
+<div class="tw"><table><tr><th>Iteration</th><th>V(Cool)</th><th>V(Warm)</th></tr><tr><td>1</td><td>2.00</td><td>1.00</td></tr><tr><td>2</td><td>3.35</td><td>2.35</td></tr><tr><td>3</td><td>4.57</td><td>3.57</td></tr><tr><td>→ converged</td><td>15.5</td><td>14.5</td></tr></table></div>
+<p>Check the fixed point: V(Warm) via Slow = 1 + 0.9·(0.5·15.5 + 0.5·14.5) = 1 + 0.9·15 = 14.5 ✓. V(Cool) via Fast = 2 + 0.9·(0.5·15.5 + 0.5·14.5) = 15.5 ✓.</p>
+<div class="tw"><table><tr><th>Q*(s,a)</th><th>Slow</th><th>Fast</th></tr><tr><td>Cool</td><td>14.95</td><td><b>15.5</b></td></tr><tr><td>Warm</td><td><b>14.5</b></td><td>−10</td></tr></table></div>
+<p><b>Optimal policy:</b> π*(Cool) = Fast, π*(Warm) = Slow, exactly the policy drawn on the slide. In Warm, Fast would overheat the car (−10), so Slow is better even though it pays less.</p>
+<p class="note">Problem: real problems rarely come with T and R, and the state space can be huge. Hence model-free methods.</p>
+
+<h2 id="ql">6. Model-free learning: TD and Q-learning</h2>
+<h3>From expectation to samples</h3>
+<p>Without T the expectation in Bellman's equation cannot be computed. But the agent can <b>take a step and observe one actual outcome</b> (s, a, r, s′). Bootstrapping from the current estimate gives a <b>sample target</b> <code>r + γV(s′)</code>. It is noisy (one sample, not the average), so don't overwrite; <b>nudge</b> the old estimate towards it:</p>
+<div class="f">V(s) ← V(s) + α [ (r + γV(s′)) − V(s) ]
+        old    rate   sample target     old estimate
+                      └──── TD error ───────────────┘</div>
+<p>Done thousands of times, the averaging effect of α makes V converge to the true expected value. This is <b>temporal-difference (TD) learning</b>.</p>
+<h3>Q-learning update</h3>
+<p>Do the same for Q, using the optimality equation (max over next actions) in the target:</p>
+<div class="f">TD-error form:        Q(s,a) ← Q(s,a) + α [ r + γ max_{a′} Q(s′,a′) − Q(s,a) ]
+weighted-average form: Q(s,a) ← (1−α) Q(s,a) + α [ r + γ max_{a′} Q(s′,a′) ]</div>
+<p>The two forms are algebraically identical (expand the bracket). Roles: <b>α ∈ [0,1]</b> learning rate (α = 1 forgets the old value, α = 0 never learns); <b>r + γ max Q(s′,a′)</b> TD target ("label"); <b>Q(s,a)</b> prediction; the difference is the <b>TD error</b>.</p>
+<h3>The algorithm (with ε-greedy)</h3>
+<div class="f">1. initialise Q(s,a) (e.g. all zeros)
+2. for each episode: choose a starting state s
+3.   repeat until s is terminal:
+       with probability ε  → pick a random action a      (explore)
+       otherwise           → a = argmax_a Q(s,a)         (exploit)
+       take a; observe r and s′
+       Q(s,a) ← Q(s,a) + α [ r + γ max_a′ Q(s′,a′) − Q(s,a) ]
+       s ← s′</div>
+<ul>
+<li><b>Why ε-greedy:</b> a purely greedy agent can lock onto the first action that looked good and never discover better ones. A small ε keeps trying others. Common practice: start with large ε and decay it.</li>
+<li><b>Off-policy:</b> the target uses max<sub>a′</sub> (the greedy action) even though the behaviour was ε-greedy, so Q-learning learns Q* regardless of exploration (S&amp;B §6.5). It converges to Q* if every (s,a) is visited infinitely often and α decays suitably.</li>
+</ul>
+<h3>Worked example on the car MDP (α = 0.5, γ = 0.9, all Q start at 0)</h3>
+<div class="tw"><table><tr><th>Step</th><th>Experience (s, a, r, s′)</th><th>Update</th><th>New Q</th></tr>
+<tr><td>1</td><td>(Cool, Fast, +2, Warm)</td><td>0 + 0.5[2 + 0.9·0 − 0]</td><td>Q(Cool,Fast) = 1.0</td></tr>
+<tr><td>2</td><td>(Warm, Slow, +1, Warm)</td><td>0 + 0.5[1 + 0.9·0 − 0]</td><td>Q(Warm,Slow) = 0.5</td></tr>
+<tr><td>3</td><td>(Cool, Fast, +2, Cool)</td><td>1 + 0.5[2 + 0.9·1.0 − 1]</td><td>Q(Cool,Fast) = 1.95</td></tr>
+<tr><td>4</td><td>(Warm, Fast, −10, Overheated)</td><td>0 + 0.5[−10 + 0 − 0] (terminal: no future)</td><td>Q(Warm,Fast) = −5</td></tr></table></div>
+<p>In step 3, max<sub>a′</sub>Q(Cool,a′) = 1.0 (from step 1) enters the target: the good value of the next state has "flowed back" to Q(Cool,Fast). After many episodes Q → Q* = {14.95, 15.5, 14.5, −10}. Information about rewards propagates backwards one step per update, which is how delayed rewards are credited.</p>
+<h3>Choosing the parameters</h3>
+<div class="tw"><table><tr><th></th><th>Too small</th><th>Too large</th></tr>
+<tr><td>α</td><td>learns very slowly</td><td>unstable, noisy estimates</td></tr>
+<tr><td>γ</td><td>short-sighted agent</td><td>slow convergence, far horizon</td></tr>
+<tr><td>ε</td><td>under-exploration, stuck in local optimum</td><td>keeps acting randomly, wastes reward</td></tr></table></div>
+
+<h2 id="dqn">7. Deep RL: from a table to a neural network</h2>
+<p><b>Why tabular Q-learning fails:</b> chess or driving has an astronomical number of states (Atari: raw pixels). You cannot store a table, and you will never visit most states. Even the slide's small grid has 8×7×4 = 224 entries; the table size is |S|·|A|. <b>Solution:</b> <b>function approximation</b>. A network <code>Q(s,a;θ)</code> learns patterns and generalises from visited to similar unvisited states.</p>
+<h3>Turning the TD error into a loss</h3>
+<p>In the TD update the target r + γ max Q(s′,a′) plays the role of a label y and Q(s,a) is the prediction. Supervised regression on that pair gives the MSE loss:</p>
+<div class="f">y    = r + γ max_{a′} Q(s′, a′; θ⁻)         (target; θ⁻ = frozen copy)
+L(θ) = E[ ( y − Q(s,a;θ) )² ]               minimise by gradient descent on θ</div>
+<p>Numerical feel: r = 1, γ = 0.9, max target-network Q(s′,·) = 5 → y = 1 + 4.5 = 5.5. If the network predicts Q(s,a) = 4, the loss is (5.5 − 4)² = 2.25 and the gradient pushes the prediction up.</p>
+<h3>DQN: the three ingredients</h3>
+<ul>
+<li><b>Main (online) network Q<sub>θ</sub>:</b> updated at every step by gradient descent.</li>
+<li><b>Target network Q<sub>θ⁻</sub>:</b> a delayed, frozen copy of the main network, copied every C steps (e.g. 1000). Without it the target moves every time θ changes (chasing its own tail), which is unstable.</li>
+<li><b>Replay buffer D:</b> stores transitions (s,a,r,s′). Training on random mini-batches breaks the correlation between consecutive frames (the data would otherwise be highly correlated and non-stationary) and reuses experience.</li>
+</ul>
+<div class="f">for each step:
+  1. act: ε-greedy w.r.t. Q(s,·;θ); observe r, s′
+  2. store (s,a,r,s′) in D
+  3. sample a random mini-batch from D
+       y = r + γ max_a′ Q(s′,a′;θ⁻)            (y = r if s′ is terminal)
+       L(θ) = (y − Q(s,a;θ))²;   update θ by gradient descent
+  4. every C steps: θ⁻ ← θ</div>
+<h3>Q-learning vs deep RL, in one table</h3>
+<div class="tw"><table><tr><th></th><th>Tabular Q-learning</th><th>Deep RL (DQN)</th></tr>
+<tr><td>Q representation</td><td>lookup table, one entry per (s,a)</td><td>neural network Q(s,a;θ)</td></tr>
+<tr><td>State space</td><td>small, discrete</td><td>huge or continuous (images)</td></tr>
+<tr><td>Update</td><td>move one table entry towards the target</td><td>gradient step on MSE of TD error</td></tr>
+<tr><td>Generalisation</td><td>none</td><td>yes (similar states, similar values)</td></tr>
+<tr><td>Extras</td><td>none</td><td>replay buffer, target network</td></tr></table></div>
+<h3>Categories of modern RL (slides)</h3>
+<ul>
+<li><b>Value-based:</b> approximate Q(s,a;θ), e.g. DQN.</li>
+<li><b>Policy-based / actor-critic:</b> directly parameterise the policy π(a|s;θ), output action probabilities or continuous motor values; e.g. PPO, SAC. Suited to continuous actions.</li>
+<li><b>RLHF:</b> a policy-gradient method (like PPO) guided by a <b>reward model trained on human preference comparisons</b> instead of a hard-coded game score. Used to fine-tune large language models.</li>
+</ul>
+
+<h3>Class example: combini and lecture hall</h3>
+<p>A 7×8 grid (56 positions). Goal: reach the nearest combini (<b>+1</b>, terminal) while avoiding the lecture hall (<b>−1</b>, terminal); every step to an empty cell costs <b>−0.1</b>. The step penalty makes shorter paths better, so the optimal policy gives the direction to the nearest combini from each cell while steering around the lecture hall. With 4 actions (N, E, S, W) the Q-table has 56×4 entries.</p>
+
+<h2 id="ex">8. Exam kit</h2>
+<div class="tip"><b>Likely questions (past papers: S23, S23i, F22, S25):</b> Q-learning pseudo-code with the role of each term; MDP vs RL and additive discounted reward; deep RL vs Q-learning; model a robot task as an MDP.</div>
+<h3>Template answer: recycling-robot MDP (S23)</h3>
+<ul>
+<li><b>States:</b> (battery: high / low) × (can in front: yes / no) × (holding can: yes / no), optionally plus location (near charger, near trash).</li>
+<li><b>Actions:</b> search/navigate, pick up can, throw into trash, go to charger, charge, wait.</li>
+<li><b>Rewards:</b> +1 per can thrown into the trash; a large negative reward (e.g. −10) if the battery dies; small step cost (e.g. −0.1) to encourage efficiency; 0 otherwise. With γ &lt; 1 the robot collects many cans but recharges before the battery is empty, because dying loses all future rewards.</li>
+</ul>
+<h3>Common mistakes</h3>
+<ul>
+<li>Writing max over <i>a</i> instead of over the <i>next</i> action a′, or using Q(s′,a′) for the action actually taken (that is SARSA, not Q-learning).</li>
+<li>Forgetting that a terminal next state has no future value (target = r).</li>
+<li>Mixing up V (value of a state) and Q (value of a state-action pair).</li>
+<li>Calling γ the learning rate. γ discounts the future; α is the learning rate.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Why is the discount factor needed?</summary><div>Keeps the infinite sum finite (≤ R<sub>max</sub>/(1−γ)), values sooner rewards over uncertain distant ones, and enables the Bellman recursion.</div></details>
+<details><summary>2. Why is the optimal policy easy once Q* is known?</summary><div>π*(s) = argmax<sub>a</sub> Q*(s,a): pick the best action in each state, no model needed.</div></details>
+<details><summary>3. In the car MDP, why is Slow optimal in Warm even though Fast pays double?</summary><div>Fast in Warm overheats the car: reward −10 and the episode ends. Q*(Warm,Slow) = 14.5 ≫ Q*(Warm,Fast) = −10.</div></details>
+<details><summary>4. What does the TD error measure?</summary><div>The gap between the sample target r + γ max Q(s′,a′) and the current estimate Q(s,a). Zero means the estimate is consistent with what was just observed.</div></details>
+<details><summary>5. Why do DQN's two networks and replay buffer exist?</summary><div>The target network keeps the label y fixed for C steps (stable regression). The replay buffer decorrelates samples and reuses experience.</div></details>
+<details><summary>6. Compute: Q(s,a)=2, r=1, γ=0.9, α=0.1, max Q(s′,·)=4. New Q?</summary><div>Target = 1 + 0.9·4 = 4.6; TD error = 4.6 − 2 = 2.6; Q = 2 + 0.1·2.6 = <b>2.26</b>.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c9">← Back to summary</a></div>
+</main>
+</body>
+</html>

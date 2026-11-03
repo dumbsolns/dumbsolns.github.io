@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Clustering (k-means and Hierarchical)</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+svg{max-width:100%;height:auto;display:block;margin:.6rem auto}
+svg text{fill:var(--ink);font:12px system-ui,sans-serif}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:440px;background:var(--code);border-radius:8px}
+.wid select{font:inherit;font-size:14px;width:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.wid button{font:inherit;font-size:14px;padding:6px 12px;margin:8px 6px 0 0;border:1px solid var(--ac);background:var(--card);color:var(--ac);border-radius:8px;cursor:pointer}
+.wid button:hover{background:var(--ac);color:var(--bg)}
+#lg{font:.84rem/1.55 ui-monospace,Menlo,Consolas,monospace;margin-top:8px;max-height:170px;overflow:auto;background:var(--code);padding:8px;border-radius:6px}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c8">← Summary (ch. 8)</a></div>
+ <nav aria-label="Sections"><a href="#what">What</a><a href="#prox">Proximity</a><a href="#crit">Criterion</a><a href="#km">k-means</a><a href="#kex">Worked example</a><a href="#demo">Stepper</a><a href="#hc">Hierarchical</a><a href="#hex">Hier. examples</a><a href="#cmp">Compare</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Clustering: k-means and hierarchical, deep dive</h1>
+<p class="lead">How to find groups without labels: proximity measures, the SSE criterion, k-means (with proof that it converges and why it can get stuck), hierarchical linkage methods, and all the worked examples from the lectures and past papers.</p>
+<div class="bk"><b>Read:</b> Duda, Hart &amp; Stork, Ch. 10 "Unsupervised Learning and Clustering": §10.6 "Data Description and Clustering" (similarity measures), §10.7 "Criterion Functions for Clustering" (§10.7.1 sum-of-squared-error), §10.8 "Iterative Optimization", §10.9 "Hierarchical Clustering" (agglomerative, stepwise-optimal); also §10.4.3 "K-means clustering". Bishop, <i>PRML</i>, §9.1 "K-means Clustering". Tan, Steinbach &amp; Kumar, <i>Introduction to Data Mining</i>, Ch. 8 "Cluster Analysis: Basic Concepts and Algorithms" (§8.2 K-means, §8.3 Agglomerative Hierarchical Clustering). Slide sources: Jing Gao (SUNY Buffalo, hierarchical methods); Han &amp; Kamber for the distance examples. <i>Section numbers follow the 2nd edition of Duda; check your copy.</i></div>
+
+<h2 id="what">1. What clustering is</h2>
+<p><b>Clustering</b> is the process of grouping a set of objects into classes of similar objects, so that objects in a group are similar to one another and different from objects in other groups. It is <b>unsupervised</b>: there are no labels, and the aim is to <b>discover new categories</b> ("seek natural clusters in the data"). Compare classification, where the categories are known in advance.</p>
+<div class="tw"><table><tr><th>Good clustering</th><th>Meaning</th></tr>
+<tr><td>Intra-cluster distances small</td><td>samples inside a cluster are close together</td></tr>
+<tr><td>Inter-cluster distances large</td><td>different clusters are far apart</td></tr></table></div>
+<p><b>Applications (slides):</b> gene-expression data (cluster genes and samples), face clustering (group photos of the same person), search-result clustering (group pages by topic), biology (taxonomy: kingdom, phylum, class, order, family, genus, species), information retrieval (document clustering), land use (areas of similar land use in earth-observation data), marketing (discover customer groups), city planning, earthquake studies, climate.</p>
+<h3>Three things you need</h3>
+<ol>
+<li>A <b>proximity measure</b>: a similarity s(x, x′) (large if similar) or a dissimilarity/distance d(x, x′) (small if similar).</li>
+<li>A <b>criterion function</b> to evaluate a clustering (to tell a good clustering from a bad one).</li>
+<li>An <b>algorithm</b> to compute the clustering, e.g. by optimising the criterion.</li>
+</ol>
+<h3>How many clusters?</h3>
+<p>The same points can look like 2 clusters or 3 (slide "How many clusters?"). Two approaches: (1) <b>fix the number k</b> in advance; (2) <b>find the best clustering</b> according to the criterion function, letting the number of clusters vary. <i>Extra (beyond the slides):</i> the <b>elbow method</b> plots the criterion against k and looks for the bend. For the 7-point example in §5 the SSE is 37.07 (k = 1), 8.53 (k = 2), 2.50 (k = 3), 1.29 (k = 4), 0.67 (k = 5): it falls sharply up to k = 2 and then slowly, so k = 2 is the natural choice there. SSE always decreases as k grows (it reaches 0 when k = n), so you cannot just pick the minimum.</p>
+
+<h2 id="prox">2. Proximity measures</h2>
+<p>A good proximity measure is <b>very application dependent</b>: clusters should be invariant under the transformations "natural" to the problem. For object recognition we want a rotated object to be at distance 0 (rotation invariance); for character recognition we do <i>not</i> want it (a rotated "6" must stay far from "9").</p>
+<h3>Distances (dissimilarity)</h3>
+<p>A (metric) distance d satisfies: <b>non-negativity</b> d(i,j) ≥ 0; <b>identity</b> d(i,i) = 0; <b>symmetry</b> d(i,j) = d(j,i); <b>triangle inequality</b> d(i,j) ≤ d(i,k) + d(k,j) (a detour is never shorter).</p>
+<div class="f">Euclidean (L2):          d(x,y) = √( Σ_k (x_k − y_k)² )              straight line, translation invariant
+Manhattan / city block (L1): d(x,y) = Σ_k |x_k − y_k|                 cheaper to compute
+Chebyshev / supremum (L∞): d(x,y) = max_k |x_k − y_k|                 cheapest
+Minkowski (Lh norm):     d(x,y) = ( Σ_k |x_k − y_k|^h )^(1/h),  h ≥ 1     h=1: Manhattan, h=2: Euclidean, h→∞: supremum</div>
+<p><b>Example (slide):</b> x₁ = (1,2), x₂ = (3,5): Euclidean = √(2² + 3²) = 3.61; Manhattan = 2 + 3 = 5; supremum = max(2,3) = 3. Always sup ≤ Euclidean ≤ Manhattan. For binary vectors, Manhattan counts the number of positions that differ (Hamming distance), used in the hierarchical exercise below.</p>
+<h3>Similarity measures</h3>
+<ul>
+<li><b>Cosine similarity:</b> <code>s(x,y) = xᵀy / (‖x‖‖y‖)</code>: the cosine of the angle between the vectors; the smaller the angle, the larger the similarity. It is <b>scale invariant</b> (document length does not matter) and popular in text retrieval, where vectors are term frequencies with many zeros. Slide example: x = (5,0,3,0,2,0,0,2,0,0), y = (3,0,2,0,1,1,0,1,0,1): xᵀy = 25, ‖x‖ = 6.48, ‖y‖ = 4.12, so s = 25/(6.48·4.12) = 0.94, so the documents are very similar. It does not obey the metric axioms, so it is a <i>nonmetric</i> measure.</li>
+<li><b>Correlation coefficient:</b> popular in image processing; <code>s = Σ(x_k − x̄)(y_k − ȳ) / √(Σ(x_k − x̄)² Σ(y_k − ȳ)²)</code>, invariant to shifting and scaling of intensities.</li>
+</ul>
+<h3>Feature scaling</h3>
+<p>Should length be measured in metres or centimetres, weight in grams or kilograms? In supervised learning we can normalise each feature to zero mean and unit variance. In <b>clustering</b> this is more problematic: <b>if the variance in the data is due to the presence of clusters, normalising removes the very structure we want to find</b>. Use judgement; do not normalise blindly.</p>
+<h3>The simplest clustering algorithm (threshold)</h3>
+<p>Go over all sample pairs and put them in the same cluster if the distance is below a threshold d₀ (or the similarity above s₀). Simple, but the result depends on d₀: <b>too small</b> gives too many tiny clusters, <b>too large</b> gives too few (everything merges), and a good d₀ is hard to choose automatically.</p>
+
+<h2 id="crit">3. The criterion function: sum of squared errors</h2>
+<p>Partition n samples x₁…x<sub>n</sub> into c subsets D₁…D<sub>c</sub>, with n<sub>i</sub> samples in D<sub>i</sub> and mean (centroid) μ<sub>i</sub> = (1/n<sub>i</sub>) Σ<sub>x∈D<sub>i</sub></sub> x:</p>
+<div class="f">J_SSE = Σ_{i=1..c} Σ_{x ∈ D_i} ‖x − μ_i‖²          minimise;  c is fixed</div>
+<p>It measures how well the c centroids represent the samples (total within-cluster squared distance). There are about c<sup>n</sup>/c! distinct partitions, so trying them all is impossible: finding the optimum of J<sub>SSE</sub> is <b>NP-hard</b>. In practice a greedy, iterative method works well: <b>k-means</b>.</p>
+
+<h2 id="km">4. k-means</h2>
+<p>MacQueen (1967); a <b>partitional</b> algorithm. Given the data set D = {x₁…x<sub>n</sub>}, x<sub>i</sub> ∈ R<sup>r</sup>, and a user-specified k, it partitions D into k clusters, each with a centre called its <b>centroid</b>.</p>
+<ol>
+<li><b>Initialise:</b> choose k (random) data points (<b>seeds</b>) as the initial centroids.</li>
+<li><b>Assign:</b> assign each data point to the closest centroid (Euclidean).</li>
+<li><b>Update:</b> recompute each centroid as the mean of its current members.</li>
+<li><b>Repeat</b> steps 2–3 until convergence.</li>
+</ol>
+<p><b>Stopping criteria:</b> no (or minimal) re-assignment of points to different clusters; or no (or minimal) change of centroids; or a minimal decrease in SSE = Σ<sub>j</sub> Σ<sub>x∈C<sub>j</sub></sub> d(x, m<sub>j</sub>)².</p>
+<h3>Why it converges: each step decreases J</h3>
+<ul>
+<li><b>Assignment step</b> (centroids fixed): moving a point to its nearest centroid can only reduce (or keep) its squared distance, so J cannot increase.</li>
+<li><b>Update step</b> (assignments fixed): for a cluster, d/dm Σ‖x − m‖² = −2Σ(x − m) = 0 gives m = mean of the members. The mean is the point that minimises the sum of squared distances, so J cannot increase.</li>
+</ul>
+<p>J never increases, and there are only finitely many partitions, so the algorithm <b>terminates after a finite number of iterations</b>. But it only reaches a <b>local optimum</b>, not necessarily the global minimum.</p>
+<h3>Local optimum: a four-point example</h3>
+<p>Points (−3,1), (−3,−1), (3,1), (3,−1) and k = 2. Seeds (−3,0), (3,0) give left/right clusters with centroids (−3,0), (3,0) and J = 4 (the optimum). Seeds (0,1), (0,−1) give top/bottom clusters with centroids (0,1), (0,−1) that do not move: the algorithm halts at J = 36, nine times worse (slide "2-means gets stuck here"). Try both in the stepper below.</p>
+<h3>Seed choice and heuristics (slides)</h3>
+<p>Results can vary drastically with the seeds; some seeds converge slowly or to sub-optimal clusterings. Common heuristics: random centres in the space; randomly pick data points; pick points least similar to any existing centre (furthest-centres heuristic); <b>try multiple starting points</b> (keep the run with the lowest SSE); initialise with the result of another clustering method.</p>
+<h3>Strengths and weaknesses</h3>
+<div class="tw"><table><tr><th>Strengths</th><th>Weaknesses</th></tr>
+<tr><td>Simple, easy to implement; most popular clustering algorithm.</td><td>Needs the <b>mean</b> to be defined (for categorical data use k-modes: the most frequent value).</td></tr>
+<tr><td>Efficient: O(t·k·n) (n points, k clusters, t iterations), effectively linear.</td><td>The user must specify k.</td></tr>
+<tr><td>Usually performs well; its solution can seed other algorithms.</td><td>Sensitive to <b>outliers</b> (a far point drags a centroid and distorts the clusters) and to the initial seeds.</td></tr>
+<tr><td></td><td>Terminates at a local optimum; global optimum is hard.</td></tr>
+<tr><td></td><td>Not suitable for clusters that are not hyper-spheres / hyper-ellipsoids (e.g. two interlocking natural clusters get cut wrongly).</td></tr></table></div>
+
+<h2 id="kex">5. Worked example (the lecture's) and the exam version</h2>
+<p><b>Data (7 points, k = 2, seeds m₁ = (1,1) and m₂ = (5,7)):</b> 1 (1.0, 1.0); 2 (1.5, 2.0); 3 (3.0, 4.0); 4 (5.0, 7.0); 5 (3.5, 5.0); 6 (4.5, 5.0); 7 (3.5, 4.5).</p>
+<div class="tw"><table><tr><th>Pt</th><th>Iter 1: d to m₁ (1,1)</th><th>d to m₂ (5,7)</th><th>→</th><th>Iter 2: d to (1.83, 2.33)</th><th>d to (4.12, 5.38)</th><th>→</th><th>Iter 3: d to (1.25, 1.5)</th><th>d to (3.9, 5.1)</th><th>→</th></tr>
+<tr><td>1</td><td>0</td><td>7.21</td><td>1</td><td>1.57</td><td>5.38</td><td>1</td><td>0.56</td><td>5.02</td><td>1</td></tr>
+<tr><td>2</td><td>1.12</td><td>6.10</td><td>1</td><td>0.47</td><td>4.28</td><td>1</td><td>0.56</td><td>3.92</td><td>1</td></tr>
+<tr><td>3</td><td>3.61</td><td>3.61</td><td>1 (tie)</td><td>2.04</td><td>1.78</td><td>2</td><td>3.05</td><td>1.42</td><td>2</td></tr>
+<tr><td>4</td><td>7.21</td><td>0</td><td>2</td><td>5.64</td><td>1.84</td><td>2</td><td>6.66</td><td>2.20</td><td>2</td></tr>
+<tr><td>5</td><td>4.72</td><td>2.50</td><td>2</td><td>3.15</td><td>0.73</td><td>2</td><td>4.16</td><td>0.41</td><td>2</td></tr>
+<tr><td>6</td><td>5.31</td><td>2.06</td><td>2</td><td>3.78</td><td>0.54</td><td>2</td><td>4.78</td><td>0.61</td><td>2</td></tr>
+<tr><td>7</td><td>4.30</td><td>2.92</td><td>2</td><td>2.74</td><td>1.08</td><td>2</td><td>3.75</td><td>0.72</td><td>2</td></tr></table></div>
+<ul>
+<li><b>After iteration 1:</b> clusters {1,2,3} and {4,5,6,7}. Centroids: m₁ = ((1+1.5+3)/3, (1+2+4)/3) = (1.83, 2.33); m₂ = ((5+3.5+4.5+3.5)/4, (7+5+5+4.5)/4) = (4.12, 5.38).</li>
+<li><b>After iteration 2:</b> point 3 is now closer to m₂ (1.78 &lt; 2.04). Clusters {1,2} and {3,4,5,6,7}; centroids (1.25, 1.5) and (3.9, 5.1).</li>
+<li><b>Iteration 3:</b> no point changes cluster; centroids unchanged. <b>Halt.</b></li>
+</ul>
+<p>SSE after each assignment: 33.25 → 11.23 → 8.53: it decreases at every step, as proved above. Final clustering {1,2}, {3,4,5,6,7} with J<sub>SSE</sub> = 8.53. Every other pair of seed points I tried on this data reached the same clustering.</p>
+<div class="warn"><b>Exam version (S25, S23): 6 points, no point 7, same seeds.</b> Iteration 1 gives {1,2,3} and {4,5,6} (point 3 is a tie, 3.61 and 3.61, assigned to cluster 1), centroids (1.83, 2.33) and (4.33, 5.67). Iteration 2: point 3 is 2.03 from C₁ and 2.13 from C₂, so it stays; nothing changes: converged, SSE = 10.67. Without point 7 the lecture's final answer does not appear; do not copy it. State your tie-break rule.</div>
+
+<h2 id="demo">Widget: step through k-means</h2>
+<div class="wid">
+<p style="margin:0 0 6px"><b>k-means stepper.</b> Choose an example and seeds, then press <i>Step</i>: it alternates between <i>assign</i> and <i>update</i>. Diamonds are centroids; ties go to cluster 1.</p>
+<label for="ps" class="note">Example and seeds</label>
+<select id="ps"></select>
+<svg id="km" viewBox="0 0 360 240" role="img" aria-label="k-means points and centroids"><g id="g"></g></svg>
+<div><button id="st">Step</button><button id="rn">Run to end</button><button id="rs">Reset</button></div>
+<div id="lg" aria-live="polite"></div>
+</div>
+<p class="note">Choose "Rectangle, seeds top/bottom": it halts at SSE = 36 while "left/right" reaches SSE = 4 on the same points.</p>
+
+<h2 id="hc">6. Hierarchical clustering</h2>
+<p>Instead of one flat partition, build a <b>tree of nested clusters</b>.</p>
+<ul>
+<li><b>Agglomerative (bottom-up):</b> start with each object as its own cluster; repeatedly merge the two most similar clusters until all objects are in one cluster. The more popular technique.</li>
+<li><b>Divisive (top-down):</b> start with all objects in one cluster; repeatedly select a cluster and split it into two until every leaf holds one object.</li>
+</ul>
+<p>A <b>dendrogram</b> is the tree: each node is a cluster, each leaf a single object, and the height of a merge is the distance at which it happened. <b>Cutting</b> the dendrogram at a chosen height gives a clustering: each connected component below the cut is a cluster.</p>
+<h3>Agglomerative algorithm</h3>
+<ol>
+<li>Compute the distance matrix.</li>
+<li>Let each data point be a cluster.</li>
+<li>Repeat: merge the two closest clusters; <b>update the distance matrix</b>.</li>
+<li>Until only a single cluster remains.</li>
+</ol>
+<p>The key question is "how do we update the distance matrix?", that is, how to define the distance between two <i>clusters</i>.</p>
+<h3>Inter-cluster distances</h3>
+<div class="tw"><table><tr><th>Method</th><th>Definition</th><th>Strengths</th><th>Limitations</th></tr>
+<tr><td><b>MIN</b> (single link)</td><td>d(C<sub>i</sub>,C<sub>j</sub>) = min d(p,q), p∈C<sub>i</sub>, q∈C<sub>j</sub>: the closest pair; determined by one link</td><td>handles non-elliptical shapes</td><td>sensitive to noise and outliers (chaining)</td></tr>
+<tr><td><b>MAX</b> (complete link)</td><td>max d(p,q): the farthest pair</td><td>less susceptible to noise and outliers</td><td>tends to break large clusters; biased towards globular clusters</td></tr>
+<tr><td><b>Group average</b></td><td>average of all pairwise distances between the clusters</td><td>compromise between single and complete; less susceptible to noise</td><td>biased towards globular clusters</td></tr>
+<tr><td><b>Centroid</b></td><td>distance between cluster centroids d(m<sub>i</sub>, m<sub>j</sub>)</td><td>cheap, intuitive</td><td>uses only the centres</td></tr>
+<tr><td><b>Ward's</b></td><td>increase in squared error (SSE) when the two clusters are merged; similar to group average with squared distances</td><td>less susceptible to noise and outliers; hierarchical analogue of k-means (can initialise k-means)</td><td>biased towards globular clusters</td></tr></table></div>
+<p>Ward's merge cost for clusters A and B: <code>ΔSSE = [n<sub>A</sub>n<sub>B</sub>/(n<sub>A</sub> + n<sub>B</sub>)]·‖m<sub>A</sub> − m<sub>B</sub>‖²</code>.</p>
+<h3>Cost, strengths, limitations</h3>
+<ul>
+<li><b>Space</b> O(N²) (the distance matrix). <b>Time</b> O(N³) in many cases (N steps, each updating and searching an N² matrix); reducible to O(N² log N) for some approaches.</li>
+<li><b>Strengths:</b> no need to fix the number of clusters in advance (cut at any level); can match meaningful taxonomies (e.g. shopping sites: electronics → computers, cameras; furniture; groceries).</li>
+<li><b>Limitations:</b> once two clusters are merged the decision <b>cannot be undone</b>; no objective function is directly minimised; different schemes struggle with noise/outliers, clusters of different sizes, and irregular shapes.</li>
+</ul>
+
+<h2 id="hex">7. Hierarchical worked examples</h2>
+<h3>(a) The past-paper exercise: four binary points, Manhattan distance, single link</h3>
+<p>F23, S23i, F22: ID 1 = (0,0,0), 2 = (1,1,0), 3 = (1,1,1), 4 = (1,1,0). Manhattan distance = number of differing bits.</p>
+<div class="tw"><table><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tr><th>1</th><td>0</td><td>2</td><td>3</td><td>2</td></tr><tr><th>2</th><td></td><td>0</td><td>1</td><td>0</td></tr><tr><th>3</th><td></td><td></td><td>0</td><td>1</td></tr></table></div>
+<ol>
+<li>Smallest distance 0 (points 2 and 4 are identical): merge {2,4} at height 0.</li>
+<li>Single link: d({2,4},1) = min(2,2) = 2; d({2,4},3) = min(1,1) = 1; d(1,3) = 3. The smallest is 1: merge {2,4,3} at height 1.</li>
+<li>d({2,3,4},1) = min(2,3,2) = 2: merge everything at height 2.</li>
+</ol>
+<svg viewBox="0 0 300 175" role="img" aria-label="Dendrogram for the four points" style="max-width:320px">
+ <line x1="30" y1="150" x2="270" y2="150" stroke="var(--line)"/>
+ <path d="M50 150 V50 H155 V100 M110 150 V100 H200 V150 M170 150 H230" fill="none" stroke="var(--ac)" stroke-width="2.5"/>
+ <text x="45" y="168">1</text><text x="105" y="168">3</text><text x="165" y="168">2</text><text x="225" y="168">4</text>
+ <text x="4" y="154">0</text><text x="4" y="104">1</text><text x="4" y="54">2</text>
+</svg>
+<p>With <b>complete link</b> the last merge is at height 3 (d(1,3) = 3); with <b>group average</b> it is at (2 + 3 + 2)/3 = 2.33. The shape of the tree is the same; the heights differ. Cutting between 1 and 2 gives two clusters {1} and {2,3,4}.</p>
+<h3>(b) Five points on a line: all linkages</h3>
+<p>Points A = 1, B = 2, C = 4, D = 7, E = 8. Distances: AB = 1, DE = 1, BC = 2, AC = 3, CD = 3, BD = 5, … Merge order is the same for every linkage here (AB, DE, then C joins {A,B}, then everything), but the heights differ:</p>
+<div class="tw"><table><tr><th>Linkage</th><th>AB</th><th>DE</th><th>C joins {A,B}</th><th>final merge</th></tr>
+<tr><td>Single (MIN)</td><td>1</td><td>1</td><td>2 (min(BC, AC))</td><td>3 (min: C–D)</td></tr>
+<tr><td>Complete (MAX)</td><td>1</td><td>1</td><td>3 (max(BC, AC))</td><td>7 (A–E)</td></tr>
+<tr><td>Group average</td><td>1</td><td>1</td><td>2.5 ((2 + 3)/2)</td><td>5.17 (mean of 6 distances)</td></tr>
+<tr><td>Ward (ΔSSE)</td><td>0.5</td><td>0.5</td><td>4.17</td><td>32.03</td></tr></table></div>
+<p>Ward check: merging {A,B} (mean 1.5) with C: (2·1/3)·(4 − 1.5)² = 4.17; final merge of {A,B,C} (mean 2.33) with {D,E} (mean 7.5): (3·2/5)·(7.5 − 2.33)² = 32.03. The ΔSSE values add up to 37.2, the total SSE of all five points about their mean.</p>
+<h3>(c) Why MIN is "sensitive to noise" (chaining)</h3>
+<p>Two clear groups A = {0, 1, 2} and B = {8, 9, 10}. Single link joins them at height 6 (the gap 2 → 8). Add one stray point at 5 between them: now single link joins {A, 5} at 3 and then B at 3, so the two groups are fused at height 3 by a single noisy bridge point. Complete link is unaffected (it still joins at 10). This is why MIN handles odd shapes well but chains through noise, and MAX is more robust but may split large clusters.</p>
+
+<h2 id="cmp">8. k-means vs hierarchical</h2>
+<div class="tw"><table><tr><th></th><th>k-means</th><th>Hierarchical (agglomerative)</th></tr>
+<tr><td>Output</td><td>flat partition into k clusters</td><td>dendrogram: nested clusters at all levels</td></tr>
+<tr><td>Number of clusters</td><td>must specify k (or try several)</td><td>not needed; cut the tree at any height</td></tr>
+<tr><td>Objective</td><td>minimises J<sub>SSE</sub> (locally)</td><td>none directly minimised (Ward's is greedy SSE)</td></tr>
+<tr><td>Deterministic?</td><td>no: depends on seeds</td><td>yes (given linkage and tie rule)</td></tr>
+<tr><td>Cost</td><td>O(t·k·n)</td><td>O(N²) space, O(N³) time (O(N² log N) possible)</td></tr>
+<tr><td>Undo decisions?</td><td>points can move between clusters each iteration</td><td>merges are final</td></tr>
+<tr><td>Shapes</td><td>spherical/globular</td><td>depends on linkage (MIN handles non-elliptical)</td></tr>
+<tr><td>Outliers</td><td>sensitive</td><td>MIN sensitive; MAX/average/Ward less</td></tr></table></div>
+
+<h2 id="ex">9. Exam kit</h2>
+<div class="tip"><b>Past papers:</b>
+<ul>
+<li>k-means for two iterations on 6 points with seeds (1,1), (5,7) (S25, S23) → §5 (exam version).</li>
+<li>Agglomerative clustering, Manhattan distance, single link, intermediate matrices and dendrogram (F23, S23i, F22) → §7(a).</li>
+<li>Cosine similarity of two term-frequency vectors, and why it suits documents (S23, F22) → §2.</li>
+<li>Likely theory: compare k-means and hierarchical; weaknesses of k-means; effect of the seeds.</li>
+</ul></div>
+<h3>Template: k-means by hand</h3>
+<ol>
+<li>Write the initial centroids. For each point compute the distance to <i>every</i> centroid (a table) and mark the nearest; state the tie rule.</li>
+<li>List the clusters; compute the new centroids as the mean of x and y separately.</li>
+<li>Repeat. Stop when the assignment no longer changes; say so explicitly ("no change, converged").</li>
+<li>Give the final clusters and centroids (optionally the SSE).</li>
+</ol>
+<h3>Template: agglomerative by hand</h3>
+<ol>
+<li>Distance matrix (lower triangle). 2. Merge the minimum entry; record the height.</li>
+<li>Update the matrix with the linkage rule (MIN: take the smaller of the two entries for each other cluster).</li>
+<li>Repeat until one cluster; draw the dendrogram with the heights on the axis.</li>
+</ol>
+<h3>Common mistakes</h3>
+<ul>
+<li>Updating centroids after <i>each</i> point instead of after assigning all points (that is online k-means, a different algorithm).</li>
+<li>Stopping after one iteration without checking whether any point moved.</li>
+<li>Using the maximum instead of the minimum for single link (or the reverse).</li>
+<li>Drawing the dendrogram with merge heights that are not the cluster distances, or merging in the wrong order.</li>
+<li>Normalising features automatically before clustering.</li>
+<li>Claiming k-means always finds the global optimum.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Distances between x = (2,7) and y = (5,3): Euclidean, Manhattan, Chebyshev?</summary><div>Differences (3, 4): Euclidean 5, Manhattan 7, Chebyshev 4.</div></details>
+<details><summary>2. 1-D data {1, 2, 9, 10}, k = 2, initial centroids 1 and 2. Run k-means.</summary><div>Iteration 1: 1 → C₁; 2 → C₂ (d = 0); 9, 10 → C₂. Centroids 1 and (2+9+10)/3 = 7. Iteration 2: 2 is now closer to 1 (1 vs 5): {1,2} and {9,10}; centroids 1.5 and 9.5. Iteration 3: no change. SSE = 0.25·4 = 1.0.</div></details>
+<details><summary>3. Distances d(a,b) = 1, d(b,c) = 2, d(a,c) = 4. After merging a and b, what is the distance to c for single, complete and average link?</summary><div>Single: min(2,4) = 2. Complete: max(2,4) = 4. Average: (2 + 4)/2 = 3.</div></details>
+<details><summary>4. Why does k-means never increase J, yet may not find the best clustering?</summary><div>Both the assignment step and the update step lower or keep J, so it converges; but it is a greedy local search, so different seeds can end in different local optima (e.g. J = 36 versus 4 on the rectangle).</div></details>
+<details><summary>5. Name two ways to choose or avoid choosing the number of clusters.</summary><div>Fix k and compare SSE for several k (elbow); or use hierarchical clustering and cut the dendrogram at a chosen height.</div></details>
+<details><summary>6. Which linkage can chain two groups together through one noise point, and which resists it?</summary><div>Single link (MIN) chains; complete link (MAX), group average and Ward are more robust.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c8">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+var S7=[[1,1],[1.5,2],[3,4],[5,7],[3.5,5],[4.5,5],[3.5,4.5]],RC=[[-3,1],[-3,-1],[3,1],[3,-1]];
+var PRE=[{n:'Lecture data (7 points), seeds = points 1 and 4',d:S7,c:[[1,1],[5,7]]},
+ {n:'Lecture data (7 points), seeds = points 6 and 7',d:S7,c:[[4.5,5],[3.5,4.5]]},
+ {n:'Rectangle, seeds left/right',d:RC,c:[[-3,0],[3,0]]},
+ {n:'Rectangle, seeds top/bottom (gets stuck)',d:RC,c:[[0,1],[0,-1]]}];
+var NS='http://www.w3.org/2000/svg',sel=document.getElementById('ps'),G=document.getElementById('g'),LG=document.getElementById('lg');
+var cur,D,C,L,phase,it,done,col=['var(--ac2)','var(--warn)'];
+PRE.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.n;sel.appendChild(o)});
+function mk(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+function add(s){var d=document.createElement('div');d.textContent=s;LG.appendChild(d);LG.scrollTop=LG.scrollHeight}
+function f(v){return +(v+1e-9).toFixed(2)}
+function bounds(){var xs=D.map(function(p){return p[0]}).concat(C.map(function(p){return p[0]})),ys=D.map(function(p){return p[1]}).concat(C.map(function(p){return p[1]}));
+ var x0=Math.min.apply(0,xs),x1=Math.max.apply(0,xs),y0=Math.min.apply(0,ys),y1=Math.max.apply(0,ys),pad=0.12;
+ var sx=300/((x1-x0)||1),sy=180/((y1-y0)||1),s=Math.min(sx,sy);return {x0:x0,y1:y1,s:s,ox:30+(300-(x1-x0)*s)/2,oy:30+(180-(y1-y0)*s)/2}}
+var B;
+function X(x){return B.ox+(x-B.x0)*B.s}function Y(y){return B.oy+(B.y1-y)*B.s}
+function sse(){var s=0;D.forEach(function(p,i){var c=C[L[i]];s+=(p[0]-c[0])*(p[0]-c[0])+(p[1]-c[1])*(p[1]-c[1])});return s}
+function draw(){
+ while(G.firstChild)G.removeChild(G.firstChild);
+ D.forEach(function(p,i){var c=L?col[L[i]]:'var(--mute)';G.appendChild(mk('circle',{cx:X(p[0]),cy:Y(p[1]),r:7,fill:c,opacity:0.85}));
+  var t=mk('text',{x:X(p[0])+9,y:Y(p[1])-7});t.textContent=i+1;G.appendChild(t)});
+ C.forEach(function(c,k){var x=X(c[0]),y=Y(c[1]);G.appendChild(mk('polygon',{points:(x)+','+(y-10)+' '+(x+9)+','+y+' '+x+','+(y+10)+' '+(x-9)+','+y,fill:'none',stroke:col[k],'stroke-width':3}))})}
+function load(i){cur=PRE[i];D=cur.d;C=cur.c.map(function(c){return c.slice()});L=null;phase='assign';it=1;done=false;B=bounds();LG.textContent='';add('Start: centroids '+C.map(function(c){return '('+f(c[0])+', '+f(c[1])+')'}).join(' and '));draw()}
+function members(k){var r=[];L.forEach(function(l,i){if(l===k)r.push(i+1)});return '{'+r.join(',')+'}'}
+function step(){
+ if(done){add('Converged.');return}
+ if(phase==='assign'){
+  L=D.map(function(p){var d0=Math.hypot(p[0]-C[0][0],p[1]-C[0][1]),d1=Math.hypot(p[0]-C[1][0],p[1]-C[1][1]);return d1<d0-1e-12?1:0});
+  add('Iter '+it+' assign: cluster 1 = '+members(0)+', cluster 2 = '+members(1)+'   SSE = '+f(sse()));phase='update'}
+ else{
+  var N=C.map(function(c,k){var xs=0,ys=0,n=0;D.forEach(function(p,i){if(L[i]===k){xs+=p[0];ys+=p[1];n++}});return n?[xs/n,ys/n]:c});
+  var same=N.every(function(c,k){return Math.abs(c[0]-C[k][0])<1e-9&&Math.abs(c[1]-C[k][1])<1e-9});
+  C=N;add('Iter '+it+' update: centroids '+C.map(function(c){return '('+f(c[0])+', '+f(c[1])+')'}).join(' and ')+(same?'  (no change: converged)':''));
+  if(same){done=true;add('Final: '+members(0)+' and '+members(1)+', SSE = '+f(sse()))}else{phase='assign';it++}}
+ draw()}
+sel.onchange=function(){load(+sel.value)};
+document.getElementById('st').onclick=step;
+document.getElementById('rn').onclick=function(){var g=0;while(!done&&g++<100)step()};
+document.getElementById('rs').onclick=function(){load(+sel.value)};
+load(0);
+})();
+</script>
+</body>
+</html>

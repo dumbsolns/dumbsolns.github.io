@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Parameter Estimation (MLE, Bayesian, MAP)</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;background:var(--code);border-radius:8px}
+.wid svg text{fill:var(--ink);font:11px system-ui,sans-serif}
+.wid label{display:block;font-size:.92rem;margin:8px 0 0}
+.wid input[type=range]{width:100%}
+#rd{font:.88rem/1.55 ui-monospace,Menlo,Consolas,monospace;margin-top:6px}
+.key span{display:inline-block;margin-right:12px;font-size:.88rem}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c5">← Summary (ch. 5)</a></div>
+ <nav aria-label="Sections"><a href="#why">Problem</a><a href="#mle">MLE</a><a href="#gauss">Gaussian cases</a><a href="#bias">Bias</a><a href="#limit">MLE limits</a><a href="#bayes">Bayesian</a><a href="#demo">Widget</a><a href="#map">MAP</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Parameter estimation: MLE, Bayesian estimation and MAP</h1>
+<p class="lead">How to turn training samples into the parameters of a class-conditional density: the maximum-likelihood principle, its Gaussian derivations, why the variance estimate is biased, then the Bayesian and MAP views with a live posterior widget.</p>
+<div class="bk"><b>Read:</b> Duda, Hart &amp; Stork, Ch. 3 "Maximum-Likelihood and Bayesian Parameter Estimation": §3.1 Introduction, §3.2 "Maximum-Likelihood Estimation" (§3.2.1 The general principle, §3.2.2 The Gaussian case: unknown μ, §3.2.3 unknown μ and Σ, §3.2.4 Bias), §3.3 "Bayesian Estimation" (§3.3.1 The class-conditional densities, §3.3.2 The parameter distribution), §3.4 "Bayesian Parameter Estimation: Gaussian Case". Bishop, <i>PRML</i>: §2.3.4 "Maximum likelihood for the Gaussian", §2.3.6 "Bayesian inference for the Gaussian", §1.2.5 "Curve fitting re-visited" (MAP), §2.1 "Binary variables". Slide sources: Veksler (CS434), Picone (ECE 8527), Stanley Chan (ECE 595).</div>
+
+<h2 id="why">1. The problem</h2>
+<p>The Bayes classifier needs the priors P(ω<sub>i</sub>) and the class-conditional densities p(x|ω<sub>i</sub>). In practice we only have training samples. Priors are easy (count the class frequencies). Densities are hard, especially when the feature dimension d is large.</p>
+<p><b>Parametric trick:</b> if general knowledge lets us assume a form, e.g. p(x|ω<sub>i</sub>) = N(μ<sub>i</sub>, Σ<sub>i</sub>), the unknown <i>function</i> becomes a few unknown <b>numbers</b> θ = (μ, Σ). Then use the training samples to estimate θ, and plug the estimates into the Bayes decision rule as if they were true (the pipeline in the slides: training data D → estimate θ̂ → density p(x|θ̂) → Bayes decision boundary).</p>
+<p>Parameters to estimate for a d-dimensional Gaussian: d (mean) + d(d+1)/2 (symmetric covariance): 5 for d = 2, 65 for d = 10, 5 150 for d = 100. Many parameters need many samples, which is one face of the curse of dimensionality.</p>
+<div class="tw"><table><tr><th></th><th>Maximum likelihood (MLE)</th><th>Bayesian estimation</th></tr>
+<tr><td>View of θ</td><td>fixed but unknown constant</td><td>random variable with a prior p(θ)</td></tr>
+<tr><td>Idea</td><td>pick θ that makes the observed data most probable</td><td>data revise the prior into a posterior p(θ|D)</td></tr>
+<tr><td>Output</td><td>one number θ̂</td><td>a distribution (MAP: its peak)</td></tr></table></div>
+
+<h2 id="mle">2. Maximum-likelihood estimation</h2>
+<h3>Assumptions</h3>
+<ul>
+<li>Samples are split by class into c sets D₁…D<sub>c</sub>; the samples in D<sub>j</sub> are drawn <b>i.i.d.</b> (independent, identically distributed) from p(x|ω<sub>j</sub>).</li>
+<li>p(x|ω<sub>j</sub>) has a <b>known parametric form</b>, fixed by a parameter vector θ<sub>j</sub>; write p(x|θ) (the notation shows dependence on θ; it is <i>not</i> a conditional density in the probabilistic sense).</li>
+<li>D<sub>i</sub> says nothing about θ<sub>j</sub> for i ≠ j (functionally independent parameters), so we solve c separate problems, one per class.</li>
+</ul>
+<h3>Likelihood and its maximiser</h3>
+<div class="f">p(D|θ) = Π_{k=1..n} p(x_k|θ) = F(θ)          likelihood of θ for the sample set D
+θ̂ = argmax_θ p(D|θ)                          maximum-likelihood estimate</div>
+<p>As a function of θ, p(D|θ) is not a density (it need not integrate to 1 over θ). Intuition (Duda Fig. 3.1): for a Gaussian with unknown mean, the likelihood peaks at the value that sits at the centre of the observed points.</p>
+<h3>Log trick and recipe</h3>
+<p>The log is monotonic, so maximising p(D|θ) and maximising l(θ) = ln p(D|θ) give the same θ̂, and the product becomes a sum, which is easier to differentiate:</p>
+<div class="f">l(θ) = Σ_k ln p(x_k|θ)        θ̂ = argmax l(θ)
+necessary condition:  ∇_θ l = Σ_k ∇_θ ln p(x_k|θ) = 0        (p equations for p parameters)</div>
+<ol><li>Write the likelihood.</li><li>Take logs.</li><li>Differentiate and set to 0.</li><li>Solve for θ̂.</li><li><b>Check</b> it is a maximum (second derivative negative), not a minimum or saddle, and check the boundary of the parameter range.</li></ol>
+<h3>Example from the slides: which coin?</h3>
+<p>Straight coin: P(H) = ½. Bent coin: P(H) = 4/5. Observed D = HTHHHTHHTHTH (8 heads, 4 tails). The likelihood of each model:</p>
+<div class="f">p(D|Bent)     = (4/5)⁸(1/5)⁴ = 0.000268
+p(D|Straight) = (1/2)¹²      = 0.000244
+argmax over {Bent, Straight} → Bent</div>
+<p>MLE picks the model under which the data were most probable: the bent coin (just barely). No prior knowledge was used; remember this for §6.</p>
+
+<h2 id="gauss">3. MLE derivations you must know</h2>
+<h3>(a) Gaussian, unknown mean, known covariance</h3>
+<div class="f">ln p(x_k|μ) = −½ ln[(2π)^d |Σ|] − ½ (x_k − μ)ᵀΣ⁻¹(x_k − μ)
+∇_μ ln p(x_k|μ) = Σ⁻¹(x_k − μ)
+Σ_k Σ⁻¹(x_k − μ̂) = 0   ⇒   Σ⁻¹(Σ_k x_k − n μ̂) = 0   ⇒   Σ_k x_k = n μ̂
+μ̂ = (1/n) Σ_k x_k</div>
+<p>The ML estimate of the mean is the sample average, "very intuitive". (Σ⁻¹ is invertible so it can be cancelled; this is why Σ known or not does not change μ̂.)</p>
+<h3>(b) Gaussian, unknown mean and variance (univariate)</h3>
+<p>Let v = σ². l(μ, v) = −(n/2)ln 2π − (n/2)ln v − (1/2v) Σ(x_k − μ)².</p>
+<div class="f">∂l/∂μ = (1/v) Σ(x_k − μ) = 0                  ⇒  μ̂ = (1/n) Σ x_k
+∂l/∂v = −n/(2v) + (1/2v²) Σ(x_k − μ̂)² = 0     ⇒  multiply by 2v²:  −nv + Σ(x_k − μ̂)² = 0
+σ̂² = (1/n) Σ (x_k − μ̂)²</div>
+<p>Multivariate: <code>μ̂ = (1/n)Σx_k</code>, <code>Σ̂ = (1/n)Σ(x_k − μ̂)(x_k − μ̂)ᵀ</code>.</p>
+<p><b>Numeric check:</b> data {2, 4, 6, 8}: μ̂ = 5, σ̂² = (9+1+1+9)/4 = 5. In 2-D: samples (1,2), (3,3), (5,7) give μ̂ = (3,4) and Σ̂ = [[2.67, 3.33], [3.33, 4.67]].</p>
+<h3>(c) Multivariate Bernoulli (past exam question)</h3>
+<p>x is a d-dimensional binary vector with P(x|θ) = Π<sub>i</sub> θ<sub>i</sub><sup>x<sub>i</sub></sup>(1 − θ<sub>i</sub>)<sup>1−x<sub>i</sub></sup>.</p>
+<div class="f">l(θ) = Σ_k Σ_i [ x_ki ln θ_i + (1 − x_ki) ln(1 − θ_i) ]
+∂l/∂θ_i = Σ_k [ x_ki/θ_i − (1 − x_ki)/(1 − θ_i) ] = 0
+⇒ Σ_k x_ki (1 − θ_i) = θ_i Σ_k (1 − x_ki)  ⇒  Σ_k x_ki = n θ_i
+θ̂_i = (1/n) Σ_k x_ki           i.e. θ̂ = (1/n) Σ_k x_k</div>
+<p>Each θ̂<sub>i</sub> is the fraction of samples in which bit i equals 1. Numeric: 8 flips 1,0,1,1,0,1,1,1 give θ̂ = 6/8 = 0.75.</p>
+<h3>(d) Exponential density (slide: "MLE Math")</h3>
+<p>p(x|θ) = θe<sup>−θx</sup> for x ≥ 0. Then l(θ) = n ln θ − θ Σx<sub>k</sub>; dl/dθ = n/θ − Σx<sub>k</sub> = 0 gives <code>θ̂ = n/Σx<sub>k</sub> = 1/x̄</code>; d²l/dθ² = −n/θ² &lt; 0, so it is a maximum. For samples 0.5, 1, 2.5: x̄ = 4/3, θ̂ = 0.75.</p>
+
+<h2 id="bias">4. How good is an estimate? Bias, variance, consistency</h2>
+<ul>
+<li><b>Bias:</b> how close the <i>average</i> estimate is to the truth. θ̂ is <b>unbiased</b> if E[θ̂] = θ.</li>
+<li><b>Variance:</b> how much the estimate changes from one data set to another.</li>
+<li><b>Trade-off:</b> usually you can reduce one only at the expense of the other.</li>
+<li><b>Consistent / converges:</b> the estimate approaches the truth as n → ∞.</li>
+</ul>
+<h3>The ML mean is unbiased with variance σ²/n</h3>
+<div class="f">E[μ̂] = (1/n) Σ E[x_i] = (1/n)(nμ) = μ                                  → unbiased
+Var[μ̂] = (1/n²) Σ Var[x_i] = nσ²/n² = σ²/n  (independence)               → 0 as n → ∞
+(slide route: E[x_i x_j] = μ² for i≠j and μ²+σ² for i=j; E[μ̂²] = μ² + σ²/n)</div>
+<h3>The ML variance is biased</h3>
+<p>Use E[x²] = μ² + σ² (since Var(x) = E[x²] − μ²) and E[μ̂²] = μ² + σ²/n. Expand σ̂² = (1/n)Σ(x<sub>i</sub> − μ̂)² = (1/n)Σx<sub>i</sub>² − μ̂²:</p>
+<div class="f">E[σ̂²] = (μ² + σ²) − (μ² + σ²/n) = σ² (1 − 1/n) = ((n − 1)/n) σ²
+Unbiased estimator:  s² = (1/(n−1)) Σ (x_i − μ̂)²      covariance:  C = (1/(n−1)) Σ (x_i − μ̂)(x_i − μ̂)ᵀ</div>
+<p><b>Intuition:</b> the deviations are measured from μ̂, which is the point closest to <i>these</i> samples, so they are smaller than deviations from the true μ. Averaged over many data sets the ML variance lands at (n−1)/n of the truth: systematically too small. It still <b>converges</b> (the factor → 1).</p>
+<p>Simulation (true σ² = 4, 100 000 data sets for each n):</p>
+<div class="tw"><table><tr><th>n</th><th>average of σ̂² (ML)</th><th>(n−1)/n · σ²</th></tr>
+<tr><td>2</td><td>2.00</td><td>2.00</td></tr><tr><td>5</td><td>3.19</td><td>3.20</td></tr><tr><td>20</td><td>3.80</td><td>3.80</td></tr><tr><td>100</td><td>3.96</td><td>3.96</td></tr></table></div>
+<p>Sample size matters more than the choice of 1/n or 1/(n−1) once n is large. Note for exams: with the data {2,4,6,8}, the ML variance is 5 but the unbiased value is 6.67.</p>
+
+<h2 id="limit">5. Limits of MLE</h2>
+<ul>
+<li><b>Zero probabilities:</b> a bag-of-words model trained on one 10-word sentence gives each seen word probability 0.1 and every unseen word probability 0. A test sentence with one new word then has probability 0, however good the rest. Out-of-vocabulary words are common even with huge corpora.</li>
+<li><b>Overfits small samples:</b> with 3 heads in 3 flips, MLE says P(H) = 1.</li>
+<li><b>No place for prior knowledge:</b> you may know that a bent coin is rare, but MLE ignores it.</li>
+</ul>
+<p>The remedy is to put a prior on unseen events, "a practical application of Bayesian learning": this leads to §6–7.</p>
+
+<h2 id="bayes">6. Bayesian estimation</h2>
+<p>Treat θ as a random variable. Before data, our knowledge is the prior p(θ). Seeing D converts it into the posterior (hopefully peaked near the true θ):</p>
+<div class="f">p(θ|D) = p(D|θ) p(θ) / p(D) = p(D|θ) p(θ) / ∫ p(D|θ) p(θ) dθ         p(D|θ) = Π_k p(x_k|θ)</div>
+<p><b>Using it for classification:</b> P(ω<sub>i</sub>|x, D) uses p(x|ω<sub>i</sub>, D) (the training data inform the density). Because x is independent of D once θ is known:</p>
+<div class="f">p(x|D) = ∫ p(x|θ) p(θ|D) dθ         (average the model over all plausible θ, weighted by the posterior)</div>
+<h3>Univariate Gaussian, unknown mean (σ² known)</h3>
+<p>Model p(x|μ) = N(μ, σ²) and prior p(μ) = N(μ₀, σ₀²). Then</p>
+<div class="f">p(μ|D) ∝ Π_k p(x_k|μ) · p(μ) ∝ exp{ −½ [ Σ_k (x_k − μ)²/σ² + (μ − μ₀)²/σ₀² ] }
+       = exp{ −½ [ (n/σ² + 1/σ₀²) μ² − 2 (Σ_k x_k/σ² + μ₀/σ₀²) μ + const ] }</div>
+<p>This is the exponential of a quadratic in μ, so p(μ|D) is Gaussian, N(μ<sub>n</sub>, σ<sub>n</sub>²), for every n: a <b>reproducing density</b>, and p(μ) is a <b>conjugate prior</b>. Match coefficients ("equating coefficients") with exp{−½[μ²/σ<sub>n</sub>² − 2μ<sub>n</sub>μ/σ<sub>n</sub>² + …]}:</p>
+<div class="f">1/σ_n² = n/σ² + 1/σ₀²           μ_n/σ_n² = n x̄_n/σ² + μ₀/σ₀²          (x̄_n = sample mean)
+Solve:
+σ_n² = σ₀² σ² / (n σ₀² + σ²)
+μ_n  = [ n σ₀² / (n σ₀² + σ²) ] x̄_n  +  [ σ² / (n σ₀² + σ²) ] μ₀</div>
+<ul>
+<li><b>μ<sub>n</sub></b> is our best guess after n samples: a <b>weighted average</b> of the data mean x̄<sub>n</sub> and the prior mean μ₀ (weights sum to 1).</li>
+<li><b>σ<sub>n</sub>²</b> is our remaining uncertainty; it approaches <b>σ²/n</b> for large n, and the posterior becomes more sharply peaked: <b>Bayesian learning</b>.</li>
+<li>Predictive density: p(x|D) = N(μ<sub>n</sub>, σ² + σ<sub>n</sub>²): the noise σ² plus our remaining uncertainty about μ.</li>
+</ul>
+<p>Numbers (σ² = 4, prior N(0, 1), data mean x̄ = 3):</p>
+<div class="tw"><table><tr><th>n</th><th>weight on data</th><th>μ<sub>n</sub></th><th>σ<sub>n</sub>²</th></tr>
+<tr><td>0 (prior)</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td>1</td><td>0.20</td><td>0.60</td><td>0.800</td></tr>
+<tr><td>5</td><td>0.56</td><td>1.67</td><td>0.444</td></tr>
+<tr><td>20</td><td>0.83</td><td>2.50</td><td>0.167</td></tr>
+<tr><td>100</td><td>0.96</td><td>2.88</td><td>0.038</td></tr></table></div>
+<p>The estimate slides from the prior (0) towards the data mean (3) while the uncertainty shrinks. As n → ∞: μ<sub>n</sub> → x̄ = the MLE and σ<sub>n</sub>² → 0.</p>
+
+<h2 id="demo">Widget: watch the posterior sharpen</h2>
+<div class="wid">
+<p style="margin:0 0 4px"><b>Posterior of the mean.</b> Fixed: σ² = 4, data mean x̄ = 3. Move the sliders.</p>
+<svg id="pp" viewBox="0 0 400 190" role="img" aria-label="Prior, likelihood and posterior curves for the mean">
+ <line x1="20" y1="165" x2="385" y2="165" stroke="var(--mute)"/>
+ <polyline id="cp0" fill="none" stroke="var(--mute)" stroke-width="2" stroke-dasharray="5 4" points=""/>
+ <polyline id="cl0" fill="none" stroke="var(--warn)" stroke-width="2" points=""/>
+ <polyline id="cq0" fill="none" stroke="var(--ac)" stroke-width="3" points=""/>
+ <text x="14" y="182">−4</text><text x="106" y="182">0</text><text x="170" y="182">3</text><text x="360" y="182">8</text>
+</svg>
+<div class="key"><span style="color:var(--mute)">--- prior</span><span style="color:var(--warn)">— likelihood (data)</span><span style="color:var(--ac)">— posterior</span></div>
+<label>Number of samples n = <b id="nv">5</b><input id="n" type="range" min="0" max="100" value="5"></label>
+<label>Prior variance σ₀² = <b id="vv">1</b> (small = confident prior)<input id="v" type="range" min="0.1" max="10" step="0.1" value="1"></label>
+<div id="rd"></div>
+</div>
+
+<h2 id="map">7. MAP estimation</h2>
+<p>MAP picks the <b>mode</b> of the posterior instead of keeping the whole distribution. Since p(D) does not depend on θ:</p>
+<div class="f">θ̂_MAP = argmax_θ p(θ|D) = argmax_θ Π_k p(x_k|θ) · p(θ)
+       = argmin_θ − Σ_k { ln p(x_k|θ) + ln p(θ) }          (log-likelihood + log-prior)</div>
+<p>Compared with MLE the extra term ln p(θ) pulls the estimate towards what the prior considers plausible. With a flat prior MAP = MLE.</p>
+<p><b>1-D Gaussian example (slides), one sample x:</b> likelihood N(x; θ, σ²), prior N(θ; θ₀, σ₀²).</p>
+<div class="f">minimise  (x − θ)²/(2σ²) + (θ − θ₀)²/(2σ₀²)
+derivative:  (θ − x)/σ² + (θ − θ₀)/σ₀² = 0   ⇒   θ(σ₀² + σ²) = σ₀² x + σ² θ₀
+θ̂_MAP = (σ₀² x + σ² θ₀) / (σ₀² + σ²)</div>
+<p>For n samples, the same steps give θ̂<sub>MAP</sub> = (nσ₀²x̄ + σ²θ₀)/(nσ₀² + σ²) = μ<sub>n</sub>: the Bayesian posterior mean, because a Gaussian posterior's mode and mean coincide. Numerically, x = 2, σ² = 4, θ₀ = 0, σ₀² = 1 gives θ̂ = 2/5 = 0.4 (MLE would say 2).</p>
+<h3>Interpreting the result</h3>
+<ul>
+<li><b>σ₀ = 0:</b> θ̂ = θ₀. Absolutely sure of the prior, no uncertainty (p(θ) = δ(θ − θ₀)); the data are ignored.</li>
+<li><b>σ₀ → ∞:</b> θ̂ = x. "I don't trust my prior at all, use the data": uniform prior, MAP = MLE.</li>
+<li>In between, MAP is a <b>trade-off between data and prior</b>. More data (n ↑) shifts the weight to the data; with large n, MAP ≈ MLE (the exam asks you to show this: divide μ<sub>n</sub>'s numerator and denominator by nσ₀²; the weight of μ₀ is (σ²/nσ₀²)/(1 + σ²/nσ₀²) → 0).</li>
+</ul>
+<h3>Back to the coin</h3>
+<p>Give the bent coin a prior probability of 0.2 (bent coins are rare) and the straight coin 0.8. Posterior ∝ likelihood × prior: bent 0.000268 × 0.2 = 5.4×10⁻⁵; straight 0.000244 × 0.8 = 1.95×10⁻⁴. Posterior probabilities: bent 0.22, straight 0.78. <b>MAP chooses the straight coin while MLE chose the bent coin</b>: the prior overrode weak evidence. (They agree only if the prior of "bent" is above 0.476.)</p>
+<h3>MLE vs MAP vs full Bayes</h3>
+<div class="tw"><table><tr><th></th><th>MLE</th><th>MAP</th><th>Bayesian (full)</th></tr>
+<tr><td>θ is</td><td>fixed, unknown</td><td>random, with prior</td><td>random, with prior</td></tr>
+<tr><td>Maximises / computes</td><td>p(D|θ)</td><td>p(D|θ)p(θ)</td><td>whole posterior p(θ|D)</td></tr>
+<tr><td>Result</td><td>point estimate</td><td>point estimate (posterior mode)</td><td>distribution; predict with ∫p(x|θ)p(θ|D)dθ</td></tr>
+<tr><td>Prior knowledge</td><td>no</td><td>yes</td><td>yes</td></tr>
+<tr><td>Small data</td><td>can overfit, zero probabilities</td><td>regularised by the prior</td><td>reports uncertainty too</td></tr>
+<tr><td>Large n</td><td colspan="3">all three agree (data dominate the prior)</td></tr></table></div>
+<p>Generative view (slide): MAP assumes the process "θ ~ p(θ), then x ~ p(x|θ)"; MLE assumes only "x ~ p(x|θ)" with θ a constant.</p>
+<div class="tip"><b>Links to other chapters:</b> (1) The Naive Bayes and Gaussian discriminant exercises estimate their parameters with MLE (class means, variances, priors). (2) <i>Extra, beyond the slides:</i> Laplace smoothing in Naive Bayes is MAP estimation with a uniform-like Beta(2,2) prior: 3 heads in 3 flips gives MLE = 3/3 = 1 but MAP = (3+1)/(3+2) = 0.8, so no probability is ever exactly 0. (3) A Gaussian prior on weights in regression adds an L2 penalty, which is regularisation.</div>
+
+<h2 id="ex">8. Exam kit</h2>
+<div class="tip"><b>Seen in past papers:</b>
+<ul>
+<li>Derive the MLE of the mean μ of a Gaussian with Σ known (F24) → §3(a).</li>
+<li>Show the MLE of θ for a multivariate Bernoulli is the sample mean (S23) → §3(c).</li>
+<li>MLE vs MAP/Bayesian: differences, and show the estimate equals the MLE for large n (S23i, F22) → §6–7.</li>
+<li>Calculations that use ML estimates: Gaussian Naive Bayes (S25, F23, S23), Gaussian classification with given μ, Σ.</li>
+<li>Likely extras: ML estimate for the exponential density; why ML variance is biased.</li>
+</ul></div>
+<h3>Answer template: "Differences between MLE and Bayesian estimation"</h3>
+<ol>
+<li>MLE: θ fixed unknown; maximise p(D|θ); point estimate; no prior.</li>
+<li>Bayesian: θ random with prior p(θ); posterior p(θ|D) ∝ p(D|θ)p(θ); uses all information.</li>
+<li>Bayesian estimate for a Gaussian mean is the weighted average μ<sub>n</sub> of the sample mean and the prior mean; as n → ∞ it tends to the MLE x̄ and σ<sub>n</sub>² → 0.</li>
+<li>MAP is the point estimate at the mode of the posterior; MAP = MLE for a flat prior or large n.</li>
+</ol>
+<h3>Common mistakes</h3>
+<ul>
+<li>Forgetting the log or to check the second derivative; differentiating the product instead of the sum.</li>
+<li>Using the unbiased 1/(n−1) when the question says "MLE" (MLE uses 1/n); or the reverse for an "unbiased estimate".</li>
+<li>Mixing the roles: σ² is the known data noise; σ₀² is the prior's width, so σ₀² → ∞ means "no prior".</li>
+<li>Writing the weights of μ<sub>n</sub> the wrong way round (weight on x̄ is nσ₀²/(nσ₀²+σ²), on μ₀ it is σ²/(nσ₀²+σ²)).</li>
+<li>Saying MLE is "biased" in general: the ML <i>mean</i> is unbiased, the ML <i>variance</i> is biased.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Samples 3, 5, 10 from N(μ, σ²). ML estimates of μ and σ²? Unbiased variance?</summary><div>μ̂ = 6; σ̂² = (9 + 1 + 16)/3 = 8.67; unbiased s² = 26/2 = 13.</div></details>
+<details><summary>2. Prior N(0, 1), σ² = 4, one sample x = 5. MAP estimate and posterior variance?</summary><div>μ₁ = (1·1·5 + 4·0)/(1·1 + 4) = 1.0; σ₁² = 1·4/(1 + 4) = 0.8.</div></details>
+<details><summary>3. Why does MAP approach MLE when n is large?</summary><div>The data weight nσ₀²/(nσ₀²+σ²) → 1 and the prior weight → 0; equivalently the likelihood term (a sum over n samples) grows while the prior term is a single fixed term.</div></details>
+<details><summary>4. Exponential density θe<sup>−θx</sup>, samples 1, 2, 3. ML estimate of θ?</summary><div>θ̂ = n/Σx = 3/6 = 0.5.</div></details>
+<details><summary>5. Why can the ML variance estimator not be unbiased, and how do we fix it?</summary><div>It measures spread around μ̂, which is fitted to the same samples, so E[σ̂²] = ((n−1)/n)σ². Divide by n − 1 instead of n.</div></details>
+<details><summary>6. 10 flips, 7 heads. MLE of P(H)? MAP with a Beta(2,2) prior (add one head and one tail)?</summary><div>MLE = 7/10 = 0.70; MAP = (7 + 1)/(10 + 2) = 0.667, pulled slightly towards 0.5.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c5">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+var S2=4,XB=3,M0=0,N=document.getElementById('n'),V=document.getElementById('v');
+function pdf(x,m,v){return Math.exp(-(x-m)*(x-m)/(2*v))/Math.sqrt(2*Math.PI*v)}
+function post(n,v0){var vn=v0*S2/(n*v0+S2),mn=(n*v0*XB+S2*M0)/(n*v0+S2);return [mn,vn]}
+function pts(m,v,sc){var a=[],x,y;for(x=-4;x<=8.001;x+=0.12){y=165-pdf(x,m,v)*sc;a.push((20+(x+4)*(365/12)).toFixed(1)+','+Math.max(5,y).toFixed(1))}return a.join(' ')}
+function draw(){
+ var n=+N.value,v0=+V.value,p=post(n,v0),mx=Math.max(pdf(M0,M0,v0),pdf(p[0],p[0],p[1]),n>0?pdf(XB,XB,S2/n):0),sc=150/mx;
+ document.getElementById('cp0').setAttribute('points',pts(M0,v0,sc));
+ document.getElementById('cl0').setAttribute('points',n>0?pts(XB,S2/n,sc):'');
+ document.getElementById('cq0').setAttribute('points',pts(p[0],p[1],sc));
+ document.getElementById('nv').textContent=n;document.getElementById('vv').textContent=v0;
+ document.getElementById('rd').textContent='posterior: mu_n = '+p[0].toFixed(3)+', sigma_n^2 = '+p[1].toFixed(4)+'   (MLE = '+(n>0?XB:'n/a')+', prior mean = '+M0+')'}
+N.oninput=draw;V.oninput=draw;draw();
+})();
+</script>
+</body>
+</html>

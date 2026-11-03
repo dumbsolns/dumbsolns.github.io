@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Linear Discriminants and the Perceptron</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto;background:var(--code);border-radius:8px}
+.wid svg text{fill:var(--ink);font:11px system-ui,sans-serif}
+.wid button{font:inherit;font-size:14px;padding:6px 14px;margin:8px 6px 0 0;border:1px solid var(--ac);background:var(--card);color:var(--ac);border-radius:8px;cursor:pointer}
+.wid button:hover{background:var(--ac);color:var(--bg)}
+#lg{font:.84rem/1.55 ui-monospace,Menlo,Consolas,monospace;margin-top:8px;max-height:180px;overflow:auto;background:var(--code);padding:8px;border-radius:6px}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c2">← Summary (ch. 2)</a></div>
+ <nav aria-label="Sections"><a href="#geo">Geometry</a><a href="#multi">Multi-class</a><a href="#ls">Least squares</a><a href="#perc">Perceptron</a><a href="#demo">Step-through</a><a href="#conv">Convergence</a><a href="#lim">Limits</a><a href="#cmp">Compare</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Linear discriminants, least squares and the perceptron</h1>
+<p class="lead">Chapter 2 in the summary, in full: the geometry of a hyperplane, K-class discriminants, least-squares classification, then the perceptron: criterion, updates, convergence proof, limits and worked examples.</p>
+<div class="bk"><b>Read:</b> Bishop, <i>PRML</i>, Ch. 4 "Linear Models for Classification": §4.1.1 "Two classes", §4.1.2 "Multiple classes", §4.1.3 "Least squares for classification", §4.1.7 "The perceptron algorithm". Duda, Hart &amp; Stork, Ch. 5 "Linear Discriminant Functions": §5.2 "Linear Discriminant Functions and Decision Surfaces", §5.3 "Generalized Linear Discriminant Functions", §5.5 "Minimizing the Perceptron Criterion Function" (§5.5.2 convergence proof), §5.8 "Minimum Squared-Error Procedures", §5.12 "Multicategory Generalizations". Original sources: Rosenblatt (1958); Minsky &amp; Papert, <i>Perceptrons</i> (1969).</div>
+
+<h2 id="geo">1. A linear discriminant function: the geometry</h2>
+<div class="f">y(x) = wᵀx + w₀         class C₁ if y(x) ≥ 0, else C₂         boundary: y(x) = 0</div>
+<ul>
+<li><b>w</b> (weight vector) is <b>normal</b> to the boundary: for two points a, b on it, wᵀ(a − b) = 0. Changing w rotates and tilts the hyperplane.</li>
+<li><b>w₀</b> (bias) shifts the hyperplane away from the origin.</li>
+<li>The unit normal (pure direction) is w/‖w‖.</li>
+</ul>
+<h3>Distance of a point from the boundary: two derivations</h3>
+<p><b>Way 1 (decomposition).</b> Write x = x⊥ + r·w/‖w‖, where x⊥ is the projection of x onto the plane (so y(x⊥) = 0) and r is the signed distance. Multiply by wᵀ and add w₀:</p>
+<div class="f">wᵀx + w₀ = (wᵀx⊥ + w₀) + r·wᵀw/‖w‖ = 0 + r‖w‖      ⇒      r = y(x)/‖w‖</div>
+<p><b>Way 2 (projection).</b> Pick any point p on the plane (wᵀp = −w₀). The bridge vector is (x − p); project it on the unit normal:</p>
+<div class="f">distance = (x − p)ᵀ(w/‖w‖) = (wᵀx − wᵀp)/‖w‖ = (wᵀx + w₀)/‖w‖ = y(x)/‖w‖</div>
+<p><b>Origin:</b> put x = 0, so y(0) = w₀ and the signed distance is <code>w₀/‖w‖</code> (the slides write the geometric distance from the origin to the plane as |w₀|/‖w‖).</p>
+<h3>Meaning of "signed"</h3>
+<p>The sign tells which side of the plane x lies on, relative to the direction w points. If w₀ &lt; 0 the origin is on the negative side; if w₀ &gt; 0, on the positive side. A line can sit in the right geometric place yet have w pointing the wrong way, which flips every class label.</p>
+<h3>Practice (slide): boundary 2x₁ + x₂ = 3</h3>
+<div class="f">w = (2,1), w₀ = −3, ‖w‖ = √5 = 2.236, unit normal = (0.894, 0.447)
+origin: y(0) = −3 → on the negative side; distance to plane = 3/√5 = 1.342
+(2,2): y = 4+2−3 = 3 > 0 → class C₁, r = 3/√5 = +1.342
+(1,1): y = 0 → exactly on the boundary        (0,0): y = −3 → class C₂, r = −1.342</div>
+
+<h2 id="multi">2. More than two classes (K &gt; 2)</h2>
+<div class="tw"><table><tr><th>Design</th><th>Classifiers</th><th>Problem</th></tr>
+<tr><td><b>One-versus-the-rest</b></td><td>K − 1 (each separates C<sub>k</sub> from "not C<sub>k</sub>")</td><td>ambiguous regions (the "?" triangle)</td></tr>
+<tr><td><b>One-versus-one</b></td><td>K(K − 1)/2 (one per pair of classes), majority vote</td><td>ambiguous regions, many classifiers</td></tr>
+<tr><td><b>Single K-class discriminant</b></td><td>K linear functions y<sub>k</sub>(x) = w<sub>k</sub>ᵀx + w<sub>k0</sub>; assign to C<sub>k</sub> if y<sub>k</sub>(x) &gt; y<sub>j</sub>(x) for all j ≠ k</td><td>none: no ambiguity</td></tr></table></div>
+<p><b>Boundary between classes k and j:</b> y<sub>k</sub>(x) = y<sub>j</sub>(x) ⇒ <code>(w<sub>k</sub> − w<sub>j</sub>)ᵀx + (w<sub>k0</sub> − w<sub>j0</sub>) = 0</code>, again a hyperplane.</p>
+<h3>Decision regions are singly connected and convex</h3>
+<p>Take x<sub>A</sub>, x<sub>B</sub> both in region R<sub>k</sub>, and any point on the segment between them, x̂ = λx<sub>A</sub> + (1 − λ)x<sub>B</sub>, 0 ≤ λ ≤ 1. Because y<sub>k</sub> is linear, y<sub>k</sub>(x̂) = λy<sub>k</sub>(x<sub>A</sub>) + (1 − λ)y<sub>k</sub>(x<sub>B</sub>). Since y<sub>k</sub> beats every y<sub>j</sub> at both ends, the weighted average also beats the same weighted average of y<sub>j</sub>: y<sub>k</sub>(x̂) &gt; y<sub>j</sub>(x̂). So x̂ ∈ R<sub>k</sub>: the region is convex.</p>
+<h3>Slide example: find the boundaries</h3>
+<div class="f">y₁ = 2x₁ + x₂ + 1,   y₂ = x₁ + 3x₂ − 2,   y₃ = −x₁ + 4
+1 vs 2: y₁ − y₂ = x₁ − 2x₂ + 3 = 0
+1 vs 3: y₁ − y₃ = 3x₁ + x₂ − 3 = 0
+2 vs 3: y₂ − y₃ = 2x₁ + 3x₂ − 6 = 0
+the three lines meet at (3/7, 12/7) ≈ (0.43, 1.71)</div>
+<p>Matrix form (slide): with the augmented input x̃ = (1, x₁, x₂)ᵀ and W̃ whose k-th column is (w<sub>k0</sub>, w<sub>k</sub>), the score vector is y(x) = W̃ᵀx̃. Example: columns (1,2,0), (0,1,2), (−1,0,1) and x = (2,3): y = (1+4, 2+6, −1+3) = (5, 8, 2), so class 2.</p>
+
+<h2 id="ls">3. Least-squares classification</h2>
+<p>Treat classification as regression onto a target vector. Each class has its own linear model y<sub>k</sub>(x) = w<sub>k</sub>ᵀx + w<sub>k0</sub>; targets use 1-of-K coding (t<sub>n</sub> has a 1 for the true class, 0 elsewhere). For N samples stack the augmented inputs as rows of X̃ (N × (D+1)) and the targets as rows of T (N × K).</p>
+<div class="f">single sample:   y(x) = W̃ᵀx̃                 batch:  Y = X̃W̃    (N×(D+1))·((D+1)×K) = N×K
+error:  E(W̃) = ½ Tr{ (X̃W̃ − T)ᵀ(X̃W̃ − T) } = ½ Σₙ Σₖ (y_nk − t_nk)²</div>
+<p>(Tr = sum of the diagonal entries, which adds up all squared residuals; the ½ cancels the 2 when differentiating.)</p>
+<h3>Closed-form solution</h3>
+<div class="f">expand:  E = ½ Tr{ W̃ᵀX̃ᵀX̃W̃ − W̃ᵀX̃ᵀT − TᵀX̃W̃ + TᵀT }
+∂E/∂W̃ = X̃ᵀX̃W̃ − X̃ᵀT = 0
+W̃ = (X̃ᵀX̃)⁻¹X̃ᵀT = X̃†T          X̃† = pseudo-inverse (Moore–Penrose)
+prediction:  y(x) = W̃ᵀx̃ = Tᵀ(X̃†)ᵀ x̃        assign the class with the largest y_k</div>
+<p>The pseudo-inverse generalises the inverse to non-square or singular matrices.</p>
+<h3>Slide example: three fruits</h3>
+<p>W̃ has columns Apple, Banana, Cherry, first row = biases: [[−2, 0, 4], [1, 2, −1], [0.5, −1, 3]]. Fruit 1 (weight 5, sweetness 8) has x̃ = (1,5,8): scores (7, 2, 23) → Cherry. Fruit 2 (3, 2) has x̃ = (1,3,2): scores (2, 4, 7) → also Cherry. In batch form Y = X̃W̃ gives both rows at once: [[7,2,23],[2,4,7]].</p>
+<div class="warn"><b>Weaknesses of least squares:</b> it punishes points that are <i>too correct</i> (far on the right side) as much as errors, so a few outliers drag the boundary; it assumes Gaussian-like errors but targets are binary; it needs the whole X̃ in memory and a matrix inverse.</div>
+
+<h2 id="perc">4. The perceptron</h2>
+<div class="f">y(x) = f(wᵀφ(x)),     f(a) = +1 if a ≥ 0, −1 if a &lt; 0         (step activation)</div>
+<p>φ(x) is a fixed feature vector (usually containing a constant φ₀ = 1 so w₀ is the bias). Targets are t<sub>n</sub> ∈ {−1, +1}.</p>
+<h3>The ±1 trick</h3>
+<p>We want wᵀφ<sub>n</sub> &gt; 0 for class +1 and wᵀφ<sub>n</sub> &lt; 0 for class −1. Multiplying by the label folds both into one rule:</p>
+<div class="f">point n is correct  ⇔  wᵀφ_n t_n > 0              misclassified  ⇔  wᵀφ_n t_n ≤ 0</div>
+<p class="note">Slides say "&gt; 0" for correct. In hand calculations count a score of exactly 0 as a mistake; otherwise w = 0 would never move.</p>
+<h3>Perceptron criterion</h3>
+<p>Let M be the set of misclassified points. Their wᵀφ<sub>n</sub>t<sub>n</sub> are ≤ 0, so negating gives a positive error that is 0 when nothing is misclassified:</p>
+<div class="f">E_P(w) = − Σ_{n ∈ M} wᵀφ_n t_n  ≥ 0         ∇E_P(w) = − Σ_{n ∈ M} φ_n t_n</div>
+<p>(We do not use "number of misclassified points": it is piecewise constant, so its gradient is 0 almost everywhere.) Gradient descent, w ← w − η∇E_P, gives:</p>
+<div class="f">batch:         w ← w + η Σ_{n ∈ M} φ_n t_n          (all current mistakes at once)
+single sample: w ← w + η φ_n t_n                     (for one mistake n, checked in turn)</div>
+<ul>
+<li><b>Meaning:</b> a misclassified positive pulls w <i>towards</i> φ<sub>n</sub>; a misclassified negative pushes w <i>away</i> from φ<sub>n</sub>.</li>
+<li><b>Which to use:</b> batch when data are small and you want stable convergence tracking; single-sample (stochastic) when data are massive or streaming.</li>
+</ul>
+<h3>Why does the update help?</h3>
+<p>For a misclassified n, the old error is −w<sub>old</sub>ᵀφ<sub>n</sub>t<sub>n</sub> ≥ 0. After w<sub>new</sub> = w<sub>old</sub> + ηφ<sub>n</sub>t<sub>n</sub>:</p>
+<div class="f">new error = −(w_old + ηφ_n t_n)ᵀ φ_n t_n = −w_oldᵀφ_n t_n − η (t_n)² ‖φ_n‖² = old error − η‖φ_n‖²</div>
+<p>(t² = 1.) The error of <b>that point</b> drops by the strictly positive η‖φ<sub>n</sub>‖². The update may break other points, so convergence needs the argument in §6.</p>
+<h3>Learning rate and starting point</h3>
+<p>If w starts at 0, every w is η times an integer combination of the φ's, so η only <b>rescales</b> w and the decision boundary (and sequence of mistakes) is unchanged. With a non-zero start (e.g. 0.5 everywhere in an exam), η does matter. The final w also depends on the <b>order</b> in which points are visited and on the start: there is no unique perceptron solution.</p>
+
+<h3>Worked example (slide): three points, single-sample updates, η = 1</h3>
+<p>(2,3) class +1, (3,2) class +1, (1,1) class −1. With bias, φ = (1, x₁, x₂). Start w = (−2.5, 1, 0): boundary x₁ = 2.5, so (2,3) is on the wrong side.</p>
+<div class="tw"><table><tr><th>Step</th><th>Point</th><th>Score wᵀφ</th><th>Verdict</th><th>New w</th></tr>
+<tr><td>1</td><td>(2,3), t=+1</td><td>−2.5 + 2 + 0 = −0.5</td><td>mistake</td><td>w + φ = (−1.5, 3, 3)</td></tr>
+<tr><td>2</td><td>(3,2), t=+1</td><td>−1.5 + 9 + 6 = 13.5</td><td>correct</td><td>unchanged</td></tr>
+<tr><td>3</td><td>(1,1), t=−1</td><td>−1.5 + 3 + 3 = 4.5</td><td>mistake</td><td>w − φ = (−2.5, 2, 2)</td></tr>
+<tr><td>4–5</td><td>(2,3), (3,2)</td><td>7.5, 7.5</td><td>correct</td><td>unchanged</td></tr>
+<tr><td>6</td><td>(1,1), t=−1</td><td>−2.5 + 2 + 2 = 1.5</td><td>mistake</td><td>w − φ = (−3.5, 1, 1)</td></tr>
+<tr><td>7–9</td><td>all three</td><td>1.5, 1.5, −1.5</td><td>all correct</td><td>stop</td></tr></table></div>
+<p>Final w = (−3.5, 1, 1): boundary x₁ + x₂ = 3.5 (slope −1, intercept 3.5), three updates. The <b>batch</b> rule reaches the same w (updating on the set of mistakes each epoch). Starting from w = 0 instead takes 19 updates and ends at (−7, 1, 3): a different, valid separator.</p>
+
+<h2 id="demo">5. Step through it</h2>
+<div class="wid">
+<p style="margin:0 0 6px"><b>Perceptron stepper:</b> the three points above, single-sample rule, η = 1. Blue squares are class +1, the orange circle is class −1. Press <i>Step</i> to test the next point.</p>
+<svg id="pl" viewBox="0 0 300 300" role="img" aria-label="Perceptron decision line and three points">
+ <defs><clipPath id="cp"><rect x="30" y="30" width="240" height="240"/></clipPath></defs>
+ <rect x="30" y="30" width="240" height="240" fill="none" stroke="var(--line)"/>
+ <text x="272" y="284">x₁</text><text x="12" y="34">x₂</text>
+ <line id="ln" clip-path="url(#cp)" stroke="var(--ac)" stroke-width="2.5" x1="0" y1="0" x2="0" y2="0"/>
+ <rect x="119" y="119" width="14" height="14" fill="var(--ac2)"/><rect x="167" y="167" width="14" height="14" fill="var(--ac2)"/>
+ <circle id="neg" cx="78" cy="222" r="8" fill="none" stroke="var(--warn)" stroke-width="2.5"/>
+ <circle id="cur" r="14" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3" cx="0" cy="0"/>
+</svg>
+<div><button id="st">Step</button><button id="rs">Reset</button></div>
+<div id="lg" aria-live="polite"></div>
+</div>
+
+<h2 id="conv">6. Convergence theorem (proof)</h2>
+<p><b>Claim:</b> if the training data are linearly separable, the perceptron algorithm stops after a finite number of updates (Novikoff).</p>
+<p><b>Setup.</b> Replace each sample of class −1 by its negative (φ<sub>n</sub> ← t<sub>n</sub>φ<sub>n</sub>), so a solution means ŵᵀφ<sub>n</sub> &gt; 0 for all n. Separability means such a unit vector ŵ (‖ŵ‖ = 1) exists. Define the margin γ = min<sub>n</sub> ŵᵀφ<sub>n</sub> &gt; 0 and R = max<sub>n</sub> ‖φ<sub>n</sub>‖. Start at w₀ = 0; after k updates the weight is w<sub>k</sub>, and each update adds a misclassified sample (w<sub>k</sub>ᵀφ ≤ 0): w<sub>k+1</sub> = w<sub>k</sub> + φ.</p>
+<ol>
+<li><b>Lower bound (w grows in the good direction).</b> ŵᵀw<sub>k+1</sub> = ŵᵀw<sub>k</sub> + ŵᵀφ ≥ ŵᵀw<sub>k</sub> + γ. After k updates ŵᵀw<sub>k</sub> ≥ kγ. By Cauchy–Schwarz, ‖w<sub>k</sub>‖ ≥ ŵᵀw<sub>k</sub> ≥ kγ.</li>
+<li><b>Upper bound (w cannot grow too fast).</b> ‖w<sub>k+1</sub>‖² = ‖w<sub>k</sub>‖² + 2w<sub>k</sub>ᵀφ + ‖φ‖² ≤ ‖w<sub>k</sub>‖² + R², because w<sub>k</sub>ᵀφ ≤ 0 for a mistake. So ‖w<sub>k</sub>‖² ≤ kR².</li>
+<li><b>Combine.</b> k²γ² ≤ ‖w<sub>k</sub>‖² ≤ kR², hence <b>k ≤ R²/γ²</b>. The number of updates is finite, so the algorithm halts at a solution.</li>
+</ol>
+<p><b>Check on the example:</b> with the bias dimension, R = ‖(1,3,2)‖ = √14 ≈ 3.74 and the best unit separator has γ ≈ 0.40, so the bound is R²/γ² ≈ 89 updates. Actual: 19 from w = 0. The bound is loose but finite. A larger margin (easier data) means fewer updates.</p>
+<div class="warn">If the data are <b>not</b> linearly separable, the weights never stop changing (they can cycle forever), so use a maximum number of epochs or a different method (soft-margin SVM, logistic regression).</div>
+
+<h2 id="lim">7. Limits: XOR, and why φ(x)</h2>
+<p><b>XOR.</b> Points (0,0) and (1,1) in one class, (0,1) and (1,0) in the other. No line separates them (a line cannot put two diagonally opposite points on one side and the other two on the other). Running the perceptron on XOR (checked in code) returns to w = (0,0,0) after two epochs, so it cycles forever. This famous failure (Minsky &amp; Papert, 1969) helped trigger the first "AI winter".</p>
+<p><b>Fix: choose a better feature vector φ(x).</b> Add the product feature x₁x₂, and XOR becomes separable (the perceptron converges, e.g. to w = (−1, 2, 2, −5): (0,0) → −1, (0,1) → +1, (1,0) → +1, (1,1) → −2 ✓).</p>
+<p><b>Slide example (1-D):</b> x = −2 (class −1), x = 0 (+1), x = 2 (−1). No threshold on x separates them. Map φ(x) = (x, x²): the points become (−2,4), (0,0), (2,4), and the line x² = 2 separates them (e.g. w = (1, 2, −4) on (1, x, x²) works).</p>
+<p><b>Other weaknesses:</b> the solution is not unique and has no margin (a separator hugging one class is accepted), outputs are hard labels without probabilities, and φ must be designed by hand. These are exactly what the <b>SVM</b> fixes (maximum margin, kernels).</p>
+
+<h2 id="cmp">8. Least squares vs perceptron (slides)</h2>
+<div class="tw"><table><tr><th></th><th>Least squares</th><th>Perceptron</th></tr>
+<tr><td>Learning approach</td><td>analytical (one shot), all weights by matrix inversion</td><td>iterative, one error at a time</td></tr>
+<tr><td>Loss</td><td>squared error</td><td>perceptron criterion</td></tr>
+<tr><td>Outlier sensitivity</td><td>high</td><td>low</td></tr>
+<tr><td>Data handling</td><td>batch: whole design matrix X in memory</td><td>online: can learn from streaming data</td></tr>
+<tr><td>Cost</td><td>high for large data</td><td>low per step</td></tr>
+<tr><td>Use when</td><td>small/medium data, no extreme outliers, want an instant closed form</td><td>massive or streaming data, separable data, avoid matrix inversion</td></tr></table></div>
+<p><b>History (slides):</b> Rosenblatt, a psychologist, proposed it in 1957 (biologically inspired); the Mark I Perceptron machine and big hype followed in 1958; Minsky's XOR critique in 1969 led to the first AI winter; the multilayer revival came with the 1986 back-propagation paper (Rumelhart, Hinton, Williams); then AlexNet (2012), Transformers (2017) and large language models.</p>
+
+<h2 id="ex">9. Exam kit</h2>
+<div class="tip"><b>Perceptron calculations come up almost every year:</b> F24 (batch), S24 (fixed-increment, single sample), F23 and F22 (batch with φ and non-zero start), plus the convergence proof (S24, S23, F22). Results of the papers' numbers:
+<ul>
+<li><b>F24:</b> (1,2)+, (4,3)+, (3,−1)−, (−2,−2)−, w = [0,0], η = 1, batch: iteration 1 gives w = (4,8); iteration 2 (only (3,−1) wrong) gives (1,9); no more errors. <b>w = (1,9).</b></li>
+<li><b>S24:</b> (2,1)+, (3,4)+, (−1,3)−, (−2,−3)−, single sample from [0,0]: (2,1) → (3,−2) → (5,1); epoch 2 clean. <b>w = (5,1).</b></li>
+<li><b>F23/F22:</b> φ = [x₁³, x₂³, x₁+x₂, x₁x₂], w = 0.5 each, ω₁ = (4,3),(2,3), ω₂ = (6,1),(−1,−4), batch: after iteration 1, w = (−215.5, −0.5, −6.5, −5.5); after iteration 2, w = (−142.5, 117.5, 10.5, 8.5); keep iterating until no mistakes.</li>
+</ul>
+Method every time: write each φ with its label, compute every score wᵀφ·t, collect the mistakes, update, repeat until none.</div>
+<h3>Common mistakes</h3>
+<ul>
+<li>Using the wrong sign for class −1 points: subtract φ (w ← w − ηφ) when a negative point is misclassified, add when a positive one is.</li>
+<li>Forgetting the bias component (φ₀ = 1) when the question gives it or the plane must not pass through the origin.</li>
+<li>In batch mode, updating after each point instead of using all mistakes of the epoch together (or the reverse in single-sample mode).</li>
+<li>Declaring convergence before a full clean pass over all points.</li>
+<li>Treating a score of exactly 0 as correct.</li>
+<li>In proofs: forgetting that w<sub>k</sub>ᵀφ ≤ 0 for a mistake (needed for the upper bound), or that the data have been sign-normalised.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Boundary 3x₁ + 4x₂ − 10 = 0. Distance of (4,3) from it, and of the origin?</summary><div>‖w‖ = 5. y(4,3) = 12 + 12 − 10 = 14, so r = 14/5 = 2.8 (positive side). Origin: |−10|/5 = 2, on the negative side.</div></details>
+<details><summary>2. Why can the perceptron not learn XOR, and what fixes it?</summary><div>XOR is not linearly separable in (x₁,x₂). Add a feature such as x₁x₂ (a non-linear φ) or use a multilayer network or a kernel method.</div></details>
+<details><summary>3. A positive point φ = (1,2,3) with w = (−4, 0, 1) and η = 1. Is it misclassified? Update, and find the new score.</summary><div>Score = −4 + 0 + 3 = −1 ≤ 0, so yes. New w = w + φ = (−3, 2, 4); new score = −3 + 4 + 12 = 13. The score rises by η‖φ‖² = 1 + 4 + 9 = 14.</div></details>
+<details><summary>4. Starting from w = 0, does changing η from 1 to 5 change the final boundary?</summary><div>No. w is scaled by 5 but the sign of every score and the sequence of mistakes are unchanged.</div></details>
+<details><summary>5. Why is the number of misclassified points not used as the error function?</summary><div>It is piecewise constant, so its gradient is zero almost everywhere and gradient descent cannot move. The perceptron criterion is piecewise linear in w and has a useful gradient.</div></details>
+<details><summary>6. State the convergence bound and what makes it small.</summary><div>Updates k ≤ R²/γ², with R the largest ‖φ‖ and γ the margin of the best separator. A larger margin or smaller data radius means fewer updates.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c2">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+var P=[[1,2,3],[1,3,2],[1,1,1]],T=[1,1,-1],W0=[-2.5,1,0],w,i,ok,log=document.getElementById('lg');
+function X(x){return 30+x*48}function Y(y){return 270-y*48}
+function fmt(a){return '('+a.map(function(v){return +v.toFixed(2)}).join(', ')+')'}
+function draw(){
+ var l=document.getElementById('ln'),a,b,c,d;
+ if(Math.abs(w[2])>1e-9){a=-1;b=-(w[0]+w[1]*a)/w[2];c=6;d=-(w[0]+w[1]*c)/w[2]}
+ else if(Math.abs(w[1])>1e-9){a=c=-w[0]/w[1];b=-1;d=6}else{a=b=c=d=0}
+ l.setAttribute('x1',X(a));l.setAttribute('y1',Y(b));l.setAttribute('x2',X(c));l.setAttribute('y2',Y(d));
+ var p=P[i];var cu=document.getElementById('cur');cu.setAttribute('cx',X(p[1]));cu.setAttribute('cy',Y(p[2]))}
+function add(s){var d=document.createElement('div');d.textContent=s;log.appendChild(d);log.scrollTop=log.scrollHeight}
+function reset(){w=W0.slice();i=0;ok=0;log.textContent='';add('Start: w = '+fmt(w)+'  (line: '+w[0]+' + '+w[1]+'x1 + '+w[2]+'x2 = 0)');draw()}
+function step(){
+ if(ok>=3){add('Done: all three points correct. Final w = '+fmt(w));return}
+ var p=P[i],s=w[0]*p[0]+w[1]*p[1]+w[2]*p[2],m=T[i]*s<=0,k=i+1;
+ var msg='Point '+k+' ('+p[1]+','+p[2]+') t='+(T[i]>0?'+1':'-1')+': score = '+(+s.toFixed(2));
+ if(m){w=w.map(function(v,j){return v+T[i]*p[j]});ok=0;msg+='  MISTAKE, new w = '+fmt(w)}
+ else{ok++;msg+='  correct'}
+ add(msg);i=(i+1)%3;draw();
+ if(ok>=3)add('A full clean pass: converged. Final w = '+fmt(w)+'  (boundary x1 + x2 = 3.5)')}
+document.getElementById('st').onclick=step;document.getElementById('rs').onclick=reset;reset();
+})();
+</script>
+</body>
+</html>

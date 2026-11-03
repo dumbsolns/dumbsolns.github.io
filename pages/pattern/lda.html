@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Linear Discriminant Analysis (LDA)</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:440px;height:auto;display:block;margin:6px auto;background:var(--code);border-radius:8px}
+.wid svg text{fill:var(--ink);font:11px system-ui,sans-serif}
+.wid label{display:block;font-size:.92rem;margin:8px 0 0}
+.wid input[type=range]{width:100%}
+.wid button{font:inherit;font-size:14px;padding:6px 12px;margin:8px 6px 0 0;border:1px solid var(--ac);background:var(--card);color:var(--ac);border-radius:8px;cursor:pointer}
+.wid button:hover{background:var(--ac);color:var(--bg)}
+#rd{font:.86rem/1.55 ui-monospace,Menlo,Consolas,monospace;margin-top:6px}
+.key span{display:inline-block;margin-right:12px;font-size:.88rem}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c7">← Summary (ch. 7)</a></div>
+ <nav aria-label="Sections"><a href="#obj">Objective</a><a href="#fisher">Fisher criterion</a><a href="#solve">Solving</a><a href="#eg">Worked example</a><a href="#demo">Widget</a><a href="#multi">C classes</a><a href="#pca">PCA vs LDA</a><a href="#lim">Limits</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Linear discriminant analysis (Fisher LDA): deep dive</h1>
+<p class="lead">Dimensionality reduction that keeps what separates the classes: the Fisher criterion, its derivation, the eigenvalue solution, the slide's full worked example, an interactive projection explorer, and exactly when LDA fails.</p>
+<div class="bk"><b>Read:</b> Bishop, <i>PRML</i>: §4.1.4 "Fisher's linear discriminant", §4.1.5 "Relation to least squares", §4.1.6 "Fisher's discriminant for multiple classes". Duda, Hart &amp; Stork, Ch. 3 §3.8 "Component Analysis and Discriminants": §3.8.2 "Fisher Linear Discriminant", §3.8.3 "Multiple Discriminant Analysis". Original: R. A. Fisher (1936), "The use of multiple measurements in taxonomic problems". Slide source: Elhabian &amp; Farag (CVIP Lab), "A Tutorial on Data Reduction: Linear Discriminant Analysis".</div>
+
+<h2 id="obj">1. Objective: reduce dimension, but keep the class information</h2>
+<p><b>Recall PCA:</b> centre the data, take the covariance matrix, keep the eigenvectors with the largest eigenvalues. PCA keeps maximum <b>variance</b> and never looks at class labels, so the discrimination power is not considered (it re-expresses the data to remove redundancy and noise).</p>
+<p><b>LDA:</b> the goal is still dimensionality reduction, but we want to preserve as much of the <b>class discriminatory information</b> as possible. Setup: C classes (sea bass, tuna, salmon…), class ω<sub>i</sub> has N<sub>i</sub> samples that are m-dimensional. We seek a transformation Y = WᵀX that projects the samples onto a hyperplane of dimension <b>C − 1</b>. For two classes that is a <b>line</b>: each sample becomes a single number y = wᵀx.</p>
+<p>The question is which line. The same two classes can be badly mixed on one line and cleanly split on another (slides: "this line succeeded in separating the two classes"; another line leaves them overlapped). We need a number J(w) that measures how well a direction separates the classes, then maximise it.</p>
+
+<h2 id="fisher">2. The Fisher criterion</h2>
+<h3>Step 1: projected class means</h3>
+<p>Class means in x-space: μ<sub>i</sub> = (1/N<sub>i</sub>) Σ<sub>x∈ω<sub>i</sub></sub> x. After projecting y = wᵀx the mean of class i is <code>μ̃<sub>i</sub> = wᵀμ<sub>i</sub></code>. A first idea is to maximise the distance between projected means, |μ̃₁ − μ̃₂| = |wᵀ(μ₁ − μ₂)|.</p>
+<div class="warn"><b>Why this is not enough:</b> it ignores the spread inside each class. The axis with the <i>larger distance between means</i> can still have heavily overlapping classes, while another axis with a smaller distance but tight classes separates them better. (It is also unbounded: scaling w scales the distance. Fisher's J is scale-invariant.)</div>
+<h3>Step 2: scatter within the projected classes</h3>
+<p>Fisher's idea: maximise the difference between the means <b>normalised by the within-class variability</b>, the <b>scatter</b>, which is the variance-like quantity</p>
+<div class="f">s̃_i² = Σ_{y ∈ class i} (y − μ̃_i)²          s̃₁² + s̃₂² = within-class scatter of the projected samples
+J(w) = (μ̃₁ − μ̃₂)² / (s̃₁² + s̃₂²)</div>
+<p>We want projections where samples of the same class are very close and the projected means are far apart: J large.</p>
+<h3>Step 3: write J as an explicit function of w</h3>
+<p>Define the scatter (covariance) matrices in x-space:</p>
+<div class="f">S_i = Σ_{x ∈ ω_i} (x − μ_i)(x − μ_i)ᵀ        S_W = S₁ + S₂     (within-class scatter matrix)
+S_B = (μ₁ − μ₂)(μ₁ − μ₂)ᵀ                    (between-class scatter matrix)</div>
+<p>Then</p>
+<div class="f">s̃_i² = Σ (wᵀx − wᵀμ_i)² = Σ wᵀ(x − μ_i)(x − μ_i)ᵀw = wᵀ S_i w
+s̃₁² + s̃₂² = wᵀ(S₁ + S₂)w = wᵀ S_W w
+(μ̃₁ − μ̃₂)² = (wᵀμ₁ − wᵀμ₂)² = wᵀ(μ₁ − μ₂)(μ₁ − μ₂)ᵀw = wᵀ S_B w
+
+J(w) = wᵀ S_B w / wᵀ S_W w</div>
+<p>S_B is an outer product of one vector, so <b>rank(S_B) ≤ 1</b>. J is a "Rayleigh quotient": scaling w by any constant leaves it unchanged, so only the <b>direction</b> of w matters.</p>
+
+<h2 id="solve">3. Maximising J: the eigenvalue problem</h2>
+<p>Differentiate the quotient and set it to zero:</p>
+<div class="f">d/dw [ wᵀS_Bw / wᵀS_Ww ] = 0
+⇒ (wᵀS_Ww)·2S_Bw − (wᵀS_Bw)·2S_Ww = 0
+divide by 2 wᵀS_Ww:   S_Bw − J(w)·S_Ww = 0
+multiply by S_W⁻¹:    S_W⁻¹S_B w = J w = λ w</div>
+<p>So w is an <b>eigenvector of S_W⁻¹S_B</b> and the eigenvalue is exactly the achieved J: <b>the optimal projection is the eigenvector with the largest eigenvalue</b> (maximum λ = J(w)).</p>
+<p><b>Equivalent constrained form</b> (handwritten slides): maximise wᵀS_Bw subject to wᵀS_Ww = 1 (the constraint removes the scale freedom). Lagrangian L = wᵀS_Bw − λ(wᵀS_Ww − 1); ∂L/∂w = 2S_Bw − 2λS_Ww = 0 gives S_Bw = λS_Ww, then multiplying by S_W⁻¹ gives the same eigenproblem. Think of it as: Goal 1, maximise the distance of the projected means (wᵀS_Bw); Goal 2, minimise the within-class variance (wᵀS_Ww).</p>
+<h3>Shortcut for two classes</h3>
+<p>Since S_B = (μ₁ − μ₂)(μ₁ − μ₂)ᵀ, the vector S_Bw = (μ₁ − μ₂)·c, where c = (μ₁ − μ₂)ᵀw is just a number. So S_Bw = λS_Ww means S_Ww = (c/λ)(μ₁ − μ₂), hence</p>
+<div class="f">w* ∝ S_W⁻¹ (μ₁ − μ₂)           (no eigen-decomposition needed)</div>
+<p>Rank(S_B) = 1 also means S_W⁻¹S_B has only <b>one nonzero eigenvalue</b>; the other is 0 (the slide shows 8.9×10⁻¹⁶, numerical zero). Its eigenvector is the worst projection direction (J = 0).</p>
+<p>Name note (slides): this is called "Fisher's linear discriminant", although it is not a discriminant by itself but a specific choice of direction onto which to project the data. To classify you still pick a threshold on y.</p>
+
+<h2 id="eg">4. Worked example (the slide's dataset)</h2>
+<p>ω₁: (4,2), (2,4), (2,3), (3,6), (4,4). ω₂: (9,10), (6,8), (9,5), (8,7), (10,8). The slides use covariance matrices (division by N − 1 = 4).</p>
+<ol>
+<li><b>Means:</b> μ₁ = (3, 3.8), μ₂ = (8.4, 7.6).</li>
+<li><b>Class covariances:</b> S₁ = [[1, −0.25], [−0.25, 2.2]], S₂ = [[2.3, −0.05], [−0.05, 3.3]].</li>
+<li><b>Within-class:</b> S_W = S₁ + S₂ = [[3.3, −0.3], [−0.3, 5.5]].</li>
+<li><b>Between-class:</b> μ₁ − μ₂ = (−5.4, −3.8), S_B = [[29.16, 20.52], [20.52, 14.44]].</li>
+<li><b>Inverse:</b> det S_W = 3.3·5.5 − 0.09 = 18.06; S_W⁻¹ = [[0.3045, 0.0166], [0.0166, 0.1827]].</li>
+<li><b>Matrix:</b> S_W⁻¹S_B = [[9.2213, 6.489], [4.2339, 2.9794]].</li>
+<li><b>Eigenvalues:</b> det(S_W⁻¹S_B − λI) = (9.2213 − λ)(2.9794 − λ) − 6.489·4.2339 = λ² − 12.2007λ = 0 ⇒ λ₁ = 0, λ₂ = 12.2007. (The determinant is 0 because rank is 1; the trace 9.2213 + 2.9794 = 12.2007 is the nonzero eigenvalue.)</li>
+<li><b>Eigenvectors:</b> for λ₁ = 0: w₁ = (−0.5755, 0.8178) (bad: leads to poor separability). For λ₂ = 12.2007: <b>w* = (0.9088, 0.4173)</b> (good separability).</li>
+</ol>
+<p><b>Check with the shortcut:</b> S_W⁻¹(μ₁ − μ₂) = (−1.707, −0.784); its length is 1.878, so the unit vector is (−0.909, −0.417) = −w*, the same direction (sign is arbitrary).</p>
+<h3>The projection</h3>
+<div class="f">y = 0.9088 x₁ + 0.4173 x₂
+ω₁ → 4.47, 3.49, 3.07, 5.23, 5.30         projected mean 4.31
+ω₂ → 12.35, 8.79, 10.27, 10.19, 12.43     projected mean 10.80</div>
+<p>The classes are cleanly separated (largest ω₁ value 5.30 &lt; smallest ω₂ value 8.79). Any threshold in between works; for equal priors take the midpoint of the projected means: (4.31 + 10.80)/2 = 7.56. Classify a new point by comparing y with 7.56: (5,5) → y = 6.63 → ω₁; (7,7) → y = 9.28 → ω₂.</p>
+<p><b>Compare with PCA on the same data:</b> PCA's first direction is (0.797, 0.605) (37.2°); LDA's is (0.909, 0.417) (24.7°). J at the PCA direction is 11.41 against LDA's 12.20. With these well-separated classes the loss is small; the next sections show cases where PCA is far worse.</p>
+<h3>Scatter versus covariance</h3>
+<p>If you use raw scatter matrices (no division by N − 1), S_W is four times bigger here and the eigenvalue becomes 12.2007/4 = 3.05; <b>w is unchanged</b>. State which convention you use. The largest eigenvalue is only the value of J, so it depends on the convention; the direction does not (for equal class sizes).</p>
+
+<h2 id="demo">Widget: rotate the projection line</h2>
+<div class="wid">
+<p style="margin:0 0 4px"><b>Explore J(θ).</b> Blue squares are ω₁, orange circles ω₂, using the dataset above. Rotate the projection line; the thin segments show where each point lands. The strip underneath shows the 1-D result.</p>
+<svg id="sc" viewBox="0 0 320 300" role="img" aria-label="Scatter plot with a rotating projection line">
+ <defs><clipPath id="cl"><rect x="30" y="20" width="270" height="260"/></clipPath></defs>
+ <rect x="30" y="20" width="270" height="260" fill="none" stroke="var(--line)"/>
+ <text x="302" y="294">x₁</text><text x="8" y="26">x₂</text>
+ <g id="fe" clip-path="url(#cl)"></g>
+ <line id="ln" clip-path="url(#cl)" stroke="var(--ac)" stroke-width="2.5" x1="0" y1="0" x2="0" y2="0"/>
+ <g id="pt"></g>
+</svg>
+<svg id="st" viewBox="0 0 440 80" role="img" aria-label="Projected values along the line">
+ <line x1="10" y1="62" x2="430" y2="62" stroke="var(--mute)"/>
+ <g id="pr"></g>
+</svg>
+<div class="key"><span style="color:var(--ac2)">■ ω₁</span><span style="color:var(--warn)">● ω₂</span><span>ticks = class means after projection</span></div>
+<label>Projection angle θ = <b id="av">25</b>°<input id="ang" type="range" min="0" max="179" step="1" value="25"></label>
+<button id="bl">Snap to LDA direction</button><button id="bp">Snap to PCA direction</button>
+<div id="rd"></div>
+</div>
+<p class="note">At θ ≈ 25° J reaches its maximum 12.20 (LDA); near θ ≈ 125° J drops to about 0, where the projected means coincide, even though the points are plainly separable in 2-D. J uses the slide's S_W and S_B.</p>
+
+<h2 id="multi">5. More than two classes (C classes)</h2>
+<p class="note">The slide outline lists this part; the lecture slides stop at the C − 1 statement. The standard results are in Duda §3.8.3 and Bishop §4.1.6.</p>
+<div class="f">μ = overall mean = (1/N)Σ x       μ_i = mean of class i,  N_i = its size
+S_W = Σ_i S_i                          S_B = Σ_i N_i (μ_i − μ)(μ_i − μ)ᵀ       S_T = S_W + S_B
+projection  y = Wᵀx  (W has up to C − 1 columns)
+J(W) = |WᵀS_BW| / |WᵀS_WW|       solution: columns of W = leading eigenvectors of S_W⁻¹S_B</div>
+<p><b>Why at most C − 1 projections:</b> S_B is a sum of C rank-one matrices (one per class), but the class mean deviations are linearly dependent, because Σ N_i(μ<sub>i</sub> − μ) = 0. So rank(S_B) ≤ C − 1, and S_W⁻¹S_B has at most C − 1 nonzero eigenvalues. Only those eigenvectors carry class-discriminatory information. Two classes: 1 dimension. Three classes: at most 2. A 100-feature problem with 4 classes reduces to at most 3 dimensions.</p>
+
+<h2 id="pca">6. PCA vs LDA</h2>
+<div class="tw"><table><tr><th></th><th>PCA</th><th>LDA</th></tr>
+<tr><td>Uses class labels?</td><td>no (unsupervised)</td><td>yes (supervised)</td></tr>
+<tr><td>Criterion</td><td>maximise projected variance</td><td>maximise between-class over within-class scatter</td></tr>
+<tr><td>Matrix</td><td>covariance S</td><td>S_W⁻¹S_B</td></tr>
+<tr><td>Max dimensions</td><td>up to original d</td><td>C − 1</td></tr>
+<tr><td>Goal</td><td>compression, noise removal</td><td>class separability</td></tr>
+<tr><td>What they share</td><td colspan="2">both are linear projections y = Wᵀx found from eigenvectors</td></tr></table></div>
+<h3>An example where PCA is the wrong tool</h3>
+<p>Two classes spread widely along x₁ but differing only in x₂: ω₁ = (−4, 1.1), (−2, 0.9), (2, 1.1), (4, 0.9); ω₂ = (−4, −0.9), (−2, −1.1), (2, −0.9), (4, −1.1). Computed in code:</p>
+<ul>
+<li><b>PCA:</b> PC1 ≈ (1, 0) (variance 11.4 against 1.2). Projections: ω₁ → 4.0, 2.0, −2.0, −4.0 and ω₂ → 4.0, 2.0, −2.0, −4.0: the classes are <b>completely mixed</b>. J = 0.00002.</li>
+<li><b>LDA:</b> w ≈ (0.01, 1). Projections: ω₁ → 0.88 to 1.12; ω₂ → −1.12 to −0.88: <b>perfectly separated</b>. J = 166.7.</li>
+</ul>
+<p>The direction of greatest variance is not the direction of best separation. That is why PCA before classification can discard exactly the information you need.</p>
+
+<h2 id="lim">7. Limitations of LDA</h2>
+<ul>
+<li><b>At most C − 1 features.</b> If error estimates show that more features are needed, another method must supply them.</li>
+<li><b>Parametric.</b> It assumes unimodal, roughly Gaussian class distributions (with similar covariance). If the distributions are significantly non-Gaussian, the projections cannot preserve complex structure (several clusters per class, curved classes).</li>
+<li><b>Fails when the information is in the variance, not the mean.</b> If both classes have the same mean (e.g. one tight cluster and one wide cluster around the same centre), μ₁ − μ₂ = 0, so S_B = 0 and J(w) = 0 for every direction. LDA cannot find anything; a different method (e.g. quadratic discriminants, kernels) is required.</li>
+<li><b>Singular S_W.</b> S_W⁻¹ needs S_W invertible. This fails when there are fewer samples than dimensions (the "small sample size" problem) or when all points of each class lie on one line (an exam dataset does this; see §8). Fixes: pseudo-inverse, add εI to S_W, or reduce dimension with PCA first. <i>(Standard remedy, beyond the slides.)</i></li>
+<li><b>Linear only</b> and sensitive to class overlap in the means.</li>
+</ul>
+<div class="tip"><b>Link to Bayesian decision theory (insight, not in the slides):</b> for two Gaussian classes with the <i>same</i> covariance Σ, the Bayes decision boundary's normal vector is Σ⁻¹(μ₁ − μ₂), the same direction as Fisher's w* when S_W ∝ Σ. With equal priors the Bayes threshold is the midpoint of the projected means. So LDA is optimal exactly in the equal-covariance Gaussian case, and the assumptions above are the price of that.</div>
+
+<h2 id="ex">8. Exam kit</h2>
+<div class="tip"><b>Past papers:</b> numerical LDA 2D → 1D appears in S25, F24, S24, S23; "why are PCA and LDA both linear projections / compare them" in S24. Procedure to write in the exam:
+<ol>
+<li>Class means μ₁, μ₂.</li>
+<li>Class scatter (or covariance) matrices S₁, S₂ (show one calculation).</li>
+<li>S_W = S₁ + S₂.</li>
+<li>S_B = (μ₁ − μ₂)(μ₁ − μ₂)ᵀ.</li>
+<li>S_W⁻¹ (2×2: swap the diagonal, negate the off-diagonal, divide by the determinant).</li>
+<li>w* = S_W⁻¹(μ₁ − μ₂), or the eigenvector with the largest eigenvalue of S_W⁻¹S_B (solve λ² − (trace)λ = 0).</li>
+<li>Normalise w and project: y = wᵀx. Show the projected values and comment on separation.</li>
+</ol></div>
+<h3>Past dataset: S25 and F24</h3>
+<p>Class 0: (1,2), (3,1); class 1: (6,5), (8,7).</p>
+<div class="f">μ₁ = (2, 1.5), μ₂ = (7, 6)       S₁ = [[2,−1],[−1,0.5]], S₂ = [[2,2],[2,2]]
+S_W = [[4,1],[1,2.5]]  (det 9)    S_W⁻¹ = (1/9)[[2.5,−1],[−1,4]]
+w ∝ S_W⁻¹(μ₁ − μ₂) = (1/9)(−8, −13) → unit w = (0.524, 0.852) after flipping sign
+λ_max = (μ₁ − μ₂)ᵀS_W⁻¹(μ₁ − μ₂) = 10.94
+projections: class 0 → 2.23, 2.42; class 1 → 7.40, 10.15</div>
+<h3>Past dataset: S24 (singular S_W)</h3>
+<p>Class 0: (2,3), (3,5); class 1: (5,8), (6,10). Each class lies on a line of slope 2, so S_W = [[1,2],[2,4]] has determinant 0 and no inverse. Say so, then choose w perpendicular to the line direction, w = (2, −1)/√5: every class-0 point projects to 0.447 and every class-1 point to 0.894, so within-class scatter is zero and J → ∞ (perfect separation). Same answer as the limit of S_W + εI as ε → 0.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li>Computing S_B with a sum over samples instead of the single outer product (two-class case), or forgetting its rank is 1.</li>
+<li>Choosing the eigenvector of the <b>smaller</b> eigenvalue: the largest eigenvalue gives the best projection.</li>
+<li>Using S_B⁻¹S_W (inverted the wrong matrix) or inverting S_W incorrectly. Check: S_W S_W⁻¹ = I.</li>
+<li>Mixing scatter and covariance between the two classes. Be consistent.</li>
+<li>Forgetting to normalise w before projecting (the shape of the projection is the same but numbers differ).</li>
+<li>Claiming LDA can give more than C − 1 dimensions.</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Two classes, μ₁ = (2,0), μ₂ = (0,0), S_W = I. What is w*, and the J it gives?</summary><div>w* ∝ S_W⁻¹(μ₁ − μ₂) = (2,0), unit w = (1,0). J = wᵀS_Bw / wᵀS_Ww = 4/1 = 4.</div></details>
+<details><summary>2. With the slide's S_B and S_W, compute J for w = (1,0) and w = (0,1). How do they compare with 12.20?</summary><div>w = (1,0): 29.16/3.3 = 8.84. w = (0,1): 14.44/5.5 = 2.63. Both are lower than the maximum 12.20 at w* = (0.909, 0.417).</div></details>
+<details><summary>3. How many discriminant directions can LDA give for 5 classes in 50 dimensions?</summary><div>At most C − 1 = 4.</div></details>
+<details><summary>4. Why does S_W⁻¹S_B have only one nonzero eigenvalue for two classes?</summary><div>S_B is an outer product, rank 1, so the product has rank at most 1; the nonzero eigenvalue equals trace(S_W⁻¹S_B) = J_max.</div></details>
+<details><summary>5. Two classes share the same mean but differ in variance. What does LDA do?</summary><div>μ₁ = μ₂ gives S_B = 0 and J = 0 for every w; LDA finds no useful direction.</div></details>
+<details><summary>6. Why is maximising the distance between projected means alone a bad criterion?</summary><div>It ignores within-class spread: a direction with a bigger distance can have overlapping classes, and scaling w makes the distance arbitrarily large. Fisher normalises by the within-class scatter.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c7">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+var A=[[4,2],[2,4],[2,3],[3,6],[4,4]],B=[[9,10],[6,8],[9,5],[8,7],[10,8]];
+var Sw=[[3.3,-0.3],[-0.3,5.5]],Sb=[[29.16,20.52],[20.52,14.44]],NS='http://www.w3.org/2000/svg';
+var all=A.concat(B),cx=0,cy=0,i;
+for(i=0;i<10;i++){cx+=all[i][0]/10;cy+=all[i][1]/10}
+var c11=0,c12=0,c22=0;
+for(i=0;i<10;i++){var a=all[i][0]-cx,b=all[i][1]-cy;c11+=a*a;c12+=a*b;c22+=b*b}
+function norm(t){var P=Math.PI;return ((t%P)+P)%P}
+var pcaT=norm(0.5*Math.atan2(2*c12,c11-c22));
+var det=Sw[0][0]*Sw[1][1]-Sw[0][1]*Sw[1][0],d0=-5.4,d1=-3.8;
+var wx=(Sw[1][1]*d0-Sw[0][1]*d1)/det,wy=(-Sw[1][0]*d0+Sw[0][0]*d1)/det,ldaT=norm(Math.atan2(wy,wx));
+function X(x){return 30+x*24}function Y(y){return 280-y*24}
+function el(n,at,par){var e=document.createElementNS(NS,n);for(var k in at)e.setAttribute(k,at[k]);par.appendChild(e);return e}
+var fe=document.getElementById('fe'),pt=document.getElementById('pt'),pr=document.getElementById('pr'),feet=[],dots=[],ticks=[];
+all.forEach(function(p,j){
+ feet.push(el('line',{stroke:'var(--mute)','stroke-width':1,x1:0,y1:0,x2:0,y2:0},fe));
+ if(j<5)el('rect',{x:X(p[0])-5,y:Y(p[1])-5,width:10,height:10,fill:'var(--ac2)'},pt);
+ else el('circle',{cx:X(p[0]),cy:Y(p[1]),r:5.5,fill:'none',stroke:'var(--warn)','stroke-width':2.5},pt);
+ dots.push(j<5?el('rect',{width:9,height:9,fill:'var(--ac2)'},pr):el('circle',{r:5,fill:'none',stroke:'var(--warn)','stroke-width':2.5},pr))});
+ticks.push(el('line',{stroke:'var(--ac2)','stroke-width':3,y1:6,y2:56},pr));ticks.push(el('line',{stroke:'var(--warn)','stroke-width':3,y1:6,y2:56},pr));
+var R=document.getElementById('ang');
+function draw(){
+ var deg=+R.value,t=deg*Math.PI/180,u=[Math.cos(t),Math.sin(t)],J,num,den;
+ num=u[0]*(Sb[0][0]*u[0]+Sb[0][1]*u[1])+u[1]*(Sb[1][0]*u[0]+Sb[1][1]*u[1]);
+ den=u[0]*(Sw[0][0]*u[0]+Sw[0][1]*u[1])+u[1]*(Sw[1][0]*u[0]+Sw[1][1]*u[1]);J=num/den;
+ var ln=document.getElementById('ln');
+ ln.setAttribute('x1',X(cx-12*u[0]));ln.setAttribute('y1',Y(cy-12*u[1]));ln.setAttribute('x2',X(cx+12*u[0]));ln.setAttribute('y2',Y(cy+12*u[1]));
+ var m1=0,m2=0;
+ all.forEach(function(p,j){
+  var s=(p[0]-cx)*u[0]+(p[1]-cy)*u[1],fx=cx+s*u[0],fy=cy+s*u[1];
+  feet[j].setAttribute('x1',X(p[0]));feet[j].setAttribute('y1',Y(p[1]));feet[j].setAttribute('x2',X(fx));feet[j].setAttribute('y2',Y(fy));
+  var px=220+s*22,py=j<5?20:48;
+  if(j<5){dots[j].setAttribute('x',px-4.5);dots[j].setAttribute('y',py-4.5);m1+=s/5}else{dots[j].setAttribute('cx',px);dots[j].setAttribute('cy',py);m2+=s/5}});
+ ticks[0].setAttribute('x1',220+m1*22);ticks[0].setAttribute('x2',220+m1*22);ticks[1].setAttribute('x1',220+m2*22);ticks[1].setAttribute('x2',220+m2*22);
+ document.getElementById('av').textContent=deg;
+ document.getElementById('rd').textContent='theta='+deg+' deg  w=('+u[0].toFixed(3)+', '+u[1].toFixed(3)+')  J='+J.toFixed(2)+'  [w\'SBw='+num.toFixed(2)+', w\'SWw='+den.toFixed(2)+']  LDA at '+(ldaT*180/Math.PI).toFixed(1)+' deg, PCA at '+(pcaT*180/Math.PI).toFixed(1)+' deg'}
+R.oninput=draw;
+document.getElementById('bl').onclick=function(){R.value=Math.round(ldaT*180/Math.PI);draw()};
+document.getElementById('bp').onclick=function(){R.value=Math.round(pcaT*180/Math.PI);draw()};
+draw();
+})();
+</script>
+</body>
+</html>
