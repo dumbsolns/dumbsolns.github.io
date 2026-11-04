@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive: Introduction, Overfitting and the Design Cycle</title>
+<style>
+:root{--bg:#f4f7f9;--card:#fff;--ink:#16222c;--mute:#5a6a77;--line:#d5dee5;--ac:#0b6e73;--ac2:#3a4bb8;--tint:#e3f1f1;--code:#eef2f7;--ok:#1d7a3e;--warn:#a85b00}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#e6edf2;--mute:#9bacb9;--line:#2c3b47;--ac:#4cc3c8;--ac2:#97a5ff;--tint:#16343a;--code:#202c37;--ok:#6fd48f;--warn:#f0b35c}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:auto;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.back{padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:14.5px;white-space:nowrap}
+.back:hover,.back:focus-visible{background:var(--ac);color:var(--bg)}
+nav{max-width:820px;margin:auto;padding:0 14px 8px;display:flex;gap:6px;overflow-x:auto}
+nav a{flex:none;padding:3px 11px;border-radius:99px;background:var(--tint);color:var(--ac);text-decoration:none;font-size:14px}
+main{max-width:820px;margin:auto;padding:18px 14px 60px}
+h1{font:700 1.8rem/1.2 Georgia,serif;margin:.4em 0 .3em}
+h2{font:700 1.35rem/1.25 Georgia,serif;margin:2.2rem 0 .5rem;color:var(--ac);padding-top:.4rem;border-top:1px solid var(--line)}
+h3{font-size:1.03rem;margin:1.2rem 0 .3rem}
+.lead,.note{color:var(--mute)}.note{font-size:.88rem}
+.bk{background:var(--tint);border-left:4px solid var(--ac);padding:7px 12px;margin:.4rem 0 1rem;font-size:.92rem;border-radius:0 6px 6px 0}
+.tip{border-left:4px solid var(--ok);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+.warn{border-left:4px solid var(--warn);background:var(--code);padding:6px 12px;margin:.7rem 0;border-radius:0 6px 6px 0}
+ul,ol{padding-left:1.2rem;margin:.3rem 0}li{margin:.25rem 0}
+.f{background:var(--code);padding:9px 12px;border-radius:6px;margin:.6rem 0;overflow-x:auto;font:.88rem/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:.88em ui-monospace,Menlo,Consolas,monospace}
+.tw{overflow-x:auto;margin:.6rem 0}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--tint)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+summary{cursor:pointer;padding:10px 0;font-weight:600}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+details>div{padding-bottom:10px}
+a:focus-visible,summary:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
+svg{max-width:100%;height:auto;display:block;margin:.6rem auto}
+svg text{fill:var(--ink);font:12px system-ui,sans-serif}
+svg .b{fill:var(--tint);stroke:var(--ac);stroke-width:1.5}
+svg .a{stroke:var(--ac2);stroke-width:2;fill:none}
+.wid{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:1rem 0}
+.wid svg{width:100%;max-width:460px;background:var(--code);border-radius:8px}
+.wid label{display:block;font-size:.92rem;margin:6px 0 0}
+.wid input[type=range]{width:100%}
+.wid button{font:inherit;font-size:14px;padding:6px 12px;margin:8px 6px 0 0;border:1px solid var(--ac);background:var(--card);color:var(--ac);border-radius:8px;cursor:pointer}
+.wid button:hover{background:var(--ac);color:var(--bg)}
+#rd{font:.86rem/1.6 ui-monospace,Menlo,Consolas,monospace;margin-top:6px;white-space:pre-wrap}
+.key span{display:inline-block;margin-right:12px;font-size:.88rem}
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:2rem}
+.links a{padding:8px 14px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600}
+@media(max-width:520px){h1{font-size:1.5rem}body{font-size:15.5px}details{padding:0 11px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="bar"><a class="back" href="/">← Home</a><a class="back" href="../pattern-summary.html#c1">← Summary (ch. 1)</a></div>
+ <nav aria-label="Sections"><a href="#what">What is PR</a><a href="#repr">Features</a><a href="#fish">Fish example</a><a href="#over">Overfitting</a><a href="#demo">Widget</a><a href="#sys">System</a><a href="#cycle">Design cycle</a><a href="#types">Learning types</a><a href="#map">Roadmap</a><a href="#ex">Exam kit</a></nav>
+</header>
+<main>
+<h1>Introduction, overfitting and the design cycle: deep dive</h1>
+<p class="lead">What pattern recognition is, how objects become feature vectors, the fish-sorting example, overfitting and bias-variance (with measured numbers), the parts of a recognition system, the design cycle step by step, and a template for the "design a system" exam questions.</p>
+<div class="bk"><b>Read:</b> Duda, Hart &amp; Stork, Ch. 1 "Introduction": §1.1 "Machine Perception", §1.2 "An Example" (the fish), §1.3 "The Sub-problems of Pattern Recognition" (feature extraction, noise, overfitting, model selection, prior knowledge, missing features, segmentation, context, invariances, costs and risks), §1.4 "Learning and Adaptation" (supervised, unsupervised, reinforcement); the design-cycle figure is in the same chapter. Bishop, <i>PRML</i>, Ch. 1 "Introduction": §1.1 "Example: Polynomial Curve Fitting", §1.3 "Model Selection", §1.4 "The Curse of Dimensionality", §1.5 "Decision Theory". Schalkoff, <i>Pattern Recognition: Statistical, Structural and Neural Approaches</i>, Ch. 1. <i>Section numbers follow the usual editions; check your copies.</i></div>
+
+<h2 id="what">1. What is pattern recognition?</h2>
+<p>Humans are very good at sensing their environment and acting on it: recognising a face, understanding spoken words, reading handwriting, telling fresh food by smell. We want to give machines similar abilities.</p>
+<ul>
+<li>A <b>pattern</b> is "the opposite of a chaos; an entity vaguely defined, that could be given a name" (Watanabe). Examples: a fingerprint image, a handwritten word, a human face, a speech signal, a DNA sequence.</li>
+<li><b>Pattern recognition</b> is the study of how machines can observe the environment, learn to distinguish patterns of interest, and make sound and reasonable decisions about the categories of the patterns. It is the act of taking in sensed data (measurements) and taking an action based on the <b>class</b> (category) of the pattern. The basic task: <b>assign unknown objects (patterns) to the correct class</b>.</li>
+<li>A <b>pattern class</b> is a collection of similar (not necessarily identical) objects, defined by class samples (exemplars, prototypes).</li>
+</ul>
+<h3>Two kinds of recognition</h3>
+<div class="tw"><table><tr><th></th><th>Classification (supervised)</th><th>Clustering (unsupervised)</th></tr>
+<tr><td>Categories</td><td>known in advance</td><td>learned from the data</td></tr>
+<tr><td>Training samples</td><td>labelled (e.g. dog, cat)</td><td>unlabelled</td></tr>
+<tr><td>Example</td><td>cat vs dog 2-class classification</td><td>group the same photos by appearance with no names given</td></tr></table></div>
+<h3>What makes it hard</h3>
+<ul>
+<li><b>Intra-class variability:</b> objects of the same class can look very different (the letter "T" in many fonts; handwritten digits).</li>
+<li><b>Inter-class similarity:</b> different classes can look alike (identical twins; characters such as 0 vs D, 8 vs B, 2 vs Z, 1 vs I on license plates).</li>
+<li>So "how do we define <b>similarity</b>?" is the central question (the clustering page shows distance and similarity measures).</li>
+</ul>
+<p><b>Applications</b> (slides): machine vision, character recognition (OCR; English handwriting), computer-aided diagnosis (cancer detection and grading from tissue images), speech recognition, face recognition, biometrics (fingerprint classes: arch, tented arch, loop, whorl, …; iris), image-database retrieval, data mining, DNA sequence identification and bioinformatics (clustering microarray data), remote sensing (land-cover classification, building recognition from satellite data), autonomous navigation, license-plate recognition.</p>
+
+<h2 id="repr">2. Representing patterns: features</h2>
+<p><b>Features</b> are measurable quantities taken from the patterns; they determine how well the classification can be done. A number of features x₁, …, x<sub>l</sub> make up the <b>feature vector</b> <code>x = (x₁, …, x<sub>l</sub>)ᵀ ∈ R<sup>l</sup></code>. Feature vectors are treated as <b>random vectors</b>: two fish of the same species give different measurements.</p>
+<p><b>Example 1 (slides):</b> two image classes that look like textured blobs. Use two features (the plot's axes are μ and σ, presumably the mean and spread of the pixel intensities), and each image becomes a point (σ, μ). The two classes form two clouds that a straight line separates: the classifier is that line.</p>
+<h3>Issues in pattern recognition (slides)</h3>
+<ol>
+<li>How are features generated?</li>
+<li>What is the best number of features?</li>
+<li>How are they used to design a classifier?</li>
+<li>How good is the classifier?</li>
+</ol>
+<p>Each question maps to a chapter: features → PCA and LDA; classifier design → Bayes, perceptron, SVM; how good → model evaluation (see §9).</p>
+
+<h2 id="fish">3. The fish example</h2>
+<p><b>Task:</b> sort fish on a conveyor belt into sea bass and salmon using optical sensing. <b>Problem analysis:</b> set up a camera, take sample images, and extract candidate features: length, lightness, width, number and shape of fins, position of the mouth, …</p>
+<svg viewBox="0 0 560 70" role="img" aria-label="Fish pipeline">
+ <rect class="b" x="5" y="15" width="100" height="40" rx="6"/><text x="55" y="39" text-anchor="middle">Camera</text>
+ <rect class="b" x="135" y="15" width="110" height="40" rx="6"/><text x="190" y="39" text-anchor="middle">Pre-processing</text>
+ <rect class="b" x="275" y="15" width="130" height="40" rx="6"/><text x="340" y="39" text-anchor="middle">Feature extraction</text>
+ <rect class="b" x="435" y="15" width="100" height="40" rx="6"/><text x="485" y="39" text-anchor="middle">Classification</text>
+ <path class="a" d="M105 35 H135 M245 35 H275 M405 35 H435"/>
+</svg>
+<ul>
+<li><b>Preprocessing:</b> isolate each fish from the others and from the background (problems at sensing: lighting conditions, position on the belt, camera noise).</li>
+<li><b>Feature extraction:</b> turn each isolated fish image into measurements; this also reduces the data.</li>
+<li><b>Classification:</b> pass the features to a classifier, which outputs "salmon" or "sea bass".</li>
+</ul>
+<h3>Choosing features and the decision</h3>
+<ol>
+<li><b>Length alone:</b> a fisherman says sea bass is generally longer. Decide by a threshold l* on length. The histograms of length for the two species overlap heavily, so even the best l* makes many errors: sea bass are longer <i>on average</i>, but many fish contradict it.</li>
+<li><b>Lightness</b> separates the species better (less overlap), but a single threshold x* still cannot give a perfect decision.</li>
+<li><b>Costs of errors matter:</b> if customers who buy salmon object loudly to finding sea bass in their cans, but customers who buy sea bass do not mind a few expensive salmon, the threshold should move so that fewer sea bass are labelled salmon, even at the price of more mistakes the other way. (Bayesian decision theory page: risk and loss.)</li>
+<li><b>Two features</b> (lightness x₁ and width x₂): each fish becomes a point in a 2-D <b>feature space</b>, and a <b>decision boundary</b> (here a line) divides the plane into two regions. Using both features is better than lightness alone.</li>
+<li><b>More complex boundary:</b> a very wiggly curve can classify every <i>training</i> fish correctly, but how will it do on new fish? The ability to predict unseen samples is <b>generalisation</b>, and the simpler smooth boundary is likely to generalise better. This is the complexity/performance trade-off (overfitting, §4).</li>
+</ol>
+<h3>Does adding more features always help?</h3>
+<p>No. Avoid <b>unreliable</b> features; a <b>correlated</b> feature adds nothing and is redundant; consider <b>measurement cost</b> and <b>noise</b>. Too many features lead to the <b>curse of dimensionality</b>: the number of regions of feature space to cover grows exponentially with dimension, so the amount of data needed explodes. Cutting each feature into 10 bins and wanting about 10 samples per cell:</p>
+<div class="tw"><table><tr><th>Features d</th><th>1</th><th>2</th><th>3</th><th>5</th><th>10</th></tr><tr><td>Cells (10<sup>d</sup>)</td><td>10</td><td>100</td><td>1 000</td><td>100 000</td><td>10 000 000 000</td></tr><tr><td>Samples needed (10 per cell)</td><td>100</td><td>1 000</td><td>10 000</td><td>10⁶</td><td>10¹¹</td></tr></table></div>
+<p>With a fixed training set, adding dimensions makes the space sparse: most cells are empty, distances become less meaningful, and classifiers overfit. (Bishop §1.4.)</p>
+
+<h2 id="over">4. Overfitting, generalisation and bias-variance</h2>
+<p><b>Overfitting versus generalisation.</b> The purpose of machine learning is <b>not</b> "learn the given data as exactly as possible" but "<b>predict unknown data</b> based on the given data". A model that drives the training error to zero may be useless on new data.</p>
+<h3>The slides' story: fitting a polynomial</h3>
+<p>Ten noisy points follow a smooth curve (a sine with Gaussian noise). Fit a polynomial f(x) = a<sub>M</sub>x<sup>M</sup> + … + a₁x + a₀ of order M. As M grows the model can fit the training data more exactly:</p>
+<ul>
+<li><b>M = 0</b> (a constant) and <b>M = 1</b> (a line): too simple, poor fit even on the training points: <b>underfitting</b>.</li>
+<li><b>M = 3:</b> follows the underlying curve well.</li>
+<li><b>M = 9:</b> passes through <b>every</b> training point (error exactly zero), but oscillates wildly between them: it has learned the noise. The error is zero but it is clearly <i>not</i> the best model: <b>overfitting</b>.</li>
+</ul>
+<p><b>Measured numbers</b> (average of 300 random data sets, 10 noisy training points each, noise standard deviation 0.3, RMS error on 200 fresh test points):</p>
+<div class="tw"><table><tr><th>Order M</th><th>0</th><th>1</th><th>3</th><th>5</th><th>7</th><th>9</th></tr>
+<tr><td>Training error</td><td>0.714</td><td>0.569</td><td>0.238</td><td>0.176</td><td>0.116</td><td>0.000</td></tr>
+<tr><td>Test error</td><td>0.771</td><td>0.572</td><td><b>0.352</b></td><td>0.366</td><td>0.406</td><td>0.738</td></tr></table></div>
+<p>The training error falls all the way to zero as complexity rises, but the <b>test error is U-shaped</b>: it falls to a minimum near M = 3 and then climbs steeply. The lowest test error (0.35) is still above the noise level 0.30, which no model can beat. In a single data set the M = 9 coefficients reach magnitudes around 250 000, compared with about 25 for M = 3: <b>huge weights are the signature of overfitting</b>.</p>
+<h3>Bias and variance</h3>
+<ul>
+<li><b>High bias = model too simple</b> (does not care about the data): the housing-price example: a straight line through curved data. <b>Low bias:</b> completely accurate, understands the true pattern.</li>
+<li><b>High variance = model too flexible</b> (obsessed with data): fits the training data perfectly but performs very poorly on new data (the wiggly curve). <b>Low variance:</b> completely stable, not distracted by random noise.</li>
+<li>Three regimes (slides): <b>underfitting</b> (high bias, simple model), <b>just right</b>, <b>overfitting</b> (high variance, complex model). Underfitting shows on the left of the error plot (high training and test error); overfitting on the right (low training error, high test error). The best complexity is where the <b>test</b> error is smallest.</li>
+</ul>
+<p>The same happens in classification: the slide's logistic-regression example, with a linear boundary (underfit), a moderately curved boundary (good) and a very contorted boundary that wraps around individual points (overfit).</p>
+<h3>What makes overfitting more likely</h3>
+<ul>
+<li>Not enough training examples (small data set).</li>
+<li>Too many features.</li>
+<li>An unsuitably complex model or hypothesis function for the problem.</li>
+</ul>
+<p>Check: repeating the experiment with <b>100</b> training points instead of 10, the M = 9 test error drops from 0.738 to 0.312, the same as M = 3 (0.312). More data cures overfitting.</p>
+<h3>Four ways to address overfitting (slides)</h3>
+<ol>
+<li><b>Tune hyperparameters:</b> try several complexities (e.g. different M), compute the generalisation error for each on held-out data, keep the best.</li>
+<li><b>Reduce the number of features</b> (overfitting is likelier when the number of features is high relative to the size of the data set): feature selection, PCA.</li>
+<li><b>Use ensemble methods</b> such as a random forest, which reduces the overfitting of a single decision tree.</li>
+<li><b>Regularisation:</b> keep all features but reduce the magnitude of the parameters θ<sub>j</sub> by adding a penalty on large weights; works well when many features each contribute a little.</li>
+</ol>
+<p><b>Regularisation in numbers</b> (one data set, M = 9, 10 points): without a penalty the training error is 0 and the test error is 0.41 with weights up to 250 000. Adding the penalty λΣw² with λ = e<sup>−18</sup> brings the largest weight down to 550 (test 0.39); λ = e<sup>−10</sup> gives weights up to 25 and the best test error, 0.345; too large a penalty (λ = 1) underfits again (train 0.45, test 0.60). λ is itself a hyperparameter, chosen on validation data.</p>
+
+<h2 id="demo">Widget: fit a polynomial and watch it overfit</h2>
+<div class="wid">
+<p style="margin:0 0 4px"><b>Polynomial curve fitting.</b> Dashed grey: the true curve sin(2πx). Blue dots: noisy training points. Green: the fitted polynomial of order M. Try M = 9 with 10 points; then add data or turn on the penalty.</p>
+<svg id="pl" viewBox="0 0 440 260" role="img" aria-label="Polynomial fit to noisy sine data">
+ <defs><clipPath id="cpf"><rect x="30" y="10" width="390" height="240"/></clipPath></defs>
+ <rect x="30" y="10" width="390" height="240" fill="none" stroke="var(--line)"/>
+ <line x1="30" y1="130" x2="420" y2="130" stroke="var(--line)"/>
+ <polyline id="tr" fill="none" stroke="var(--mute)" stroke-width="2" stroke-dasharray="5 4" points=""/>
+ <polyline id="ft" clip-path="url(#cpf)" fill="none" stroke="var(--ok)" stroke-width="3" points=""/>
+ <g id="dt"></g>
+ <text x="14" y="134">0</text><text x="30" y="262">0</text><text x="410" y="262">1</text>
+</svg>
+<label>Order of the polynomial M = <b id="mv">3</b><input id="m" type="range" min="0" max="9" step="1" value="3"></label>
+<label>Number of training points N = <b id="nv">10</b><input id="n" type="range" min="10" max="100" step="5" value="10"></label>
+<label>Penalty on large weights: <b id="lv">off</b><input id="l" type="range" min="-4" max="1" step="0.25" value="-4"></label>
+<button id="nd">New random data</button>
+<div id="rd"></div>
+</div>
+<p class="note">Compare training and test error as you raise M: training error keeps falling, test error turns upward. The noise level is 0.30, the best any model can do on average. The penalty acts on the weights of a numerically stable polynomial basis, so useful values (about 10⁻² to 1) differ from those quoted above, but the effect is the same: M = 9 with a moderate penalty fits like a gentle curve again.</p>
+
+<h2 id="sys">5. A pattern recognition system</h2>
+<p>The slide's object/process diagram has two parts: a <b>recognition</b> path, physical environment → data acquisition/sensing → pre-processing → feature extraction → features → classification → post-processing → decision; and a <b>training</b> path, training data → pre-processing → feature extraction/selection → features → model learning/estimation → model, which feeds the classifier.</p>
+<div class="tw"><table><tr><th>Component</th><th>What it does</th><th>Typical issues</th></tr>
+<tr><td><b>Data acquisition and sensing</b></td><td>measurements of physical variables</td><td>bandwidth, resolution, sensitivity, distortion, signal-to-noise ratio (SNR), latency</td></tr>
+<tr><td><b>Pre-processing</b></td><td>remove noise; isolate the patterns of interest from the background</td><td>segmentation errors, illumination</td></tr>
+<tr><td><b>Feature extraction</b></td><td>find a new representation in terms of features</td><td>discriminative, invariant, cheap</td></tr>
+<tr><td><b>Model learning and estimation</b></td><td>learn the mapping between features and pattern groups/categories</td><td>over/underfitting, needs labels or not</td></tr>
+<tr><td><b>Classification</b></td><td>use features and the learned model to assign a pattern to a category</td><td>costs of errors, missing features</td></tr>
+<tr><td><b>Post-processing</b></td><td>evaluate confidence of decisions; exploit <b>context</b> to improve performance; combine <b>experts</b></td><td>reject option, language models</td></tr></table></div>
+<h3>Challenges for recognition (slides)</h3>
+<p>The same object can look very different: <b>illumination</b> (the same statues under different lighting), <b>viewpoint variation</b> (the same sculpture from different angles), <b>scale</b> (a tall and a short person with the same laptop), <b>deformation</b> (galloping horses), <b>occlusion</b> (a rider partly hidden by trees). Good features must be robust to these.</p>
+
+<h2 id="cycle">6. The design cycle</h2>
+<svg viewBox="0 0 560 70" role="img" aria-label="The design cycle">
+ <rect class="b" x="5" y="15" width="90" height="40" rx="6"/><text x="50" y="39" text-anchor="middle">Collect data</text>
+ <rect class="b" x="115" y="15" width="100" height="40" rx="6"/><text x="165" y="39" text-anchor="middle">Select features</text>
+ <rect class="b" x="235" y="15" width="90" height="40" rx="6"/><text x="280" y="39" text-anchor="middle">Select model</text>
+ <rect class="b" x="345" y="15" width="100" height="40" rx="6"/><text x="395" y="39" text-anchor="middle">Train classifier</text>
+ <rect class="b" x="465" y="15" width="90" height="40" rx="6"/><text x="510" y="39" text-anchor="middle">Evaluate</text>
+ <path class="a" d="M95 35 H115 M215 35 H235 M325 35 H345 M445 35 H465"/>
+</svg>
+<p>The cycle is iterative: poor results in evaluation send you back to an earlier step.</p>
+<h3>1. Collect data</h3>
+<p>Collect training and testing data. <b>How do we know when we have an adequately large and representative set of samples?</b> (Too little data overfits; unrepresentative data misleads: see the model-evaluation page on test-set pitfalls.)</p>
+<h3>2. Select features</h3>
+<ul>
+<li>Domain dependence and prior information; computational cost and feasibility.</li>
+<li><b>Discriminative</b> features: similar values for patterns of the same class, different values for patterns of different classes.</li>
+<li><b>Invariant</b> to translation, rotation and scale.</li>
+<li><b>Robust</b> to occlusion, distortion, deformation and variations in the environment.</li>
+</ul>
+<h3>3. Select the model</h3>
+<ul>
+<li>Domain dependence and prior information; definition of the design criteria (what is "good": accuracy? cost-weighted risk?).</li>
+<li><b>Parametric vs non-parametric</b> models; how to handle missing features; computational complexity.</li>
+<li>Types of model: <b>templates</b>, <b>decision-theoretic or statistical</b> (Bayes, discriminants), <b>syntactic or structural</b>, <b>neural</b>, and <b>hybrid</b>.</li>
+<li>How can we know how close we are to the true model underlying the patterns?</li>
+</ul>
+<h3>4. Train the classifier</h3>
+<p>How can we learn the rule from data? Three settings (slides): <b>supervised</b> learning (a teacher provides a category label or cost for each pattern), <b>unsupervised</b> learning (the system forms clusters or natural groupings), <b>reinforcement</b> learning (no desired category is given; the teacher only says whether the decision was right or wrong).</p>
+<h3>5. Evaluate the classifier</h3>
+<p>How can we estimate performance with the training samples? How can we predict performance on future data? Beware overfitting and generalisation (model-evaluation page).</p>
+<div class="tip"><b>Summary (slide):</b> pattern recognition techniques find applications in many areas (machine learning, statistics, mathematics, computer science, biology, …); there are many sub-problems in the design process; many of them can indeed be solved; more complex learning, searching and optimisation algorithms are being developed with advances in computing; and many fascinating problems remain unsolved.</div>
+
+<h2 id="types">7. Three kinds of learning</h2>
+<div class="tw"><table><tr><th>Type</th><th>Data</th><th>Feedback</th><th>Example</th><th>Page</th></tr>
+<tr><td><b>Supervised</b></td><td>inputs with labels</td><td>the correct answer for each example</td><td>cat vs dog; fish species</td><td>Bayes, perceptron, SVM</td></tr>
+<tr><td><b>Unsupervised</b></td><td>inputs only</td><td>none; find structure</td><td>cluster customers; group pixels</td><td>clustering, PCA</td></tr>
+<tr><td><b>Reinforcement</b></td><td>actions and consequences</td><td>a reward after the fact</td><td>game playing, robot control</td><td>reinforcement learning</td></tr></table></div>
+<p><b>Unsupervised example (slides):</b> a satellite image has several regions. Computing two features for pixels from each region (x₁, x₂) gives <b>four clusters</b> of points, found without any labels. Only afterwards does a person inspect them and attach the names <i>water, soil, vegetation, forest</i> to the four groups. Clustering discovers the categories; the names come later.</p>
+
+<h2 id="map">8. Roadmap: where each chapter fits</h2>
+<div class="tw"><table><tr><th>Design-cycle step / question</th><th>Chapter pages</th></tr>
+<tr><td>Select features, reduce dimension</td><td><a href="pca.html">PCA</a> (unsupervised); <a href="lda.html">LDA</a> (uses labels)</td></tr>
+<tr><td>Select a model: statistical decision</td><td><a href="bayesian-decision-theory.html">Bayesian decision theory</a> (priors, risk, Gaussian discriminants)</td></tr>
+<tr><td>Select a model: linear boundaries</td><td><a href="perceptron.html">Linear discriminants, least squares, perceptron</a>; <a href="svm.html">SVM</a> (max margin, kernels)</td></tr>
+<tr><td>Train: estimate the parameters</td><td><a href="parameter-estimation.html">MLE, Bayesian estimation, MAP</a></td></tr>
+<tr><td>Train without labels</td><td><a href="clustering.html">k-means and hierarchical clustering</a></td></tr>
+<tr><td>Train from rewards</td><td><a href="reinforcement-learning.html">Reinforcement learning</a></td></tr>
+<tr><td>Evaluate</td><td><a href="model-evaluation.html">Test sets, cross-validation, ROC, significance tests</a></td></tr></table></div>
+
+<h2 id="ex">9. Exam kit</h2>
+<div class="tip"><b>Past papers:</b> define curse of dimensionality, unsupervised learning and k-fold cross-validation (S25); effect of model complexity on bias and variance (S23, S23i); design a sign-language recognition system (S23 Q1a); build an email spam filter and choose a technique (F23 Q1b); overfitting and the role of the design cycle in explaining your approach.</div>
+<h3>Short definitions</h3>
+<ul>
+<li><b>Curse of dimensionality:</b> as the number of features grows, the volume of the feature space grows exponentially, so a fixed amount of data becomes sparse; the data needed grows exponentially, distances lose meaning, and models overfit.</li>
+<li><b>Unsupervised learning:</b> learning from unlabelled data: discover structure (clusters, low-dimensional representations) without a teacher.</li>
+<li><b>Overfitting:</b> very low training error but high error on new data; the model has learned noise (high variance). <b>Underfitting:</b> the model is too simple (high bias) and has high error on both.</li>
+<li><b>Model complexity, bias and variance:</b> as complexity increases bias falls and variance rises; training error falls monotonically; test error is U-shaped; choose the complexity at the minimum of validation/test error.</li>
+</ul>
+<h3>Template: "Design a recognition system for …"</h3>
+<p>Walk through the design cycle and name a concrete tool and a reason at every stage:</p>
+<ol>
+<li><b>Define classes and criteria:</b> what are the categories; what errors cost most?</li>
+<li><b>Data sensing:</b> sensor, resolution, frame rate; collect many samples from many people and conditions.</li>
+<li><b>Pre-processing:</b> noise removal, normalisation, <b>segmentation</b> (isolate the object from the background).</li>
+<li><b>Feature extraction/selection:</b> discriminative and invariant features; PCA/LDA to reduce dimension.</li>
+<li><b>Model and learning:</b> pick a classifier and say why; supervised training on labelled data.</li>
+<li><b>System parameters</b> (e.g. k, C, γ, number of PCs): pick the best values by cross-validation on a validation set.</li>
+<li><b>Evaluation:</b> held-out test set, confusion matrix, error analysis; iterate.</li>
+</ol>
+<p><b>Sketch for the sign-language alphabet question (26 classes):</b> sensing with a camera (or data glove) at fixed resolution, many signers, varied lighting; pre-processing: background subtraction and skin-colour segmentation to isolate the hand, size/position normalisation (invariance to scale and translation); segmentation of the hand region; features such as contour descriptors, hand-shape moments or image gradients, reduced with PCA; learning with a multi-class SVM (one-vs-rest) or k-NN on labelled images, justified by good generalisation in high dimensions; parameters (C, γ, k, number of PCs) chosen by k-fold cross-validation; evaluation by a per-letter confusion matrix (look for look-alike letters); post-processing: use language context (a spelling model) to correct uncertain letters. <b>Challenges:</b> illumination, viewpoint, scale, occlusion between fingers.</p>
+<p><b>Sketch for the spam filter question:</b> two classes (spam, non-spam); features: bag of words (word counts or presence) plus header cues; model: a <b>generative Naive Bayes</b> classifier, P(spam|x) ∝ P(spam)Π<sub>i</sub> P(w<sub>i</sub>|spam), with Laplace smoothing so unseen words do not zero the product (parameter-estimation and Bayes pages); decision rule from <b>risk</b>, not just probability: wrongly discarding a real mail costs far more than letting spam through, so put a high threshold on P(spam|x) (minimum-risk rule); training from labelled mail; evaluation with precision, recall and an ROC curve on held-out mail; post-processing: move mail above the threshold to a separate folder (a reject/uncertain folder in between). A discriminative alternative is logistic regression or an SVM on the same features.</p>
+<h3>Common mistakes</h3>
+<ul>
+<li>Describing only the classifier and skipping sensing, pre-processing, feature extraction and evaluation when asked to <i>design a system</i>.</li>
+<li>Saying training error is a good measure of future performance.</li>
+<li>Confusing bias with variance: simple model = high bias; flexible model = high variance.</li>
+<li>Claiming more features always help.</li>
+<li>Mixing up classification (known classes, labels) with clustering (no labels).</li>
+</ul>
+<h3>Self-test</h3>
+<details><summary>1. Training error 2%, test error 25%. What is the problem, and what would you try?</summary><div>Overfitting (high variance). Try more data, fewer features or a simpler model, regularisation, an ensemble, and choose hyperparameters by cross-validation.</div></details>
+<details><summary>2. Training error 30%, test error 31%. What is the problem?</summary><div>Underfitting (high bias): the model is too simple. Use a more flexible model or better features.</div></details>
+<details><summary>3. 8 features, each cut into 5 intervals. How many cells, and about how many samples to put 10 in each?</summary><div>5⁸ = 390 625 cells, so about 3.9 million samples.</div></details>
+<details><summary>4. Why can a decision that minimises error still be a bad decision?</summary><div>Because errors can have different costs (fish cans, disease screening); the minimum-risk decision weights each mistake by its loss.</div></details>
+<details><summary>5. Name the five steps of the design cycle and one question to ask at each.</summary><div>Collect data (is it representative and large enough?); select features (discriminative, invariant, robust, cheap?); select model (parametric or not, complexity, missing features?); train (supervised, unsupervised or reinforcement?); evaluate (will performance hold on new data, am I overfitting?).</div></details>
+<details><summary>6. In the satellite example, how did the classes get names?</summary><div>The clustering found four groups without labels; a person then looked at the groups and named them water, soil, vegetation and forest.</div></details>
+<div class="links"><a href="/">← Home</a><a href="../pattern-summary.html#c1">← Back to summary</a></div>
+</main>
+<script>
+(function(){
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;var t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){var u=1-r(),v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+var Sm=document.getElementById('m'),Sn=document.getElementById('n'),Sl=document.getElementById('l'),seed=7,NOISE=0.3;
+var TX=[],TY=[];(function(){var r=rng(999);for(var i=0;i<200;i++){var x=r();TX.push(x);TY.push(Math.sin(2*Math.PI*x)+NOISE*gauss(r))}})();
+var xs,ys;
+function newData(){var N=+Sn.value,r=rng(seed);xs=[];ys=[];for(var i=0;i<N;i++){var x=N===1?0:i/(N-1);xs.push(x);ys.push(Math.sin(2*Math.PI*x)+NOISE*gauss(r))}}
+function basis(x,M){var t=2*x-1,b=[1,t],k;for(k=2;k<=M;k++)b.push(2*t*b[k-1]-b[k-2]);return b.slice(0,M+1)}
+function solve(A,b){var n=b.length,i,j,k;for(i=0;i<n;i++){var p=i;for(j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;var tA=A[i];A[i]=A[p];A[p]=tA;var tb=b[i];b[i]=b[p];b[p]=tb;
+ for(j=i+1;j<n;j++){var f=A[j][i]/A[i][i];for(k=i;k<n;k++)A[j][k]-=f*A[i][k];b[j]-=f*b[i]}}
+ var w=new Array(n);for(i=n-1;i>=0;i--){var s=b[i];for(j=i+1;j<n;j++)s-=A[i][j]*w[j];w[i]=s/A[i][i]}return w}
+function fit(M,lam){var n=M+1,A=[],b=[],i,j,k;for(i=0;i<n;i++){A.push(new Array(n).fill(0));b.push(0)}
+ for(k=0;k<xs.length;k++){var f=basis(xs[k],M);for(i=0;i<n;i++){b[i]+=f[i]*ys[k];for(j=0;j<n;j++)A[i][j]+=f[i]*f[j]}}
+ for(i=0;i<n;i++)A[i][i]+=lam+1e-10;return solve(A,b)}
+function pred(w,x){var f=basis(x,w.length-1),s=0;for(var i=0;i<w.length;i++)s+=w[i]*f[i];return s}
+function rmse(w,X,Y){var s=0;for(var i=0;i<X.length;i++){var e=pred(w,X[i])-Y[i];s+=e*e}return Math.sqrt(s/X.length)}
+function X(x){return 30+x*390}function Y(y){return 130-y*75}
+var dt=document.getElementById('dt'),NS='http://www.w3.org/2000/svg';
+function draw(){
+ var M=+Sm.value,N=+Sn.value,lv=+Sl.value,lam=lv<=-4?0:Math.pow(10,lv);
+ if(xs.length!==N)newData();
+ var w=fit(M,lam),pts=[],tr=[],i;
+ for(i=0;i<=200;i++){var x=i/200;pts.push(X(x).toFixed(1)+','+Y(pred(w,x)).toFixed(1));tr.push(X(x).toFixed(1)+','+Y(Math.sin(2*Math.PI*x)).toFixed(1))}
+ document.getElementById('ft').setAttribute('points',pts.join(' '));document.getElementById('tr').setAttribute('points',tr.join(' '));
+ while(dt.firstChild)dt.removeChild(dt.firstChild);
+ xs.forEach(function(x,k){var c=document.createElementNS(NS,'circle');c.setAttribute('cx',X(x));c.setAttribute('cy',Y(ys[k]));c.setAttribute('r',4.5);c.setAttribute('fill','var(--ac2)');dt.appendChild(c)});
+ document.getElementById('mv').textContent=M;document.getElementById('nv').textContent=N;document.getElementById('lv').textContent=lv<=-4?'off':('lambda = 10^'+lv);
+ document.getElementById('rd').textContent='training RMS error = '+rmse(w,xs,ys).toFixed(3)+'\ntest RMS error     = '+rmse(w,TX,TY).toFixed(3)+'   (noise level 0.300)'}
+Sm.oninput=draw;Sn.oninput=function(){newData();draw()};Sl.oninput=draw;
+document.getElementById('nd').onclick=function(){seed++;newData();draw()};
+newData();draw();
+})();
+</script>
+</body>
+</html>
