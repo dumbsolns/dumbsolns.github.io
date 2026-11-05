@@ -42,14 +42,14 @@ th{background:var(--tint)}
 </head>
 <body>
 <header>
- <div class="bar"><a class="back" href="/">← Back to home</a><a class="alt" href="pattern-recognition-summary.html">Chapter notes</a></div>
+ <div class="bar"><a class="back" href="/">← Back to home</a><a class="alt" href="pattern-summary.html">Chapter notes</a></div>
  <nav aria-label="Sections"><a href="#freq">Frequency</a><a href="#calc">Calculations</a><a href="#proof">Derivations</a><a href="#short">Short answers</a></nav>
 </header>
 <main>
 <h1>Solved past questions (CSE 4113)</h1>
 <p class="lead">Worked answers for the question papers you shared, written with the methods from the chapter notes. Tap a question to open it.</p>
 <p><button id="eo">Expand all</button><button id="co">Collapse all</button></p>
-<p class="note">Exams: S25 = Spring 2025, F24 = Fall 2024, S24 = Spring 2024, F23 = Fall 2023, S23 = Spring 2023, S23i = Spring 2023 improvement, F22 = Fall 2022. Books: (B) Bishop PRML, (D) Duda-Hart-Stork, (SB) Sutton &amp; Barto, (M) Mitchell, (T) Tan et al. Chapter numbers are from the usual editions; check your copy. Variances use 1/n (MLE) unless stated.</p>
+<p class="note">Exams: S25 = Spring 2025, F24 = Fall 2024, S24 = Spring 2024, F23 = Fall 2023, S23 = Spring 2023, S23i = Spring 2023 improvement, F22 = Fall 2022. Books: (B) Bishop PRML, (D) Duda-Hart-Stork, (SB) Sutton &amp; Barto, (M) Mitchell, (T) Tan et al. Chapter numbers are from the usual editions; check your copy. Variances use 1/n (MLE) unless stated. Blocks with a <b>Deep dive</b> line link to the full topic pages in the <code>pattern</code> folder.</p>
 
 <h2 id="freq">What keeps repeating</h2>
 <div class="tw"><table><tr><th>Topic</th><th>Seen in</th></tr>
@@ -70,7 +70,7 @@ th{background:var(--tint)}
 <h2 id="calc">A. Numerical problems</h2>
 
 <details><summary>A1. k-means, two iterations <small>S25, S23 · 6 points, k=2, C1=(1,1), C2=(5,7)</small></summary><div>
-<div class="bk">Read: D Ch. 10 §10.7; B §9.1 "K-means Clustering".</div>
+<div class="bk">Read: D Ch. 10 §10.8 "Iterative Optimization" (and §10.4.3 "K-means clustering"); B §9.1 "K-means Clustering". <b>Deep dive:</b> <a href="pattern/clustering.html#kex">k-means worked example (7 points vs the exam's 6)</a>; <a href="pattern/clustering.html#km">k-means and why it converges</a>.</div>
 <p>Assign each point to the nearest centroid (Euclidean), then recompute centroids.</p>
 <div class="tw"><table><tr><th>Pt</th><th>(A1,A2)</th><th>d to C1 (1,1)</th><th>d to C2 (5,7)</th><th>Cluster</th></tr>
 <tr><td>1</td><td>1,1</td><td>0</td><td>7.21</td><td>1</td></tr>
@@ -89,7 +89,7 @@ th{background:var(--tint)}
 </div></details>
 
 <details><summary>A2. LDA, 2D to 1D <small>S25, F24 (dataset 1) · S24 (dataset 2) · S23 (dataset 3)</small></summary><div>
-<div class="bk">Read: B §4.1.4 "Fisher's linear discriminant"; D Ch. 3 §3.8.2 "Fisher Linear Discriminant".</div>
+<div class="bk">Read: B §4.1.4 "Fisher's linear discriminant"; D Ch. 3 §3.8.2 "Fisher Linear Discriminant". <b>Deep dive:</b> <a href="pattern/lda.html#eg">LDA worked example</a>; <a href="pattern/lda.html#solve">LDA derivation</a>.</div>
 <div class="f">m_i = class mean;  S_i = Σ(x−m_i)(x−m_i)ᵀ;  S_W = S1+S2;  S_B = (m1−m2)(m1−m2)ᵀ
 w ∝ S_W⁻¹(m1−m2)  (largest eigenvector of S_W⁻¹S_B);   y = wᵀx</div>
 <p><b>Dataset 1</b> — class 0: (1,2),(3,1); class 1: (6,5),(8,7).</p>
@@ -110,7 +110,7 @@ w ∝ S_W⁻¹(m1−m2)  (largest eigenvector of S_W⁻¹S_B);   y = wᵀx</div>
 </div></details>
 
 <details><summary>A3. Gaussian Naive Bayes <small>S25, F23, S23 · x1..x5, classify x6 = (0.9, 0.4)</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.6 "Discriminant functions for the normal density"; D Ch. 3 §3.2 "Maximum likelihood" (to estimate μ, σ²); B §4.2 for generative models.</div>
+<div class="bk">Read: D Ch. 2 §2.6 "Discriminant functions for the normal density"; D Ch. 3 §3.2 "Maximum likelihood" (to estimate μ, σ²); B §4.2 for generative models. <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#gauss">Gaussian discriminants</a>; <a href="pattern/parameter-estimation.html#gauss">MLE for Gaussians</a>.</div>
 <p>Model: P(class) × Π_features N(x_f; μ, σ²) with parameters from MLE (μ = mean, σ² = mean squared deviation).</p>
 <div class="tw"><table><tr><th>Class</th><th>Prior</th><th>F1: μ, σ²</th><th>F2: μ, σ²</th></tr>
 <tr><td>+ (x1,x2,x3)</td><td>3/5 = 0.6</td><td>0.20, 0.00667</td><td>0.40, 0.02667</td></tr>
@@ -122,7 +122,7 @@ w ∝ S_W⁻¹(m1−m2)  (largest eigenvector of S_W⁻¹S_B);   y = wᵀx</div>
 </div></details>
 
 <details><summary>A4. Linear regression by gradient descent <small>S25, F24 · (0,1),(1,3),(2,5),(3,7), w=b=0, η=0.01</small></summary><div>
-<div class="bk">Read: B Ch. 3 "Linear Models for Regression" (§3.1.3 sequential learning); B §1.1 for squared error.</div>
+<div class="bk">Read: B Ch. 3 "Linear Models for Regression" (§3.1.3 sequential learning); B §1.1 for squared error. <b>Deep dive:</b> <a href="pattern/perceptron.html#ls">least squares (the closed-form counterpart)</a>.</div>
 <div class="f">ŷ = wx + b,   L = (1/n)Σ(y−ŷ)²
 ∂L/∂w = −(2/n)Σ x(y−ŷ),   ∂L/∂b = −(2/n)Σ(y−ŷ)
 w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
@@ -136,7 +136,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A5a. Batch perceptron <small>F24 · (1,2)+, (4,3)+, (3,−1)−, (−2,−2)−, w=[0,0], η=1</small></summary><div>
-<div class="bk">Read: B §4.1.7 "The perceptron algorithm"; D Ch. 5 §5.5 "Perceptron criterion".</div>
+<div class="bk">Read: B §4.1.7 "The perceptron algorithm"; D Ch. 5 §5.5 "Perceptron criterion". <b>Deep dive:</b> <a href="pattern/perceptron.html#perc">the perceptron: criterion, updates, worked example</a>.</div>
 <p>Rule: with t = ±1, a sample is misclassified if t·wᵀx ≤ 0. Batch update: w ← w + η Σ_{misclassified} t·x.</p>
 <ul><li>Iter 1: w = (0,0), all scores 0, all misclassified. w = (1,2)+(4,3)−(3,−1)−(−2,−2) = (4, 8).</li>
 <li>Iter 2: scores: (1,2) → 20 ✓, (4,3) → 40 ✓, (3,−1) → 4 but t = −1 ✗, (−2,−2) → −24 ✓. Update w = (4,8) − (3,−1) = (1, 9).</li>
@@ -145,14 +145,14 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A5b. Fixed-increment single-sample perceptron <small>S24 · (2,1)+, (3,4)+, (−1,3)−, (−2,−3)−, w=[0,0], η=1</small></summary><div>
-<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5. Update on one misclassified sample at a time: w ← w + t·x.</div>
+<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5. Update on one misclassified sample at a time: w ← w + t·x. <b>Deep dive:</b> <a href="pattern/perceptron.html#perc">the perceptron: criterion, updates, worked example</a>.</div>
 <ul><li>Epoch 1: (2,1): score 0 ✗ → w = (2,1). (3,4): 10 ✓. (−1,3): score 1, t=−1 ✗ → w = (2,1)−(−1,3) = (3,−2). (−2,−3): 0 ✗ → w = (3,−2)−(−2,−3) = (5, 1).</li>
 <li>Epoch 2 check: (2,1) → 11 ✓; (3,4) → 19 ✓; (−1,3) → −2 ✓; (−2,−3) → −13 ✓. Converged.</li></ul>
 <div class="ans">w = (5, 1); boundary 5x1 + x2 = 0.</div>
 </div></details>
 
 <details><summary>A5c. Batch perceptron with feature map φ <small>F23, F22 · ω1: (4,3),(2,3); ω2: (6,1),(−1,−4); φ = [x1³, x2³, x1+x2, x1x2]; η=1, w=0.5</small></summary><div>
-<div class="bk">Read: B §4.1.7 (the perceptron works on φ(x)); B Ch. 4 intro on fixed basis functions.</div>
+<div class="bk">Read: B §4.1.7 (the perceptron works on φ(x)); B Ch. 4 intro on fixed basis functions. <b>Deep dive:</b> <a href="pattern/perceptron.html#perc">the perceptron</a>; <a href="pattern/perceptron.html#lim">why the feature map φ</a>.</div>
 <div class="tw"><table><tr><th>Point</th><th>φ(x)</th><th>t</th></tr>
 <tr><td>(4,3)</td><td>[64, 27, 7, 12]</td><td>+1</td></tr><tr><td>(2,3)</td><td>[8, 27, 5, 6]</td><td>+1</td></tr>
 <tr><td>(6,1)</td><td>[216, 1, 7, 6]</td><td>−1</td></tr><tr><td>(−1,−4)</td><td>[−1, −64, −5, 4]</td><td>−1</td></tr></table></div>
@@ -163,7 +163,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A6. Classify with Gaussian classes (equal priors) <small>F24 · μ1=(0,0), μ2=(2,0), σ²=1 → x=(1,0) · S24 · Σ=[[2,.5],[.5,1]], μ1=(1,1), μ2=(3,−1) → x=(2.5,.5)</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.6 (cases I and II), "Discriminant functions for the normal density".</div>
+<div class="bk">Read: D Ch. 2 §2.6 (cases I and II), "Discriminant functions for the normal density". <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#gauss">Gaussian cases I, II, III</a>.</div>
 <p><b>F24 (Σ = σ²I, case I):</b> with equal priors the rule is minimum Euclidean distance. d²(x, μ1) = 1, d²(x, μ2) = 1: the point lies exactly on the boundary x1 = 1 (g1 = g2).</p>
 <div class="ans">It is a tie. Either class is acceptable; state the tie-break (e.g. choose ω1).</div>
 <p><b>S24 (shared Σ, case II):</b> equal priors → minimum Mahalanobis distance. Σ⁻¹ = (1/1.75)[[1,−0.5],[−0.5,2]].</p>
@@ -173,7 +173,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A7. Tumor classification, decision boundary <small>S23i · means 15 (benign), 12 (malignant), σ=2</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.6; Gaussian 1-D case of the discriminants.</div>
+<div class="bk">Read: D Ch. 2 §2.6; Gaussian 1-D case of the discriminants. <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#gauss">Gaussian boundaries</a>; <a href="pattern/bayesian-decision-theory.html#demo">1-D boundary widget</a>.</div>
 <p>Equal σ, so boundary (from g_B = g_M): x* = (μB+μM)/2 + [σ²/(μB−μM)]·ln[P(M)/P(B)]. Decide benign if x &gt; x*.</p>
 <ul><li>(i) P(B)=P(M): x* = 13.5.</li>
 <li>(ii) P(B)=2P(M): x* = 13.5 + (4/3)·ln(1/2) = 13.5 − 0.924 = 12.58. More likely benign → boundary shifts towards the malignant mean.</li></ul>
@@ -181,7 +181,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A8. Macro and micro averaging <small>S25 · 3-class confusion matrix</small></summary><div>
-<div class="bk">Read: Chapter notes §10 "Evaluating learning methods" (confusion matrix, precision, recall, F-measure); M Ch. 5.</div>
+<div class="bk">Read: Chapter notes §10 "Evaluating learning methods" (confusion matrix, precision, recall, F-measure); M Ch. 5. <b>Deep dive:</b> <a href="pattern/model-evaluation.html#cm">confusion matrix, macro and micro averaging</a>.</div>
 <p>Rows = actual, columns = predicted: Spam (50,5,5), Promotional (10,30,10), Important (5,10,25). Total 150. Correct = 50+30+25 = 105.</p>
 <div class="tw"><table><tr><th>Class</th><th>TP</th><th>Precision = TP/col sum</th><th>Recall = TP/row sum</th><th>F1</th></tr>
 <tr><td>Spam</td><td>50</td><td>50/65 = 0.769</td><td>50/60 = 0.833</td><td>0.800</td></tr>
@@ -193,7 +193,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A9. SVM from given support vectors <small>F23 · v1=(−1,1), v2=(2,0), v3=(1,−1), v4=(0,2); α = −.5, .5, −.5, .5 (signed); b=−1; classify (1,1)</small></summary><div>
-<div class="bk">Read: B §7.1 "Maximum Margin Classifiers"; D Ch. 5 §5.11. Here α_k already contains the label (α = λ·y).</div>
+<div class="bk">Read: B §7.1 "Maximum Margin Classifiers"; D Ch. 5 §5.11. Here α_k already contains the label (α = λ·y). <b>Deep dive:</b> <a href="pattern/svm.html#use">using the SVM solution</a>.</div>
 <ul><li><b>w:</b> w = Σα_k v_k = −.5(−1,1) + .5(2,0) − .5(1,−1) + .5(0,2) = (0.5,−0.5)+(1,0)+(−0.5,0.5)+(0,1) = <b>(1, 1)</b>.</li>
 <li><b>Check:</b> w·v + b: v1 → −1+1−1 = −1; v2 → 2−1 = +1; v3 → 1−1−1 = −1; v4 → 2−1 = +1. All four sit exactly on the margins (±1), as support vectors must.</li>
 <li><b>Hyperplane:</b> x1 + x2 − 1 = 0 (line through (1,0) and (0,1)); margin lines x1+x2 = 0 and x1+x2 = 2; margin width 2/‖w‖ = √2. Plot: (−1,1),(1,−1) on the line x1+x2=0; (2,0),(0,2) on x1+x2=2.</li>
@@ -225,7 +225,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A11. ROC curve from scores <small>F23, S23 (20 instances) · S23i, F22 (10 instances)</small></summary><div>
-<div class="bk">Read: Chapter notes §10 (ROC, "Algorithm": sort scores and sweep); Fawcett (2006) "An introduction to ROC analysis"; D Ch. 2 §2.8.3 "Receiver operating characteristics".</div>
+<div class="bk">Read: Chapter notes §10 (ROC, "Algorithm": sort scores and sweep); Fawcett (2006) "An introduction to ROC analysis"; D Ch. 2 §2.8.3 "Receiver operating characteristics". <b>Deep dive:</b> <a href="pattern/model-evaluation.html#roc">ROC curves</a>; <a href="pattern/model-evaluation.html#demo">threshold widget</a>.</div>
 <p>Predict positive if score ≥ threshold. TPR = TP/P, FPR = FP/N.</p>
 <p><b>10 instances (P = 6: scores .9,.8,.6,.55,.54,.51; N = 4: .7,.53,.52,.505):</b></p>
 <div class="tw"><table><tr><th>Threshold</th><th>TP</th><th>FP</th><th>TPR</th><th>FPR</th></tr>
@@ -240,7 +240,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A12. PCA, price and weight <small>F23, S23i, F22 · (4,7), (5,6), (3,1)</small></summary><div>
-<div class="bk">Read: B §12.1 "Principal Component Analysis"; D Ch. 3 §3.8.1.</div>
+<div class="bk">Read: B §12.1 "Principal Component Analysis"; D Ch. 3 §3.8.1. <b>Deep dive:</b> <a href="pattern/pca.html#eg">PCA worked example</a>; <a href="pattern/pca.html#ex">this exact exam example</a>.</div>
 <ol><li><b>Mean:</b> (4, 4.667). <b>Centred:</b> (0, 2.333), (1, 1.333), (−1, −3.667).</li>
 <li><b>Covariance (÷(n−1) = ÷2):</b> var(price) = 1, var(weight) = 10.333, cov = 2.5 → C = [[1, 2.5],[2.5, 10.333]].</li>
 <li><b>Eigenvalues:</b> det(C−λI) = λ² − 11.333λ + 4.083 = 0 → λ1 = 10.961, λ2 = 0.373 (sum = trace = 11.333).</li>
@@ -251,7 +251,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A13. Agglomerative clustering, Manhattan distance, single link <small>F23, S23i, F22 · points 1=(0,0,0), 2=(1,1,0), 3=(1,1,1), 4=(1,1,0)</small></summary><div>
-<div class="bk">Read: D Ch. 10 §10.9 "Hierarchical Clustering"; T Ch. 8 (single link = MIN).</div>
+<div class="bk">Read: D Ch. 10 §10.9 "Hierarchical Clustering"; T Ch. 8 (single link = MIN). <b>Deep dive:</b> <a href="pattern/clustering.html#hex">hierarchical worked examples</a>.</div>
 <div class="tw"><table><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tr><th>1</th><td>0</td><td>2</td><td>3</td><td>2</td></tr><tr><th>2</th><td></td><td>0</td><td>1</td><td>0</td></tr><tr><th>3</th><td></td><td></td><td>0</td><td>1</td></tr></table></div>
 <ol><li>Smallest distance 0: merge {2,4} at height 0.</li>
 <li>Single link: d({2,4},1) = min(2,2) = 2; d({2,4},3) = min(1,1) = 1; d(1,3) = 3. Merge {2,4,3} at height 1.</li>
@@ -268,7 +268,7 @@ w ← w − η∂L/∂w,   b ← b − η∂L/∂b</div>
 </div></details>
 
 <details><summary>A15. Cosine similarity of two documents <small>S23, F22</small></summary><div>
-<div class="bk">Read: Chapter notes §8 (cosine similarity for text); D Ch. 10 §10.6; T Ch. 2 "Data" (proximity measures).</div>
+<div class="bk">Read: Chapter notes §8 (cosine similarity for text); D Ch. 10 §10.6; T Ch. 2 "Data" (proximity measures). <b>Deep dive:</b> <a href="pattern/clustering.html#prox">proximity measures</a>.</div>
 <p>Term-frequency vectors are sparse, with many zero counts, and document length varies, so use <b>cosine similarity</b> (ignores vector length; zero-zero matches do not count). D1 = (5,4,2,0,0,1,0), D2 = (0,3,4,0,1,0,0).</p>
 <div class="f">D1·D2 = 4·3 + 2·4 = 20
 ‖D1‖ = √(25+16+4+1) = √46 = 6.78,   ‖D2‖ = √(9+16+1) = √26 = 5.10
@@ -277,7 +277,7 @@ cos = 20 / (6.78·5.10) = 0.578</div>
 </div></details>
 
 <details><summary>A16. Extreme values with constraints <small>F23, S23i · f = x²+y², x+1 = 0, y+1 = 0</small></summary><div>
-<div class="bk">Read: B Appendix E "Lagrange Multipliers"; D Ch. 5 §5.11 (constrained optimisation).</div>
+<div class="bk">Read: B Appendix E "Lagrange Multipliers"; D Ch. 5 §5.11 (constrained optimisation). <b>Deep dive:</b> <a href="pattern/svm.html#lagr">Lagrange multipliers</a>.</div>
 <div class="f">L = x² + y² + λ1(x+1) + λ2(y+1)
 ∂L/∂x = 2x + λ1 = 0,  ∂L/∂y = 2y + λ2 = 0,  x+1 = 0,  y+1 = 0</div>
 <p>The constraints already fix (x,y) = (−1,−1); then λ1 = λ2 = 2.</p>
@@ -285,7 +285,7 @@ cos = 20 / (6.78·5.10) = 0.578</div>
 </div></details>
 
 <details><summary>A17. Naive Bayes with counts and Laplace smoothing <small>S24 play golf · S23i A,B,C</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.9 "Bayes decision theory: discrete features"; Laplace smoothing = add 1 to each count and add the number of values to the denominator.</div>
+<div class="bk">Read: D Ch. 2 §2.9 "Bayes decision theory: discrete features"; Laplace smoothing = add 1 to each count and add the number of values to the denominator. <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#more">discrete features</a>; <a href="pattern/parameter-estimation.html#limit">zero probabilities and smoothing</a>.</div>
 <p><b>Play golf</b> (today = Sunny, Hot, Normal, False; 3 Yes, 3 No; outlook has 3 values, temperature 3, humidity 2, windy 2):</p>
 <ul><li>No smoothing: Yes = ½·(2/3)(1/3)(1/3)(3/3) = 0.037; No = ½·(1/3)(2/3)·<b>0</b>·(1/3) = 0 (no "Normal" among No).</li>
 <li>Laplace: Yes = ½·(3/6)(2/6)(2/5)(4/5) = 0.0267; No = ½·(2/6)(3/6)(1/5)(2/5) = 0.0067.</li></ul>
@@ -300,7 +300,7 @@ cos = 20 / (6.78·5.10) = 0.578</div>
 <h2 id="proof">B. Derivations and proofs</h2>
 
 <details><summary>B1. Bayes rule minimises average error · zero-one loss rule · minimum-risk rule <small>S25, S24, S23, F24</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.1–2.3; B §1.5 "Decision Theory".</div>
+<div class="bk">Read: D Ch. 2 §2.1–2.3; B §1.5 "Decision Theory". <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#err">minimum error</a>; <a href="pattern/bayesian-decision-theory.html#risk">risk and loss</a>.</div>
 <p><b>Bayes minimises error.</b> P(error) = ∫P(error|x)p(x)dx. Choosing the class with the larger posterior gives P(error|x) = min[P(ω1|x), P(ω2|x)], the smallest possible value at every x. Any other rule picks the smaller posterior somewhere and adds error there. Since p(x) ≥ 0, minimising pointwise minimises the integral.</p>
 <p><b>Zero-one loss.</b> λ(α_i|ω_j) = 0 if i = j, else 1. Then R(α_i|x) = Σ_{j≠i}P(ω_j|x) = 1 − P(ω_i|x). Minimum risk = maximum posterior: decide ω_i if P(ω_i|x) &gt; P(ω_j|x) for all j≠i. Risk equals error probability.</p>
 <p><b>Minimum-risk rule, two classes.</b> R(α1|x) = λ11P(ω1|x)+λ12P(ω2|x); R(α2|x) = λ21P(ω1|x)+λ22P(ω2|x). Decide ω1 if R(α1|x) &lt; R(α2|x):</p>
@@ -311,7 +311,7 @@ cos = 20 / (6.78·5.10) = 0.578</div>
 </div></details>
 
 <details><summary>B2. Gaussian discriminants: linear form, shared covariance, effect of priors <small>S23, S23i, S24</small></summary><div>
-<div class="bk">Read: D Ch. 2 §2.6.2 "Case 2: Σ_i = Σ".</div>
+<div class="bk">Read: D Ch. 2 §2.6.2 "Case 2: Σ_i = Σ". <b>Deep dive:</b> <a href="pattern/bayesian-decision-theory.html#gauss">Gaussian cases</a>.</div>
 <p>g_i(x) = ln p(x|ω_i) + ln P(ω_i) = −½(x−μ_i)ᵀΣ⁻¹(x−μ_i) − (d/2)ln2π − ½ln|Σ| + ln P(ω_i). Drop terms equal for all classes and expand; xᵀΣ⁻¹x is also common:</p>
 <div class="f">g_i(x) = w_iᵀx + w_i0,    w_i = Σ⁻¹μ_i,   w_i0 = −½μ_iᵀΣ⁻¹μ_i + ln P(ω_i)
 boundary: wᵀ(x − x0) = 0,   w = Σ⁻¹(μ1−μ2)
@@ -320,13 +320,13 @@ x0 = ½(μ1+μ2) − [ln(P(ω1)/P(ω2)) / ((μ1−μ2)ᵀΣ⁻¹(μ1−μ2))]·(
 </div></details>
 
 <details><summary>B3. Geometry of a linear discriminant and distance to the hyperplane <small>F24, F23</small></summary><div>
-<div class="bk">Read: B §4.1.1 "Two classes"; D Ch. 5 §5.2.</div>
+<div class="bk">Read: B §4.1.1 "Two classes"; D Ch. 5 §5.2. <b>Deep dive:</b> <a href="pattern/perceptron.html#geo">hyperplane geometry</a>.</div>
 <p>g(x) = wᵀx + w0; boundary g(x) = 0. The weight vector w is normal to the hyperplane (for x_a, x_b on it, wᵀ(x_a−x_b) = 0) and points into the positive region; the bias w0 shifts the plane (distance from the origin is |w0|/‖w‖).</p>
 <p><b>Distance by constrained minimisation (F23):</b> minimise ‖x−x_a‖² subject to g(x) = 0. L = ‖x−x_a‖² + λ(wᵀx+w0). ∂L/∂x = 2(x−x_a)+λw = 0 → x = x_a − λw/2. Put into g(x) = 0: g(x_a) − λ‖w‖²/2 = 0 → λ = 2g(x_a)/‖w‖². Then ‖x−x_a‖ = |λ|‖w‖/2 = <b>|g(x_a)|/‖w‖</b>.</p>
 </div></details>
 
 <details><summary>B4. SVM theory: margin, ½‖w‖², Lagrange multipliers, dual, KKT, kernel <small>every paper</small></summary><div>
-<div class="bk">Read: B §7.1 "Maximum Margin Classifiers" with Appendix E; D Ch. 5 §5.11; B Ch. 6 §6.1–6.2 for kernels.</div>
+<div class="bk">Read: B §7.1 "Maximum Margin Classifiers" with Appendix E; D Ch. 5 §5.11; B Ch. 6 §6.1–6.2 for kernels. <b>Deep dive:</b> <a href="pattern/svm.html#margin">margin and primal</a>; <a href="pattern/svm.html#lagr">Lagrange and KKT</a>; <a href="pattern/svm.html#dual">dual derivation</a>; <a href="pattern/svm.html#kern">kernels</a>.</div>
 <p><b>Margin = 2/‖w‖.</b> Rescale (w,b) so the closest points obey y_i(wᵀx_i+b) = 1; this is allowed because (w,b) and (cw,cb) define the same plane. The distance from a point to the plane is |wᵀx+b|/‖w‖ = 1/‖w‖, so the total margin is 2/‖w‖.</p>
 <p><b>Why minimise ½‖w‖² instead of maximising 2/‖w‖:</b> maximising 2/‖w‖ is the same as minimising ‖w‖, which is the same as minimising ‖w‖² (monotonic). The squared form is smooth and convex (quadratic programme with a unique optimum), no square root, and the ½ cancels the 2 when differentiating (∂/∂w = w). Maximising 1/‖w‖ directly is awkward near w → 0.</p>
 <p><b>Lagrange multipliers.</b> Constraint y_i(wᵀx_i+b) − 1 ≥ 0 is attached with λ_i ≥ 0: L_P = ½‖w‖² − Σλ_i[y_i(wᵀx_i+b) − 1]. ∂L/∂w = 0 → w = Σλ_i y_i x_i; ∂L/∂b = 0 → Σλ_i y_i = 0. Substituting:</p>
@@ -340,7 +340,7 @@ decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
 </div></details>
 
 <details><summary>B5. Perceptron convergence theorem <small>S24, S23, F22</small></summary><div>
-<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5.2 "Convergence proof for single-sample correction".</div>
+<div class="bk">Read: B §4.1.7; D Ch. 5 §5.5.2 "Convergence proof for single-sample correction". <b>Deep dive:</b> <a href="pattern/perceptron.html#conv">convergence proof</a>.</div>
 <p>Replace class-2 samples by −x so a solution satisfies ŵᵀx_n &gt; 0 for all n (‖ŵ‖ = 1, γ = min ŵᵀx_n &gt; 0 exists when separable); R = max‖x_n‖. Each update is w_{k+1} = w_k + x (x misclassified, w_kᵀx ≤ 0), starting at w_0 = 0.</p>
 <ul><li>Lower bound: ŵᵀw_{k+1} = ŵᵀw_k + ŵᵀx ≥ ŵᵀw_k + γ, so ŵᵀw_k ≥ kγ and hence ‖w_k‖ ≥ kγ.</li>
 <li>Upper bound: ‖w_{k+1}‖² = ‖w_k‖² + 2w_kᵀx + ‖x‖² ≤ ‖w_k‖² + R², so ‖w_k‖² ≤ kR².</li>
@@ -348,7 +348,7 @@ decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
 </div></details>
 
 <details><summary>B6. MLE derivations <small>F24 Gaussian mean · S23 multivariate Bernoulli</small></summary><div>
-<div class="bk">Read: D Ch. 3 §3.2.1–3.2.4 "The Gaussian case: unknown μ"; B §2.3.4 "Maximum likelihood for the Gaussian".</div>
+<div class="bk">Read: D Ch. 3 §3.2.1–3.2.4 "The Gaussian case: unknown μ"; B §2.3.4 "Maximum likelihood for the Gaussian". <b>Deep dive:</b> <a href="pattern/parameter-estimation.html#gauss">MLE derivations</a>.</div>
 <p><b>Gaussian mean, Σ known.</b> ln p(D|μ) = −½Σ_k(x_k−μ)ᵀΣ⁻¹(x_k−μ) + const. ∇_μ = Σ_k Σ⁻¹(x_k−μ) = 0 → Σ_k x_k − nμ = 0 (Σ⁻¹ is invertible):</p>
 <div class="f">μ̂ = (1/n) Σ_k x_k</div>
 <p><b>Multivariate Bernoulli.</b> ln P(D|θ) = Σ_k Σ_i [x_ki ln θ_i + (1−x_ki) ln(1−θ_i)]. ∂/∂θ_i = Σ_k [x_ki/θ_i − (1−x_ki)/(1−θ_i)] = 0 → Σ_k x_ki(1−θ_i) = θ_iΣ_k(1−x_ki) → Σ_k x_ki = nθ_i:</p>
@@ -356,7 +356,7 @@ decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
 </div></details>
 
 <details><summary>B7. MLE vs MAP vs Bayes · large-n limit <small>S23i, F22</small></summary><div>
-<div class="bk">Read: D Ch. 3 §3.3–3.4 "Bayesian estimation: Gaussian case"; B §2.3.6 and §1.2.5.</div>
+<div class="bk">Read: D Ch. 3 §3.3–3.4 "Bayesian estimation: Gaussian case"; B §2.3.6 and §1.2.5. <b>Deep dive:</b> <a href="pattern/parameter-estimation.html#bayes">Bayesian estimation</a>; <a href="pattern/parameter-estimation.html#map">MAP</a>.</div>
 <p><b>MLE:</b> θ is fixed but unknown, θ̂ = argmax p(D|θ). <b>MAP:</b> θ is random with prior p(θ), θ̂ = argmax p(D|θ)p(θ), a point estimate. <b>Full Bayes:</b> keep p(θ|D) and average over it. MLE has no prior, so unseen events get probability 0.</p>
 <div class="f">μ_n = [nσ0²/(nσ0²+σ²)]·x̄_n + [σ²/(nσ0²+σ²)]·μ0</div>
 <p>Divide numerator and denominator by nσ0²: μ_n = x̄_n/(1 + σ²/(nσ0²)) + (σ²/(nσ0²))·μ0/(1 + σ²/(nσ0²)). As n → ∞, σ²/(nσ0²) → 0, so μ_n → x̄_n, the MLE (also σ_n² = σ0²σ²/(nσ0²+σ²) → σ²/n → 0). With enough data the prior is overridden. Same if σ0 → ∞ (vague prior).</p>
@@ -372,12 +372,12 @@ decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
 </div></details>
 
 <details><summary>B9. d-bit parity is not linearly separable <small>F22</small></summary><div>
-<div class="bk">Read: B §4.1.7 (limits of the perceptron); D Ch. 5 §5.1.</div>
+<div class="bk">Read: B §4.1.7 (limits of the perceptron); D Ch. 5 §5.1. <b>Deep dive:</b> <a href="pattern/perceptron.html#lim">XOR and parity</a>.</div>
 <p>Take d = 2 (XOR): (0,0) and (1,1) → ω2 (even), (1,0) and (0,1) → ω1 (odd). A linear g = w1x1 + w2x2 + w0 would need g(0,0) &lt; 0 → w0 &lt; 0; g(1,0) &gt; 0 → w1 + w0 &gt; 0; g(0,1) &gt; 0 → w2 + w0 &gt; 0; g(1,1) &lt; 0 → w1 + w2 + w0 &lt; 0. Adding the middle two: w1 + w2 + 2w0 &gt; 0, so w1 + w2 + w0 &gt; −w0 &gt; 0, contradicting the last. For d &gt; 1 fix all other inputs at 0: any x that varies only in two coordinates reproduces this XOR sub-problem, so no single hyperplane works.</p>
 </div></details>
 
 <details><summary>B10. PCA: role of eigenvalues and eigenvectors <small>F24, S23, F23</small></summary><div>
-<div class="bk">Read: B §12.1.1 "Maximum variance formulation".</div>
+<div class="bk">Read: B §12.1.1 "Maximum variance formulation". <b>Deep dive:</b> <a href="pattern/pca.html#der">PCA derivation</a>.</div>
 <p>For centred data with covariance matrix S, the variance of the projection onto a unit vector u is uᵀSu. Maximise subject to uᵀu = 1: L = uᵀSu − λ(uᵀu − 1) → Su = λu and the variance equals λ. So <b>eigenvectors of S are the principal directions</b> and <b>eigenvalues are the variances along them</b>. The eigenvector with the largest eigenvalue is PC1; others are orthogonal because S is symmetric. Keep the top p eigenvectors; the fraction of variance retained is Σ_{top p}λ / Σλ. An eigenvector is a vector with Av = λv (A only rescales it).</p>
 </div></details>
 
@@ -392,7 +392,7 @@ decision: f(x) = sgn(Σ λ_i y_i (x_i·x) + b)</div>
 <h2 id="short">C. Short answers and reinforcement learning</h2>
 
 <details><summary>C1. Q-learning pseudo-code, MDP, discounted reward <small>S23, S23i, F22, S25 (DRL)</small></summary><div>
-<div class="bk">Read: SB Ch. 3 "Finite Markov Decision Processes", Ch. 6 §6.5 "Q-learning: off-policy TD control"; Mnih et al. (2015) for DQN.</div>
+<div class="bk">Read: SB Ch. 3 "Finite Markov Decision Processes", Ch. 6 §6.5 "Q-learning: off-policy TD control"; Mnih et al. (2015) for DQN. <b>Deep dive:</b> <a href="pattern/reinforcement-learning.html">reinforcement learning, in full</a>.</div>
 <div class="f">initialise Q(s,a) = 0 for all s,a
 for each episode:
     s ← start state
@@ -421,6 +421,7 @@ for each episode:
 <li><b>Boosting vs bagging (F23, F22):</b> bagging trains classifiers on bootstrap samples in parallel and averages them, which reduces variance. Boosting trains weak classifiers (a bit better than chance) sequentially, each focusing on earlier mistakes, which reduces bias and gives a strong classifier (low training error). AdaBoost: classifier weight α_t = ½ ln((1−ε_t)/ε_t); sample weights multiply by e^{α_t} if misclassified and e^{−α_t} if correct, then renormalise; final H(x) = sgn(Σα_t h_t(x)).</li>
 <li><b>Model complexity, bias and variance (S23):</b> low complexity: high bias, low variance (underfit); high complexity: low bias, high variance (overfit); test error is U-shaped (chapter 1, B §3.2).</li>
 </ul>
+<p class="note"><b>Deep dives:</b> <a href="pattern/intro-design-cycle.html#over">overfitting, bias and variance, curse of dimensionality</a>; <a href="pattern/intro-design-cycle.html#ex">design-a-system templates</a>; <a href="pattern/model-evaluation.html#cv">cross-validation</a>; <a href="pattern/pca.html#der">PCA vs LDA</a>; <a href="pattern/lda.html#pca">PCA vs LDA table</a>; <a href="pattern/parameter-estimation.html#bayes">MLE vs Bayes</a>; <a href="pattern/bayesian-decision-theory.html#risk">loss and risk</a>.</p>
 </div></details>
 
 <p class="note" style="margin-top:2rem">Not worked here: the spam-filter and sign-language system-design questions (answer with the design cycle from chapter 1), MSE-vs-MAE in depth, and the Mahalanobis-distance essay (F24; the calculation is in A6, and B2 covers the covariance-weighted boundary). Lagrangian duality is in B4.</p>
