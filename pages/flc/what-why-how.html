@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What · Why · How: every FLC topic</title>
+<style>
+:root{--bg:#fafaf7;--card:#fff;--tx:#1d2330;--mut:#5b6475;--ac:#2f5bd8;--acbg:#e9efff;--bd:#dfe3ea;--c1:#2f5bd8;--c2:#b8791a;--c3:#1f8a5b;--c1b:#eef2ff;--c2b:#fff6e6;--c3b:#e9f7f0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1c2029;--tx:#e8eaf0;--mut:#9aa3b5;--ac:#8fb0ff;--acbg:#26304a;--bd:#2c3240;--c1:#8fb0ff;--c2:#e8b765;--c3:#6fd1a2;--c1b:#222b44;--c2b:#33291a;--c3b:#1d3329;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--bd);padding:8px 12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.bar{display:flex;align-items:center;gap:10px;max-width:860px;margin:auto}
+.back{display:inline-flex;padding:8px 14px;border-radius:999px;background:var(--ac);color:#fff;text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+.bar b{font-size:14px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;padding-bottom:4px}
+nav a{flex:none;padding:4px 11px;border-radius:999px;background:var(--acbg);color:var(--ac);text-decoration:none;font-size:13px;font-weight:600}
+main{max-width:860px;margin:auto;padding:16px 14px 60px}
+h1{font-size:1.7rem;line-height:1.25;margin:8px 0}
+.lead{color:var(--mut);margin:0 0 14px}
+.topic{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 14px 10px;margin:14px 0}
+.topic h2{font-size:1.15rem;margin:0 0 2px;line-height:1.3}
+.meta{font-size:12.5px;color:var(--mut);margin:0 0 8px}
+.row{border-left:4px solid;border-radius:8px;padding:6px 10px;margin:8px 0;font-size:15px}
+.row b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1px}
+.what{border-color:var(--c1);background:var(--c1b)}.what b{color:var(--c1)}
+.why{border-color:var(--c2);background:var(--c2b)}.why b{color:var(--c2)}
+.how{border-color:var(--c3);background:var(--c3b)}.how b{color:var(--c3)}
+.go{font-size:13.5px;margin:4px 0 2px}
+.go a{color:var(--ac);font-weight:600;text-decoration:none}
+.go a:hover{text-decoration:underline}
+code{background:rgba(127,127,127,.15);padding:1px 5px;border-radius:5px;font:0.92em ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+footer{font-size:13px;color:var(--mut);padding:10px 0}
+@media (min-width:700px){main{padding:24px 20px 80px}h1{font-size:2.1rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="bar"><a class="back" href="../flc-summary.html" aria-label="Back to the summary page">← Back to summary</a><b>What · Why · How</b></div>
+<nav aria-label="Topics"><a href="#t1">Compilers</a><a href="#t2">Lexical</a><a href="#t3">RE</a><a href="#t4">Automata</a><a href="#t5">Conversions</a><a href="#t6">CFG</a><a href="#t7">CNF</a><a href="#t8">PDA</a><a href="#t9">Parsing</a><a href="#t10">LL(1)</a><a href="#t11">LR</a><a href="#t12">Errors</a><a href="#t13">SDT</a><a href="#t14">3AC</a><a href="#t15">Optimize</a><a href="#t16">Code gen</a></nav>
+</header>
+<main>
+<h1>What · Why · How</h1>
+<p class="lead">Every topic in the course on one page, three questions each: <b>what</b> it is, <b>why</b> it exists, <b>how</b> it does its job. Use it for a first pass before the exam; follow the links for methods, worked examples and past-paper questions.</p>
+
+<article class="topic" id="t1"><h2>1. Language processing system &amp; compiler structure</h2><p class="meta">Slides 3–22</p>
+<div class="row what"><b>What</b>The chain that turns source code into a running program: preprocessor (macros, includes) → compiler → assembler (object code) → linker (merges modules, resolves references) → loader (puts the program in memory). A compiler translates the whole program; an interpreter translates and runs one statement at a time.</div>
+<div class="row why"><b>Why</b>Machines run only machine code, people write high-level code. Splitting the job into stages keeps each simple, supports separate compilation (hence relocatable object code), and a front end / back end split gives portability: one front end per language, one back end per machine.</div>
+<div class="row how"><b>How</b>The compiler has an <b>analysis</b> half (lexical, syntax, semantic analysis → intermediate code and symbol table) and a <b>synthesis</b> half (optimization, code generation). The symbol table and error handler are used by every phase.</div>
+<p class="go">Overview: <a href="../flc-summary.html#intro">summary, section 1</a></p></article>
+
+<article class="topic" id="t2"><h2>2. Lexical analysis</h2><p class="meta">Slides 25–31, 285–291</p>
+<div class="row what"><b>What</b>The first phase: reads the character stream and groups it into <b>tokens</b>. Token = category (id, keyword, operator), <b>lexeme</b> = the matched text, <b>pattern</b> = the rule (a regular expression) describing the lexemes.</div>
+<div class="row why"><b>Why</b>The parser then works on a short stream of tokens instead of raw characters. The lexer also removes whitespace and comments, expands macros, links errors to line numbers and creates symbol-table entries.</div>
+<div class="row how"><b>How</b>Each token pattern is a regular expression, compiled to an NFA then a DFA. The lexer takes the <b>longest match</b> (earlier rule wins ties), looks keywords up in a reserved table, and returns <code>&lt;token, attribute&gt;</code> such as <code>&lt;id, 3&gt;</code> (index into the symbol table). A lexical error is text matching no pattern; recovery deletes, inserts, replaces or transposes one character.</div>
+<p class="go">Deep dive: <a href="regular-expressions.html#lex">regular expressions in the lexer</a></p></article>
+
+<article class="topic" id="t3"><h2>3. Regular expressions</h2><p class="meta">Slides 32–38</p>
+<div class="row what"><b>What</b>A notation for <b>regular languages</b>: the symbols, ε and ∅, combined with union (<code>+</code> or <code>|</code>), concatenation and star. Precedence: star &gt; concatenation &gt; union.</div>
+<div class="row why"><b>Why</b>It is a compact way to specify token patterns and simple string sets, and it is exactly as powerful as a finite automaton, so any regular expression can be turned into a machine automatically.</div>
+<div class="row how"><b>How</b>To write one, split the language into alternatives, a sequence and repeated parts (“anything, special part, anything” is <code>(0+1)*part(0+1)*</code>). To run one, build an ε-NFA by structure (the Thompson construction) and convert it. Algebraic laws (<code>(R*)* = R*</code>, <code>(R+S)* = (R*S*)*</code>) simplify or compare expressions.</div>
+<p class="go">Deep dive: <a href="regular-expressions.html">regular expressions</a> · <a href="dfa-design.html">DFA design &amp; RE → DFA</a></p></article>
+
+<article class="topic" id="t4"><h2>4. Finite automata: DFA, NFA, ε-NFA</h2><p class="meta">Slides 39–284</p>
+<div class="row what"><b>What</b>A finite-state machine (Q, Σ, δ, q₀, F). <b>DFA:</b> exactly one move per state and symbol. <b>NFA:</b> δ returns a set of states, accepts if some path ends in F. <b>ε-NFA:</b> also moves without reading input. All three accept exactly the regular languages.</div>
+<div class="row why"><b>Why</b>It recognizes a language using no memory beyond the current state, so it is fast: a DFA does one table lookup per character, which is why lexers are DFAs. NFAs and ε-NFAs are easier to design and to build from regular expressions.</div>
+<div class="row how"><b>How</b>The extended function δ̂ applies δ along the whole string (a set of states for NFAs). To design a DFA, decide what each state must remember (pattern progress, a parity, a count mod n), mark finals, add a <b>dead state</b> for impossible continuations, and make sure every state has an arrow for every symbol.</div>
+<p class="go">Deep dive: <a href="dfa-design.html">DFA design</a> · <a href="automata-conversions.html#map">definitions and δ̂</a></p></article>
+
+<article class="topic" id="t5"><h2>5. Automata conversions &amp; minimization</h2><p class="meta">Slides 184–284</p>
+<div class="row what"><b>What</b>Three procedures: <b>ε-NFA → NFA</b> (remove ε-moves with the ε-closure), <b>NFA → DFA</b> (subset construction), and <b>DFA minimization</b> (merge equivalent states).</div>
+<div class="row why"><b>Why</b>Computers execute deterministic machines, so designs made as NFAs must be converted. The conversions prove all models are equally powerful, and minimization gives the smallest machine, which means smaller lexer tables.</div>
+<div class="row how"><b>How</b>ε-removal: <code>δ′(q,a) = ECLOSE(δ(ECLOSE(q), a))</code>. Subset construction: start at the closure of q₀, build only reachable subsets, a subset is final if it contains an NFA final state. Minimization (table filling): mark final/non-final pairs, mark a pair if some symbol leads to a marked pair, merge the unmarked pairs.</div>
+<p class="go">Deep dive: <a href="automata-conversions.html">automata conversions</a></p></article>
+
+<article class="topic" id="t6"><h2>6. Context-free grammars &amp; ambiguity</h2><p class="meta">Slides 292–341</p>
+<div class="row what"><b>What</b>A grammar G = (V, T, P, S) whose productions have a single variable on the left (<code>A → α</code>), so it is “context-free”. It generates a context-free language through derivations (leftmost or rightmost) and parse trees. A grammar is <b>ambiguous</b> if a string has two parse trees.</div>
+<div class="row why"><b>Why</b>Regular expressions cannot express nesting (balanced brackets, if-else, nested expressions), which is the core of programming-language syntax. The grammar both defines the language and is what a parser is built from. Ambiguity must go because the parse tree fixes the meaning.</div>
+<div class="row how"><b>How</b>Design by finding the nested or repeated structure and giving each part a variable (<code>S → 0S1 | 01</code>). Remove ambiguity by adding precedence levels (<code>E→E+T|T</code>, <code>T→T*F|F</code>, <code>F→(E)|id</code>) or by disambiguating rules (nearest <code>then</code> for <code>else</code>).</div>
+<p class="go">Deep dive: <a href="cfg-simplification-cnf.html">CFG, simplification &amp; CNF</a></p></article>
+
+<article class="topic" id="t7"><h2>7. CFG simplification &amp; Chomsky Normal Form</h2><p class="meta">Slides 306–341</p>
+<div class="row what"><b>What</b>Simplification removes useless symbols (non-generating, non-reachable), ε-productions and unit productions. <b>CNF</b> restricts every production to <code>A → BC</code> or <code>A → a</code> (plus <code>S → ε</code>).</div>
+<div class="row why"><b>Why</b>Cleaner grammars are smaller and easier to analyze. A normal form gives algorithms and proofs one predictable shape: CNF parse trees are binary, so a string of length n takes exactly 2n − 1 derivation steps, and parsing algorithms such as CYK need CNF.</div>
+<div class="row how"><b>How</b>Order: nullable set → remove ε → remove unit rules → remove non-generating then non-reachable symbols. CNF then isolates terminals in long bodies with new variables (<code>Xₐ → a</code>) and splits bodies longer than two into chains of binary productions.</div>
+<p class="go">Deep dive: <a href="cfg-simplification-cnf.html#simp">simplification</a> · <a href="cfg-simplification-cnf.html#cnf">CNF</a></p></article>
+
+<article class="topic" id="t8"><h2>8. Pushdown automata</h2><p class="meta">Slides 342–361</p>
+<div class="row what"><b>What</b>A finite automaton plus a stack: P = (Q, Σ, Γ, δ, q₀, Z, F). It accepts by final state or by empty stack. Deterministic PDAs are strictly weaker than nondeterministic ones.</div>
+<div class="row why"><b>Why</b>The stack gives the memory needed for counting and matching (aⁿbⁿ, balanced brackets, palindromes), so a PDA recognizes exactly the context-free languages. It is also the machine model behind parsers.</div>
+<div class="row how"><b>How</b>Each move looks at the state, the next input (or ε) and the stack top, then pops the top and pushes a string. Typical design: push while reading the first part, switch state at the boundary (guessing it with an ε-move if it is not marked, as in <code>wwᴿ</code>), pop-match the second part, accept when only the bottom marker is left. A CFG becomes a PDA by expanding variables on the stack and matching terminals.</div>
+<p class="go">Deep dive: <a href="pushdown-automata.html">pushdown automata</a></p></article>
+
+<article class="topic" id="t9"><h2>9. Syntax analysis (parsing)</h2><p class="meta">Slides 364–380</p>
+<div class="row what"><b>What</b>The second compiler phase: it checks that the token stream is generated by the grammar and builds the parse tree (or AST). It checks structure only, not meaning.</div>
+<div class="row why"><b>Why</b>Later phases need a tree, not a flat token list, and programs with broken structure (missing brackets, wrong statement shape) must be rejected with a useful message.</div>
+<div class="row how"><b>How</b>Two families: <b>top-down</b> (start symbol down, leftmost derivation: recursive descent, LL(1)) and <b>bottom-up</b> (tokens up, reverse rightmost derivation: LR, SLR, LALR). One token of lookahead usually decides the next step.</div>
+<p class="go">Deep dive: <a href="ll1-parsing.html#role">parser role &amp; comparison</a></p></article>
+
+<article class="topic" id="t10"><h2>10. Top-down parsing &amp; LL(1)</h2><p class="meta">Slides 380–422</p>
+<div class="row what"><b>What</b>A predictive parser: <b>L</b>eft-to-right scan, <b>L</b>eftmost derivation, <b>1</b> lookahead symbol, driven by a stack and a table M[A, a].</div>
+<div class="row why"><b>Why</b>It never backtracks, so it runs in linear time, and it is simple to build by hand or from a table. Its price: the grammar must be rewritten first.</div>
+<div class="row how"><b>How</b>(1) Remove ambiguity, left recursion (<code>A → Aα | β</code> becomes <code>A → βA′, A′ → αA′ | ε</code>) and left factoring. (2) Compute FIRST and FOLLOW. (3) For <code>A → α</code>, put it in M[A, a] for a ∈ FIRST(α), and for a ∈ FOLLOW(A) when α can derive ε; two entries in a cell means “not LL(1)”. (4) Parse: pop a non-terminal and push its body reversed, match terminals, accept at <code>$</code>.</div>
+<p class="go">Deep dive: <a href="ll1-parsing.html">top-down &amp; LL(1) parsing</a></p></article>
+
+<article class="topic" id="t11"><h2>11. Bottom-up parsing &amp; LR</h2><p class="meta">Introduced in the slides; full treatment in the textbook</p>
+<div class="row what"><b>What</b>Shift-reduce parsing: a stack of states plus ACTION/GOTO tables. Classes LR(0), SLR(1), LALR(1), LR(1) differ in how much lookahead they use for reductions.</div>
+<div class="row why"><b>Why</b>It accepts left-recursive grammars and a much larger class of grammars than LL(1), detects errors early, and is what parser generators (Yacc, Bison) produce.</div>
+<div class="row how"><b>How</b>Augment the grammar, build the LR(0) item automaton with closure and goto, fill the table (SLR reduces only on FOLLOW(A)). Run: <b>shift</b> pushes a token, <b>reduce</b> pops the body and takes GOTO on the head, <b>accept</b> on <code>S′ → S•</code> with <code>$</code>. Conflicts: shift/reduce (ambiguity, weak lookahead) and reduce/reduce.</div>
+<p class="go">Deep dive: <a href="lr-parsing.html">LR parsing</a></p></article>
+
+<article class="topic" id="t12"><h2>12. Syntax error handling &amp; recovery</h2><p class="meta">Slides 423–428</p>
+<div class="row what"><b>What</b>Strategies that let the parser continue after finding an error: <b>panic mode</b>, <b>phrase-level</b> correction, <b>error productions</b>, <b>global correction</b>.</div>
+<div class="row why"><b>Why</b>Stopping at the first error forces one fix per compile. A good compiler reports as many real errors as possible, accurately and with line numbers, without a flood of false follow-on messages.</div>
+<div class="row how"><b>How</b>Panic mode discards tokens up to a synchronizing token (<code>;</code>, <code>}</code>; in LL(1) the FOLLOW set). Phrase-level repairs locally (insert a missing <code>;</code>). Error productions put common mistakes into the grammar. Global correction searches for the closest valid program but is too costly in practice.</div>
+<p class="go">Deep dive: <a href="ll1-parsing.html#err">error recovery table</a></p></article>
+
+<article class="topic" id="t13"><h2>13. Semantic analysis &amp; syntax-directed translation</h2><p class="meta">Slides 431–451</p>
+<div class="row what"><b>What</b>Semantic analysis checks meaning: types, scope, declarations, parameter matching. <b>SDT</b> attaches attributes and rules to the grammar (a syntax-directed definition = CFG + semantic rules). <b>Synthesized</b> attributes come from children, <b>inherited</b> ones from parent or siblings.</div>
+<div class="row why"><b>Why</b>A parse tree says a program is well formed, not what it means. Rules over the tree compute values, check types and generate code. Many errors (undeclared variable, type mismatch) are invisible to a CFG.</div>
+<div class="row how"><b>How</b>Annotate the parse tree: <b>S-attributed</b> definitions use only synthesized attributes (bottom-up, actions at the end); <b>L-attributed</b> ones may inherit only from the parent and left siblings (top-down, left to right). Symbol-table lookups supply declarations. Examples: desk calculator values, infix to postfix, code generation.</div>
+<p class="go">Deep dive: <a href="sdt-three-address-code.html">SDT &amp; three-address code</a></p></article>
+
+<article class="topic" id="t14"><h2>14. Intermediate code &amp; three-address code</h2><p class="meta">Textbook topic used by the exam SDD</p>
+<div class="row what"><b>What</b>A linear, machine-independent code with at most three addresses per instruction (<code>x = y op z</code>), compiler-made temporaries, labels and jumps. Stored as quadruples, triples or indirect triples.</div>
+<div class="row why"><b>Why</b>It is a bridge between front end and back end: N languages and M machines need N + M tools, not N × M. It is simple enough to optimize and easy to translate to any target.</div>
+<div class="row how"><b>How</b>An SDD with <code>newtemp</code> and <code>gen</code> builds <code>E.place</code> and <code>E.code</code> bottom-up: <code>a := b*-c + b*-c</code> becomes <code>t1 := uminus c; t2 := b*t1; t3 := uminus c; t4 := b*t3; t5 := t2+t4; a := t5</code>. Control flow becomes labels and conditional jumps.</div>
+<p class="go">Deep dive: <a href="sdt-three-address-code.html#tac">three-address code</a> · <a href="sdt-three-address-code.html#flow">control flow</a></p></article>
+
+<article class="topic" id="t15"><h2>15. Code optimization</h2><p class="meta">Slides 454–484</p>
+<div class="row what"><b>What</b>Transformations that make code faster or smaller while keeping its meaning. Local (within a basic block), peephole (a small window of target code) and global.</div>
+<div class="row why"><b>Why</b>Naive translation wastes time and memory: repeated computations, dead code, needless jumps. Optimizing reduces CPU and memory use at no cost to the programmer.</div>
+<div class="row how"><b>How</b>Split the code into <b>basic blocks</b> (leaders: first instruction, jump targets, instructions after jumps) and a flow graph. Apply peephole rules (redundant loads, constant folding, unreachable code, flow-of-control, algebraic simplification, strength reduction, machine idioms), <b>common sub-expression elimination</b> and <b>dead-code elimination</b>.</div>
+<p class="go">Overview: <a href="../flc-summary.html#opt">summary, section 9</a></p></article>
+
+<article class="topic" id="t16"><h2>16. Code generation</h2><p class="meta">Slides 487–499</p>
+<div class="row what"><b>What</b>The last phase: turns optimized intermediate code plus symbol-table data into target code (absolute machine code, relocatable machine code, or assembly).</div>
+<div class="row why"><b>Why</b>It produces the program the machine actually runs, and its choices (instruction selection, register allocation, evaluation order) decide the speed and size of the result.</div>
+<div class="row how"><b>How</b>Using a target model (registers, two-address instructions, addressing modes), pick instructions for each IR statement, keep values in registers to avoid loads and stores, and reorder independent computations. Compare options by cost: instruction cost = 1 + operand costs (register 0, memory or constant 1); <code>MOV b,R0; ADD c,R0; MOV R0,a</code> costs 6, but with addresses in registers two instructions cost 2.</div>
+<p class="go">Overview: <a href="../flc-summary.html#gen">summary, section 10</a></p></article>
+
+<footer>Slide ranges are the lecture slides of your merged PDF. Three-address code and LR parsing details come from the Dragon Book (Aho, Lam, Sethi, Ullman), Ch. 6 and Ch. 4 §4.5–4.6, since the slides only introduce them.</footer>
+</main>
+</body>
+</html>
