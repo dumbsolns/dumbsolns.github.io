@@ -72,6 +72,8 @@ h2.hub{font-size:1.2rem;margin:0 0 4px;color:var(--accent)}
 <a class="card" href="dwm/ch3.html"><b>Chapter 3 deep dive &rarr;</b><span>Cleaning, χ², DWT, PCA, sampling, normalization</span></a>
 <a class="card" href="dwm/ch4.html"><b>Chapter 4 deep dive &rarr;</b><span>Warehouse, cube, schemas, OLAP operations, indexing</span></a>
 <a class="card" href="dwm/ch6.html"><b>Chapter 6 deep dive &rarr;</b><span>Apriori, FP-growth, Eclat, closed and maximal, lift</span></a>
+<a class="card" href="dwm/apriori.html"><b>Apriori how-to &rarr;</b><span>Step-by-step tables from your notes, plus a calculator</span></a>
+<a class="card" href="dwm/fpgrowth.html"><b>FP-growth how-to &rarr;</b><span>Tree, conditional bases and patterns, plus a calculator</span></a>
 <a class="card" href="dwm-solves.html"><b>Solved past papers &rarr;</b><span>Spring 2025, Fall 2024 and Spring 2024, question by question</span></a>
 </div>
 
@@ -430,7 +432,7 @@ With hierarchies = Π (Lᵢ + 1),  i = 1..n
 <section id="c6">
 <h2>Chapter 6: Mining Frequent Patterns, Associations, and Correlations</h2>
 <p class="book">Han, Kamber &amp; Pei, Ch. 6 “Mining Frequent Patterns, Associations, and Correlations: Basic Concepts and Methods”</p>
-<p class="deepbtn"><a class="btn" href="dwm/ch6.html">Open the Chapter 6 deep dive &rarr;</a><a class="btn" href="dwm/ch6.html#prac">Practice problems</a><a class="btn" href="dwm-solves.html#a7">Solved past-paper questions</a></p>
+<p class="deepbtn"><a class="btn" href="dwm/ch6.html">Open the Chapter 6 deep dive &rarr;</a><a class="btn" href="dwm/ch6.html#prac">Practice problems</a><a class="btn" href="dwm-solves.html#a7">Solved past-paper questions</a><a class="btn" href="dwm/apriori.html">Apriori how-to</a><a class="btn" href="dwm/fpgrowth.html">FP-growth how-to</a></p>
 <details><summary>Basics: support, confidence, closed and maximal</summary><div class="in">
 <div class="f">support(A ⇒ B)    = P(A ∪ B) = count(A ∪ B) / total transactions
 confidence(A ⇒ B) = P(B | A)   = count(A ∪ B) / count(A)</div>
@@ -454,7 +456,7 @@ confidence(A ⇒ B) = P(B | A)   = count(A ∪ B) / count(A)</div>
 <p><b>Generating rules:</b> for each frequent itemset l and each non-empty subset s, output <i>s ⇒ (l − s)</i> if count(l)/count(s) ≥ min_conf. All rules from one itemset share the same support but differ in confidence.</p>
 <p><b>Improving efficiency:</b> hash-based itemset counting, transaction reduction, partitioning, sampling, dynamic itemset counting. The drawbacks are many candidates and repeated database scans.</p>
 <div class="tip">Notes check: confidence(A ⇒ B) = P(B | A) = count(A ∪ B)/count(A), so the count of the left side is the denominator. A k-itemset gives 2<sup>k</sup> − 2 candidate rules. If a rule s ⇒ (l − s) fails min_conf, every rule with a smaller left side from the same itemset fails too.</div>
-<p class="ref">Book: §6.2.1 “Apriori Algorithm: Finding Frequent Itemsets by Confined Candidate Generation”, §6.2.2 “Generating Association Rules from Frequent Itemsets”, §6.2.3 “Improving the Efficiency of Apriori”. Notes: 23/09/26, 24/09/26.</p><p class="deep">Go deeper: <a href="dwm/ch6.html#d6-2-1">Apriori &rarr;</a> · <a href="dwm/ch6.html#d6-2-1w">Worked example &rarr;</a> · <a href="dwm/ch6.html#d6-2-2">Rule generation &rarr;</a></p>
+<p class="ref">Book: §6.2.1 “Apriori Algorithm: Finding Frequent Itemsets by Confined Candidate Generation”, §6.2.2 “Generating Association Rules from Frequent Itemsets”, §6.2.3 “Improving the Efficiency of Apriori”. Notes: 23/09/26, 24/09/26.</p><p class="deep">Go deeper: <a href="dwm/ch6.html#d6-2-1">Apriori &rarr;</a> · <a href="dwm/ch6.html#d6-2-1w">Worked example &rarr;</a> · <a href="dwm/ch6.html#d6-2-2">Rule generation &rarr;</a> · <a href="dwm/apriori.html">Step-by-step how-to and calculator &rarr;</a></p>
 </div></details>
 <details><summary>FP-growth with the worked example</summary><div class="in">
 <p>FP-growth avoids candidate generation: it compresses the database into an FP-tree and mines it by pattern growth.</p>
@@ -470,7 +472,7 @@ T4 {C,K,M,U,Y}     T5 {C,E,I,K,O,O}      min_sup = 3</div>
 </ol>
 <div class="tip">Check: O appears in T1, T2 and T5, so its count is 3. If you wrote 4 for the O patterns in your notes, correct it to 3.</div>
 <p><b>Eclat</b> is the vertical-format alternative: store each item with its transaction-ID set and intersect the sets to get support.</p>
-<p class="ref">Book: §6.2.4 “A Pattern-Growth Approach for Mining Frequent Itemsets” (Example 6.5, FP-growth), §6.2.5 “Mining Frequent Itemsets Using Vertical Data Format”. Notes: 28/09/26.</p><p class="deep">Go deeper: <a href="dwm/ch6.html#d6-2-4">§6.2.4 FP-growth &rarr;</a></p>
+<p class="ref">Book: §6.2.4 “A Pattern-Growth Approach for Mining Frequent Itemsets” (Example 6.5, FP-growth), §6.2.5 “Mining Frequent Itemsets Using Vertical Data Format”. Notes: 28/09/26.</p><p class="deep">Go deeper: <a href="dwm/ch6.html#d6-2-4">§6.2.4 FP-growth &rarr;</a> · <a href="dwm/fpgrowth.html">Step-by-step how-to and calculator &rarr;</a></p>
 </div></details>
 <details><summary>Which patterns are interesting? (lift and χ²)</summary><div class="in">
 <p>High support and confidence do not guarantee an interesting rule: <i>A ⇒ B</i> can be misleading if B is already very common.</p>
@@ -512,7 +514,7 @@ lift &gt; 1 positive correlation, = 1 independent, &lt; 1 negative</div>
 </div></details>
 </section>
 
-<footer>Built from the book’s chapter structure (checked against the 3rd edition PDF), your handwritten notes and class slides, with extra points from Tan et al., Zaki &amp; Meira, and Kimball &amp; Ross. Section numbers follow the 3rd edition; check the other books’ section numbers against your own copies. Deep-dive pages: dwm/ch1.html, ch2.html, ch3.html, ch4.html, ch6.html. Solved past papers: dwm-solves.html.</footer>
+<footer>Built from the book’s chapter structure (checked against the 3rd edition PDF), your handwritten notes and class slides, with extra points from Tan et al., Zaki &amp; Meira, and Kimball &amp; Ross. Section numbers follow the 3rd edition; check the other books’ section numbers against your own copies. Deep-dive pages: dwm/ch1.html, ch2.html, ch3.html, ch4.html, ch6.html. Solved past papers: dwm-solves.html. How-to pages: dwm/apriori.html, dwm/fpgrowth.html.</footer>
 </main>
 <script>
 (function(){
