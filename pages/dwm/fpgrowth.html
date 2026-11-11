@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to Do the FP-Growth Math</title>
+<style>
+:root{--bg:#f6f7f4;--surface:#fff;--ink:#1d2421;--muted:#55605b;--line:#d9ded8;--accent:#1f6f5c;--soft:#e1f0eb;--warn:#fff4d6;--warn-ink:#5c4400;--bad:#a33a2a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b;--bad:#f0a090}}
+:root[data-theme="dark"]{--bg:#121715;--surface:#1a211f;--ink:#e6ebe8;--muted:#a1ada7;--line:#2c3733;--accent:#6fcfb3;--soft:#1d3a32;--warn:#3a3114;--warn-ink:#f1dc9b;--bad:#f0a090}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,"Iowan Old Style","Times New Roman",serif}
+h1,h2,summary,.btn,nav a,label{font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;padding:8px 14px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.btn{font-weight:600;font-size:14px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-decoration:none;cursor:pointer;min-height:40px;display:inline-flex;align-items:center}
+.btn.go{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn:focus-visible,summary:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp{flex:1}
+main{max-width:780px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.7rem;line-height:1.2;margin:.4em 0 .2em}
+h2{font-size:1.3rem;color:var(--accent);margin:26px 0 4px}
+.lead{color:var(--muted);margin:0 0 12px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+nav a{font-weight:600;font-size:14px;text-decoration:none;color:var(--ink);background:var(--soft);border-radius:999px;padding:8px 14px}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"\2212"}
+.in{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.in p{margin:.6em 0}
+ul,ol{padding-left:1.15em;margin:.5em 0}li{margin:.25em 0}
+.ref{font-size:.82rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:8px;margin:.8em 0 0;font-style:italic}
+.f{font:.85rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--soft);border-radius:6px;padding:8px 10px;margin:.5em 0;overflow-x:auto;white-space:pre}
+.tip{background:var(--warn);color:var(--warn-ink);border-radius:8px;padding:8px 10px;margin:.7em 0;font-size:.92rem}
+.ans{font-weight:700;color:var(--accent)}
+.tw{overflow-x:auto;margin:.6em 0}
+table{border-collapse:collapse;min-width:100%;font-size:.86rem}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--soft)}
+.no{color:var(--bad)}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+textarea{width:100%;min-height:150px;font:.9rem/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+.row{display:flex;flex-wrap:wrap;gap:12px;margin:10px 0;align-items:end}
+.row label{display:flex;flex-direction:column;font-size:.85rem;gap:4px;color:var(--muted)}
+input[type=text]{font:1rem system-ui,sans-serif;width:110px;padding:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px}
+#out h3{font:600 1rem "Trebuchet MS",system-ui,sans-serif;margin:18px 0 4px;color:var(--accent)}
+#out .msg{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="btn" href="../dwm-summary.html" aria-label="Back to the summary">&larr; Summary</a>
+  <a class="btn" href="/" aria-label="Home page">Home</a>
+  <span class="sp"></span>
+  <button class="btn" id="all" type="button">Expand all</button>
+</div>
+<main>
+<h1>How to Do the FP-Growth Math</h1>
+<p class="lead">Step by step in the layout of your class notes (28/09/26, Steps 1 to 7), with the worked example from class, the book’s Example 6.5, and a calculator to check your own data.</p>
+<nav aria-label="Sections"><a href="#why">Why FP-growth</a><a href="#proc">The 7 steps</a><a href="#ex1">Class example</a><a href="#ex2">Book example</a><a href="#how">How-to details</a><a href="#calc">Calculator</a><a href="#tips">Checklist</a><a href="#refs">References</a></nav>
+
+<h2 id="why">1. Why FP-growth</h2>
+<p>Apriori generates candidate itemsets and rescans the data at every level. FP-growth compresses the transactions into a <b>frequent pattern tree (FP-tree)</b> after only <b>two scans</b>, then mines the tree with no candidate generation. It finds the same frequent itemsets as Apriori.</p>
+<div class="tw"><table>
+<tr><th></th><th>Apriori</th><th>FP-growth</th></tr>
+<tr><td>Strategy</td><td>Generate candidates, count, prune</td><td>Build a tree, mine conditional databases</td></tr>
+<tr><td>Database scans</td><td>One per level</td><td>Two in total</td></tr>
+<tr><td>Candidates</td><td>Many</td><td>None</td></tr>
+<tr><td>Cost</td><td>Candidates and repeated scans</td><td>Memory for the tree</td></tr>
+</table></div>
+
+<h2 id="proc">2. The seven steps in your notes</h2>
+<div class="tw"><table>
+<tr><th>Step</th><th>Name in your notes</th><th>What you do</th></tr>
+<tr><td>1</td><td>Find support count of every item</td><td>Count the transactions containing each item. Exclude every item below the threshold. (Sorting is not needed at this stage.)</td></tr>
+<tr><td>2</td><td>Set with descending frequency</td><td>Write the surviving items in descending count order, for example {K:5, E:4, M:3, O:3, Y:3}.</td></tr>
+<tr><td>3</td><td>Sort the original table</td><td>For each transaction write the <b>updated itemset</b> (only surviving items), then the <b>ordered itemset</b> (same items in the order of step 2).</td></tr>
+<tr><td>4</td><td>Draw the tree</td><td>Start from a Null root and insert the ordered transactions. A shared start only raises counts; a new item makes a new node.</td></tr>
+<tr><td>5</td><td>Conditional pattern base</td><td>For each item, list the paths that lead to it (leaf up to the root, without the item) with the item’s count.</td></tr>
+<tr><td>6</td><td>Conditional frequent pattern tree</td><td>In each base, add up the count of every item (the “common: Σ count” in your notes). Keep items whose total is at least the threshold.</td></tr>
+<tr><td>7</td><td>Frequent itemsets</td><td>For each item, combine it with every non-empty subset of its step-6 items, with the count.</td></tr>
+</table></div>
+<ul>
+<li><b>Ties:</b> M, O and Y all have count 3. Pick one order (for example alphabetical) and use it for every transaction; any fixed order gives the same final answer.</li>
+<li><b>Order in step 5:</b> your note says the paths go from leaf to root, but the order of items inside a path does not matter for the answer.</li>
+<li><b>Duplicates:</b> an item repeated inside one transaction (like “O, O” in T5) counts once.</li>
+</ul>
+<p class="ref">Han, Kamber &amp; Pei, <em>Data Mining: Concepts and Techniques</em>, 3rd ed., Ch. 6 “Mining Frequent Patterns, Associations, and Correlations: Basic Concepts and Methods”, §6.2.4 “A Pattern-Growth Approach for Mining Frequent Itemsets”. Notes: 28/09/26.</p>
+
+<h2 id="ex1">3. Worked example from class (threshold = 3)</h2>
+<details open><summary>Steps 1 to 4: counts, ordering, the tree</summary><div class="in">
+<div class="f">ID  items
+T1  E, K, M, N, O, Y        T4  C, K, M, U, Y
+T2  D, E, K, N, O, Y        T5  C, E, I, K, O, O
+T3  A, E, K, M
+
+Step 1: counts       A 1 x   C 2 x   D 1 x   E 4   I 1 x   K 5
+                     M 3     N 2 x   O 3       U 1 x   Y 3          (x = below 3, excluded)
+Step 2: ordered set  { K:5, E:4, M:3, O:3, Y:3 }
+
+Step 3:  ID   updated itemset    ordered itemset
+         T1   E, K, M, O, Y      K, E, M, O, Y
+         T2   E, K, O, Y         K, E, O, Y
+         T3   E, K, M            K, E, M
+         T4   K, M, Y            K, M, Y
+         T5   E, K, O            K, E, O          (the repeated O counts once)</div>
+<p><b>Step 4, building the tree.</b> T1 makes the path K:1 → E:1 → M:1 → O:1 → Y:1. T2 shares K and E, so those become K:2, E:2, then a new branch O:1 → Y:1. T3 shares K, E, M (K:3, E:3, M:2). T4 shares only K (K:4), then a new branch M:1 → Y:1. T5 shares K, E (K:5, E:4), then a new branch O:1 (E has two O branches).</p>
+<div class="f">null
+└─ K:5
+   ├─ E:4
+   │   ├─ M:2
+   │   │   └─ O:1
+   │   │       └─ Y:1
+   │   └─ O:2
+   │       └─ Y:1
+   └─ M:1
+       └─ Y:1</div>
+<p>Check: the total of each item over its nodes equals its step-1 count (O: 1 + 2 = 3; Y: 1 + 1 + 1 = 3; M: 2 + 1 = 3).</p>
+<div class="tip">Your margin note “usually we take one, but two at once also makes sense”: I read it as inserting two transactions together when they share a prefix, for example T1 and T2 both start K, E, so you can raise K and E by 2 in one move. One at a time is always safe.</div>
+</div></details>
+<details open><summary>Steps 5 to 7: conditional bases, conditional trees, frequent itemsets</summary><div class="in">
+<div class="f">Step 5: conditional pattern base            Step 6: conditional FP-tree (sum counts, keep ≥ 3)
+Y   {K,E,M,O:1} {K,E,O:1} {K,M:1}           K 3, E 2, M 2, O 2     →  ⟨K:3⟩
+O   {K,E,M:1} {K,E:2}                       K 3, E 3, M 1          →  ⟨K:3, E:3⟩
+M   {K,E:2} {K:1}                           K 3, E 2               →  ⟨K:3⟩
+E   {K:4}                                   K 4                    →  ⟨K:4⟩
+K   (nothing above it)                      —
+
+Step 7: frequent itemsets
+Y   {K,Y:3}
+O   {K,O:3}  {E,O:3}  {K,E,O:3}
+M   {K,M:3}
+E   {K,E:4}</div>
+<p class="ans">All frequent itemsets (threshold 3): the five single items K:5, E:4, M:3, O:3, Y:3, plus {K,Y}:3, {K,O}:3, {E,O}:3, {K,E,O}:3, {K,M}:3, {K,E}:4, which is 11 in total.</p>
+<p><b>How a step-7 count is found.</b> The count of a pattern is the sum of the base paths that contain all of its items. For {K,E,O}: the O base is {K,E,M:1} and {K,E:2}; both contain K and E, so the count is 1 + 2 = 3.</p>
+<div class="tip">Correction to your notes: the O patterns are written with count 4 ({K,O:4}, {E,O:4}, {K,E,O:4}) and step 6 shows {K,E:4} for O. O appears only in T1, T2 and T5, so its count is 3, and the correct values are 3. Check: Apriori on the same data gives L₂ = KE 4, KM 3, KO 3, KY 3, EO 3 and L₃ = KEO 3, the same 11 itemsets.</div>
+</div></details>
+
+<h2 id="ex2">4. Worked example: the book’s Example 6.5 (min_sup = 2)</h2>
+<details><summary>Table 6.1 with a two-branch conditional tree</summary><div class="in">
+<div class="f">Step 1: I1 6, I2 7, I3 6, I4 2, I5 2 (all kept)      Step 2: I2:7, I1:6, I3:6, I4:2, I5:2
+
+Step 3 (ordered itemsets)
+T100 I2,I1,I5     T200 I2,I4     T300 I2,I3     T400 I2,I1,I4     T500 I1,I3
+T600 I2,I3        T700 I1,I3     T800 I2,I1,I3,I5     T900 I2,I1,I3
+
+Step 4: tree
+null
+├─ I2:7
+│   ├─ I1:4
+│   │   ├─ I5:1
+│   │   ├─ I4:1
+│   │   └─ I3:2
+│   │       └─ I5:1
+│   ├─ I4:1
+│   └─ I3:2
+└─ I1:2
+    └─ I3:2
+
+Steps 5 and 6
+I5  base {I2,I1:1} {I2,I1,I3:1}           I3 has total 1 → dropped → ⟨I2:2, I1:2⟩ (one path)
+I4  base {I2,I1:1} {I2:1}                 I1 has total 1 → dropped → ⟨I2:2⟩
+I3  base {I2,I1:2} {I2:2} {I1:2}          I2 4, I1 4            → ⟨I2:4, I1:2⟩ and ⟨I1:2⟩ (two branches)
+I1  base {I2:4}                                                  → ⟨I2:4⟩
+
+Step 7
+I5  {I2,I5:2}  {I1,I5:2}  {I2,I1,I5:2}
+I4  {I2,I4:2}
+I3  {I2,I3:4}  {I1,I3:4}  {I2,I1,I3:2}
+I1  {I2,I1:4}</div>
+<p class="ans">5 single items + 8 patterns = 13 frequent itemsets, the same 13 that Apriori finds on this data.</p>
+<p><b>One path or several.</b> When the conditional tree is a <b>single path</b> (like I5), every combination of its nodes is a pattern, each with the smallest count on the chosen nodes. With <b>several branches</b> (like I3), find each pattern’s count by summing the base paths that contain all its items: {I1,I3} = {I2,I1:2} + {I1:2} = 4.</p>
+<p class="ref">Han et al., §6.2.4, Example 6.5, Figures 6.7–6.9, Table 6.2.</p></div></details>
+
+<h2 id="how">5. How-to details</h2>
+<details><summary>Building the tree without mistakes</summary><div class="in">
+<ol>
+<li>Work through the ordered transactions one at a time. Start at the root.</li>
+<li>For each item in the transaction, in order: if the current node already has a child with that item, move into it and add 1; otherwise create a new child with count 1 and move into it.</li>
+<li>Never reorder items inside a transaction and never skip an item, even if a branch already exists elsewhere in the tree.</li>
+<li>Keep a header table (item to all its nodes). It lets you find the nodes of an item for step 5 without searching.</li>
+<li>Final check: for every item, the counts of all its nodes add up to its step-1 count.</li>
+</ol></div></details>
+<details><summary>Conditional pattern bases and trees</summary><div class="in">
+<ul>
+<li>Mine the items from the <b>least frequent</b> (bottom of the ordering) upwards. Its paths are short and each frequent pattern is found exactly once, as the suffix plus a pattern from its conditional tree. The item at the top of the ordering (K or I2) has no prefix paths, so it has no base.</li>
+<li>For each node of the item, write the path from its parent up to (not including) the root, <b>with the node’s count</b>. Skip a node with an empty path.</li>
+<li>For the conditional tree, total each item’s counts across all paths of the base. Keep items with a total of at least the threshold, and merge the paths that start the same way.</li>
+<li>Step 7: take every non-empty subset of the kept items and add the suffix item. Each pattern’s count is the sum of the base paths that contain all the subset’s items, and it must still be at least the threshold.</li>
+</ul></div></details>
+
+<h2 id="calc">6. Check your own answer: FP-growth calculator</h2>
+<div class="calc">
+<p style="margin-top:0">One transaction per line, items separated by commas (an optional label before a colon is allowed). It prints the tables of your notes, steps 1 to 7. Minimum support: a count (<code>3</code>) or a percentage (<code>60%</code>). Items with equal counts are ordered by name.</p>
+<label for="tx" style="font-size:.85rem;color:var(--muted)">Transactions</label>
+<textarea id="tx" spellcheck="false">T1: E, K, M, N, O, Y
+T2: D, E, K, N, O, Y
+T3: A, E, K, M
+T4: C, K, M, U, Y
+T5: C, E, I, K, O, O</textarea>
+<div class="row">
+<label>Min support <input type="text" id="ms" value="3" inputmode="text"></label>
+<button class="btn go" id="go" type="button">Run FP-growth</button>
+</div>
+<div id="out" aria-live="polite"></div>
+</div>
+
+<h2 id="tips">7. Exam checklist and common mistakes</h2>
+<details open><summary>Layout to write in the exam</summary><div class="in">
+<ol>
+<li>State the threshold as a count (for example 60% of 5 = 3).</li>
+<li>Step 1: the count of every item, with the excluded ones marked. Step 2: the descending set.</li>
+<li>Step 3: the table with updated and ordered itemsets.</li>
+<li>Step 4: the tree, with counts on every node (and the header table if asked).</li>
+<li>Step 5: the conditional pattern base for every item except the top one.</li>
+<li>Step 6: the conditional FP-tree (the totals, and what was dropped).</li>
+<li>Step 7: the frequent itemsets for each item, then the final list including the single items.</li>
+</ol>
+<p><b>Common mistakes</b></p>
+<ul>
+<li>Leaving the below-threshold items in the ordered transactions.</li>
+<li>Changing the tie order between transactions.</li>
+<li>Counting a repeated item in one transaction twice.</li>
+<li>Forgetting the single frequent items in the final answer.</li>
+<li>Dropping the count of the suffix item’s node when copying a path into the base (each path carries the node’s count, not 1).</li>
+<li>Using the wrong count for a pattern: use the smallest count on one path, or the sum over the paths that contain all the items.</li>
+</ul></div></details>
+<details><summary>Practice problem (answer inside)</summary><div class="in">
+<p>T1 {a, b, c}, T2 {a, b}, T3 {a, c}, T4 {b, c}, T5 {a, b, c, d}; min_sup = 3.</p>
+<div class="f">Step 1: a 4, b 4, c 4, d 1 (d excluded)       Step 2: a:4, b:4, c:4 (ties by name)
+Step 3: T1 a,b,c   T2 a,b   T3 a,c   T4 b,c   T5 a,b,c
+Step 4: null ─ a:4 ─ b:3 ─ c:2        (T1, T5 share a, b, c; T2 adds b:3; T3 adds c under a)
+                  └ c:1
+        null ─ b:1 ─ c:1              (T4)
+Step 5: c: {a,b:2} {a:1} {b:1}     b: {a:3}     a: none
+Step 6: c: a 3, b 3 (both kept) → ⟨a:3, b:2⟩ and ⟨b:1⟩ in two branches     b: ⟨a:3⟩
+Step 7: c: {a,c} = 2+1 = 3,  {b,c} = 2+1 = 3,  {a,b,c} = 2 &lt; 3 → not frequent
+        b: {a,b} = 3
+Frequent itemsets: a, b, c, ab, ac, bc   (6, the same as Apriori on this data)</div>
+<p>Tree detail: in step 4 the root has two children, a:4 and b:1. Under a:4 are b:3 (which has c:2) and c:1.</p>
+</div></details>
+
+<h2 id="refs">References</h2>
+<ul>
+<li>Han, J., Kamber, M., &amp; Pei, J. <em>Data Mining: Concepts and Techniques</em>, 3rd ed., Morgan Kaufmann, 2012. Ch. 6, §6.2.4 “A Pattern-Growth Approach for Mining Frequent Itemsets” (Example 6.5, Table 6.2).</li>
+<li>Han, J., Pei, J., &amp; Yin, Y. (2000), the original FP-growth paper, cited in the book as [HPY00].</li>
+<li>Zaki, M. J., &amp; Meira Jr., W. <em>Data Mining and Analysis: Fundamental Concepts and Algorithms</em>, Cambridge University Press, 2014. Ch. 8 “Itemset Mining”, §8.2 “Itemset Mining Algorithms” (the frequent pattern tree approach, FPGrowth).</li>
+<li>Tan, P.-N., Steinbach, M., Karpatne, A., &amp; Kumar, V. <em>Introduction to Data Mining</em>, 2nd ed. Chapter “Association Analysis: Basic Concepts and Algorithms”, section “FP-Growth Algorithm”. Section name is from memory; check it against your edition.</li>
+</ul>
+</main>
+<script>
+(function(){
+  var b=document.getElementById('all'),d=document.querySelectorAll('details'),open=false;
+  b.addEventListener('click',function(){open=!open;for(var i=0;i<d.length;i++){d[i].open=open;}b.textContent=open?'Collapse all':'Expand all';});
+})();
+(function(){
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function nat(a,b){return String(a).localeCompare(String(b),undefined,{numeric:true});}
+  function parse(txt){
+    return txt.split('\n').map(function(l){return l.trim();}).filter(Boolean).map(function(l,n){
+      var tid='T'+(n+1),i=l.indexOf(':');
+      if(i>-1&&l.slice(0,i).indexOf(',')<0){tid=l.slice(0,i).trim();l=l.slice(i+1);}
+      var parts=l.indexOf(',')>-1?l.split(','):l.split(/\s+/);
+      var items=[];parts.forEach(function(x){x=x.trim();if(x&&items.indexOf(x)<0)items.push(x);});
+      return {tid:tid,items:items};
+    });
+  }
+  function table(head,rows){
+    var h='<div class="tw"><table><tr>'+head.map(function(x){return '<th>'+x+'</th>';}).join('')+'</tr>';
+    rows.forEach(function(r){h+='<tr>'+r.map(function(x){return '<td>'+x+'</td>';}).join('')+'</tr>';});
+    return h+'</table></div>';
+  }
+  function setStr(a){return '{'+a.join(', ')+'}';}
+  function run(){
+    var T=parse(document.getElementById('tx').value),N=T.length,out=document.getElementById('out');
+    if(!N){out.innerHTML='<p class="msg">Enter at least one transaction.</p>';return;}
+    var mt=document.getElementById('ms').value.trim(),ms;
+    if(mt.slice(-1)==='%')ms=Math.ceil(N*parseFloat(mt)/100-1e-9);else ms=parseInt(mt,10);
+    if(!(ms>=1)){out.innerHTML='<p class="msg">Minimum support must be a count of 1 or more, or a percentage.</p>';return;}
+    var cnt={};T.forEach(function(t){t.items.forEach(function(x){cnt[x]=(cnt[x]||0)+1;});});
+    var items=Object.keys(cnt).sort(nat);
+    var h='<p class="msg">'+N+' transactions, minimum support count = '+ms+'.</p>';
+    h+='<h3>Step 1: support count of every item</h3>'+table(['Item','Count','Kept?'],items.map(function(x){return [esc(x),cnt[x],cnt[x]>=ms?'yes':'<span class="no">excluded</span>'];}));
+    var F=items.filter(function(x){return cnt[x]>=ms;}).sort(function(a,b){return cnt[b]-cnt[a]||nat(a,b);});
+    if(!F.length){out.innerHTML=h+'<p class="msg">No item reaches the threshold, so there are no frequent itemsets.</p>';return;}
+    var rank={};F.forEach(function(x,i){rank[x]=i;});
+    h+='<h3>Step 2: descending order</h3><p>{ '+esc(F.map(function(x){return x+':'+cnt[x];}).join(', '))+' }</p>';
+    var ord=T.map(function(t){var u=t.items.filter(function(x){return cnt[x]>=ms;});var o=u.slice().sort(function(a,b){return rank[a]-rank[b];});return {tid:t.tid,orig:t.items,upd:u,ord:o};});
+    h+='<h3>Step 3: updated and ordered itemsets</h3>'+table(['ID','Original','Updated (no excluded items)','Ordered'],ord.map(function(o){return [esc(o.tid),esc(setStr(o.orig)),esc(setStr(o.upd)),esc(setStr(o.ord))];}));
+    var root={item:null,count:0,kids:[],parent:null},by={};
+    ord.forEach(function(o){var cur=root;o.ord.forEach(function(it){var ch=null;cur.kids.forEach(function(k){if(k.item===it)ch=k;});if(!ch){ch={item:it,count:0,kids:[],parent:cur};cur.kids.push(ch);(by[it]=by[it]||[]).push(ch);}ch.count++;cur=ch;});});
+    var lines=['null'];
+    (function draw(n,pre){n.kids.forEach(function(k,i){var last=i===n.kids.length-1;lines.push(pre+(last?'└─ ':'├─ ')+k.item+':'+k.count);draw(k,pre+(last?'   ':'│  '));});})(root,'');
+    h+='<h3>Step 4: FP-tree</h3><div class="f">'+esc(lines.join('\n'))+'</div>';
+    var rows5=[],rows6=[],rows7=[],pats=[];
+    F.slice().reverse().forEach(function(it){
+      var paths=[];
+      (by[it]||[]).forEach(function(nd){var p=[],q=nd.parent;while(q&&q.item!==null){p.unshift(q.item);q=q.parent;}if(p.length)paths.push({p:p,c:nd.count});});
+      if(!paths.length){rows5.push([esc(it),'<span class="msg">none (top of the order)</span>']);return;}
+      rows5.push([esc(it),esc(paths.map(function(x){return '{'+x.p.join(',')+':'+x.c+'}';}).join(' '))]);
+      var tot={};paths.forEach(function(x){x.p.forEach(function(y){tot[y]=(tot[y]||0)+x.c;});});
+      var S=Object.keys(tot).filter(function(y){return tot[y]>=ms;}).sort(function(a,b){return rank[a]-rank[b];});
+      rows6.push([esc(it),esc(Object.keys(tot).sort(function(a,b){return rank[a]-rank[b];}).map(function(y){return y+' '+tot[y];}).join(', ')),S.length?esc('⟨'+S.map(function(y){return y+':'+tot[y];}).join(', ')+'⟩'):'<span class="no">empty</span>']);
+      if(S.length>14){rows7.push([esc(it),'too many items to list']);return;}
+      var mine=[];
+      for(var m=1;m<(1<<S.length);m++){
+        var X=S.filter(function(_,i){return m&(1<<i);}),c=0;
+        paths.forEach(function(x){if(X.every(function(y){return x.p.indexOf(y)>-1;}))c+=x.c;});
+        if(c>=ms){mine.push({items:X.concat(it),count:c});pats.push({items:X.concat(it),count:c});}
+      }
+      mine.sort(function(a,b){return a.items.length-b.items.length;});
+      rows7.push([esc(it),mine.length?esc(mine.map(function(x){return '{'+x.items.join(',')+'}:'+x.count;}).join('  ')):'<span class="msg">none</span>']);
+    });
+    h+='<h3>Step 5: conditional pattern base</h3>'+table(['Item','Paths (prefix : count)'],rows5);
+    h+='<h3>Step 6: conditional FP-tree</h3>'+table(['Item','Total of each item in the base','Conditional FP-tree (kept ≥ '+ms+')'],rows6);
+    h+='<h3>Step 7: frequent itemsets with the item as suffix</h3>'+table(['Item','Frequent itemsets'],rows7);
+    var all=F.map(function(x){return {items:[x],count:cnt[x]};}).concat(pats);
+    h+='<h3>All frequent itemsets ('+all.length+')</h3><p>'+esc(all.map(function(x){return '{'+x.items.join(', ')+'}:'+x.count;}).join('   '))+'</p>';
+    out.innerHTML=h;
+  }
+  document.getElementById('go').addEventListener('click',run);
+  run();
+})();
+</script>
+</body>
+</html>
