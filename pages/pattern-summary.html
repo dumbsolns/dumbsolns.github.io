@@ -37,6 +37,7 @@ a:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
 .deeper{margin:.2rem 0 .9rem}
 .deeper a{display:inline-block;padding:6px 12px;border:1px solid var(--ac);border-radius:8px;color:var(--ac);text-decoration:none;font-weight:600;font-size:.92rem}
 .deeper a:hover,.deeper a:focus-visible{background:var(--ac);color:var(--bg)}
+.deeper a+a{margin-left:8px}
 .deeper span{color:var(--mute);font-size:.86rem;margin-left:6px}
 @media(max-width:520px){h1{font-size:1.55rem}section{padding:14px 12px}body{font-size:15.5px}}
 </style>
@@ -45,18 +46,18 @@ a:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
 <header>
  <div class="bar"><a class="back" href="/">&larr; Back to home</a><b>Pattern Recognition (CSE4113 / CSE4213)</b></div>
  <nav aria-label="Chapters">
-  <a href="#c1">1 Intro</a><a href="#c2">2 Linear models</a><a href="#c3">3 SVM</a><a href="#c4">4 Bayes decision</a><a href="#c5">5 Estimation</a><a href="#c6">6 PCA</a><a href="#c7">7 LDA</a><a href="#c8">8 Clustering</a><a href="#c9">9 RL</a><a href="#c10">10 Evaluation</a><a href="#cs">Cheat sheet</a><a href="pattern-solves.html">Solved questions</a>
+  <a href="#c1">1 Intro</a><a href="#c2">2 Linear models</a><a href="#c3">3 SVM</a><a href="#c4">4 Bayes decision</a><a href="#c5">5 Estimation</a><a href="#c6">6 PCA</a><a href="#c7">7 LDA</a><a href="#c8">8 Clustering</a><a href="#c9">9 RL</a><a href="#c10">10 Evaluation</a><a href="#cs">Cheat sheet</a><a href="pattern-solves.html">Solved questions</a><a href="pattern/derivations.html">Derivations</a>
  </nav>
 </header>
 <main>
 <h1>Exam overview: everything taught in class</h1>
-<p class="lead">Ten topics in lecture order, with key formulas and book references. Chapter numbers refer to the editions most commonly used (Bishop 2006, Duda, Hart &amp; Stork 2nd ed., Sutton &amp; Barto 2nd ed.); check them against your own copy. Every chapter has a <b>Go deeper</b> link to a full page for that topic (derivations, worked examples, widgets, exam kit). Worked answers to the past papers are in <a href="pattern-solves.html">the solved questions</a>.</p>
+<p class="lead">Ten topics in lecture order, with key formulas and book references. Chapter numbers refer to the editions most commonly used (Bishop 2006, Duda, Hart &amp; Stork 2nd ed., Sutton &amp; Barto 2nd ed.); check them against your own copy. Every chapter has a <b>Go deeper</b> link to a full page for that topic (derivations, worked examples, widgets, exam kit). Worked answers to the past papers are in <a href="pattern-solves.html">the solved questions</a>. Every derivation, step by step, is on <a href="pattern/derivations.html">one searchable page</a>.</p>
 <p class="note"><b>Course books:</b> (B) Bishop, <i>Pattern Recognition and Machine Learning</i>; (D) Duda, Hart &amp; Stork, <i>Pattern Classification</i>; (S) Schalkoff, <i>Pattern Recognition: Statistical, Structural and Neural Approaches</i>. Extra sources used in slides: (SB) Sutton &amp; Barto, <i>Reinforcement Learning</i>; (M) Mitchell, <i>Machine Learning</i>; (T) Tan, Steinbach &amp; Kumar, <i>Introduction to Data Mining</i>.</p>
 
 <section id="c1">
 <h2>1. Introduction, features and the design cycle</h2>
 <div class="bk"><i>Read:</i> D Ch. 1 "Introduction" (fish example, design cycle); B Ch. 1 "Introduction" (curve fitting, model selection, curse of dimensionality); B &sect;3.2 "The Bias-Variance Decomposition".</div>
-<p class="deeper"><a href="pattern/intro-design-cycle.html">Go deeper: Introduction, overfitting and the design cycle</a><span>fish example, overfitting with measured numbers, design-cycle templates, curve-fitting widget</span></p>
+<p class="deeper"><a href="pattern/intro-design-cycle.html">Go deeper: Introduction, overfitting and the design cycle</a><a href="pattern/derivations.html#ch1">Derivations</a><span>fish example, overfitting with measured numbers, design-cycle templates, curve-fitting widget</span></p>
 <ul>
 <li><b>Pattern recognition:</b> assigning an unknown object to a class from measured data. Two modes: <b>classification</b> (known categories) and <b>clustering</b> (learning categories). Applications: OCR, biometrics (fingerprint, iris, face), speech, medical diagnosis, bioinformatics, remote sensing, license plates.</li>
 <li><b>Pattern class:</b> a collection of similar objects. Difficulty comes from <b>intra-class variability</b> (many ways to write a "3") and <b>inter-class similarity</b> (identical twins, 0/D, 8/B).</li>
@@ -72,7 +73,7 @@ a:focus-visible{outline:3px solid var(--ac2);outline-offset:2px}
 <section id="c2">
 <h2>2. Linear discriminants, least squares, perceptron</h2>
 <div class="bk"><i>Read:</i> B Ch. 4 "Linear Models for Classification": &sect;4.1.1 Two classes, &sect;4.1.2 Multiple classes, &sect;4.1.3 Least squares for classification, &sect;4.1.7 The perceptron algorithm. D Ch. 5 "Linear Discriminant Functions".</div>
-<p class="deeper"><a href="pattern/perceptron.html">Go deeper: Linear discriminants, least squares and the perceptron</a><span>geometry, least-squares derivation, perceptron proof, step-through widget</span></p>
+<p class="deeper"><a href="pattern/perceptron.html">Go deeper: Linear discriminants, least squares and the perceptron</a><a href="pattern/derivations.html#ch2">Derivations</a><span>geometry, least-squares derivation, perceptron proof, step-through widget</span></p>
 <div class="f">y(x) = w<sup>T</sup>x + w0      class C1 if y(x) &ge; 0, else C2
 boundary: y(x) = 0   (w is normal to the hyperplane)
 signed distance of x:  r = y(x) / ||w||
@@ -99,7 +100,7 @@ Each update lowers the error of that point. Converges only if the data are <b>li
 <section id="c3">
 <h2>3. Support vector machines</h2>
 <div class="bk"><i>Read:</i> B Ch. 7 "Sparse Kernel Machines", &sect;7.1 "Maximum Margin Classifiers" (with Appendix E "Lagrange Multipliers"); D Ch. 5 &sect;5.11 "Support Vector Machines"; B Ch. 6 "Kernel Methods" for kernels.</div>
-<p class="deeper"><a href="pattern/svm.html">Go deeper: Support vector machines</a><span>full Lagrangian and dual derivation, KKT, soft margin, kernels, worked examples</span></p>
+<p class="deeper"><a href="pattern/svm.html">Go deeper: Support vector machines</a><a href="pattern/derivations.html#ch3">Derivations</a><span>full Lagrangian and dual derivation, KKT, soft margin, kernels, worked examples</span></p>
 <ul>
 <li>Many hyperplanes separate the data; choose the one with the <b>maximum margin</b> (Vapnik &amp; Chervonenkis, 1960s; popular after 1992).</li>
 <li>Margin lines: <code>w&middot;x+b = +1</code> and <code>-1</code>, margin = <code>2/||w||</code>. Maximising margin = minimising <code>&frac12;||w||&sup2;</code>:
@@ -117,7 +118,7 @@ classify: f(z) = sign(w&middot;z + b)</div></li>
 <section id="c4">
 <h2>4. Bayesian decision theory</h2>
 <div class="bk"><i>Read:</i> D Ch. 2 "Bayesian Decision Theory" (&sect;2.1&ndash;2.10: minimum-error-rate classification, discriminant functions, normal density, error bounds, ROC, discrete and missing features; &sect;2.12 compound decisions); B &sect;1.5 "Decision Theory".</div>
-<p class="deeper"><a href="pattern/bayesian-decision-theory.html">Go deeper: Bayesian decision theory</a><span>risk and loss, all three Gaussian cases derived, error bounds, ROC, boundary widget</span></p>
+<p class="deeper"><a href="pattern/bayesian-decision-theory.html">Go deeper: Bayesian decision theory</a><a href="pattern/derivations.html#ch4">Derivations</a><span>risk and loss, all three Gaussian cases derived, error bounds, ROC, boundary widget</span></p>
 <ul>
 <li><b>Terms:</b> prior P(&omega;_j), likelihood p(x|&omega;_j), evidence p(x), posterior P(&omega;_j|x).
 <div class="f">P(&omega;_j|x) = p(x|&omega;_j) P(&omega;_j) / p(x)       posterior = likelihood &times; prior / evidence</div></li>
@@ -144,7 +145,7 @@ Two classes: decide &omega;1 if <code>(&lambda;21-&lambda;11) p(x|&omega;1)P(&om
 <section id="c5">
 <h2>5. Parameter estimation: MLE, Bayesian estimation, MAP</h2>
 <div class="bk"><i>Read:</i> D Ch. 3 "Maximum-Likelihood and Bayesian Parameter Estimation" (&sect;3.2 Maximum Likelihood, &sect;3.3&ndash;3.4 Bayesian Estimation: Gaussian case, &sect;3.7 Problems of Dimensionality); B &sect;2.3.4 "Maximum likelihood for the Gaussian", &sect;2.3.6 "Bayesian inference for the Gaussian", &sect;1.2.5 "Curve fitting re-visited" (MAP).</div>
-<p class="deeper"><a href="pattern/parameter-estimation.html">Go deeper: Parameter estimation: MLE, Bayesian, MAP</a><span>MLE derivations, bias of the variance, posterior-updating widget</span></p>
+<p class="deeper"><a href="pattern/parameter-estimation.html">Go deeper: Parameter estimation: MLE, Bayesian, MAP</a><a href="pattern/derivations.html#ch5">Derivations</a><span>MLE derivations, bias of the variance, posterior-updating widget</span></p>
 <ul>
 <li><b>Problem:</b> priors and class-conditional densities are rarely known. Assume a parametric form (e.g. Gaussian) and estimate &theta; from training data. Priors are easy; densities, especially in high dimensions, are hard.</li>
 <li><b>MLE:</b> &theta; is fixed but unknown. Samples are i.i.d.; classes are treated separately.
@@ -165,7 +166,7 @@ Two classes: decide &omega;1 if <code>(&lambda;21-&lambda;11) p(x|&omega;1)P(&om
 <section id="c6">
 <h2>6. Principal component analysis (PCA)</h2>
 <div class="bk"><i>Read:</i> B &sect;12.1 "Principal Component Analysis" (Ch. 12 "Continuous Latent Variables"); D Ch. 3 &sect;3.8.1 "Principal Component Analysis (PCA)".</div>
-<p class="deeper"><a href="pattern/pca.html">Go deeper: Principal component analysis</a><span>intuition, Lagrange derivation, the 10-point example, rotating-line widget</span></p>
+<p class="deeper"><a href="pattern/pca.html">Go deeper: Principal component analysis</a><a href="pattern/derivations.html#ch6">Derivations</a><span>intuition, Lagrange derivation, the 10-point example, rotating-line widget</span></p>
 <ul>
 <li><b>Goal:</b> data compression / dimensionality reduction (2D&rarr;1D, 3D&rarr;2D) by keeping directions of <b>maximum variance</b>, because variation carries information. PC1 is the direction of largest spread; PC2 is orthogonal to it (zero redundancy). Components are blends of original features, not simply dropped features.</li>
 <li><b>Background:</b> mean, variance, covariance (positive: increase together; negative: opposite; zero: independent), covariance matrix S. Eigenvector: <code>Av = &lambda;v</code>; eigenvalues measure variation.</li>
@@ -181,7 +182,7 @@ Largest eigenvalue's eigenvector = PC1. S uses 1/(n-1).</li>
 <section id="c7">
 <h2>7. Linear discriminant analysis (Fisher LDA)</h2>
 <div class="bk"><i>Read:</i> B &sect;4.1.4 "Fisher's linear discriminant" and &sect;4.1.6 "Fisher's discriminant for multiple classes"; D Ch. 3 &sect;3.8.2 "Fisher Linear Discriminant" and &sect;3.8.3 "Multiple Discriminant Analysis".</div>
-<p class="deeper"><a href="pattern/lda.html">Go deeper: Linear discriminant analysis</a><span>Fisher criterion derivation, the slide example in full, projection widget</span></p>
+<p class="deeper"><a href="pattern/lda.html">Go deeper: Linear discriminant analysis</a><a href="pattern/derivations.html#ch7">Derivations</a><span>Fisher criterion derivation, the slide example in full, projection widget</span></p>
 <ul>
 <li><b>Objective:</b> reduce dimension while preserving <b>class discriminatory information</b> (PCA ignores classes). Project onto a hyperplane of dimension C-1.</li>
 <li><b>Fisher criterion (two classes):</b> distance between projected means alone is not enough (it ignores spread). Maximise separation of means relative to within-class scatter:
@@ -197,7 +198,7 @@ solution: eigenvectors of S_W<sup>-1</sup> S_B ;  two classes: w* &prop; S_W<sup
 <section id="c8">
 <h2>8. Clustering: k-means and hierarchical</h2>
 <div class="bk"><i>Read:</i> D Ch. 10 "Unsupervised Learning and Clustering" (&sect;10.6 Data Description and Clustering (similarity measures), &sect;10.7 Criterion Functions for Clustering, &sect;10.8 Iterative Optimization, &sect;10.9 Hierarchical Clustering; k-means also appears in &sect;10.4.3); B &sect;9.1 "K-means Clustering"; T Ch. 8 "Cluster Analysis: Basic Concepts and Algorithms" (linkage methods).</div>
-<p class="deeper"><a href="pattern/clustering.html">Go deeper: Clustering: k-means and hierarchical</a><span>k-means convergence proof, step-through widget, linkage methods, worked examples</span></p>
+<p class="deeper"><a href="pattern/clustering.html">Go deeper: Clustering: k-means and hierarchical</a><a href="pattern/derivations.html#ch8">Derivations</a><span>k-means convergence proof, step-through widget, linkage methods, worked examples</span></p>
 <ul>
 <li><b>Clustering:</b> group objects so that intra-cluster distances are small and inter-cluster distances large. Needs a proximity measure, a criterion function, and an algorithm. Questions: how many clusters? Applications: gene expression, face and news clustering, marketing, land use, climate.</li>
 <li><b>Distances:</b> Euclidean (L2), Manhattan (L1), Chebyshev / supremum (L&infin;), Minkowski <code>(&sum;|x_i-y_i|<sup>h</sup>)<sup>1/h</sup></code>. Similarity: <b>cosine</b> <code>x&middot;y/(||x|| ||y||)</code> (scale invariant, text), correlation coefficient. Feature scaling can hurt if variance comes from cluster structure. Example: x1=(1,2), x2=(3,5): Euclidean 3.61, Manhattan 5, supremum 3.</li>
@@ -217,7 +218,7 @@ solution: eigenvectors of S_W<sup>-1</sup> S_B ;  two classes: w* &prop; S_W<sup
 <section id="c9">
 <h2>9. Reinforcement learning</h2>
 <div class="bk"><i>Read:</i> SB Ch. 3 "Finite Markov Decision Processes" (returns, value functions, Bellman equations, optimal policies); SB Ch. 6 "Temporal-Difference Learning" (&sect;6.5 Q-learning); Mnih et al. (2015) "Human-level control through deep reinforcement learning" for DQN. Not covered by the three course textbooks.</div>
-<p class="deeper"><a href="pattern/reinforcement-learning.html">Go deeper: Reinforcement learning</a><span>MDPs, Bellman equations, Q-learning, DQN, the car example worked through</span></p>
+<p class="deeper"><a href="pattern/reinforcement-learning.html">Go deeper: Reinforcement learning</a><a href="pattern/derivations.html#ch9">Derivations</a><span>MDPs, Bellman equations, Q-learning, DQN, the car example worked through</span></p>
 <ul>
 <li><b>Idea:</b> when labelled examples are unavailable, an <b>agent</b> takes <b>actions</b> in an <b>environment</b> and receives a <b>new state</b> and a <b>reward</b> (chess, robots, driving).</li>
 <li><b>MDP:</b> states S, actions A, transition probability <code>T(s,a,s')</code>, reward <code>R(s,a,s')</code>, discount &gamma;. A <b>policy</b> &pi;(a|s) is the strategy; goal = optimal policy.</li>
@@ -236,7 +237,7 @@ Q*(s,a) = E[R_{t+1} + &gamma; max_a' Q*(S_{t+1}, a')]       &pi;* has V(s) = max
 <section id="c10">
 <h2>10. Evaluating learning methods</h2>
 <div class="bk"><i>Read:</i> M Ch. 5 "Evaluating Hypotheses" (confidence intervals, t-tests); B &sect;1.3 "Model Selection" (cross-validation); D Ch. 9 &sect;9.6 "Resampling for Estimating Statistics" and &sect;9.7 "Estimating and Comparing Classifiers"; Fawcett (2006) "An introduction to ROC analysis".</div>
-<p class="deeper"><a href="pattern/model-evaluation.html">Go deeper: Evaluating learning methods</a><span>cross-validation, metrics, ROC, confidence intervals, significance tests, threshold widget</span></p>
+<p class="deeper"><a href="pattern/model-evaluation.html">Go deeper: Evaluating learning methods</a><a href="pattern/derivations.html#ch10">Derivations</a><span>cross-validation, metrics, ROC, confidence intervals, significance tests, threshold widget</span></p>
 <ul>
 <li><b>Splitting:</b> never let test labels influence learning. Training / validation (tuning) / test sets. A single split wastes data and can be unrepresentative. <b>Learning curves</b> plot accuracy against training size. <b>Random resampling</b> repeats splits; <b>stratified sampling</b> keeps class proportions.</li>
 <li><b>Cross-validation:</b> n folds, each fold tested once (e.g. 5 folds with 11+17+16+13+16 correct of 100 gives 73%). 10-fold is common; <b>leave-one-out</b> sets n = #instances. <b>Internal CV</b> inside each training set selects hyperparameters (e.g. k in k-NN). CV evaluates a <i>learning method</i>, not a single model.</li>
